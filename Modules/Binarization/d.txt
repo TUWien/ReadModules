@@ -1,0 +1,1 @@
+x64 x64/binarizationPlugin.dll
