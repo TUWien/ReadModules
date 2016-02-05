@@ -44,6 +44,6 @@ script:
   - cmake $CMAKE_ARGS ../../ReadFramework
   - make -j8
   - cd ..
-  - cmake $CMAKE_ARGS -Dnomacs_DIR=./nomacs-build -DReadFramework_DIR=./ReadFramework ../.
+  - cmake $CMAKE_ARGS -Dnomacs_DIR=`pwd`/nomacs-build -DReadFramework_DIR=`pwd`/readframework-build ../.
   - make -j8
   
