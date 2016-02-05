@@ -84,10 +84,28 @@ macro(RDM_PREPARE_PLUGIN)
   
 endmacro(RDM_PREPARE_PLUGIN)
 
+macro(RDM_FIND_RDF)
+      
+  if(NOT RDF_VARS_ALREADY_SET) # is set when building framework and plugins at the sime time with linux
+		
+	find_package(ReadFramework)
+		
+    if(NOT RDF_FOUND)
+      SET(RDF_BUILD_DIRECTORY "NOT_SET" CACHE PATH "Path to the READ Framework build directory")
+      IF (${RDF_BUILD_DIRECTORY} STREQUAL "NOT_SET")
+        MESSAGE(FATAL_ERROR "You have to set the READ Framework build directory")
+      ENDIF()
+    endif()
+	
+  endif(NOT RDF_VARS_ALREADY_SET)
+      
+endmacro(RDM_FIND_RDF)
+
 # you can use this NMC_CREATE_TARGETS("myAdditionalDll1.dll" "myAdditionalDll2.dll")
 macro(RDM_CREATE_TARGETS)
 	
   set(ADDITIONAL_DLLS ${ARGN})
+  
   list(LENGTH ADDITIONAL_DLLS NUM_ADDITONAL_DLLS) 
   if( ${NUM_ADDITONAL_DLLS} GREATER 0) 
     foreach(DLL ${ADDITIONAL_DLLS})
@@ -105,7 +123,7 @@ IF (MSVC)
 	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${NOMACS_BUILD_DIRECTORY}/$<CONFIGURATION>/plugins/)
   if(${NUM_ADDITONAL_DLLS} GREATER 0) 
     foreach(DLL ${ADDITIONAL_DLLS})
-      add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bin/${DLL} ${NOMACS_BUILD_DIRECTORY}/$<CONFIGURATION>/plugins/)
+      add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${DLL} ${NOMACS_BUILD_DIRECTORY}/$<CONFIGURATION>/)
     endforeach()
   endif()
   
@@ -163,14 +181,4 @@ elseif(UNIX)
 	install(TARGETS ${PROJECT_NAME} RUNTIME LIBRARY DESTINATION lib/nomacs-plugins)
 endif(MSVC)
 endmacro(RDM_CREATE_TARGETS)
-
-macro (RDM_EXIV_INCLUDES)
-
-# todo: this is a hack - fix it please
-find_path(EXIV2_INCLUDE_DIRS "exiv2/exiv2.hpp" 
-				PATHS "../exiv2-0.25/include" 
-				DOC "Path to exiv2/exiv2.hpp" NO_DEFAULT_PATH)
-MARK_AS_ADVANCED(EXIV2_INCLUDE_DIRS)
-
-endmacro (RDM_EXIV_INCLUDES)
 

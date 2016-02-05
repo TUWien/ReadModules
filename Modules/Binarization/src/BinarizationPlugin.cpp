@@ -24,6 +24,10 @@
 
 #include "BinarizationPlugin.h"
 
+#include "Algorithms.h"
+#include "Binarization.h"
+#include "DkImageStorage.h"
+
 #pragma warning(push, 0)	// no warnings from includes - begin
 #include <QAction>
 #pragma warning(pop)		// no warnings from includes - end
@@ -81,7 +85,7 @@ QString BinarizationPlugin::pluginID() const {
 **/
 QString BinarizationPlugin::pluginName() const {
 
-	return tr("&Document Binarization");
+	return tr("Document Binarization");
 };
 
 /**
@@ -171,11 +175,26 @@ QSharedPointer<nmc::DkImageContainer> BinarizationPlugin::runPlugin(const QStrin
 		return imgC;
 
 	if(runID == mRunIDs[id_binarize_otsu]) {
-		imgC->setImage(imgC->image().mirrored(), tr("Otsu Binarization"));
+	
+		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
+		imgCv = rdf::Algorithms::instance().threshOtsu(imgCv);
+		QImage img = nmc::DkImage::mat2QImage(imgCv);
+		img = img.convertToFormat(QImage::Format_ARGB32);
+		imgC->setImage(img, tr("Otsu Binarization"));
 	}
-	//else if(runID == mRunIDs[id_binarize_su]) {
-	//	imgC->setImage(imgC->image().mirrored(true), tr("Su Binarization"));
-	//}
+	else if(runID == mRunIDs[id_binarize_su]) {
+		
+		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
+		
+		rdf::BinarizationSuAdapted segSuM(imgCv);
+		segSuM.compute();
+		imgCv = segSuM.binaryImage();
+
+		QImage img = nmc::DkImage::mat2QImage(imgCv);
+		img = img.convertToFormat(QImage::Format_ARGB32);
+
+		imgC->setImage(img, tr("Su Binarization"));
+	}
 
 	// wrong runID? - do nothing
 	return imgC;
