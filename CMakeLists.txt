@@ -5,8 +5,8 @@ cmake_minimum_required(VERSION 3.0)
 # include macros needed
 include("./cmake/Utils.cmake")
 
-IF(EXISTS ${CMAKE_SOURCE_DIR}/CMakeUser.txt)
-	include(${CMAKE_SOURCE_DIR}/CMakeUser.txt)
+IF(EXISTS ${CMAKE_SOURCE_DIR}/CMakeUser.cmake)
+	include(${CMAKE_SOURCE_DIR}/CMakeUser.cmake)
 ENDIF()
 
 OPTION (ENABLE_PAGE_VIS "Compile PAGE Visualization plugin" OFF)
