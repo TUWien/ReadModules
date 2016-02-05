@@ -41,7 +41,7 @@ script:
   # actually there is no need to build nomacs
   #- make -j8
   - cd ../readframework-build
-  - cmake $CMAKE_ARGS ../ReadFramework
+  - cmake $CMAKE_ARGS ../../ReadFramework
   - make -j8
   - cd ..
   - cmake $CMAKE_ARGS -Dnomacs_DIR=./nomacs-build -DReadFramework_DIR=./ReadFramework ../.
