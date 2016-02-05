@@ -38,8 +38,7 @@ before_script:
 script:
   - cd nomacs-build
   - cmake $CMAKE_ARGS ../../nomacs/ImageLounge
-  # actually there is no need to build nomacs
-  #- make -j8
+  - make -j8
   - cd ../readframework-build
   - cmake $CMAKE_ARGS ../../ReadFramework
   - make -j8
