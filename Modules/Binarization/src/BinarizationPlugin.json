@@ -1,3 +1,9 @@
 {
-    "name" : [ "BinarizationPlugin" ]
+    "PluginName" 	: "Document Binarization",
+	"AuthorName" 	: "Markus Diem",
+	"Company"		: "Computer Vision Lab",
+	"DateCreated" 	: "04.02.2016",
+	"DateModified" 	: "04.02.2016",
+	"Description"	: "Document Binarization Plugin",
+	"StatusTip" 	: "Applies e.g. the Su et al. binarzation to an image."
 }

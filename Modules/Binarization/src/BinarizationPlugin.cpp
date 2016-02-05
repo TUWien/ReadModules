@@ -67,79 +67,35 @@ BinarizationPlugin::BinarizationPlugin(QObject* parent) : QObject(parent) {
 *	Destructor
 **/
 BinarizationPlugin::~BinarizationPlugin() {
+
+	qDebug() << "destroying binarization plugin...";
 }
 
 
 /**
 * Returns unique ID for the generated dll
 **/
-QString BinarizationPlugin::pluginID() const {
+QString BinarizationPlugin::id() const {
 
 	return PLUGIN_ID;
-};
-
-
-/**
-* Returns plugin name
-* @param plugin ID
-**/
-QString BinarizationPlugin::pluginName() const {
-
-	return tr("Document Binarization");
-};
-
-/**
-* Returns long description for every ID
-* @param plugin ID
-**/
-QString BinarizationPlugin::pluginDescription() const {
-
-	return "<b>Created by:</b> #YOUR_NAME <br><b>Modified:</b>04.02.2016<br><b>Description:</b> This Plugin thresholds images with an extended Su et al. binarization..";
 };
 
 /**
 * Returns descriptive iamge for every ID
 * @param plugin ID
 **/
-QImage BinarizationPlugin::pluginDescriptionImage() const {
+QImage BinarizationPlugin::image() const {
 
-	return QImage(":/#PLUGIN_NAME/img/your-image.png");
+	return QImage(":/BinarizationPlugin/img/read.png");
 };
 
 /**
 * Returns plugin version for every ID
 * @param plugin ID
 **/
-QString BinarizationPlugin::pluginVersion() const {
+QString BinarizationPlugin::version() const {
 
 	return PLUGIN_VERSION;
-};
-
-/**
-* Returns unique IDs for every plugin in this dll
-**/
-QStringList BinarizationPlugin::runID() const {
-
-	//GUID without hyphens generated at http://www.guidgenerator.com/
-	return QStringList() << PLUGIN_ID;
-};
-
-/**
-* Returns plugin name for every ID
-* @param plugin ID
-**/
-QString BinarizationPlugin::pluginMenuName(const QString &runID) const {
-
-	return tr("Document Binarization");
-};
-
-/**
-* Returns short description for status tip for every ID
-* @param plugin ID
-**/
-QString BinarizationPlugin::pluginStatusTip(const QString &runID) const {
-
-	return tr("READ binarization module.");
 };
 
 QList<QAction*> BinarizationPlugin::createActions(QWidget* parent) {
