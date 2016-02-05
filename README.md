@@ -33,7 +33,7 @@ note that Qt 5.5 is needed, thus Ubuntu version must be >= 16.04 or backports of
 Get required packages:
 
 ``` console
-sudo apt-get install qt5-qmake qt5tools-dev qttools5-dev-tools qt5-default libqt5svg5 qt5-image-formats-plugins libopencv-dev cmake git
+sudo apt-get install qt5-qmake qt5tools-dev qttools5-dev-tools qt5-default libqt5svg5 qt5-image-formats-plugins libopencv-dev cmake git libexiv2-dev libraw-dev
 ```
 
 Get nomacs sources from github:
