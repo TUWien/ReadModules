@@ -43,7 +43,7 @@ script:
   - cmake $CMAKE_ARGS ../../ReadFramework
   - make -j8
   - cd ..
-  #- cmake $CMAKE_ARGS -Dnomacs_DIR=`pwd`/nomacs-build -DReadFramework_DIR=`pwd`/readframework-build ../.
-  - cmake $CMAKE_ARGS -Dnomacs_DIR=~/build/TUWien/ReadModules/build/nomacs-build -DReadFramework_DIR=~/build/TUWien/ReadModules/build/readframework-build ../.
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; cmake $CMAKE_ARGS -Dnomacs_DIR=~/build/TUWien/ReadModules/build/nomacs-build -DReadFramework_DIR=~/build/TUWien/ReadModules/build/readframework-build ../.; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; cmake $CMAKE_ARGS -Dnomacs_DIR=/Users/travis/build/TUWien/ReadModules/build/nomacs-build -DReadFramework_DIR=/Users/travis/build/TUWien/ReadModules/build/readframework-build ../.; fi
   - make -j8
   
