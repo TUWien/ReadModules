@@ -57,10 +57,7 @@ macro(RDM_PREPARE_PLUGIN)
 
   MARK_AS_ADVANCED(CMAKE_INSTALL_PREFIX)
 
-  # set(nomacs_DIR ${NOMACS_BUILD_DIRECTORY})
-    
-  if(NOT NOMACS_VARS_ALREADY_SET) # is set when building nomacs and plugins at the sime time with linux
-		
+    		
 	find_package(nomacs)
 		
     if(NOT NOMACS_FOUND)
@@ -71,11 +68,11 @@ macro(RDM_PREPARE_PLUGIN)
     endif()
     SET(NOMACS_PLUGIN_INSTALL_DIRECTORY ${CMAKE_SOURCE_DIR}/install CACHE PATH "Path to the plugin install directory for deploying")
 	
-  else() # most probably that this is a complete build of the READ framework, thus we need to set compiler/linker settings for ReallyRelease
+  if(GLOBAL_READ_BUILD) # this is a complete build of the READ framework, thus we need to set compiler/linker settings for ReallyRelease
 	set(CMAKE_CXX_FLAGS_REALLYRELEASE "${CMAKE_CXX_FLAGS_RELEASE}  /DQT_NO_DEBUG_OUTPUT") 
 	set(CMAKE_EXE_LINKER_FLAGS_REALLYRELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE") # /subsystem:windows does not work due to a bug in cmake (see http://public.kitware.com/Bug/view.php?id=12566)
 	SET(CMAKE_SHARED_LINKER_FLAGS_REALLYRELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE") # /subsystem:windows does not work due to a bug in cmake (see http://public.kitware.com/Bug/view.php?id=12566)
-  endif(NOT NOMACS_VARS_ALREADY_SET)
+  endif(GLOBAL_READ_BUILD)
     
   if (CMAKE_BUILD_TYPE STREQUAL "debug" OR CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "DEBUG")
       message(STATUS "A debug build. -DDEBUG is defined")
@@ -102,19 +99,17 @@ macro(RDM_PREPARE_PLUGIN)
 endmacro(RDM_PREPARE_PLUGIN)
 
 macro(RDM_FIND_RDF)
-      
-  if(NOT RDF_VARS_ALREADY_SET) # is set when building framework and plugins at the sime time with linux
-		
+
+	set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_BINARY_DIR})
 	find_package(ReadFramework)
 		
-    if(NOT RDF_FOUND)
-      SET(RDF_BUILD_DIRECTORY "NOT_SET" CACHE PATH "Path to the READ Framework build directory")
-      IF (${RDF_BUILD_DIRECTORY} STREQUAL "NOT_SET")
-        MESSAGE(FATAL_ERROR "You have to set the READ Framework build directory")
-      ENDIF()
-    endif()
+	if(NOT RDF_FOUND)
+	  SET(RDF_BUILD_DIRECTORY "NOT_SET" CACHE PATH "Path to the READ Framework build directory")
+	  IF (${RDF_BUILD_DIRECTORY} STREQUAL "NOT_SET")
+		MESSAGE(FATAL_ERROR "You have to set the READ Framework build directory")
+	  ENDIF()
+	endif()
 	
-  endif(NOT RDF_VARS_ALREADY_SET)
       
 endmacro(RDM_FIND_RDF)
 
@@ -132,7 +127,6 @@ macro(RDM_CREATE_TARGETS)
   
   
 IF (MSVC)
-
 	file(GLOB RDM_AUTOMOC "${CMAKE_BINARY_DIR}/*_automoc.cpp")
 	source_group("Generated Files" FILES ${PLUGIN_RCC} ${RDM_QM} ${RDF_AUTOMOC})
 	
