@@ -43,7 +43,6 @@ script:
   - cmake $CMAKE_ARGS ../../ReadFramework
   - make -j8
   - cd ..
-  - find . 
   - cmake $CMAKE_ARGS ../.
   - make -j8
   
