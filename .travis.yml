@@ -45,4 +45,4 @@ script:
   - cd ..
   - cmake $CMAKE_ARGS ../.
   - make -j8
-  
+ 
