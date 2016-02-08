@@ -4,7 +4,7 @@ PROJECT(binarizationPlugin)
 IF(EXISTS ${CMAKE_SOURCE_DIR}/CMakeUser.txt)
 	include(${CMAKE_SOURCE_DIR}/CMakeUser.txt)
 ENDIF()
-
+	
 # include macros needed
 include("${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/Utils.cmake")
 
@@ -34,7 +34,7 @@ endif()
 include_directories (
 	${QT_INCLUDES}
 	${OpenCV_INCLUDE_DIRS}
-	${CMAKE_CURRENT_BINARY_DIR}
+	${CMAKE_BINARY_DIR}
 	${NOMACS_INCLUDE_DIRECTORY}
 	${RDF_INCLUDE_DIRECTORY}
 )
@@ -57,7 +57,10 @@ ADD_LIBRARY(${PROJECT_NAME} SHARED ${PLUGIN_SOURCES} ${PLUGIN_MOC_SRC} ${PLUGIN_
 target_link_libraries(${PROJECT_NAME} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTMAIN_LIBRARY} ${OpenCV_LIBS} ${NOMACS_LIBS} ${RDF_LIBS})
 source_group("Generated Files" FILES ${RDF_RC} ${RDF_QM} ${RDF_AUTOMOC})
 
-RDM_CREATE_TARGETS(${RDF_BINARIES})
-message(STATUS "${RDF_BINARIES}")
+if(GLOBAL_READ_BUILD)
+	RDM_CREATE_TARGETS()
+else()
+	RDM_CREATE_TARGETS(${RDF_BINARIES})
+endif()
 
 qt5_use_modules(${PROJECT_NAME} Widgets Gui Network LinguistTools PrintSupport Concurrent)
