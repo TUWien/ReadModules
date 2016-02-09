@@ -44,7 +44,7 @@ script:
   - make -j8
   - cd ..
   - find .
+  - cat readframework-build/ReadFrameworkConfig.cmake
   - cmake $CMAKE_ARGS ../.
   - make -j8 VERBOSE=1
- 
  
