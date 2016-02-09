@@ -23,6 +23,7 @@ git clone https://github.com/nomacs/nomacs
 This will by default place the source into ./nomacs
 Go to the nomacs directory and run `cmake` to get the Makefiles:
 ``` console
+cd nomacs
 cmake ImageLounge/.
 ```
 Compile nomacs: 
@@ -38,6 +39,7 @@ This will by default place the source into ./ReadFramework
 
 Go to the ReadFramework directory and run `cmake` to get the Makefiles:
 ``` console
+cd ReadFramework
 cmake . 
 ```
 
@@ -55,6 +57,7 @@ This will by default place the source into ./ReadModules
 Go to the ReadModules directory and run `cmake` to get the Makefiles:
 you have to set the correct nomacs and ReadFramework build directories
 ``` console
+cd ReadModules
 cmake -Dnomacs_DIR=../nomacs/ -DReadFramework_DIR=../ReadFramework . 
 ```
 
