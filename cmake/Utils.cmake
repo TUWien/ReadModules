@@ -188,7 +188,7 @@ IF (MSVC)
     # endforeach()
   # endif()      
     
-elseif(UNIX)
+else()
   if(${NUM_ADDITONAL_DLLS} GREATER 0) 
     foreach(DLL ${ADDITIONAL_DLLS})
       add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${DLL} ${NOMACS_BUILD_DIRECTORY}/)
