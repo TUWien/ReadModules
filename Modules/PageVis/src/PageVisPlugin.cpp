@@ -25,6 +25,7 @@
 #include "PageVisPlugin.h"
 
 #include "PageViewport.h"
+#include "PageDock.h"
 
 #pragma warning(push, 0)	// no warnings from includes - begin
 #include <QAction>
@@ -99,10 +100,18 @@ QSharedPointer<nmc::DkImageContainer> PageVisPlugin::runPlugin(const QString &ru
 	// wrong runID? - do nothing
 	return imgC;
 }
+
 nmc::DkPluginViewPort * PageVisPlugin::getViewPort() {
 	
 	if (!mViewport) {
-		mViewport = new PageViewport();
+		PageViewport* vp = new PageViewport();
+
+		// open dock
+		QMainWindow* win = getMainWindow();
+		PageDock* dock = vp->dock();
+		win->addDockWidget(dock->getDockLocationSettings(Qt::RightDockWidgetArea), dock);
+
+		mViewport = vp;
 	}
 
 	return mViewport;

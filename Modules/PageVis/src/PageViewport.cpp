@@ -31,10 +31,15 @@
  *******************************************************************************************************/
 
 #include "PageViewport.h"
+#include "PageDock.h"
+
+// nomacs includes
+#include "DkSettings.h"
+
+// read includes
 #include "PageParser.h"
 #include "Settings.h"
 #include "ElementsHelper.h"
-#include "DkSettings.h"
 
 #pragma warning(push, 0)	// no warnings from includes
 #include <QPaintEvent>
@@ -62,30 +67,31 @@ void PageViewport::init() {
 	setObjectName("PageViewport");
 	
 	loadSettings(nmc::Settings::instance().getSettings());
+
+	mPageDock = new PageDock(tr("Page Visualization"), this);
+	
+	connect(mPageDock, SIGNAL(updateSignal()), this, SLOT(update()));
 }
 
 void PageViewport::saveSettings(QSettings& settings) const {
 
 	settings.beginGroup(objectName());
-	for (const rdf::RegionTypeConfig& c : mConfig)
-		c.save(settings);
+
 	settings.endGroup();
 }
 
 void PageViewport::loadSettings(QSettings& settings) {
 
 	settings.beginGroup(objectName());
-
-	mConfig = rdf::RegionManager::instance().regionTypeConfig();
-	
-	// load from nomacs settings
-	for (rdf::RegionTypeConfig& c : mConfig)
-		c.load(settings);
 	
 	settings.endGroup();
 }
 
 void PageViewport::updateImageContainer(QSharedPointer<nmc::DkImageContainerT> imgC) {
+
+	// something todo?
+	if (!imgC)
+		return;
 
 	mImg = imgC;
 
@@ -97,15 +103,21 @@ void PageViewport::updateImageContainer(QSharedPointer<nmc::DkImageContainerT> i
 	qDebug() << "plugin receives new image: " << imgC->fileName();
 }
 
+PageDock * PageViewport::dock() const {
+	return mPageDock;
+}
+
 void PageViewport::paintEvent(QPaintEvent* event) {
 
-	QPainter painter(this);
-	
-	if (mWorldMatrix)
-		painter.setWorldTransform((*mImgMatrix) * (*mWorldMatrix));	// >DIR: using both matrices allows for correct resizing [16.10.2013 markus]
+	if (mPageDock->drawRegions()) {
+		QPainter painter(this);
 
-	if (mPage)
-		rdf::RegionManager::instance().drawRegion(painter, mPage->rootRegion(), mConfig);
+		if (mWorldMatrix)
+			painter.setWorldTransform((*mImgMatrix) * (*mWorldMatrix));	// >DIR: using both matrices allows for correct resizing [16.10.2013 markus]
+
+		if (mPage)
+			rdf::RegionManager::instance().drawRegion(painter, mPage->rootRegion(), mPageDock->config());
+	}
 
 	DkPluginViewPort::paintEvent(event);
 }

@@ -47,6 +47,7 @@ class QSettings;
 namespace rdm {
 
 // read defines
+class PageDock;
 
 class PageViewport : public nmc::DkPluginViewPort {
 	Q_OBJECT
@@ -56,6 +57,7 @@ public:
 	~PageViewport();
 
 	void updateImageContainer(QSharedPointer<nmc::DkImageContainerT> imgC) override;
+	PageDock* dock() const;
 
 private:
 	void init() override;
@@ -67,7 +69,7 @@ private:
 	QSharedPointer<nmc::DkImageContainerT> mImg;
 	QSharedPointer<rdf::PageElement> mPage;
 
-	QVector<rdf::RegionTypeConfig> mConfig;
+	PageDock* mPageDock = 0;
 
 };
 
