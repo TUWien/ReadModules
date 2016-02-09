@@ -34,9 +34,11 @@
 #include "PageParser.h"
 #include "Settings.h"
 #include "ElementsHelper.h"
+#include "DkSettings.h"
 
 #pragma warning(push, 0)	// no warnings from includes
 #include <QPaintEvent>
+#include <QSettings>
 #pragma warning(pop)
 
 namespace rdm {
@@ -45,15 +47,42 @@ namespace rdm {
 PageViewport::PageViewport(QWidget* parent) : DkPluginViewPort(parent) {
 
 	init();
+
 }
 
 PageViewport::~PageViewport() {
+
+	saveSettings(nmc::Settings::instance().getSettings());
 	qDebug() << "destroying PAGE viewport";
 }
 
 void PageViewport::init() {
 	
 	DkPluginViewPort::init();
+	setObjectName("PageViewport");
+	
+	loadSettings(nmc::Settings::instance().getSettings());
+}
+
+void PageViewport::saveSettings(QSettings& settings) const {
+
+	settings.beginGroup(objectName());
+	for (const rdf::RegionTypeConfig& c : mConfig)
+		c.save(settings);
+	settings.endGroup();
+}
+
+void PageViewport::loadSettings(QSettings& settings) {
+
+	settings.beginGroup(objectName());
+
+	mConfig = rdf::RegionManager::instance().regionTypeConfig();
+	
+	// load from nomacs settings
+	for (rdf::RegionTypeConfig& c : mConfig)
+		c.load(settings);
+	
+	settings.endGroup();
 }
 
 void PageViewport::updateImageContainer(QSharedPointer<nmc::DkImageContainerT> imgC) {
@@ -74,8 +103,6 @@ void PageViewport::paintEvent(QPaintEvent* event) {
 	
 	if (mWorldMatrix)
 		painter.setWorldTransform((*mImgMatrix) * (*mWorldMatrix));	// >DIR: using both matrices allows for correct resizing [16.10.2013 markus]
-
-	painter.setBrush(QColor(0, 100, 70, 50));
 
 	if (mPage)
 		rdf::RegionManager::instance().drawRegion(painter, mPage->rootRegion(), mConfig);

@@ -42,6 +42,7 @@
 
 // Qt defines
 class QPaintEvent;
+class QSettings;
 
 namespace rdm {
 
@@ -58,6 +59,8 @@ public:
 
 private:
 	void init() override;
+	void loadSettings(QSettings& settings);
+	void saveSettings(QSettings& settings) const;
 
 	void paintEvent(QPaintEvent* event) override;
 
