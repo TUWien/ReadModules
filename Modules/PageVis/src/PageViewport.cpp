@@ -71,8 +71,11 @@ void PageViewport::updateImageContainer(QSharedPointer<nmc::DkImageContainerT> i
 void PageViewport::paintEvent(QPaintEvent* event) {
 
 	QPainter painter(this);
-	painter.setBrush(QColor(255, 0, 0, 60));
-	painter.drawRect(QRect(QPoint(), size()));
+	
+	if (mWorldMatrix)
+		painter.setWorldTransform((*mImgMatrix) * (*mWorldMatrix));	// >DIR: using both matrices allows for correct resizing [16.10.2013 markus]
+
+	painter.setBrush(QColor(0, 100, 70, 50));
 
 	if (mPage)
 		rdf::RegionManager::instance().drawRegion(painter, mPage->rootRegion(), mConfig);
