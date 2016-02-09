@@ -48,4 +48,3 @@ script:
   - cmake $CMAKE_ARGS ../.
   - make -j8 VERBOSE=1
  
- 
