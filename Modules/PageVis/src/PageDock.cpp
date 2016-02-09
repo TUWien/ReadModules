@@ -48,6 +48,7 @@
 #include <QColorDialog>
 #include <QStyleOption>
 #include <QPainter>
+#include <QSpinBox>
 #pragma warning(pop)
 
 namespace rdm {
@@ -93,7 +94,7 @@ void ColorButton::on_colorButton_clicked() {
 void ColorButton::setColor(const QColor& col) {
 	
 	mColor = col;
-	setStyleSheet("QPushButton {background-color: " + nmc::DkUtils::colorToString(col) + "; border: 1px solid #888; min-height: 24px}");
+	setStyleSheet("QPushButton#colorButton{background-color: " + nmc::DkUtils::colorToString(col) + "; border: 1px solid #888; min-height: 24px}");
 }
 
 
@@ -116,43 +117,97 @@ rdf::RegionTypeConfig ConfigWidget::config() const {
 
 void ConfigWidget::createLayout() {
 
-	mTitle = new QLabel("", this);
-	mTitle->setObjectName("regionTitle");
-	mTitle->setStyleSheet("QLabel{font-size: 14pt; color: #006699; font-weight: light; border-bottom: 2px solid #666;}");
-
 	mOutlineButton = new ColorButton(tr("Outline"), this);
 	mOutlineButton->setObjectName("outlineButton");
 
 	mBrushButton = new ColorButton(tr("Brush"), this);
 	mBrushButton->setObjectName("brushButton");
 
+	mCbDraw = new QCheckBox(tr("Draw"), this);
+	mCbDraw->setObjectName("draw");
+
+	mCbDrawPoly = new QCheckBox(tr("Draw Polygon"), this);
+	mCbDrawPoly->setObjectName("drawPolygon");
+
+	mCbDrawBaseline = new QCheckBox(tr("Draw Baseline"), this);
+	mCbDrawBaseline->setObjectName("drawBaseline");
+
+	// stroke
+	QLabel* strokeLabel = new QLabel(tr("Stroke Width"), this);
+	strokeLabel->setObjectName("titleLabel");
+
+	mStrokeBox = new QSpinBox(this);
+	mStrokeBox->setObjectName("strokeBox");
+	mStrokeBox->setMaximumWidth(100);
+
 	QVBoxLayout* layout = new QVBoxLayout(this);
-	layout->addWidget(mTitle);
 	layout->addWidget(mOutlineButton);
 	layout->addWidget(mBrushButton);
+	layout->addWidget(strokeLabel);
+	layout->addWidget(mStrokeBox);
+	layout->addWidget(mCbDraw);
+	layout->addWidget(mCbDrawPoly);
+	layout->addWidget(mCbDrawBaseline);
 
-	setStyleSheet("QWidget#configWidget{background-color: #eee;}");
+	setStyleSheet("QWidget#configWidget{background-color: #fff;} QLabel#titleLabel{font-size: 10pt; margin-top: 10pt;}");
 }
 
 void ConfigWidget::updateElements() {
 
-	mTitle->setText(rdf::RegionManager::instance().typeName(mConfig.type()));
-
 	mOutlineButton->setColor(mConfig.pen().color());
-	mBrushButton->setColor(mConfig.pen().brush().color());
+	mBrushButton->setColor(mConfig.brush());
+	mStrokeBox->setValue(mConfig.pen().width());
+
+	mCbDraw->setChecked(mConfig.draw());
+	mCbDrawPoly->setChecked(mConfig.drawPoly());
+	mCbDrawBaseline->setChecked(mConfig.drawBaseline());
 }
 
 void ConfigWidget::on_outlineButton_newColor(const QColor& col) {
+	
 	QPen& p = mConfig.pen();
 	p.setColor(col);
+	mConfig.setPen(p);
+
+	// also update brush
+	QColor bc = col;
+	bc.setAlpha(mConfig.brush().alpha());
+	mConfig.setBrush(bc);
+
+	mBrushButton->setColor(bc);
+	qDebug() << "new OUTLINE color";
 
 	emit updated();
 }
 
 void ConfigWidget::on_brushButton_newColor(const QColor& col) {
-	QPen& p = mConfig.pen();
-	p.setBrush(col);
+	
+	mConfig.setBrush(col);
 
+	emit updated();
+}
+
+void ConfigWidget::on_strokeBox_valueChanged(int val) {
+
+	QPen p = mConfig.pen();
+	p.setWidth(val);
+	mConfig.setPen(p);
+
+	emit updated();
+}
+
+void ConfigWidget::on_draw_toggled(bool toggled) {
+	mConfig.setDraw(toggled);
+	emit updated();
+}
+
+void ConfigWidget::on_drawPolygon_toggled(bool toggled) {
+	mConfig.setDrawPoly(toggled);
+	emit updated();
+}
+
+void ConfigWidget::on_drawBaseline_toggled(bool toggled) {
+	mConfig.setDrawBaseline(toggled);
 	emit updated();
 }
 
@@ -195,6 +250,10 @@ void PageDock::createLayout() {
 	QComboBox* configCombo = new QComboBox(this);
 	configCombo->setObjectName("configCombo");
 	
+	QString bg = "QComboBox{font-size: 14pt; min-height: 40px; color: #006699; font-weight: light; border: none; border-bottom: 1px solid #666;}";
+	QString dd = "QComboBox::drop-down {border:none;}";
+	configCombo->setStyleSheet(bg+dd);
+	
 	for (const rdf::RegionTypeConfig& c : mConfig)
 		configCombo->addItem(QIcon(), rdf::RegionManager::instance().typeName(c.type()));
 
@@ -202,12 +261,18 @@ void PageDock::createLayout() {
 	mConfigWidget = new ConfigWidget(this);
 	mConfigWidget->setObjectName("configWidget");
 
+	QWidget* configDummy = new QWidget(this);
+	QVBoxLayout* configLayout = new QVBoxLayout(configDummy);
+	configLayout->setContentsMargins(0, 0, 0, 0);
+	configLayout->setSpacing(0);
+	configLayout->addWidget(configCombo);
+	configLayout->addWidget(mConfigWidget);
+
 	QWidget* base = new QWidget(this);
 	QVBoxLayout* baseLayout = new QVBoxLayout(base);
 	baseLayout->setAlignment(Qt::AlignTop);
 	baseLayout->addWidget(mCbDraw);
-	baseLayout->addWidget(configCombo);
-	baseLayout->addWidget(mConfigWidget);
+	baseLayout->addWidget(configDummy);
 
 	setWidget(base);
 
