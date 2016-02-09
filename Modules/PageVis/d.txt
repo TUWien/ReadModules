@@ -1,0 +1,5 @@
+x64 x64/pageVis.dll
+x64 x64/C:/VSProjects/READ/ReadFramework/build2015-x64/Debug/ReadFrameworkModuled.dll
+x64 x64/C:/VSProjects/READ/ReadFramework/build2015-x64/Release/ReadFrameworkModule.dll
+x64 x64/C:/VSProjects/READ/ReadFramework/build2015-x64/Debug/ReadFrameworkCored.dll
+x64 x64/C:/VSProjects/READ/ReadFramework/build2015-x64/Release/ReadFrameworkCore.dll

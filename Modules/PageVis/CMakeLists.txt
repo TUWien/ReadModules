@@ -10,18 +10,23 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/Utils.cmake")
 
 ######################################################### CHANGE THIS FOR NEW PLUGINS ###################################################
 set(PLUGIN_VERSION 0.1.0)
-set(PLUGIN_ID c366e9362ace4fe9a0e1b08fd9b69204) #GUID without hyphens generated at http://www.guidgenerator.com/
+set(PLUGIN_ID 23a9407777a04b8d9ef830f0a4f57214) #GUID without hyphens generated at http://www.guidgenerator.com/
 ######################################################### CHANGE THIS FOR NEW PLUGINS ###################################################
 
 add_definitions(-DPLUGIN_VERSION="${PLUGIN_VERSION}")
 add_definitions(-DPLUGIN_ID="${PLUGIN_ID}")
 
+
 if (NOT BUILDING_MULTIPLE_PLUGINS)
+  # prepare plugin
   RDM_PREPARE_PLUGIN()
+
+  # locate the READ framework
+  RDM_FIND_RDF()
   
   # find the Qt
   RDM_FIND_QT()
-  
+
   # OpenCV
   RDM_FIND_OPENCV()
 endif()
@@ -31,15 +36,15 @@ include_directories (
 	${OpenCV_INCLUDE_DIRS}
 	${CMAKE_CURRENT_BINARY_DIR}
 	${NOMACS_INCLUDE_DIRECTORY}
+	${RDF_INCLUDE_DIRECTORY}
 )
 
 file(GLOB PLUGIN_SOURCES "src/*.cpp")
 file(GLOB PLUGIN_HEADERS "src/*.h" "${NOMACS_INCLUDE_DIRECTORY}/DkPluginInterface.h")
 
 set (PLUGIN_RESOURCES
-    src/nomacsPlugin.qrc
+        pageVis.qrc
 )
-
 ADD_DEFINITIONS(${QT_DEFINITIONS})
 ADD_DEFINITIONS(-DQT_PLUGIN)
 ADD_DEFINITIONS(-DQT_SHARED)
@@ -49,8 +54,10 @@ QT5_ADD_RESOURCES(PLUGIN_RCC ${PLUGIN_RESOURCES})
 
 link_directories(${OpenCV_LIBRARY_DIRS} ${NOMACS_BUILD_DIRECTORY}/$(CONFIGURATION) ${NOMACS_BUILD_DIRECTORY}/libs ${NOMACS_BUILD_DIRECTORY} ${RDF_BUILD_DIRECTORY})
 ADD_LIBRARY(${PROJECT_NAME} SHARED ${PLUGIN_SOURCES} ${PLUGIN_MOC_SRC} ${PLUGIN_RCC} ${PLUGIN_HEADERS})	
-target_link_libraries(${PROJECT_NAME} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTMAIN_LIBRARY} ${OpenCV_LIBS} ${NOMACS_LIBS})
+target_link_libraries(${PROJECT_NAME} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTMAIN_LIBRARY} ${OpenCV_LIBS} ${NOMACS_LIBS} ${RDF_LIBS})
+source_group("Generated Files" FILES ${RDF_RC} ${RDF_QM} ${RDF_AUTOMOC})
 
-NMC_CREATE_TARGETS()
+RDM_CREATE_TARGETS(${RDF_BINARIES})
+message(STATUS "${RDF_BINARIES}")
 
 qt5_use_modules(${PROJECT_NAME} Widgets Gui Network LinguistTools PrintSupport Concurrent)

@@ -1,0 +1,9 @@
+{
+    "PluginName" 	: "PAGE Visualization",
+	"AuthorName" 	: "Markus Diem",
+	"Company"		: "Computer Vision Lab",
+	"DateCreated" 	: "09.02.2016",
+	"DateModified" 	: "09.02.2016",
+	"Description"	: "Visualizes elements of the PAGE XML in an image.",
+	"StatusTip" 	: "Show PAGE regions"
+}
