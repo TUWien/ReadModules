@@ -34,6 +34,8 @@
 
 #include "DkPluginInterface.h"
 
+#include "Elements.h"
+
 #pragma warning(push, 0)	// no warnings from includes
 // Qt Includes
 #pragma warning(pop)
@@ -52,10 +54,18 @@ public:
 	PageViewport(QWidget* parent = 0);
 	~PageViewport();
 
+	void updateImageContainer(QSharedPointer<nmc::DkImageContainerT> imgC) override;
+
 private:
 	void init() override;
 
 	void paintEvent(QPaintEvent* event) override;
+
+	QSharedPointer<nmc::DkImageContainerT> mImg;
+	QSharedPointer<rdf::PageElement> mPage;
+
+	QVector<rdf::RegionTypeConfig> mConfig;
+
 };
 
 };

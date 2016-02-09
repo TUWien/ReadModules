@@ -31,6 +31,9 @@
  *******************************************************************************************************/
 
 #include "PageViewport.h"
+#include "PageParser.h"
+#include "Settings.h"
+#include "ElementsHelper.h"
 
 #pragma warning(push, 0)	// no warnings from includes
 #include <QPaintEvent>
@@ -53,11 +56,26 @@ void PageViewport::init() {
 	DkPluginViewPort::init();
 }
 
+void PageViewport::updateImageContainer(QSharedPointer<nmc::DkImageContainerT> imgC) {
+
+	mImg = imgC;
+
+	rdf::PageXmlParser parser;
+	parser.read(parser.imagePathToXmlPath(imgC->filePath()));
+
+	mPage = parser.page();
+
+	qDebug() << "plugin receives new image: " << imgC->fileName();
+}
+
 void PageViewport::paintEvent(QPaintEvent* event) {
 
 	QPainter painter(this);
 	painter.setBrush(QColor(255, 0, 0, 60));
 	painter.drawRect(QRect(QPoint(), size()));
+
+	if (mPage)
+		rdf::RegionManager::instance().drawRegion(painter, mPage->rootRegion(), mConfig);
 
 	DkPluginViewPort::paintEvent(event);
 }
