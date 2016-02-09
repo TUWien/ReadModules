@@ -57,9 +57,12 @@ ADD_LIBRARY(${PROJECT_NAME} SHARED ${PLUGIN_SOURCES} ${PLUGIN_MOC_SRC} ${PLUGIN_
 target_link_libraries(${PROJECT_NAME} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTMAIN_LIBRARY} ${OpenCV_LIBS} ${NOMACS_LIBS} ${RDF_LIBS})
 source_group("Generated Files" FILES ${RDF_RC} ${RDF_QM} ${RDF_AUTOMOC})
 
+message(STATUS "GLOBAL_READ_BUILD: ${GLOBAL_READ_BUILD}")
 if(GLOBAL_READ_BUILD)
+	message(STATUS "not copying rdf binaries")
 	RDM_CREATE_TARGETS()
 else()
+	message(STATUS "copying rdf binaries")
 	RDM_CREATE_TARGETS(${RDF_BINARIES})
 endif()
 
