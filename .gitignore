@@ -12,3 +12,5 @@ buildfiles/x64
 /.project
 /CMakeUser.cmake
 CMakeUser.txt
+install
+d.txt

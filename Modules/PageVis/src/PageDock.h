@@ -127,6 +127,7 @@ public slots:
 	void setPage(QSharedPointer<rdf::PageElement> page);
 	void pathUpdated(const QString& path) const;
 
+
 signals:
 	void loadXml(const QString& path) const;
 
