@@ -136,7 +136,7 @@ private:
 	QCheckBox* mCbDraw = 0;
 	ConfigWidget* mConfigWidget = 0;
 
-	rdf::Region::Type mCurrentRegion = rdf::Region::type_unknown;
+	rdf::Region::Type mCurrentRegion = rdf::Region::type_text_region;
 };
 
 };

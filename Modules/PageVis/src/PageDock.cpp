@@ -290,13 +290,24 @@ void PageDock::createLayout() {
 	baseLayout->addWidget(mCbDraw);
 	baseLayout->addWidget(configDummy);
 
-	setWidget(base);
+	// add a scroll bar
+	nmc::DkResizableScrollArea* scrollArea = new nmc::DkResizableScrollArea(this);
+	scrollArea->setObjectName("pageDockScroll");
+	scrollArea->setWidgetResizable(true);
+	scrollArea->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+	scrollArea->setWidget(base);
+	scrollArea->setStyleSheet("QScrollArea{border: none;}");
+
+	QWidget* dummy = new QWidget(this);
+	QVBoxLayout* l = new QVBoxLayout(dummy);
+	l->setContentsMargins(0,0,0,0);
+	l->addWidget(scrollArea);
+
+	setWidget(dummy);
 
 	// update
-	mCurrentRegion = rdf::Region::type_unknown;
 	configCombo->setCurrentIndex(mCurrentRegion);
 	setConfigWidget(mConfig[mCurrentRegion]);
-
 }
 
 void PageDock::setConfigWidget(const rdf::RegionTypeConfig & config) {
