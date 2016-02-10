@@ -83,9 +83,10 @@ public slots:
 	void on_outlineButton_newColor(const QColor& col);
 	void on_brushButton_newColor(const QColor& col);
 	void on_strokeBox_valueChanged(int val);
-	void on_draw_toggled(bool toggled);
-	void on_drawPolygon_toggled(bool toggled);
-	void on_drawBaseline_toggled(bool toggled);
+	void on_draw_clicked(bool toggled);
+	void on_drawText_clicked(bool toggled);
+	void on_drawPolygon_clicked(bool toggled);
+	void on_drawBaseline_clicked(bool toggled);
 
 signals:
 	void updated() const;
@@ -103,6 +104,7 @@ private:
 
 	QCheckBox* mCbDraw = 0;
 	QCheckBox* mCbDrawPoly = 0;
+	QCheckBox* mCbDrawText = 0;
 	QCheckBox* mCbDrawBaseline = 0;
 };
 

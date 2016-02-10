@@ -132,6 +132,17 @@ void ConfigWidget::createLayout() {
 	mCbDrawBaseline = new QCheckBox(tr("Draw Baseline"), this);
 	mCbDrawBaseline->setObjectName("drawBaseline");
 
+	mCbDrawText = new QCheckBox(tr("Draw Text"), this);
+	mCbDrawText->setObjectName("drawText");
+
+	QWidget* cbWidget = new QWidget(this);
+	QGridLayout* cbLayout = new QGridLayout(cbWidget);
+	cbLayout->setContentsMargins(0, 0, 0, 0);
+	cbLayout->addWidget(mCbDraw, 0, 0);
+	cbLayout->addWidget(mCbDrawPoly, 0, 1);
+	cbLayout->addWidget(mCbDrawText, 1, 0);
+	cbLayout->addWidget(mCbDrawBaseline, 1, 1);
+
 	// stroke
 	QLabel* strokeLabel = new QLabel(tr("Stroke Width"), this);
 	strokeLabel->setObjectName("titleLabel");
@@ -145,9 +156,7 @@ void ConfigWidget::createLayout() {
 	layout->addWidget(mBrushButton);
 	layout->addWidget(strokeLabel);
 	layout->addWidget(mStrokeBox);
-	layout->addWidget(mCbDraw);
-	layout->addWidget(mCbDrawPoly);
-	layout->addWidget(mCbDrawBaseline);
+	layout->addWidget(cbWidget);
 
 	setStyleSheet("QWidget#configWidget{background-color: #fff;} QLabel#titleLabel{font-size: 10pt; margin-top: 10pt;}");
 }
@@ -161,6 +170,7 @@ void ConfigWidget::updateElements() {
 	mCbDraw->setChecked(mConfig.draw());
 	mCbDrawPoly->setChecked(mConfig.drawPoly());
 	mCbDrawBaseline->setChecked(mConfig.drawBaseline());
+	mCbDrawText->setChecked(mConfig.drawText());
 }
 
 void ConfigWidget::on_outlineButton_newColor(const QColor& col) {
@@ -196,18 +206,24 @@ void ConfigWidget::on_strokeBox_valueChanged(int val) {
 	emit updated();
 }
 
-void ConfigWidget::on_draw_toggled(bool toggled) {
+void ConfigWidget::on_draw_clicked(bool toggled) {
 	mConfig.setDraw(toggled);
 	emit updated();
 }
 
-void ConfigWidget::on_drawPolygon_toggled(bool toggled) {
+void ConfigWidget::on_drawPolygon_clicked(bool toggled) {
 	mConfig.setDrawPoly(toggled);
 	emit updated();
 }
 
-void ConfigWidget::on_drawBaseline_toggled(bool toggled) {
+void ConfigWidget::on_drawBaseline_clicked(bool toggled) {
 	mConfig.setDrawBaseline(toggled);
+	emit updated();
+}
+
+
+void ConfigWidget::on_drawText_clicked(bool toggled) {
+	mConfig.setDrawText(toggled);
 	emit updated();
 }
 
@@ -279,6 +295,8 @@ void PageDock::createLayout() {
 	// update
 	mCurrentRegion = rdf::Region::type_unknown;
 	configCombo->setCurrentIndex(mCurrentRegion);
+	setConfigWidget(mConfig[mCurrentRegion]);
+
 }
 
 void PageDock::setConfigWidget(const rdf::RegionTypeConfig & config) {
@@ -321,6 +339,8 @@ bool PageDock::drawRegions() const {
 }
 
 void PageDock::on_configCombo_currentIndexChanged(int index) {
+	
+	mConfig[mCurrentRegion] = mConfigWidget->config();
 	setConfigWidget(mConfig[index]);
 	mCurrentRegion = (rdf::Region::Type)index;
 }
