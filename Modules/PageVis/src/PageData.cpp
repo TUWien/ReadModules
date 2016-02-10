@@ -67,10 +67,15 @@ QSharedPointer<rdf::PageElement> PageData::page() const {
 
 void PageData::parse(const QString& xmlPath) {
 
+	if (mPage && xmlPath == mPage->xmlPath())
+		return;
+
 	rdf::PageXmlParser parser;
 	parser.read(xmlPath);
 
 	mPage = parser.page();
+
+	emit updatePage(mPage);
 }
 
 void PageData::loadSettings(QSettings& settings) {
@@ -82,7 +87,7 @@ void PageData::loadSettings(QSettings& settings) {
 	// load from nomacs settings
 	for (QSharedPointer<rdf::RegionTypeConfig> c : configs) {
 
-		//c->load(settings);
+		c->load(settings);
 		mConfig.append(c);
 	}
 

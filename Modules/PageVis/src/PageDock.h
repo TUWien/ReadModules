@@ -40,6 +40,7 @@
 
 #pragma warning(push, 0)	// no warnings from includes
 #include <QPushButton>
+#include <QLineEdit>
 #pragma warning(pop)
 
 // Qt defines
@@ -47,6 +48,7 @@ class QPaintEvent;
 class QSettings;
 class QCheckBox;
 class QSpinBox;
+class QMimeData;
 
 namespace rdf {
 	class RegionTypeConfig;
@@ -113,6 +115,28 @@ private:
 	QCheckBox* mCbDrawPoly = 0;
 	QCheckBox* mCbDrawText = 0;
 	QCheckBox* mCbDrawBaseline = 0;
+};
+
+class XmlLabel : public QLineEdit {
+	Q_OBJECT
+
+public:
+	XmlLabel(QWidget* parent = 0);
+
+public slots:
+	void setPage(QSharedPointer<rdf::PageElement> page);
+	void pathUpdated(const QString& path) const;
+
+signals:
+	void loadXml(const QString& path) const;
+
+private:
+	void dragEnterEvent(QDragEnterEvent* event) override;
+	void dropEvent(QDropEvent* event) override;
+	void paintEvent(QPaintEvent* event) override;
+	
+	QString xmlPathFromMime(const QMimeData& mime) const;
+	void createLayout();
 };
 
 class PageDock : public nmc::DkDockWidget {

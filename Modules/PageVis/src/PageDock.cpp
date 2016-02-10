@@ -52,6 +52,7 @@
 #include <QStyleOption>
 #include <QPainter>
 #include <QSpinBox>
+#include <QMimeData>
 #pragma warning(pop)
 
 namespace rdm {
@@ -136,6 +137,7 @@ void ConfigWidget::createLayout() {
 
 	QWidget* cbWidget = new QWidget(this);
 	QGridLayout* cbLayout = new QGridLayout(cbWidget);
+	cbLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 	cbLayout->setContentsMargins(0, 0, 0, 0);
 	cbLayout->addWidget(mCbDraw, 0, 0);
 	cbLayout->addWidget(mCbDrawPoly, 0, 1);
@@ -265,8 +267,101 @@ void ConfigWidget::paintEvent(QPaintEvent* event) {
 	QWidget::paintEvent(event);
 }
 
+// XmlLabel --------------------------------------------------------------------
+XmlLabel::XmlLabel(QWidget* parent) : QLineEdit(parent) {
 
-// PageViewport --------------------------------------------------------------------
+	setObjectName("XmlLabel");
+	createLayout();
+	setAcceptDrops(true);
+
+	connect(this, SIGNAL(textEdited(const QString&)), this, SLOT(pathUpdated(const QString&)));
+}
+
+void XmlLabel::createLayout() {
+
+	setMinimumHeight(100);
+	setAlignment(Qt::AlignTop);
+
+	setStyleSheet("QLineEdit#XmlLabel{background-color: #fff; border: none;}");
+}
+
+void XmlLabel::setPage(QSharedPointer<rdf::PageElement> page) {
+	
+	if (!page)
+		return;
+
+	setText(page->xmlPath());
+}
+
+void XmlLabel::pathUpdated(const QString& path) const {
+
+	QFileInfo info(path);
+
+	if (info.exists() && info.suffix() == "xml")
+		emit loadXml(path);
+
+}
+
+void XmlLabel::dragEnterEvent(QDragEnterEvent* event) {
+
+	if (event->mimeData() && !xmlPathFromMime(*event->mimeData()).isEmpty()) {
+		event->acceptProposedAction();
+		qDebug() << "event accepted...";
+	}
+
+	QWidget::dragEnterEvent(event);
+}
+
+void XmlLabel::dropEvent(QDropEvent * event) {
+
+	if (event->mimeData())
+		emit loadXml(xmlPathFromMime(*event->mimeData()));
+
+	QLineEdit::dropEvent(event);
+}
+
+void XmlLabel::paintEvent(QPaintEvent* event) {
+
+	QLineEdit::paintEvent(event);
+
+	QColor linCol(200, 200, 200);
+	QRect dropArea(QPoint(0, 20), QSize(width(), height()-20));
+
+	// The view is empty.
+	QPainter p(this);
+	p.setPen(Qt::NoPen);
+	p.setBrush(QBrush(linCol, Qt::BDiagPattern));
+	p.drawRect(dropArea);
+
+	p.setPen(QPen(linCol));
+	p.drawLine(dropArea.topLeft(), dropArea.topRight());
+
+	p.setPen(QPen(QColor(100,100,100)));
+	p.drawText(dropArea, Qt::AlignCenter, tr("Drag XMLs Here"));
+}
+
+QString XmlLabel::xmlPathFromMime(const QMimeData & mime) const {
+
+	QString path;
+	if (mime.hasUrls()) {
+		path = mime.urls()[0].toLocalFile();
+	}
+	else if (mime.hasText()) {
+		path = mime.text();
+	}
+	
+	QFileInfo info(path);
+
+	if (info.exists() && info.suffix() == "xml")
+		return info.absoluteFilePath();
+	else
+		qDebug() << info.absoluteFilePath() << "is not valid - rejecting...";
+
+	return QString();
+}
+
+
+// PageDock --------------------------------------------------------------------
 PageDock::PageDock(PageData* pageData, const QString& title, QWidget* parent) : nmc::DkDockWidget(title, parent) {
 
 	setObjectName("PageDock");
@@ -310,11 +405,19 @@ void PageDock::createLayout() {
 	configLayout->addWidget(configCombo);
 	configLayout->addWidget(mConfigWidget);
 
+	// xml drop widget
+	XmlLabel* xmlWidget = new XmlLabel(this);
+	xmlWidget->setPage(mPageData->page());
+	connect(mPageData, SIGNAL(updatePage(QSharedPointer<rdf::PageElement>)), xmlWidget, SLOT(setPage(QSharedPointer<rdf::PageElement>)));
+	connect(xmlWidget, SIGNAL(loadXml(const QString&)), mPageData, SLOT(parse(const QString&)));
+
+	// create our widget
 	QWidget* base = new QWidget(this);
 	QVBoxLayout* baseLayout = new QVBoxLayout(base);
 	baseLayout->setAlignment(Qt::AlignTop);
 	baseLayout->addWidget(mCbDraw);
 	baseLayout->addWidget(configDummy);
+	baseLayout->addWidget(xmlWidget);
 
 	// add a scroll bar
 	nmc::DkResizableScrollArea* scrollArea = new nmc::DkResizableScrollArea(this);

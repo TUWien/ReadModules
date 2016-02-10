@@ -53,7 +53,11 @@ public:
 	QVector<QSharedPointer<rdf::RegionTypeConfig> > config() const;
 	QSharedPointer<rdf::PageElement> page() const;
 
+public slots:
 	void parse(const QString& xmlPath);
+
+signals:
+	void updatePage(QSharedPointer<rdf::PageElement> page) const;
 
 private:
 	void loadSettings(QSettings& settings);

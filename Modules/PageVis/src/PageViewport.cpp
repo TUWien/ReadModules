@@ -53,7 +53,8 @@ namespace rdm {
 PageViewport::PageViewport(QWidget* parent) : DkPluginViewPort(parent) {
 
 	init();
-
+	setMouseTracking(true);
+	setAttribute(Qt::WA_TransparentForMouseEvents);
 }
 
 PageViewport::~PageViewport() {
@@ -73,6 +74,7 @@ void PageViewport::init() {
 	mPageDock = new PageDock(mPageData, tr("Page Visualization"), this);
 	
 	connect(mPageDock, SIGNAL(updateSignal()), this, SLOT(update()));
+	connect(mPageData, SIGNAL(updatePage(QSharedPointer<rdf::PageElement>)), this, SLOT(update()));
 }
 
 void PageViewport::saveSettings(QSettings& settings) const {
