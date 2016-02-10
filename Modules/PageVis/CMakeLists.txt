@@ -18,17 +18,17 @@ add_definitions(-DPLUGIN_ID="${PLUGIN_ID}")
 
 
 if (NOT BUILDING_MULTIPLE_PLUGINS)
-  # prepare plugin
-  RDM_PREPARE_PLUGIN()
-
-  # locate the READ framework
-  RDM_FIND_RDF()
-  
-  # find the Qt
-  RDM_FIND_QT()
-
-  # OpenCV
-  RDM_FIND_OPENCV()
+	# prepare plugin
+	RDM_PREPARE_PLUGIN()
+	
+	# locate the READ framework
+	RDM_FIND_RDF()
+	
+	# find the Qt
+	RDM_FIND_QT()
+	
+	# OpenCV
+	RDM_FIND_OPENCV()
 endif()
 
 include_directories (
@@ -37,14 +37,14 @@ include_directories (
 	${CMAKE_CURRENT_BINARY_DIR}
 	${NOMACS_INCLUDE_DIRECTORY}
 	${RDF_INCLUDE_DIRECTORY}
-)
+ )
 
 file(GLOB PLUGIN_SOURCES "src/*.cpp")
 file(GLOB PLUGIN_HEADERS "src/*.h" "${NOMACS_INCLUDE_DIRECTORY}/DkPluginInterface.h")
 
 set (PLUGIN_RESOURCES
-        pageVis.qrc
-)
+pageVis.qrc
+ )
 ADD_DEFINITIONS(${QT_DEFINITIONS})
 ADD_DEFINITIONS(-DQT_PLUGIN)
 ADD_DEFINITIONS(-DQT_SHARED)
@@ -57,12 +57,10 @@ ADD_LIBRARY(${PROJECT_NAME} SHARED ${PLUGIN_SOURCES} ${PLUGIN_MOC_SRC} ${PLUGIN_
 target_link_libraries(${PROJECT_NAME} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTMAIN_LIBRARY} ${OpenCV_LIBS} ${NOMACS_LIBS} ${RDF_LIBS})
 source_group("Generated Files" FILES ${RDF_RC} ${RDF_QM} ${RDF_AUTOMOC})
 
-if(DEFINED GLOBAL_READ_BUILD)
-	if(${GLOBAL_READ_BUILD}) # cannot be incooperated into if one line above
-		RDM_CREATE_TARGETS()
-	endif()
+if(GLOBAL_READ_BUILD)
+	RDM_CREATE_TARGETS()
 else()
 	RDM_CREATE_TARGETS(${RDF_BINARIES})
 endif()
-		
+
 qt5_use_modules(${PROJECT_NAME} Widgets Gui Network LinguistTools PrintSupport Concurrent)

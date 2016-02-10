@@ -4,7 +4,7 @@ PROJECT(binarizationPlugin)
 IF(EXISTS ${CMAKE_SOURCE_DIR}/CMakeUser.txt)
 	include(${CMAKE_SOURCE_DIR}/CMakeUser.txt)
 ENDIF()
-	
+
 # include macros needed
 include("${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/Utils.cmake")
 
@@ -18,17 +18,17 @@ add_definitions(-DPLUGIN_ID="${PLUGIN_ID}")
 
 
 if (NOT BUILDING_MULTIPLE_PLUGINS)
-  # prepare plugin
-  RDM_PREPARE_PLUGIN()
-
-  # locate the READ framework
-  RDM_FIND_RDF()
-  
-  # find the Qt
-  RDM_FIND_QT()
-
-  # OpenCV
-  RDM_FIND_OPENCV()
+	# prepare plugin
+	RDM_PREPARE_PLUGIN()
+	
+	# locate the READ framework
+	RDM_FIND_RDF()
+	
+	# find the Qt
+	RDM_FIND_QT()
+	
+	# OpenCV
+	RDM_FIND_OPENCV()
 endif()
 
 include_directories (
@@ -37,14 +37,14 @@ include_directories (
 	${CMAKE_CURRENT_BINARY_DIR}
 	${NOMACS_INCLUDE_DIRECTORY}
 	${RDF_INCLUDE_DIRECTORY}
-)
+ )
 
 file(GLOB PLUGIN_SOURCES "src/*.cpp")
 file(GLOB PLUGIN_HEADERS "src/*.h" "${NOMACS_INCLUDE_DIRECTORY}/DkPluginInterface.h")
 
 set (PLUGIN_RESOURCES
-        binarizationPlugin.qrc
-)
+binarizationPlugin.qrc
+ )
 ADD_DEFINITIONS(${QT_DEFINITIONS})
 ADD_DEFINITIONS(-DQT_PLUGIN)
 ADD_DEFINITIONS(-DQT_SHARED)
@@ -58,9 +58,7 @@ target_link_libraries(${PROJECT_NAME} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} $
 source_group("Generated Files" FILES ${RDF_RC} ${RDF_QM} ${RDF_AUTOMOC})
 
 if(DEFINED GLOBAL_READ_BUILD)
-	if(${GLOBAL_READ_BUILD}) # cannot be incooperated into if one line above
-		RDM_CREATE_TARGETS()
-	endif()
+	RDM_CREATE_TARGETS()
 else()
 	RDM_CREATE_TARGETS(${RDF_BINARIES})
 endif()
