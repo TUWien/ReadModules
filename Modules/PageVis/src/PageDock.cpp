@@ -31,6 +31,9 @@
  *******************************************************************************************************/
 
 #include "PageDock.h"
+#include "PageData.h"
+
+// framework
 #include "Settings.h"
 #include "ElementsHelper.h"
 
@@ -106,13 +109,9 @@ ConfigWidget::ConfigWidget(QWidget* parent) : QWidget(parent) {
 	QMetaObject::connectSlotsByName(this);
 }
 
-void ConfigWidget::setRegionConfig(const rdf::RegionTypeConfig & config) {
+void ConfigWidget::setRegionConfig(QSharedPointer<rdf::RegionTypeConfig> config) {
 	mConfig = config;
 	updateElements();
-}
-
-rdf::RegionTypeConfig ConfigWidget::config() const {
-	return mConfig;
 }
 
 void ConfigWidget::createLayout() {
@@ -163,26 +162,32 @@ void ConfigWidget::createLayout() {
 
 void ConfigWidget::updateElements() {
 
-	mOutlineButton->setColor(mConfig.pen().color());
-	mBrushButton->setColor(mConfig.brush());
-	mStrokeBox->setValue(mConfig.pen().width());
+	if (!mConfig)
+		return;
 
-	mCbDraw->setChecked(mConfig.draw());
-	mCbDrawPoly->setChecked(mConfig.drawPoly());
-	mCbDrawBaseline->setChecked(mConfig.drawBaseline());
-	mCbDrawText->setChecked(mConfig.drawText());
+	mOutlineButton->setColor(mConfig->pen().color());
+	mBrushButton->setColor(mConfig->brush());
+	mStrokeBox->setValue(mConfig->pen().width());
+
+	mCbDraw->setChecked(mConfig->draw());
+	mCbDrawPoly->setChecked(mConfig->drawPoly());
+	mCbDrawBaseline->setChecked(mConfig->drawBaseline());
+	mCbDrawText->setChecked(mConfig->drawText());
 }
 
 void ConfigWidget::on_outlineButton_newColor(const QColor& col) {
 	
-	QPen& p = mConfig.pen();
+	if (!mConfig)
+		return;
+
+	QPen& p = mConfig->pen();
 	p.setColor(col);
-	mConfig.setPen(p);
+	mConfig->setPen(p);
 
 	// also update brush
 	QColor bc = col;
-	bc.setAlpha(mConfig.brush().alpha());
-	mConfig.setBrush(bc);
+	bc.setAlpha(mConfig->brush().alpha());
+	mConfig->setBrush(bc);
 
 	mBrushButton->setColor(bc);
 	qDebug() << "new OUTLINE color";
@@ -192,38 +197,60 @@ void ConfigWidget::on_outlineButton_newColor(const QColor& col) {
 
 void ConfigWidget::on_brushButton_newColor(const QColor& col) {
 	
-	mConfig.setBrush(col);
+	if (!mConfig)
+		return;
+
+	mConfig->setBrush(col);
 
 	emit updated();
 }
 
 void ConfigWidget::on_strokeBox_valueChanged(int val) {
 
-	QPen p = mConfig.pen();
+	if (!mConfig)
+		return;
+
+	QPen p = mConfig->pen();
 	p.setWidth(val);
-	mConfig.setPen(p);
+	mConfig->setPen(p);
 
 	emit updated();
 }
 
 void ConfigWidget::on_draw_clicked(bool toggled) {
-	mConfig.setDraw(toggled);
+	
+	if (!mConfig)
+		return;
+	
+	mConfig->setDraw(toggled);
 	emit updated();
 }
 
 void ConfigWidget::on_drawPolygon_clicked(bool toggled) {
-	mConfig.setDrawPoly(toggled);
+	
+	if (!mConfig)
+		return;
+	
+	mConfig->setDrawPoly(toggled);
 	emit updated();
 }
 
 void ConfigWidget::on_drawBaseline_clicked(bool toggled) {
-	mConfig.setDrawBaseline(toggled);
+	
+	if (!mConfig)
+		return;
+
+	mConfig->setDrawBaseline(toggled);
 	emit updated();
 }
 
 
 void ConfigWidget::on_drawText_clicked(bool toggled) {
-	mConfig.setDrawText(toggled);
+	
+	if (!mConfig)
+		return;
+	
+	mConfig->setDrawText(toggled);
 	emit updated();
 }
 
@@ -240,10 +267,10 @@ void ConfigWidget::paintEvent(QPaintEvent* event) {
 
 
 // PageViewport --------------------------------------------------------------------
-PageDock::PageDock(const QString& title, QWidget* parent) : nmc::DkDockWidget(title, parent) {
+PageDock::PageDock(PageData* pageData, const QString& title, QWidget* parent) : nmc::DkDockWidget(title, parent) {
 
 	setObjectName("PageDock");
-	loadSettings(nmc::Settings::instance().getSettings());
+	mPageData = pageData;
 
 	createLayout();
 	QMetaObject::connectSlotsByName(this);
@@ -251,7 +278,6 @@ PageDock::PageDock(const QString& title, QWidget* parent) : nmc::DkDockWidget(ti
 
 PageDock::~PageDock() {
 
-	saveSettings(nmc::Settings::instance().getSettings());
 	qDebug() << "destroying PAGE viewport";
 }
 
@@ -270,8 +296,8 @@ void PageDock::createLayout() {
 	QString dd = "QComboBox::drop-down {border:none;}";
 	configCombo->setStyleSheet(bg+dd);
 	
-	for (const rdf::RegionTypeConfig& c : mConfig)
-		configCombo->addItem(QIcon(), rdf::RegionManager::instance().typeName(c.type()));
+	for (auto c : mPageData->config())
+		configCombo->addItem(QIcon(), rdf::RegionManager::instance().typeName(c->type()));
 
 	// config widget
 	mConfigWidget = new ConfigWidget(this);
@@ -307,37 +333,12 @@ void PageDock::createLayout() {
 
 	// update
 	configCombo->setCurrentIndex(mCurrentRegion);
-	setConfigWidget(mConfig[mCurrentRegion]);
+	setConfigWidget(mPageData->config()[mCurrentRegion]);
 }
 
-void PageDock::setConfigWidget(const rdf::RegionTypeConfig & config) {
+void PageDock::setConfigWidget(QSharedPointer<rdf::RegionTypeConfig> config) {
 
 	mConfigWidget->setRegionConfig(config);
-}
-
-void PageDock::saveSettings(QSettings& settings) const {
-
-	settings.beginGroup(objectName());
-	for (const rdf::RegionTypeConfig& c : mConfig)
-		c.save(settings);
-	settings.endGroup();
-}
-
-void PageDock::loadSettings(QSettings& settings) {
-
-	settings.beginGroup(objectName());
-
-	mConfig = rdf::RegionManager::instance().regionTypeConfig();
-
-	// load from nomacs settings
-	for (rdf::RegionTypeConfig& c : mConfig)
-		c.load(settings);
-
-	settings.endGroup();
-}
-
-QVector<rdf::RegionTypeConfig> PageDock::config() const {
-	return mConfig;
 }
 
 void PageDock::on_drawCheckbox_toggled(bool toggled) const {
@@ -351,14 +352,15 @@ bool PageDock::drawRegions() const {
 
 void PageDock::on_configCombo_currentIndexChanged(int index) {
 	
-	mConfig[mCurrentRegion] = mConfigWidget->config();
-	setConfigWidget(mConfig[index]);
+	setConfigWidget(mPageData->config()[index]);
 	mCurrentRegion = (rdf::Region::Type)index;
 }
 
 void PageDock::on_configWidget_updated() {
 
-	mConfig[mCurrentRegion] = mConfigWidget->config();
+	//// correctly udpate even if we changed the current region already
+	//rdf::RegionTypeConfig c = mConfigWidget->config();
+	//mConfig[c.type()] = c;
 	emit updateSignal();
 }
 

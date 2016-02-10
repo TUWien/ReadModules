@@ -34,7 +34,9 @@
 
 #include "DkBaseWidgets.h"
 
-#include "ElementsHelper.h"
+// framework
+#include "Elements.h"
+
 
 #pragma warning(push, 0)	// no warnings from includes
 #include <QPushButton>
@@ -46,9 +48,15 @@ class QSettings;
 class QCheckBox;
 class QSpinBox;
 
+namespace rdf {
+	class RegionTypeConfig;
+}
+
 namespace rdm {
 
 // read defines
+class PageData;
+
 class ColorButton : public QWidget {
 	Q_OBJECT
 
@@ -76,8 +84,7 @@ class ConfigWidget : public QWidget {
 public:
 	ConfigWidget(QWidget* parent = 0);
 
-	void setRegionConfig(const rdf::RegionTypeConfig& config);
-	rdf::RegionTypeConfig config() const;
+	void setRegionConfig(QSharedPointer<rdf::RegionTypeConfig> config);
 
 public slots:
 	void on_outlineButton_newColor(const QColor& col);
@@ -96,7 +103,7 @@ private:
 	void updateElements();
 	void paintEvent(QPaintEvent* event) override;
 
-	rdf::RegionTypeConfig mConfig;
+	QSharedPointer<rdf::RegionTypeConfig> mConfig;
 
 	ColorButton* mOutlineButton = 0;
 	ColorButton* mBrushButton = 0;
@@ -112,7 +119,7 @@ class PageDock : public nmc::DkDockWidget {
 	Q_OBJECT
 
 public:
-	PageDock(const QString& title, QWidget* parent = 0);
+	PageDock(PageData* pageData, const QString& title, QWidget* parent = 0);
 	~PageDock();
 
 	bool drawRegions() const;
@@ -127,16 +134,15 @@ signals:
 	void updateSignal() const;
 
 private:
-	void loadSettings(QSettings& settings);
-	void saveSettings(QSettings& settings) const;
 	void createLayout();
-	void setConfigWidget(const rdf::RegionTypeConfig& config);
+	void setConfigWidget(QSharedPointer<rdf::RegionTypeConfig> config);
 
-	QVector<rdf::RegionTypeConfig> mConfig;
 	QCheckBox* mCbDraw = 0;
 	ConfigWidget* mConfigWidget = 0;
 
 	rdf::Region::Type mCurrentRegion = rdf::Region::type_text_region;
+	
+	PageData* mPageData = 0;
 };
 
 };

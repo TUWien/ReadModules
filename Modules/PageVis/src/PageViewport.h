@@ -48,6 +48,7 @@ namespace rdm {
 
 // read defines
 class PageDock;
+class PageData;
 
 class PageViewport : public nmc::DkPluginViewPort {
 	Q_OBJECT
@@ -66,10 +67,9 @@ private:
 
 	void paintEvent(QPaintEvent* event) override;
 
-	QSharedPointer<nmc::DkImageContainerT> mImg;
-	QSharedPointer<rdf::PageElement> mPage;
-
 	PageDock* mPageDock = 0;
+	PageData* mPageData = 0;
+	QSharedPointer<nmc::DkImageContainerT> mImg;
 
 };
 

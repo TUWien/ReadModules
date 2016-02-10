@@ -32,14 +32,15 @@
 
 #include "PageViewport.h"
 #include "PageDock.h"
+#include "PageData.h"
 
 // nomacs includes
 #include "DkSettings.h"
 
 // read includes
-#include "PageParser.h"
 #include "Settings.h"
 #include "ElementsHelper.h"
+#include "PageParser.h"
 
 #pragma warning(push, 0)	// no warnings from includes
 #include <QPaintEvent>
@@ -68,7 +69,8 @@ void PageViewport::init() {
 	
 	loadSettings(nmc::Settings::instance().getSettings());
 
-	mPageDock = new PageDock(tr("Page Visualization"), this);
+	mPageData = new PageData(this);
+	mPageDock = new PageDock(mPageData, tr("Page Visualization"), this);
 	
 	connect(mPageDock, SIGNAL(updateSignal()), this, SLOT(update()));
 }
@@ -95,10 +97,8 @@ void PageViewport::updateImageContainer(QSharedPointer<nmc::DkImageContainerT> i
 
 	mImg = imgC;
 
-	rdf::PageXmlParser parser;
-	parser.read(parser.imagePathToXmlPath(imgC->filePath()));
-
-	mPage = parser.page();
+	QString xmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
+	mPageData->parse(xmlPath);
 
 	qDebug() << "plugin receives new image: " << imgC->fileName();
 }
@@ -115,8 +115,8 @@ void PageViewport::paintEvent(QPaintEvent* event) {
 		if (mWorldMatrix)
 			painter.setWorldTransform((*mImgMatrix) * (*mWorldMatrix));	// >DIR: using both matrices allows for correct resizing [16.10.2013 markus]
 
-		if (mPage)
-			rdf::RegionManager::instance().drawRegion(painter, mPage->rootRegion(), mPageDock->config());
+		if (mPageData->page())
+			rdf::RegionManager::instance().drawRegion(painter, mPageData->page()->rootRegion(), mPageData->config());
 	}
 
 	DkPluginViewPort::paintEvent(event);
