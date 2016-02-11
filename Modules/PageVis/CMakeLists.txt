@@ -8,11 +8,6 @@ ENDIF()
 # include macros needed
 include("${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/Utils.cmake")
 
-######################################################### CHANGE THIS FOR NEW PLUGINS ###################################################
-set(PLUGIN_VERSION 0.1.0)
-set(PLUGIN_ID 23a9407777a04b8d9ef830f0a4f57214) #GUID without hyphens generated at http://www.guidgenerator.com/
-######################################################### CHANGE THIS FOR NEW PLUGINS ###################################################
-
 add_definitions(-DPLUGIN_VERSION="${PLUGIN_VERSION}")
 add_definitions(-DPLUGIN_ID="${PLUGIN_ID}")
 
@@ -41,6 +36,9 @@ include_directories (
 
 file(GLOB PLUGIN_SOURCES "src/*.cpp")
 file(GLOB PLUGIN_HEADERS "src/*.h" "${NOMACS_INCLUDE_DIRECTORY}/DkPluginInterface.h")
+file(GLOB PLUGIN_JSON "src/*.json")
+
+RDM_READ_PLUGIN_ID_AND_VERSION()
 
 set (PLUGIN_RESOURCES
 pageVis.qrc
@@ -57,10 +55,6 @@ ADD_LIBRARY(${PROJECT_NAME} SHARED ${PLUGIN_SOURCES} ${PLUGIN_MOC_SRC} ${PLUGIN_
 target_link_libraries(${PROJECT_NAME} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTMAIN_LIBRARY} ${OpenCV_LIBS} ${NOMACS_LIBS} ${RDF_LIBS})
 source_group("Generated Files" FILES ${RDF_RC} ${RDF_QM} ${RDF_AUTOMOC})
 
-if(GLOBAL_READ_BUILD)
-	RDM_CREATE_TARGETS()
-else()
-	RDM_CREATE_TARGETS(${RDF_BINARIES})
-endif()
+RDM_CREATE_TARGETS()
 
 qt5_use_modules(${PROJECT_NAME} Widgets Gui Network LinguistTools PrintSupport Concurrent)
