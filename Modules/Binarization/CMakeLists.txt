@@ -8,11 +8,6 @@ ENDIF()
 # include macros needed
 include("${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/Utils.cmake")
 
-######################################################### CHANGE THIS FOR NEW PLUGINS ###################################################
-set(PLUGIN_VERSION 0.1.0)
-set(PLUGIN_ID 35d2bc5433314136b421e19bda007fe6) #GUID without hyphens generated at http://www.guidgenerator.com/
-######################################################### CHANGE THIS FOR NEW PLUGINS ###################################################
-
 add_definitions(-DPLUGIN_VERSION="${PLUGIN_VERSION}")
 add_definitions(-DPLUGIN_ID="${PLUGIN_ID}")
 
@@ -42,6 +37,8 @@ include_directories (
 file(GLOB PLUGIN_SOURCES "src/*.cpp")
 file(GLOB PLUGIN_HEADERS "src/*.h" "${NOMACS_INCLUDE_DIRECTORY}/DkPluginInterface.h")
 file(GLOB PLUGIN_JSON "src/*.json")
+
+RDM_READ_PLUGIN_ID_AND_VERSION()
 
 set (PLUGIN_RESOURCES
 binarizationPlugin.qrc

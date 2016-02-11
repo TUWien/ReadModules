@@ -14,3 +14,4 @@ buildfiles/x64
 CMakeUser.txt
 install
 d.txt
+package.xml
