@@ -1,5 +1,5 @@
 {
-    "PluginName" 	: "Document Binarization",
+	"PluginName" 	: "Document Binarization",
 	"AuthorName" 	: "Markus Diem",
 	"Company"		: "Computer Vision Lab",
 	"DateCreated" 	: "04.02.2016",
