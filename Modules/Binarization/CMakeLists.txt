@@ -41,6 +41,7 @@ include_directories (
 
 file(GLOB PLUGIN_SOURCES "src/*.cpp")
 file(GLOB PLUGIN_HEADERS "src/*.h" "${NOMACS_INCLUDE_DIRECTORY}/DkPluginInterface.h")
+file(GLOB PLUGIN_JSON "src/*.json")
 
 set (PLUGIN_RESOURCES
 binarizationPlugin.qrc
@@ -57,6 +58,7 @@ ADD_LIBRARY(${PROJECT_NAME} SHARED ${PLUGIN_SOURCES} ${PLUGIN_MOC_SRC} ${PLUGIN_
 target_link_libraries(${PROJECT_NAME} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTMAIN_LIBRARY} ${OpenCV_LIBS} ${NOMACS_LIBS} ${RDF_LIBS})
 source_group("Generated Files" FILES ${RDF_RC} ${RDF_QM} ${RDF_AUTOMOC})
 
+RDM_GENERATE_PACKAGE_XML(${PLUGIN_JSON})
 RDM_CREATE_TARGETS()
 
 qt5_use_modules(${PROJECT_NAME} Widgets Gui Network LinguistTools PrintSupport Concurrent)
