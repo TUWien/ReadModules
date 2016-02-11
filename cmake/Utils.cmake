@@ -101,7 +101,6 @@ macro(RDM_FIND_RDF)
 			message(FATAL_ERROR "You have to set the READ Framework build directory")
 		endif()
 	endif()
-	message(STATUS "hier")
 	if(NOT DEFINED GLOBAL_READ_BUILD) # global build automatically puts the dll in the correct directory
 		if(MSVC) # copy files on Windows in the correct directory
 			foreach(CUR_BIN ${RDF_BINARIES})
@@ -149,6 +148,10 @@ macro(RDM_CREATE_TARGETS)
 				add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${DLL} ${NOMACS_BUILD_DIRECTORY}/$(CONFIGURATION)/)
 			endforeach()
 		endif()		
+		
+		install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${RDM_PLUGIN_INSTALL_DIRECTORY}/packages/plugins.${PROJECT_NAME}/data/nomacs-x64/plugins/ CONFIGURATIONS Release)
+		install(FILES ${ADDITIONAL_DLLS} DESTINATION ${RDM_PLUGIN_INSTALL_DIRECTORY}/packages/plugins.${PROJECT_NAME}/data/nomacs-x64/plugins/ CONFIGURATIONS Release)
+		install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/package.xml DESTINATION ${RDM_PLUGIN_INSTALL_DIRECTORY}/packages/plugins.${PROJECT_NAME}/meta CONFIGURATIONS Release)
 	else()
 		if(${NUM_ADDITONAL_DLLS} GREATER 0) 
 			foreach(DLL ${ADDITIONAL_DLLS})
