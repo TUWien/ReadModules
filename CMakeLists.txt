@@ -9,7 +9,7 @@ IF(EXISTS ${CMAKE_SOURCE_DIR}/CMakeUser.cmake)
 	include(${CMAKE_SOURCE_DIR}/CMakeUser.cmake)
 ENDIF()
 
-OPTION (ENABLE_PAGE_VIS "Compile PAGE Visualization plugin" OFF)
+OPTION (ENABLE_PAGE_VIS "Compile PAGE Visualization plugin" ON)
 OPTION (ENABLE_PAGE_EXTRACTION "Compile Page Extration plugin" OFF)
 OPTION (ENABLE_BINARIZATION "Compile Page Extration plugin" ON)
 
