@@ -1,12 +1,11 @@
 {
     "PluginName" 	: "PAGE Visualization",
+	"Tagline" 		: "Visualizes PAGE XML files in nomacs.",
+	"Description"	: "Visualizes elements of the PAGE XML in an image.",
 	"AuthorName" 	: "Markus Diem",
 	"Company"		: "Computer Vision Lab",
-	"DateCreated" 	: "09.02.2016",
-	"DateModified" 	: "09.02.2016",
-	"Description"	: "Visualizes elements of the PAGE XML in an image.",
-	"StatusTip" 	: "Show PAGE regions"
+	"DateCreated" 	: "2016-02-09",
+	"DateModified"	: "2016-02-11",
 	"PluginId"		: "23a9407777a04b8d9ef830f0a4f57214",
 	"Version"		: "0.1.0"
-}
 }
