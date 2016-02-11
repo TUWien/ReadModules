@@ -182,7 +182,7 @@ void ConfigWidget::on_outlineButton_newColor(const QColor& col) {
 	if (!mConfig)
 		return;
 
-	QPen& p = mConfig->pen();
+	QPen p = mConfig->pen();
 	p.setColor(col);
 	mConfig->setPen(p);
 
