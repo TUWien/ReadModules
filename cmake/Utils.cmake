@@ -168,6 +168,17 @@ macro(RDM_GENERATE_PACKAGE_XML)
 	if(NOT ${NUM_OF_FILES} EQUAL 0)
 		message(FATAL_ERROR "${PROJECT_NAME} plugin has more than one .json file")
 	endif()
+
+	# replace DATE_MODIFIED in json file to last cmake run
+	file(STRINGS ${JSON_FILE} line REGEX ".*\"DateModified\".*:")
+	string(REGEX REPLACE ".*:\ +\"" "" DATE_MODIFIED ${line})
+	string(REGEX REPLACE "\".*" "" DATE_MODIFIED ${DATE_MODIFIED})
+	file(READ ${JSON_FILE} JSON_CONTENT)
+	string(TIMESTAMP CURRENT_DATE "%d.%m.%Y")
+	string(REGEX REPLACE "${DATE_MODIFIED}" "${CURRENT_DATE}" JSON_CONTENT ${JSON_CONTENT})
+	message(STATUS "DATE_MODIFIED: ${DATE_MODIFIED}")
+	file(WRITE ${JSON_FILE} ${JSON_CONTENT})
+
 	
 	file(STRINGS ${JSON_FILE} line REGEX ".*\"PluginName\".*:")
 	string(REGEX REPLACE ".*:\ +\"" "" PLUGIN_NAME ${line})
@@ -189,20 +200,16 @@ macro(RDM_GENERATE_PACKAGE_XML)
 	string(REGEX REPLACE "\".*" "" DESCRIPTION ${DESCRIPTION})
 	message(STATUS "DESCRIPTION: ${DESCRIPTION}")
 	
-	file(STRINGS ${JSON_FILE} line REGEX ".*\"DateModified\".*:")
-	string(REGEX REPLACE ".*:\ +\"" "" DATE_MODIFIED ${line})
-	string(REGEX REPLACE "\".*" "" DATE_MODIFIED ${DATE_MODIFIED})
-	message(STATUS "DATE_MODIFIED: ${DATE_MODIFIED}")
 	
 	set(XML_CONTENT "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
 	set(XML_CONTENT "${XML_CONTENT}<Package>\n")
 	set(XML_CONTENT "${XML_CONTENT}\t<DisplayName>${PLUGIN_NAME}</DisplayName>\n")
 	set(XML_CONTENT "${XML_CONTENT}\t<Description>${DESCRIPTION}</Description>\n")
 	set(XML_CONTENT "${XML_CONTENT}\t<Version>${PLUGIN_VERSION}</Version>\n")
-	set(XML_CONTENT "${XML_CONTENT}\t<ReleaseDate>${DATE_MODIFIED}</ReleaseDate>\n")
+	set(XML_CONTENT "${XML_CONTENT}\t<ReleaseDate>${CURRENT_DATE}</ReleaseDate>\n")
 	set(XML_CONTENT "${XML_CONTENT}\t<Default>true</Default>\n")
 	set(XML_CONTENT "${XML_CONTENT}</Package>\n")
 	
-	file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/Package.xml ${XML_CONTENT})
+	file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/package.xml ${XML_CONTENT})
 	
 endmacro(RDM_GENERATE_PACKAGE_XML)
