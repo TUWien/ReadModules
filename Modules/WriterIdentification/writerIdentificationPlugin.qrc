@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/WriterIdentificationPlugin">
+	<file>img/read.png</file>
+    </qresource>
+</RCC>

@@ -35,7 +35,7 @@ macro(RDM_FIND_OPENCV)
 	unset(OpenCV_LIBRARY_DIRS CACHE)
 	unset(OpenCV_DIR)
  
-	find_package(OpenCV REQUIRED core imgproc)
+	find_package(OpenCV REQUIRED core imgproc xfeatures2d)
  
 	if(NOT OpenCV_FOUND)
 	 message(FATAL_ERROR "OpenCV not found.") 
