@@ -20,7 +20,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-The READ project  has  received  funding  from  the European  Unionâ€™s  Horizon  2020  
+The READ project  has  received  funding  from  the European  Union’s  Horizon  2020  
 research  and innovation programme under grant agreement No 674943
 
 related links:
@@ -34,16 +34,22 @@ related links:
 
 #include "DkPluginInterface.h"
 
+// opencv defines
+namespace cv {
+	class Mat;
+}
+
+
 namespace rdm {
 
-class BinarizationPlugin : public QObject, nmc::DkPluginInterface {
+class LayoutPlugin : public QObject, nmc::DkPluginInterface {
 	Q_OBJECT
-	Q_INTERFACES(nmc::DkPluginInterface)
-	Q_PLUGIN_METADATA(IID "com.nomacs.ImageLounge.BinarizationPlugin/3.0" FILE "BinarizationPlugin.json")
+		Q_INTERFACES(nmc::DkPluginInterface)
+		Q_PLUGIN_METADATA(IID "com.nomacs.ImageLounge.LayoutPlugin/3.0" FILE "LayoutPlugin.json")
 
 public:
-	BinarizationPlugin(QObject* parent = 0);
-	~BinarizationPlugin();
+	LayoutPlugin(QObject* parent = 0);
+	~LayoutPlugin();
 
 	QString id() const override;
 	QString version() const override;
@@ -54,8 +60,8 @@ public:
 	QSharedPointer<nmc::DkImageContainer> runPlugin(const QString &runID = QString(), QSharedPointer<nmc::DkImageContainer> imgC = QSharedPointer<nmc::DkImageContainer>()) const override;
 
 	enum {
-		id_binarize_otsu,
-		id_binarize_su,
+		id_layout_draw,
+		id_layout_xml,
 		// add actions here
 
 		id_end
@@ -66,6 +72,7 @@ protected:
 	QStringList mRunIDs;
 	QStringList mMenuNames;
 	QStringList mMenuStatusTips;
-};
 
+	cv::Mat compute(const cv::Mat& src) const;
+};
 };
