@@ -33,7 +33,7 @@ related links:
 #include "LayoutPlugin.h"
 
 // ReadFramework
-#include "SuperPixel.h"
+//#include "SuperPixel.h"
 
 // nomacs
 #include "DkImageStorage.h"
@@ -161,9 +161,17 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(const QString &run
 
 cv::Mat LayoutPlugin::compute(const cv::Mat & src) const {
 	
-	rdf::SuperPixel sp(src);
-	sp.compute();
-	return sp.debugImage();
+	// TODO: add layout here...
+
+	return src;
+
+	//rdf::SuperPixel sp(src);
+	//sp.compute();
+
+	//qDebug() << "seam carving applied";
+
+	//return sp.binaryImage();
+
 }
 
 };
