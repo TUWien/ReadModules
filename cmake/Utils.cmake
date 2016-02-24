@@ -121,7 +121,12 @@ macro(RDM_CREATE_TARGETS)
 	else()
 		# global build automatically puts the dll in the correct directory
 		if(MSVC) # copy files on Windows in the correct directory
-			foreach(CUR_BIN ${RDF_BINARIES})
+			# TODO copy all rdf opencv dlls to the nomacs target
+			
+			message(STATUS "opencv dlls: ${RDF_OPENCV_BINARIES}")
+			
+			set(BINS ${RDF_BINARIES} ${RDF_OPENCV_BINARIES})
+			foreach(CUR_BIN ${BINS})
 				string(REGEX MATCHALL ".*Debug.*" matches ${CUR_BIN})
 				if(matches)
 					file(COPY ${matches} DESTINATION ${NOMACS_BUILD_DIRECTORY}/Debug)

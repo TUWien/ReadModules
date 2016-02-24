@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/PageVis">
+    <qresource prefix="/Layout">
 	<file>img/read.png</file>
     </qresource>
 </RCC>

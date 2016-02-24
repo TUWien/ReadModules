@@ -9,9 +9,10 @@ IF(EXISTS ${CMAKE_SOURCE_DIR}/CMakeUser.cmake)
 	include(${CMAKE_SOURCE_DIR}/CMakeUser.cmake)
 ENDIF()
 
-OPTION (ENABLE_PAGE_VIS "Compile PAGE Visualization plugin" ON)
-OPTION (ENABLE_PAGE_EXTRACTION "Compile Page Extration plugin" OFF)
-OPTION (ENABLE_BINARIZATION "Compile Page Extration plugin" ON)
+OPTION (ENABLE_PAGE_VIS "Compile PAGE Visualization Plugin" ON)
+# OPTION (ENABLE_PAGE_EXTRACTION "Compile Page Extration Plugin" OFF)
+OPTION (ENABLE_BINARIZATION "Compile Page Extration Plugin" ON)
+OPTION (ENABLE_LAYOUT "Compile Layout Analysis Plugin" OFF)
 OPTION (ENABLE_WRITERIDENTIFICATION "Compile Writer Identification plugin" ON)
 
 RDM_PREPARE_PLUGIN()
@@ -42,6 +43,10 @@ ENDIF()
 
 IF (ENABLE_PAGE_VIS)
 	add_subdirectory(Modules/PageVis)
+ENDIF()
+
+IF (ENABLE_LAYOUT)
+	add_subdirectory(Modules/Layout)
 ENDIF()
 
 IF (ENABLE_WRITERIDENTIFICATION)
