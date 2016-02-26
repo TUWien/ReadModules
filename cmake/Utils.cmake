@@ -238,3 +238,11 @@ macro(RDM_GENERATE_PACKAGE_XML)
 	file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/package.xml ${XML_CONTENT})
 	
 endmacro(RDM_GENERATE_PACKAGE_XML)
+
+macro(RDM_GENERATE_USER_FILE)
+	set(NOMACS_DEBUG_PATH "${NOMACS_BUILD_DIRECTORY}/Debug/nomacs.exe")
+	set(NOMACS_RELEASE_PATH "${NOMACS_BUILD_DIRECTORY}/Release/nomacs.exe")
+	if(NOT EXISTS "${PROJECT_NAME}.vcxproj.user")
+		configure_file(../../cmake/project.vcxproj.user.in ${PROJECT_NAME}.vcxproj.user)
+	endif()
+endmacro(RDM_GENERATE_USER_FILE)
