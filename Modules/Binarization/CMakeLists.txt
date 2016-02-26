@@ -41,7 +41,7 @@ file(GLOB PLUGIN_JSON "src/*.json")
 RDM_READ_PLUGIN_ID_AND_VERSION()
 
 set (PLUGIN_RESOURCES
-binarizationPlugin.qrc
+	binarizationPlugin.qrc
  )
 ADD_DEFINITIONS(${QT_DEFINITIONS})
 ADD_DEFINITIONS(-DQT_PLUGIN)

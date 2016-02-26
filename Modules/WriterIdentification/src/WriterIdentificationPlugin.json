@@ -1,11 +1,11 @@
 {
-    "PluginName" 	: "Writer Identification",
+	"PluginName" 	: "Writer Identification",
+	"Tagline"	 	: "Writer Identification Plugin",
+	"Description"	: "Finds pages which have been written by the same writer.",
 	"AuthorName" 	: "Stefan Fiel",
 	"Company"		: "Computer Vision Lab",
-	"DateCreated" 	: "10.02.2016",
-	"DateModified"	: "2016-02-12",
-	"Description"	: "Writer Identification Plugin",
-	"Tagline"	 	: "Finds pages which have been written by the same writer."
-	"PluginId"		: "0.0.1",
-	"Version"		: "8518f3eae3324287806eae042e172a4c"
+	"DateCreated" 	: "2016-02-10",
+	"DateModified"	: "2016-02-26",
+	"PluginId"		: "8518f3eae3324287806eae042e172a4c",
+	"Version"		: "0.0.1"
 }

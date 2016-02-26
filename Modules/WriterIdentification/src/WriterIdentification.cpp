@@ -37,7 +37,7 @@
 
 //opencv
 #include "opencv2/opencv.hpp"
-#include "opencv2/xfeatures2d.hpp"
+//#include "opencv2/xfeatures2d.hpp"
 
 #pragma warning(push, 0)	// no warnings from includes
 // Qt Includes
@@ -59,8 +59,8 @@ namespace rdm {
 		if(mImg.empty())
 			return;
 
-		cv::xfeatures2d::SIFT sift = cv::xfeatures2d::SIFT();
-		sift(mImg, Mat(), mKeyPoints, mDescriptors)
+		//cv::xfeatures2d::SIFT sift = cv::xfeatures2d::SIFT();
+		//sift(mImg, Mat(), mKeyPoints, mDescriptors)
 
 	}
 	QString WriterIdentification::debugName() {
