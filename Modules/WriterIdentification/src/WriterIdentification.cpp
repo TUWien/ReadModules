@@ -37,7 +37,7 @@
 
 //opencv
 #include "opencv2/opencv.hpp"
-//#include "opencv2/xfeatures2d.hpp"
+#include "opencv2/xfeatures2d.hpp"
 
 #pragma warning(push, 0)	// no warnings from includes
 // Qt Includes
@@ -59,9 +59,38 @@ namespace rdm {
 		if(mImg.empty())
 			return;
 
-		//cv::xfeatures2d::SIFT sift = cv::xfeatures2d::SIFT();
-		//sift(mImg, Mat(), mKeyPoints, mDescriptors)
+		cv::Ptr<cv::Feature2D> sift = cv::xfeatures2d::SIFT::create();
+		std::vector<cv::KeyPoint> kp;
+		//sift->detect(mImg, kp, cv::Mat());
+		//sift->compute(mImg, kp, mDescriptors);
+		sift->detectAndCompute(mImg, cv::Mat(), kp, mDescriptors);
 
+		mKeyPoints = QVector<cv::KeyPoint>::fromStdVector(kp);
+		
+	}
+	void WriterIdentification::saveFeatures(QString filePath) {
+		if(mKeyPoints.empty() || mDescriptors.empty()) {
+			qWarning() << debugName() << " keypoints or descriptors empty ... unable to save to file";
+		}
+		cv::FileStorage fs(filePath.toStdString(), cv::FileStorage::WRITE);
+		fs << "keypoints" << mKeyPoints.toStdVector();
+		fs << "descriptors" << mDescriptors;
+		fs.release();
+	}
+	void WriterIdentification::loadFeatures(QString filePath) {
+		cv::FileStorage fs(filePath.toStdString(), cv::FileStorage::READ);
+		if(!fs.isOpened()) {
+			qWarning() << debugName() << " unable to read file " << filePath;
+			return;
+		}
+		std::vector<cv::KeyPoint> kp;
+		fs["keypoints"] >> kp;
+		mKeyPoints = QVector<cv::KeyPoint>::fromStdVector(kp);
+		fs["descriptors"] >> mDescriptors;
+		fs.release();
+	}
+	QVector<cv::KeyPoint> WriterIdentification::getKeyPoints() {
+		return mKeyPoints;
 	}
 	QString WriterIdentification::debugName() {
 		return "WriterIdentification";

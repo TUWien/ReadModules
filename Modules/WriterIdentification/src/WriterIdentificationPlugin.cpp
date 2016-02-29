@@ -24,6 +24,9 @@
 
 #include "WriterIdentificationPlugin.h"
 
+#include "WriterIdentification.h"
+#include "Image.h"
+
 #include "DkImageStorage.h"
 
 #pragma warning(push, 0)	// no warnings from includes - begin
@@ -133,6 +136,25 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(cons
 
 	if(runID == mRunIDs[id_calcuate_features]) {
 		qInfo() << "calculating features for writer identification";
+		WriterIdentification wi = WriterIdentification();
+		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
+		wi.setImage(imgCv);
+		wi.calculateFeatures();
+		cv::cvtColor(imgCv, imgCv, CV_RGB2GRAY);
+		QVector<cv::KeyPoint> kp = wi.getKeyPoints();
+		for(int i = 0; i < kp.length(); i++) {
+			kp[i].size *= 1.5 * 4;
+		}
+		cv::drawKeypoints(imgCv, kp.toStdVector(), imgCv, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+		//cv::drawKeypoints(imgCv, wi.getKeyPoints().toStdVector(), imgCv, cv::Scalar::all(-1));
+		
+		QString featureFilePath = imgC->filePath();
+		featureFilePath.replace(featureFilePath.length() - 4, featureFilePath.length(), ".yml");
+		wi.saveFeatures(featureFilePath);
+
+		//QImage img = nmc::DkImage::mat2QImage(imgCv);
+		//img = img.convertToFormat(QImage::Format_ARGB32);
+		//imgC->setImage(img, tr("SIFT keypoints"));
 	}
 	else if(runID == mRunIDs[id_generate_vocabulary]) {
 		qInfo() << "generating vocabulary";

@@ -53,6 +53,13 @@ namespace rdm {
 
 		void setImage(cv::Mat img);
 		void calculateFeatures();
+		void saveFeatures(QString filePath);
+		void loadFeatures(QString filePath);
+
+
+		QVector<cv::KeyPoint> getKeyPoints();
+
+		
 
 	private:
 		QString debugName();
