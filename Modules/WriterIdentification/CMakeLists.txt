@@ -57,5 +57,6 @@ source_group("Generated Files" FILES ${RDF_RC} ${RDF_QM} ${RDF_AUTOMOC})
 
 RDM_GENERATE_PACKAGE_XML(${PLUGIN_JSON})
 RDM_CREATE_TARGETS()
+RDM_GENERATE_USER_FILE()
 
 qt5_use_modules(${PROJECT_NAME} Widgets Gui Network LinguistTools PrintSupport Concurrent)
