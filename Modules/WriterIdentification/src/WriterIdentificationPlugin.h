@@ -25,6 +25,7 @@
 #pragma once
 
 #include "DkPluginInterface.h"
+#include "WriterIdentificationDatabase.h"
 
 namespace rdm {
 
@@ -59,6 +60,7 @@ protected:
 	QStringList mRunIDs;
 	QStringList mMenuNames;
 	QStringList mMenuStatusTips;
+	WriterIdentificationDatabase mWIDatabase;
 };
 
 };

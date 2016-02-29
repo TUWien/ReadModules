@@ -30,55 +30,19 @@
  [4] http://nomacs.org
  *******************************************************************************************************/
 
+#include "WriterIdentificationDatabase.h"
 #include "WriterIdentification.h"
-
-//nomacs
-#include "DkImageContainer.h"
-
-//opencv
-#include "opencv2/opencv.hpp"
-#include "opencv2/xfeatures2d.hpp"
 
 #pragma warning(push, 0)	// no warnings from includes
 // Qt Includes
-#include <QSharedPointer>
-#include <QVector>
+#include <QDebug>
 #pragma warning(pop)
 
 namespace rdm {
-	WriterIdentification::WriterIdentification() {
-		// do nothing
+	WriterIdentificationDatabase::WriterIdentificationDatabase() {
+		// do nothing atm
 	}
-	WriterIdentification::~WriterIdentification() {
-		// do nothing
-	}
-	void WriterIdentification::setImage(const cv::Mat img) {
-		this->mImg = img;
-	}
-	void WriterIdentification::calculateFeatures() {
-		if(mImg.empty())
-			return;
-
-		cv::Ptr<cv::Feature2D> sift = cv::xfeatures2d::SIFT::create();
-		std::vector<cv::KeyPoint> kp;
-		//sift->detect(mImg, kp, cv::Mat());
-		//sift->compute(mImg, kp, mDescriptors);
-		sift->detectAndCompute(mImg, cv::Mat(), kp, mDescriptors);
-
-		mKeyPoints = QVector<cv::KeyPoint>::fromStdVector(kp);
-		
-	}
-	void WriterIdentification::saveFeatures(QString filePath) {
-		if(mKeyPoints.empty() || mDescriptors.empty()) {
-			qWarning() << debugName() << " keypoints or descriptors empty ... unable to save to file";
-			return;
-		}
-		cv::FileStorage fs(filePath.toStdString(), cv::FileStorage::WRITE);
-		fs << "keypoints" << mKeyPoints.toStdVector();
-		fs << "descriptors" << mDescriptors;
-		fs.release();
-	}
-	void WriterIdentification::loadFeatures(QString filePath) {
+	void WriterIdentificationDatabase::addFile(QString filePath) {
 		cv::FileStorage fs(filePath.toStdString(), cv::FileStorage::READ);
 		if(!fs.isOpened()) {
 			qWarning() << debugName() << " unable to read file " << filePath;
@@ -86,14 +50,38 @@ namespace rdm {
 		}
 		std::vector<cv::KeyPoint> kp;
 		fs["keypoints"] >> kp;
-		mKeyPoints = QVector<cv::KeyPoint>::fromStdVector(kp);
-		fs["descriptors"] >> mDescriptors;
+		cv::Mat descriptors;
+		fs["descriptors"] >> descriptors;
+		fs.release();
+
+		mDescriptors.append(descriptors);
+		mKeyPoints.append(QVector<cv::KeyPoint>::fromStdVector(kp));
+		qDebug() << "lenght of keypoint vector:" << mKeyPoints.length();
+	}
+	void WriterIdentificationDatabase::generateVocabulary() {
+		//TODO
+	}
+	void WriterIdentificationDatabase::saveVocabulary(QString filePath) {
+		if(mVocabulary.empty()) {
+			qWarning() << debugName() << " vocabulary is empty ... unable to save to file";
+			return;
+		}
+		cv::FileStorage fs(filePath.toStdString(), cv::FileStorage::WRITE);
+		fs << "vocabulary" << mVocabulary;
 		fs.release();
 	}
-	QVector<cv::KeyPoint> WriterIdentification::getKeyPoints() {
-		return mKeyPoints;
+	void WriterIdentificationDatabase::loadVocabulary(QString filePath) {
+		cv::FileStorage fs(filePath.toStdString(), cv::FileStorage::READ);
+		if(!fs.isOpened()) {
+			qWarning() << debugName() << " unable to read file " << filePath;
+			return;
+		}
+		fs["vocabulary"] >> mVocabulary;
+		fs.release();
 	}
-	QString WriterIdentification::debugName() {
-		return "WriterIdentification";
+	QString WriterIdentificationDatabase::debugName() {
+		return QString("WriterIdentificationDatabase");
 	}
 }
+
+
