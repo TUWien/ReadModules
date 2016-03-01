@@ -25,7 +25,7 @@
 #include "WriterIdentificationPlugin.h"
 
 #include "WriterIdentification.h"
-#include "WriterIdentificationDatabase.h"
+#include "WIDatabase.h"
 #include "Image.h"
 
 #include "DkImageStorage.h"
@@ -162,9 +162,14 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(cons
 
 		QString featureFilePath = imgC->filePath();
 		featureFilePath.replace(featureFilePath.length() - 4, featureFilePath.length(), ".yml");
-		//WriterIdentificationDatabase mWIDatabase = WriterIdentificationDatabase();
+		WIDatabase mWIDatabase = WIDatabase();
 		//mWIDatabase = WriterIdentificationDatabase();
-		//mWIDatabase.addFile(featureFilePath);
+		mWIDatabase.addFile(featureFilePath);
+		WIVocabulary voc = WIVocabulary();
+		voc.setType(WIVocabulary::WI_GMM);
+		voc.setNumberOfCluster(300);
+		mWIDatabase.setVocabulary(voc);
+		mWIDatabase.generateVocabulary();
 	}
 	else if(runID == mRunIDs[id_identify_writer]) {
 		qInfo() << "identifying writer";

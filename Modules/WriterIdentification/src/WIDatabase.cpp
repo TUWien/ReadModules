@@ -30,19 +30,21 @@
  [4] http://nomacs.org
  *******************************************************************************************************/
 
-#include "WriterIdentificationDatabase.h"
+#include "WIDatabase.h"
 #include "WriterIdentification.h"
+#include "Image.h"
 
 #pragma warning(push, 0)	// no warnings from includes
 // Qt Includes
 #include <QDebug>
+#include "opencv2/ml.hpp"
 #pragma warning(pop)
 
 namespace rdm {
-	WriterIdentificationDatabase::WriterIdentificationDatabase() {
+	WIDatabase::WIDatabase() {
 		mVocabulary = WIVocabulary();
 	}
-	void WriterIdentificationDatabase::addFile(const QString filePath) {
+	void WIDatabase::addFile(const QString filePath) {
 		cv::FileStorage fs(filePath.toStdString(), cv::FileStorage::READ);
 		if(!fs.isOpened()) {
 			qWarning() << debugName() << " unable to read file " << filePath;
@@ -58,17 +60,89 @@ namespace rdm {
 		mKeyPoints.append(QVector<cv::KeyPoint>::fromStdVector(kp));
 		qDebug() << "lenght of keypoint vector:" << mKeyPoints.length();
 	}
-	void WriterIdentificationDatabase::generateVocabulary() {
-		//TODO
+	void WIDatabase::generateVocabulary() {
+		if(mVocabulary.type() == WIVocabulary::WI_UNDEFINED || mVocabulary.numberOfCluster() <= 0 ) {
+			qWarning() << " WIDatabase: vocabulary type and number of clusters have to be set before generating a new vocabulary";
+			return;
+		}
+		if(mDescriptors.size() == 0) {
+			qWarning() << " WIDatabase: at least one image has to be in the dataset before generating a new vocabulary";
+			return;
+		}
+
+		//int numberOfRows;
+		//int numberOfCols = mDescriptors[0].cols; // must exist because of if
+		//for(int i = 0; i < mDescriptors.size(); i++) {
+		//	numberOfRows += mDescriptors[i].rows;
+		//}
+		cv::Mat allDesc(0, 0, CV_32FC1);
+		for(int i = 0; i < mDescriptors.size(); i++) {
+			allDesc.push_back(mDescriptors[i]);
+		}
+
+		mVocabulary.setNumberOfPCA(64);
+		if(mVocabulary.numberOfPCA() > 0) { 
+			allDesc = calculatePCA(allDesc); // TODO ... currently also making a L2 normalization
+		}		
+
+		switch(mVocabulary.type()) {
+		case WIVocabulary::WI_BOW:	generateBOW(allDesc); break;
+		case WIVocabulary::WI_GMM:	generateGMM(allDesc); break;
+		default: qWarning() << "WIVocabulary has unknown type"; // should not happen
+			break;
+		}
+
 	}
-	void WriterIdentificationDatabase::setVocabulary(const WIVocabulary voc) {
+	void WIDatabase::setVocabulary(const WIVocabulary voc) {
 		mVocabulary = voc;
 	}
-	WIVocabulary WriterIdentificationDatabase::vocabulary() const {
+	WIVocabulary WIDatabase::vocabulary() const {
 		return mVocabulary;
 	}
-	QString WriterIdentificationDatabase::debugName() const {
+	QString WIDatabase::debugName() const {
 		return QString("WriterIdentificationDatabase");
+	}
+	cv::Mat WIDatabase::calculatePCA(cv::Mat desc) {
+		// calculate mean and stddev for L2 normalization
+		cv::Mat means, stddev;
+		for(int i = 0; i < desc.cols; i++) {
+			cv::Scalar m, s;
+			meanStdDev(desc.col(i), m, s);
+			means.push_back(m.val[0]);
+			stddev.push_back(s.val[0]);
+		}
+		stddev.convertTo(stddev, CV_32F);
+		means.convertTo(means, CV_32F);
+		mVocabulary.setL2Mean(means);
+		mVocabulary.setL2Sigma(stddev);
+
+		// L2 normalization 
+		cv::Mat descResult = (desc - cv::Mat::ones(desc.rows, 1, CV_32F) * means.t());
+		for(int i = 0; i < descResult.rows; i++) {
+			descResult.row(i) = descResult.row(i) / stddev.t();	// caution - don't clone this line unless you know what you do (without an operator / the assignment does nothing)
+		}
+
+		qDebug() << "calculating PCA";
+		cv::PCA pca = cv::PCA(descResult, cv::Mat(), CV_PCA_DATA_AS_ROW, mVocabulary.numberOfPCA());
+		mVocabulary.setPcaEigenvectors(pca.eigenvectors);
+		mVocabulary.setPcaEigenvalues(pca.eigenvalues);
+		mVocabulary.setPcaMean(pca.mean);
+		return descResult;
+	}
+	void WIDatabase::generateBOW(cv::Mat desc) {
+		cv::BOWKMeansTrainer bow(mVocabulary.numberOfCluster(), cv::TermCriteria(), 10);
+		mVocabulary.setVocabulary(bow.cluster(desc));
+	}
+	void WIDatabase::generateGMM(cv::Mat desc) {
+		cv::Ptr<cv::ml::EM> em = cv::ml::EM::create();
+		em->setClustersNumber(mVocabulary.numberOfCluster());
+		em->setCovarianceMatrixType(cv::ml::EM::COV_MAT_DIAGONAL);
+		if(!em->trainEM(desc)) {
+			qWarning() << "unable to train GMM";
+			return;
+		}
+		
+	
 	}
 	WIVocabulary::WIVocabulary() {
 		mVocabulary = cv::Mat();

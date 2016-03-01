@@ -101,10 +101,9 @@ namespace rdm {
 	};
 
 // read defines
-	class WriterIdentificationDatabase {
+	class WIDatabase {
 	public:
-		WriterIdentificationDatabase();
-		//~WriterIdentificationDatabase();
+		WIDatabase();
 
 		void addFile(const QString filePath);
 		void generateVocabulary();
@@ -113,6 +112,10 @@ namespace rdm {
 		WIVocabulary vocabulary() const;
 	private:
 		QString debugName() const;
+		cv::Mat calculatePCA(cv::Mat desc);
+		void generateBOW(cv::Mat desc);
+		void generateGMM(cv::Mat desc);
+
 		QVector<QVector<cv::KeyPoint> > mKeyPoints;
 		QVector<cv::Mat> mDescriptors;
 		WIVocabulary mVocabulary;
