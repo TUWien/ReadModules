@@ -44,6 +44,61 @@
 // Qt defines
 
 namespace rdm {
+	class WIVocabulary {
+	public:
+		WIVocabulary();
+
+		void loadVocabulary(const QString filePath);
+		void saveVocabulary(const QString filePath) const;
+
+		bool isEmpty() const;
+
+		enum type {
+			WI_GMM,
+			WI_BOW,
+
+			WI_UNDEFINED
+		};
+
+		void setVocabulary(cv::Mat voc);
+		cv::Mat vocabulary();
+		void setPcaMean(cv::Mat mean);
+		cv::Mat pcaMean();
+		void setPcaSigma(cv::Mat pcaSigma);
+		cv::Mat pcaSigma();
+		void setPcaEigenvectors(cv::Mat ev);
+		cv::Mat pcaEigenvectors();
+		void setPcaEigenvalues(cv::Mat ev);
+		cv::Mat pcaEigenvalues();
+		void setL2Mean(cv::Mat l2mean);
+		cv::Mat l2Mean();
+		void setL2Sigma(cv::Mat l2sigma);
+		cv::Mat l2Sigma();
+		void setNumberOfCluster(int number);
+		int numberOfCluster();
+		void setNumberOfPCA(int number);
+		int numberOfPCA();
+		void setType(int type);
+		int type();
+		void setNote(QString note);
+		QString note();
+
+
+	private:
+		cv::Mat mVocabulary;
+		cv::Mat mPcaMean;
+		cv::Mat mPcaSigma;
+		cv::Mat mPcaEigenvectors;
+		cv::Mat mPcaEigenvalues;
+		cv::Mat mL2Mean;
+		cv::Mat mL2Sigma;
+
+		int mNumberOfClusters;
+		int mNumberPCA;
+		int mType;
+
+		QString mNote;
+	};
 
 // read defines
 	class WriterIdentificationDatabase {
@@ -51,16 +106,15 @@ namespace rdm {
 		WriterIdentificationDatabase();
 		//~WriterIdentificationDatabase();
 
-		void addFile(QString filePath);
+		void addFile(const QString filePath);
 		void generateVocabulary();
 
-		void saveVocabulary(QString filePath);
-		void loadVocabulary(QString filePath);
+		void setVocabulary(const WIVocabulary voc);
+		WIVocabulary vocabulary() const;
 	private:
-		QString debugName();
+		QString debugName() const;
 		QVector<QVector<cv::KeyPoint> > mKeyPoints;
 		QVector<cv::Mat> mDescriptors;
-		cv::Mat mVocabulary;
+		WIVocabulary mVocabulary;
 	};
-
 };

@@ -40,9 +40,9 @@
 
 namespace rdm {
 	WriterIdentificationDatabase::WriterIdentificationDatabase() {
-		// do nothing atm
+		mVocabulary = WIVocabulary();
 	}
-	void WriterIdentificationDatabase::addFile(QString filePath) {
+	void WriterIdentificationDatabase::addFile(const QString filePath) {
 		cv::FileStorage fs(filePath.toStdString(), cv::FileStorage::READ);
 		if(!fs.isOpened()) {
 			qWarning() << debugName() << " unable to read file " << filePath;
@@ -61,26 +61,140 @@ namespace rdm {
 	void WriterIdentificationDatabase::generateVocabulary() {
 		//TODO
 	}
-	void WriterIdentificationDatabase::saveVocabulary(QString filePath) {
-		if(mVocabulary.empty()) {
-			qWarning() << debugName() << " vocabulary is empty ... unable to save to file";
+	void WriterIdentificationDatabase::setVocabulary(const WIVocabulary voc) {
+		mVocabulary = voc;
+	}
+	WIVocabulary WriterIdentificationDatabase::vocabulary() const {
+		return mVocabulary;
+	}
+	QString WriterIdentificationDatabase::debugName() const {
+		return QString("WriterIdentificationDatabase");
+	}
+	WIVocabulary::WIVocabulary() {
+		mVocabulary = cv::Mat();
+		mPcaMean = cv::Mat();
+		mPcaSigma = cv::Mat();
+		mPcaEigenvectors = cv::Mat();
+		mPcaEigenvalues = cv::Mat();
+		mL2Mean = cv::Mat();
+		mL2Sigma = cv::Mat();
+		mNumberOfClusters = 0;
+		mNumberPCA = 0;
+		mType = WI_UNDEFINED;
+		mNote = QString();
+	}
+	void WIVocabulary::loadVocabulary(const QString filePath) {
+		cv::FileStorage fs(filePath.toStdString(), cv::FileStorage::READ);
+		if(!fs.isOpened()) {
+			qWarning() << "WIVocabulary: unable to read file " << filePath;
+			return;
+		}
+		fs["Vocabulary"] >> mVocabulary;
+		fs["PcaMean"] >> mPcaMean;
+		fs["PcaSigam"] >> mPcaSigma;
+		fs["PcaEigenvectors"] >> mPcaEigenvectors;
+		fs["PcaEigenvalues"] >> mPcaEigenvalues;
+		fs["L2Mean"] >> mL2Mean;
+		fs["L2Sigma"] >> mL2Sigma;
+		fs["NumberOfClusters"] >> mNumberOfClusters;
+		fs["NumberOfPCA"] >> mNumberPCA;
+		fs["type"] >> mType;
+		std::string note;
+		fs["note"] >> note;
+		mNote = QString::fromStdString(note);
+
+		fs.release();
+	}
+	void WIVocabulary::saveVocabulary(const QString filePath) const {
+		if(isEmpty()) {
+			qWarning() << "WIVocabulary: isEmpty() is true ... unable to save to file";
 			return;
 		}
 		cv::FileStorage fs(filePath.toStdString(), cv::FileStorage::WRITE);
-		fs << "vocabulary" << mVocabulary;
+		fs << "NumberOfClusters" << mNumberOfClusters;
+		fs << "NumberOfPCA" << mNumberPCA;
+		fs << "type" << mType;
+		fs << "note" << mNote.toStdString();
+		fs << "Vocabulary" << mVocabulary;
+		fs << "PcaMean" << mPcaMean;
+		fs << "PcaSigam" << mPcaSigma;
+		fs << "PcaEigenvectors" << mPcaEigenvectors;
+		fs << "PcaEigenvalues" << mPcaEigenvalues;
+		fs << "L2Mean" << mL2Mean;
+		fs << "L2Sigma" << mL2Sigma;
 		fs.release();
 	}
-	void WriterIdentificationDatabase::loadVocabulary(QString filePath) {
-		cv::FileStorage fs(filePath.toStdString(), cv::FileStorage::READ);
-		if(!fs.isOpened()) {
-			qWarning() << debugName() << " unable to read file " << filePath;
-			return;
+	bool WIVocabulary::isEmpty() const {
+		if(mVocabulary.empty() || mNumberOfClusters <= 0 || mType == WI_UNDEFINED) {
+			return true;
 		}
-		fs["vocabulary"] >> mVocabulary;
-		fs.release();
+		return false;
 	}
-	QString WriterIdentificationDatabase::debugName() {
-		return QString("WriterIdentificationDatabase");
+	void WIVocabulary::setVocabulary(cv::Mat voc) {
+		mVocabulary = voc;
+	}
+	cv::Mat WIVocabulary::vocabulary() {
+		return mVocabulary;
+	}
+	void WIVocabulary::setPcaMean(cv::Mat mean) {
+		mPcaMean = mean;
+	}
+	cv::Mat WIVocabulary::pcaMean() {
+		return mPcaMean;
+	}
+	void WIVocabulary::setPcaSigma(cv::Mat pcaSigma) {
+		mPcaSigma = pcaSigma;
+	}
+	cv::Mat WIVocabulary::pcaSigma() {
+		return mPcaSigma;
+	}
+	void WIVocabulary::setPcaEigenvectors(cv::Mat ev) {
+		mPcaEigenvectors = ev;
+	}
+	cv::Mat WIVocabulary::pcaEigenvectors() {
+		return mPcaEigenvectors;
+	}
+	void WIVocabulary::setPcaEigenvalues(cv::Mat ev) {
+		mPcaEigenvalues = ev;
+	}
+	cv::Mat WIVocabulary::pcaEigenvalues() {
+		return mPcaEigenvalues;
+	}
+	void WIVocabulary::setL2Mean(cv::Mat l2mean) {
+		mL2Mean = l2mean;
+	}
+	cv::Mat WIVocabulary::l2Mean() {
+		return mL2Mean;
+	}
+	void WIVocabulary::setL2Sigma(cv::Mat l2sigma) {
+		mL2Sigma = l2sigma;
+	}
+	cv::Mat WIVocabulary::l2Sigma() {
+		return mL2Sigma;
+	}
+	void WIVocabulary::setNumberOfCluster(int number) {
+		mNumberOfClusters = number;
+	}
+	int WIVocabulary::numberOfCluster() {
+		return mNumberOfClusters;
+	}
+	void WIVocabulary::setNumberOfPCA(int number) {
+		mNumberPCA = number;
+	}
+	int WIVocabulary::numberOfPCA() {
+		return mNumberPCA;
+	}
+	void WIVocabulary::setType(int type) {
+		mType = type;
+	}
+	int WIVocabulary::type() {
+		return mType;
+	}
+	void WIVocabulary::setNote(QString note) {
+		mNote = note;
+	}
+	QString WIVocabulary::note() {
+		return mNote;
 	}
 }
 
