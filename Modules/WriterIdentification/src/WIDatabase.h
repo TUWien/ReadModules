@@ -36,7 +36,8 @@
 // Qt Includes
 #include <QString>
 #include <QVector>
-#include "opencv2\opencv.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/ml/ml.hpp"
 #pragma warning(pop)
 
 // TODO: add DllExport magic
@@ -115,13 +116,18 @@ namespace rdm {
 		WIVocabulary vocabulary() const;
 		void saveVocabulary(QString filePath) const;
 
+		void evaluateDatabase(QVector<int> classLabels, QString filePath = QString()) const;
+		cv::Mat generateHist(cv::Mat desc);
+
 	private:
 		QString debugName() const;
 		cv::Mat calculatePCA(cv::Mat desc);
 		void generateBOW(cv::Mat desc);
 		void generateGMM(cv::Mat desc);
 		cv::Mat applyPCA(cv::Mat desc);
-
+		cv::Mat generateHistBOW(cv::Mat desc);
+		cv::Mat generateHistGMM(cv::Mat desc);
+		cv::Mat l2Norm(cv::Mat desc);
 		QVector<QVector<cv::KeyPoint> > mKeyPoints;
 		QVector<cv::Mat> mDescriptors;
 		WIVocabulary mVocabulary;

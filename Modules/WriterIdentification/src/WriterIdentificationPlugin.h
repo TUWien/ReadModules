@@ -66,6 +66,7 @@ protected:
 	void clearFeaturePath() const;
 	void addFeaturePath(const QString& path) const;
 	QStringList featurePaths() const;
+	QStringList classLabels() const;
 };
 
 };

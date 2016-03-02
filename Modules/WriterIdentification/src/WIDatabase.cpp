@@ -38,6 +38,7 @@
 // Qt Includes
 #include <QDebug>
 #include "opencv2/ml.hpp"
+#include "opencv2/features2d/features2d.hpp"
 #pragma warning(pop)
 
 namespace rdm {
@@ -103,6 +104,18 @@ namespace rdm {
 	void WIDatabase::saveVocabulary(QString filePath) const {
 		mVocabulary.saveVocabulary(filePath);
 	}
+	void WIDatabase::evaluateDatabase(QVector<int> classLabels, QString filePath) const {
+		qDebug() << "evaluating database";
+		
+	}
+	cv::Mat WIDatabase::generateHist(cv::Mat desc) {
+		if(mVocabulary.type() == WIVocabulary::WI_BOW)
+			return generateHistBOW(desc);
+		else if(mVocabulary.type() == WIVocabulary::WI_GMM)
+			return generateHistGMM(desc);
+		else
+			return cv::Mat();
+	}
 	QString WIDatabase::debugName() const {
 		return QString("WriterIdentificationDatabase");
 	}
@@ -165,6 +178,103 @@ namespace rdm {
 		pca.project(desc, desc);
 
 		return desc;
+	}
+	cv::Mat WIDatabase::generateHistBOW(cv::Mat desc) {
+		if(mVocabulary.isEmpty()) {
+			qWarning() << "generateHistBOW: vocabulary is empty ... aborting";
+			return cv::Mat();
+		}
+		if(desc.empty())
+			return cv::Mat();
+
+		cv::Mat d = desc.clone();
+		if(mVocabulary.numberOfPCA() > 0) {
+			d = l2Norm(d);
+			d = applyPCA(d);
+		}
+		cv::Mat dists, idx;
+		
+		cv::flann::Index flann_index(mVocabulary.vocabulary(), cv::flann::LinearIndexParams());
+		cv::Mat hist = cv::Mat(1, (int)mVocabulary.vocabulary().rows, CV_32FC1);
+		hist.setTo(0);
+
+		flann_index.knnSearch(d, idx, dists, 1, cv::flann::SearchParams(64));
+
+		float *ptrHist = hist.ptr<float>(0);
+		int *ptrLabels = idx.ptr<int>(0);		//float?
+
+		for(int i = 0; i < idx.rows; i++) {
+
+			ptrHist[(int)*ptrLabels]++;
+			ptrLabels++;
+		}
+
+		hist /= (float)d.rows;
+
+
+		return hist;
+	}
+	cv::Mat WIDatabase::generateHistGMM(cv::Mat desc) {
+		if(mVocabulary.isEmpty()) {
+			qWarning() << "generateHistGMM: vocabulary is empty ... aborting";
+			return cv::Mat();
+		}
+		if(desc.empty())
+			return cv::Mat();
+
+		
+		cv::Mat d = desc.clone();
+		if(mVocabulary.numberOfPCA() > 0) {
+			d = l2Norm(d);
+			d = applyPCA(d);
+		}
+		cv::Mat fisher(mVocabulary.numberOfCluster(), d.rows, CV_32F);
+		fisher.setTo(0);
+
+		cv::Ptr<cv::ml::EM> em = mVocabulary.em();
+		for(int i = 0; i < d.rows; i++) {
+			cv::Mat feature = d.row(i);
+			cv::Mat probs, means;
+			std::vector<cv::Mat> covs;
+			
+			cv::Vec2d emOut = em->predict(feature, probs);
+			em->getCovs(covs);
+			means = em->getMeans();
+			means.convertTo(means, CV_32F);
+
+			for(int g = 0; g < em->getClustersNumber(); g++) {
+				cv::Mat cov = covs[g];
+				cv::Mat diag = cov.diag(0).t();
+				diag.convertTo(diag, CV_32F);
+				fisher.row(g) += probs.at<double>(g) * ((feature - means.row(g)) / diag);
+			}
+		}
+		cv::Mat weights = em->getWeights();
+		weights.convertTo(weights, CV_32F);
+		for(int j = 0; j < em->getClustersNumber(); j++) {
+			fisher.row(j) *= 1.0f / (d.rows* sqrt(weights.at<float>(j)) + DBL_EPSILON);
+		}
+		cv::Mat hist = fisher.reshape(0, 1);
+
+		float power = 0.5;
+		qDebug() << "power normaliazion by " << power;
+		cv::Mat tmp;
+		cv::pow(abs(hist), power, tmp);
+		for(int i = 0; i < hist.cols; i++) {
+			if(hist.at<float>(i) < 0)
+				tmp.at<float>(i) *= 1;
+		}
+		hist = tmp;
+
+		return hist;
+	}
+	cv::Mat WIDatabase::l2Norm(cv::Mat desc) {
+		// L2 - normalization
+		cv::Mat d = (desc - cv::Mat::ones(desc.rows, 1, CV_32F) * mVocabulary.l2Mean().t());
+		for(int i = 0; i < d.rows; i++) {
+			d.row(i) = d.row(i) / mVocabulary.l2Sigma().t();
+		}
+		return d;
 	}
 	WIVocabulary::WIVocabulary() {
 		mVocabulary = cv::Mat();

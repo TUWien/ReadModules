@@ -34,6 +34,7 @@
 #pragma warning(push, 0)	// no warnings from includes - begin
 #include <QAction>
 #include <QSettings>
+#include "opencv2/features2d/features2d.hpp"
 #pragma warning(pop)		// no warnings from includes - end
 
 namespace rdm {
@@ -193,7 +194,6 @@ void WriterIdentificationPlugin::postLoadPlugin() {
 	mWIDatabase.generateVocabulary();
 	mWIDatabase.saveVocabulary("C://tmp//test-voc.yml");
 
-	voc.loadVocabulary("C://tmp//test-voc.yml");
 	clearFeaturePath();
 }
 
@@ -204,10 +204,21 @@ void WriterIdentificationPlugin::clearFeaturePath() const {
 
 	QStringList paths;
 	s.setValue("featureFiles", QStringList());
+	QStringList classLabels;
+	s.setValue("classLabels", classLabels);
 	s.endGroup();
 }
 
 void WriterIdentificationPlugin::addFeaturePath(const QString & path) const {
+	int idxOfMinus = path.indexOf("-");
+	int idxOfUScore = path.indexOf("_");
+	int idx = -1;
+	if(idxOfMinus == -1 && idxOfUScore > 0)
+		idx = idxOfUScore;
+	else if(idxOfUScore == -1 && idxOfMinus > 0)
+		idx = idxOfMinus;
+	else if(idxOfMinus > 0 && idxOfUScore > 0)
+		idx = idxOfMinus > idxOfUScore ? idxOfMinus : idxOfUScore;
 
 	QSettings& s = rdf::Config::instance().settings();
 	s.beginGroup("WriterIdentification");
@@ -216,6 +227,11 @@ void WriterIdentificationPlugin::addFeaturePath(const QString & path) const {
 	paths = s.value("featureFiles", paths).toStringList();
 	paths << path;
 	s.setValue("featureFiles", paths);
+
+	QStringList classLabels;
+	classLabels = s.value("classLabels", classLabels).toStringList();
+	classLabels << path.left(idx);
+	s.setValue("classLabels", classLabels);
 	s.endGroup();
 }
 
@@ -229,6 +245,17 @@ QStringList WriterIdentificationPlugin::featurePaths() const {
 	s.endGroup();
 
 	return paths;
+}
+
+QStringList WriterIdentificationPlugin::classLabels() const {
+	QSettings& s = rdf::Config::instance().settings();
+	s.beginGroup("WriterIdentification");
+
+	QStringList classLabels;
+	classLabels = s.value("classLabels", classLabels).toStringList();
+	s.endGroup();
+
+	return classLabels;
 }
 
 ;

@@ -37,7 +37,7 @@
 #pragma warning(push, 0)	// no warnings from includes
 // Qt Includes
 #include <QVector>
-#include "opencv2\opencv.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
 #pragma warning(pop)
 
 // TODO: add DllExport magic

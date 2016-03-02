@@ -36,7 +36,7 @@
 #include "DkImageContainer.h"
 
 //opencv
-#include "opencv2/opencv.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/xfeatures2d.hpp"
 
 #pragma warning(push, 0)	// no warnings from includes
