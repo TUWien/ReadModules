@@ -134,14 +134,16 @@ namespace rdm {
 		mVocabulary.setVocabulary(bow.cluster(desc));
 	}
 	void WIDatabase::generateGMM(cv::Mat desc) {
+		qDebug() << "start training GMM";
 		cv::Ptr<cv::ml::EM> em = cv::ml::EM::create();
 		em->setClustersNumber(mVocabulary.numberOfCluster());
 		em->setCovarianceMatrixType(cv::ml::EM::COV_MAT_DIAGONAL);
+		qDebug() << "start training GMM - again"; 
 		if(!em->trainEM(desc)) {
 			qWarning() << "unable to train GMM";
 			return;
-		}
-		
+		} 
+		qDebug() << "finished";
 	
 	}
 	WIVocabulary::WIVocabulary() {

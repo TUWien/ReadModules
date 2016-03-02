@@ -167,7 +167,7 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(cons
 		mWIDatabase.addFile(featureFilePath);
 		WIVocabulary voc = WIVocabulary();
 		voc.setType(WIVocabulary::WI_GMM);
-		voc.setNumberOfCluster(300);
+		voc.setNumberOfCluster(5);
 		mWIDatabase.setVocabulary(voc);
 		mWIDatabase.generateVocabulary();
 	}
@@ -178,7 +178,14 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(cons
 
 	// wrong runID? - do nothing
 	return imgC;
-};
+}
+void WriterIdentificationPlugin::preLoadPlugin() {
+	qDebug() << "preloading plugin";
+}
+void WriterIdentificationPlugin::postLoadPlugin() {
+	qDebug() << "postLoadPlugin";
+}
+;
 
 };
 
