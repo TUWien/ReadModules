@@ -31,7 +31,7 @@ namespace rdm {
 
 class WriterIdentificationPlugin : public QObject, nmc::DkBatchPluginInterface {
 	Q_OBJECT
-	Q_INTERFACES(nmc::DkPluginInterface)
+	Q_INTERFACES(nmc::DkBatchPluginInterface)
 	Q_PLUGIN_METADATA(IID "com.nomacs.ImageLounge.WriterIdentificationPlugin/3.0" FILE "WriterIdentificationPlugin.json")
 
 public:
@@ -45,9 +45,8 @@ public:
 	QList<QAction*> createActions(QWidget* parent) override;
 	QList<QAction*> pluginActions() const override;
 	QSharedPointer<nmc::DkImageContainer> runPlugin(const QString &runID = QString(), QSharedPointer<nmc::DkImageContainer> imgC = QSharedPointer<nmc::DkImageContainer>()) const override;
-	void preLoadPlugin();
-	void postLoadPlugin();
-
+	void preLoadPlugin() override;
+	void postLoadPlugin() override;
 	enum {
 		id_calcuate_features,
 		id_generate_vocabulary,

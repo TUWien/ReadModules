@@ -138,7 +138,7 @@ namespace rdm {
 		cv::Ptr<cv::ml::EM> em = cv::ml::EM::create();
 		em->setClustersNumber(mVocabulary.numberOfCluster());
 		em->setCovarianceMatrixType(cv::ml::EM::COV_MAT_DIAGONAL);
-		qDebug() << "start training GMM - again"; 
+		qDebug() << "start training GMM - number of features:" << desc.rows; 
 		if(!em->trainEM(desc)) {
 			qWarning() << "unable to train GMM";
 			return;
