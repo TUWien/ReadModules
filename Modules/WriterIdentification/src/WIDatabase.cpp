@@ -45,6 +45,7 @@ namespace rdm {
 		mVocabulary = WIVocabulary();
 	}
 	void WIDatabase::addFile(const QString filePath) {
+		qDebug() << "adding file " << filePath;
 		cv::FileStorage fs(filePath.toStdString(), cv::FileStorage::READ);
 		if(!fs.isOpened()) {
 			qWarning() << debugName() << " unable to read file " << filePath;
@@ -99,6 +100,9 @@ namespace rdm {
 	WIVocabulary WIDatabase::vocabulary() const {
 		return mVocabulary;
 	}
+	void WIDatabase::saveVocabulary(QString filePath) const {
+		mVocabulary.saveVocabulary(filePath);
+	}
 	QString WIDatabase::debugName() const {
 		return QString("WriterIdentificationDatabase");
 	}
@@ -127,6 +131,8 @@ namespace rdm {
 		mVocabulary.setPcaEigenvectors(pca.eigenvectors);
 		mVocabulary.setPcaEigenvalues(pca.eigenvalues);
 		mVocabulary.setPcaMean(pca.mean);
+
+		descResult = applyPCA(descResult);
 		return descResult;
 	}
 	void WIDatabase::generateBOW(cv::Mat desc) {
@@ -143,8 +149,22 @@ namespace rdm {
 			qWarning() << "unable to train GMM";
 			return;
 		} 
+		mVocabulary.setEM(em);
 		qDebug() << "finished";
 	
+	}
+	cv::Mat WIDatabase::applyPCA(cv::Mat desc) {
+		if(mVocabulary.pcaEigenvalues().empty() || mVocabulary.pcaEigenvectors().empty() || mVocabulary.pcaMean().empty()) {
+			qWarning() << "applyPCA: vocabulary does not have a PCA ... not applying PCA";
+			return desc;
+		}
+		cv::PCA pca;
+		pca.eigenvalues = mVocabulary.pcaEigenvalues();
+		pca.eigenvectors = mVocabulary.pcaEigenvectors();
+		pca.mean = mVocabulary.pcaMean();
+		pca.project(desc, desc);
+
+		return desc;
 	}
 	WIVocabulary::WIVocabulary() {
 		mVocabulary = cv::Mat();
@@ -160,12 +180,12 @@ namespace rdm {
 		mNote = QString();
 	}
 	void WIVocabulary::loadVocabulary(const QString filePath) {
+		qDebug() << "loading vocabulary from " << filePath; 
 		cv::FileStorage fs(filePath.toStdString(), cv::FileStorage::READ);
 		if(!fs.isOpened()) {
 			qWarning() << "WIVocabulary: unable to read file " << filePath;
 			return;
 		}
-		fs["Vocabulary"] >> mVocabulary;
 		fs["PcaMean"] >> mPcaMean;
 		fs["PcaSigam"] >> mPcaSigma;
 		fs["PcaEigenvectors"] >> mPcaEigenvectors;
@@ -178,10 +198,21 @@ namespace rdm {
 		std::string note;
 		fs["note"] >> note;
 		mNote = QString::fromStdString(note);
+		if(mType == WI_BOW)
+			fs["Vocabulary"] >> mVocabulary;
+		else {
+			std::string gmmPath;
+			fs["GmmPath"] >> gmmPath;
+			mEM->load<cv::ml::EM>(gmmPath);
+
+			//cv::FileNode fn = fs["StatModel.EM"];
+			//mEM->read(fn);
+		}
 
 		fs.release();
 	}
 	void WIVocabulary::saveVocabulary(const QString filePath) const {
+		qDebug() << "saving vocabulary to " << filePath;
 		if(isEmpty()) {
 			qWarning() << "WIVocabulary: isEmpty() is true ... unable to save to file";
 			return;
@@ -191,17 +222,27 @@ namespace rdm {
 		fs << "NumberOfPCA" << mNumberPCA;
 		fs << "type" << mType;
 		fs << "note" << mNote.toStdString();
-		fs << "Vocabulary" << mVocabulary;
 		fs << "PcaMean" << mPcaMean;
 		fs << "PcaSigam" << mPcaSigma;
 		fs << "PcaEigenvectors" << mPcaEigenvectors;
 		fs << "PcaEigenvalues" << mPcaEigenvalues;
 		fs << "L2Mean" << mL2Mean;
 		fs << "L2Sigma" << mL2Sigma;
+		if(mType == WI_BOW)
+			fs << "Vocabulary" << mVocabulary;
+		else if(mType == WI_GMM) {
+			QString gmmPath = filePath;
+			gmmPath.insert(gmmPath.length() - 4, "-gmm");
+			fs << "GmmPath" << gmmPath.toStdString();
+			mEM->save(gmmPath.toStdString());
+			
+			//mEM->write(fs);
+		}
+
 		fs.release();
 	}
 	bool WIVocabulary::isEmpty() const {
-		if(mVocabulary.empty() || mNumberOfClusters <= 0 || mType == WI_UNDEFINED) {
+		if(mVocabulary.empty() && mType == WI_BOW || mEM.empty() && mType == WI_GMM || mNumberOfClusters <= 0 || mType == WI_UNDEFINED) {
 			return true;
 		}
 		return false;
@@ -209,67 +250,73 @@ namespace rdm {
 	void WIVocabulary::setVocabulary(cv::Mat voc) {
 		mVocabulary = voc;
 	}
-	cv::Mat WIVocabulary::vocabulary() {
+	cv::Mat WIVocabulary::vocabulary() const {
 		return mVocabulary;
 	}
-	void WIVocabulary::setPcaMean(cv::Mat mean) {
+	void WIVocabulary::setEM(cv::Ptr<cv::ml::EM> em) {
+		mEM = em;
+	}
+	cv::Ptr<cv::ml::EM> WIVocabulary::em() const {
+		return mEM;
+	}
+	void WIVocabulary::setPcaMean(const cv::Mat mean) {
 		mPcaMean = mean;
 	}
-	cv::Mat WIVocabulary::pcaMean() {
+	cv::Mat WIVocabulary::pcaMean() const {
 		return mPcaMean;
 	}
-	void WIVocabulary::setPcaSigma(cv::Mat pcaSigma) {
+	void WIVocabulary::setPcaSigma(const cv::Mat pcaSigma) {
 		mPcaSigma = pcaSigma;
 	}
-	cv::Mat WIVocabulary::pcaSigma() {
+	cv::Mat WIVocabulary::pcaSigma() const {
 		return mPcaSigma;
 	}
-	void WIVocabulary::setPcaEigenvectors(cv::Mat ev) {
+	void WIVocabulary::setPcaEigenvectors(const cv::Mat ev) {
 		mPcaEigenvectors = ev;
 	}
-	cv::Mat WIVocabulary::pcaEigenvectors() {
+	cv::Mat WIVocabulary::pcaEigenvectors() const {
 		return mPcaEigenvectors;
 	}
-	void WIVocabulary::setPcaEigenvalues(cv::Mat ev) {
+	void WIVocabulary::setPcaEigenvalues(const cv::Mat ev) {
 		mPcaEigenvalues = ev;
 	}
-	cv::Mat WIVocabulary::pcaEigenvalues() {
+	cv::Mat WIVocabulary::pcaEigenvalues() const {
 		return mPcaEigenvalues;
 	}
-	void WIVocabulary::setL2Mean(cv::Mat l2mean) {
+	void WIVocabulary::setL2Mean(const cv::Mat l2mean) {
 		mL2Mean = l2mean;
 	}
-	cv::Mat WIVocabulary::l2Mean() {
+	cv::Mat WIVocabulary::l2Mean() const {
 		return mL2Mean;
 	}
-	void WIVocabulary::setL2Sigma(cv::Mat l2sigma) {
+	void WIVocabulary::setL2Sigma(const cv::Mat l2sigma) {
 		mL2Sigma = l2sigma;
 	}
-	cv::Mat WIVocabulary::l2Sigma() {
+	cv::Mat WIVocabulary::l2Sigma() const {
 		return mL2Sigma;
 	}
-	void WIVocabulary::setNumberOfCluster(int number) {
+	void WIVocabulary::setNumberOfCluster(const int number) {
 		mNumberOfClusters = number;
 	}
-	int WIVocabulary::numberOfCluster() {
+	int WIVocabulary::numberOfCluster() const {
 		return mNumberOfClusters;
 	}
-	void WIVocabulary::setNumberOfPCA(int number) {
+	void WIVocabulary::setNumberOfPCA(const int number) {
 		mNumberPCA = number;
 	}
-	int WIVocabulary::numberOfPCA() {
+	int WIVocabulary::numberOfPCA() const {
 		return mNumberPCA;
 	}
-	void WIVocabulary::setType(int type) {
+	void WIVocabulary::setType(const int type) {
 		mType = type;
 	}
-	int WIVocabulary::type() {
+	int WIVocabulary::type() const {
 		return mType;
 	}
 	void WIVocabulary::setNote(QString note) {
 		mNote = note;
 	}
-	QString WIVocabulary::note() {
+	QString WIVocabulary::note() const {
 		return mNote;
 	}
 }

@@ -61,31 +61,34 @@ namespace rdm {
 		};
 
 		void setVocabulary(cv::Mat voc);
-		cv::Mat vocabulary();
+		cv::Mat vocabulary() const;
+		void setEM(cv::Ptr<cv::ml::EM> em);
+		cv::Ptr<cv::ml::EM> em() const;
 		void setPcaMean(cv::Mat mean);
-		cv::Mat pcaMean();
+		cv::Mat pcaMean() const;
 		void setPcaSigma(cv::Mat pcaSigma);
-		cv::Mat pcaSigma();
+		cv::Mat pcaSigma() const;
 		void setPcaEigenvectors(cv::Mat ev);
-		cv::Mat pcaEigenvectors();
+		cv::Mat pcaEigenvectors() const;
 		void setPcaEigenvalues(cv::Mat ev);
-		cv::Mat pcaEigenvalues();
-		void setL2Mean(cv::Mat l2mean);
-		cv::Mat l2Mean();
-		void setL2Sigma(cv::Mat l2sigma);
-		cv::Mat l2Sigma();
-		void setNumberOfCluster(int number);
-		int numberOfCluster();
-		void setNumberOfPCA(int number);
-		int numberOfPCA();
-		void setType(int type);
-		int type();
+		cv::Mat pcaEigenvalues() const;
+		void setL2Mean(const cv::Mat l2mean);
+		cv::Mat l2Mean() const;
+		void setL2Sigma(const cv::Mat l2sigma);
+		cv::Mat l2Sigma() const;
+		void setNumberOfCluster(const int number);
+		int numberOfCluster() const;
+		void setNumberOfPCA(const int number);
+		int numberOfPCA() const;
+		void setType(const int type);
+		int type() const;
 		void setNote(QString note);
-		QString note();
+		QString note() const;
 
 
 	private:
 		cv::Mat mVocabulary;
+		cv::Ptr<cv::ml::EM> mEM;
 		cv::Mat mPcaMean;
 		cv::Mat mPcaSigma;
 		cv::Mat mPcaEigenvectors;
@@ -110,11 +113,14 @@ namespace rdm {
 
 		void setVocabulary(const WIVocabulary voc);
 		WIVocabulary vocabulary() const;
+		void saveVocabulary(QString filePath) const;
+
 	private:
 		QString debugName() const;
 		cv::Mat calculatePCA(cv::Mat desc);
 		void generateBOW(cv::Mat desc);
 		void generateGMM(cv::Mat desc);
+		cv::Mat applyPCA(cv::Mat desc);
 
 		QVector<QVector<cv::KeyPoint> > mKeyPoints;
 		QVector<cv::Mat> mDescriptors;

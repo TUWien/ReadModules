@@ -27,11 +27,13 @@
 #include "WriterIdentification.h"
 #include "WIDatabase.h"
 #include "Image.h"
+#include "Settings.h"
 
 #include "DkImageStorage.h"
 
 #pragma warning(push, 0)	// no warnings from includes - begin
 #include <QAction>
+#include <QSettings>
 #pragma warning(pop)		// no warnings from includes - end
 
 namespace rdm {
@@ -162,14 +164,7 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(cons
 
 		QString featureFilePath = imgC->filePath();
 		featureFilePath.replace(featureFilePath.length() - 4, featureFilePath.length(), ".yml");
-		WIDatabase mWIDatabase = WIDatabase();
-		//mWIDatabase = WriterIdentificationDatabase();
-		mWIDatabase.addFile(featureFilePath);
-		WIVocabulary voc = WIVocabulary();
-		voc.setType(WIVocabulary::WI_GMM);
-		voc.setNumberOfCluster(5);
-		mWIDatabase.setVocabulary(voc);
-		mWIDatabase.generateVocabulary();
+		addFeaturePath(featureFilePath);
 	}
 	else if(runID == mRunIDs[id_identify_writer]) {
 		qInfo() << "identifying writer";
@@ -181,10 +176,61 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(cons
 }
 void WriterIdentificationPlugin::preLoadPlugin() {
 	qDebug() << "preloading plugin";
+	clearFeaturePath();
+	mWIDatabase = WIDatabase();
 }
 void WriterIdentificationPlugin::postLoadPlugin() {
 	qDebug() << "postLoadPlugin";
+	WIVocabulary voc = WIVocabulary();
+	voc.setType(WIVocabulary::WI_BOW);
+	voc.setNumberOfCluster(5);
+	mWIDatabase.setVocabulary(voc);
+	
+	QStringList featFiles = featurePaths();
+	for(int i = 0; i < featFiles.length(); i++)
+		mWIDatabase.addFile(featFiles[i]);
+
+	mWIDatabase.generateVocabulary();
+	mWIDatabase.saveVocabulary("C://tmp//test-voc.yml");
+
+	voc.loadVocabulary("C://tmp//test-voc.yml");
+	clearFeaturePath();
 }
+
+void WriterIdentificationPlugin::clearFeaturePath() const {
+
+	QSettings& s = rdf::Config::instance().settings();
+	s.beginGroup("WriterIdentification");
+
+	QStringList paths;
+	s.setValue("featureFiles", QStringList());
+	s.endGroup();
+}
+
+void WriterIdentificationPlugin::addFeaturePath(const QString & path) const {
+
+	QSettings& s = rdf::Config::instance().settings();
+	s.beginGroup("WriterIdentification");
+
+	QStringList paths;
+	paths = s.value("featureFiles", paths).toStringList();
+	paths << path;
+	s.setValue("featureFiles", paths);
+	s.endGroup();
+}
+
+QStringList WriterIdentificationPlugin::featurePaths() const {
+
+	QSettings& s = rdf::Config::instance().settings();
+	s.beginGroup("WriterIdentification");
+
+	QStringList paths;
+	paths = s.value("featureFiles", paths).toStringList();
+	s.endGroup();
+
+	return paths;
+}
+
 ;
 
 };
