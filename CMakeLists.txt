@@ -14,6 +14,7 @@ OPTION (ENABLE_PAGE_VIS "Compile PAGE Visualization Plugin" ON)
 OPTION (ENABLE_BINARIZATION "Compile Page Extration Plugin" ON)
 OPTION (ENABLE_LAYOUT "Compile Layout Analysis Plugin" OFF)
 OPTION (ENABLE_WRITERIDENTIFICATION "Compile Writer Identification plugin" ON)
+OPTION (ENABLE_BATCH_TEST "Test plugin for new batch interface" OFF)
 
 RDM_PREPARE_PLUGIN()
 
@@ -51,4 +52,7 @@ ENDIF()
 
 IF (ENABLE_WRITERIDENTIFICATION)
 	add_subdirectory(Modules/WriterIdentification)
+ENDIF()
+IF (ENABLE_BATCH_TEST)
+	add_subdirectory(Modules/BatchTest)
 ENDIF()
