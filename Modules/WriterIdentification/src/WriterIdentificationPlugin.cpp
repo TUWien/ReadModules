@@ -224,19 +224,19 @@ void WriterIdentificationPlugin::addFeaturePath(const QString & path) const {
 	QString label = QFileInfo(path).baseName().left(idx);
 	
 	//mutex.lock();
-	QSharedPointer<QSettings> s = rdf::Config::instance().sharedSettings();
-	s->beginGroup("WriterIdentification");
+	QSettings& s = rdf::Config::instance().settings();
+	s.beginGroup("WriterIdentification");
 
 	QStringList paths;
-	paths = s->value("featureFiles", paths).toStringList();
+	paths = s.value("featureFiles", paths).toStringList();
 	paths << path;
-	s->setValue("featureFiles", paths);
+	s.setValue("featureFiles", paths);
 
 	QStringList classLabels;
-	classLabels = s->value("classLabels", classLabels).toStringList();
+	classLabels = s.value("classLabels", classLabels).toStringList();
 	classLabels << label;
-	s->setValue("classLabels", classLabels);
-	s->endGroup();
+	s.setValue("classLabels", classLabels);
+	s.endGroup();
 }
 
 QStringList WriterIdentificationPlugin::featurePaths() const {
