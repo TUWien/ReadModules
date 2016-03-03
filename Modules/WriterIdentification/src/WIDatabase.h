@@ -116,18 +116,18 @@ namespace rdm {
 		WIVocabulary vocabulary() const;
 		void saveVocabulary(QString filePath) const;
 
-		void evaluateDatabase(QVector<int> classLabels, QString filePath = QString()) const;
-		cv::Mat generateHist(cv::Mat desc);
+		void evaluateDatabase(QStringList classLabels, QStringList filePaths, QString filePath = QString()) const;
+		cv::Mat generateHist(cv::Mat desc) const;
 
 	private:
 		QString debugName() const;
 		cv::Mat calculatePCA(cv::Mat desc);
 		void generateBOW(cv::Mat desc);
 		void generateGMM(cv::Mat desc);
-		cv::Mat applyPCA(cv::Mat desc);
-		cv::Mat generateHistBOW(cv::Mat desc);
-		cv::Mat generateHistGMM(cv::Mat desc);
-		cv::Mat l2Norm(cv::Mat desc);
+		cv::Mat applyPCA(cv::Mat desc) const;
+		cv::Mat generateHistBOW(cv::Mat desc) const;
+		cv::Mat generateHistGMM(cv::Mat desc) const;
+		cv::Mat l2Norm(cv::Mat desc) const;
 		QVector<QVector<cv::KeyPoint> > mKeyPoints;
 		QVector<cv::Mat> mDescriptors;
 		WIVocabulary mVocabulary;

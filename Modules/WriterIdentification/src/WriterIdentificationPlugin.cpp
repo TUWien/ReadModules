@@ -178,10 +178,11 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(cons
 void WriterIdentificationPlugin::preLoadPlugin() {
 	qDebug() << "preloading plugin";
 	clearFeaturePath();
-	mWIDatabase = WIDatabase();
+	
 }
 void WriterIdentificationPlugin::postLoadPlugin() {
 	qDebug() << "postLoadPlugin";
+	mWIDatabase = WIDatabase();
 	WIVocabulary voc = WIVocabulary();
 	voc.setType(WIVocabulary::WI_BOW);
 	voc.setNumberOfCluster(5);
@@ -193,6 +194,7 @@ void WriterIdentificationPlugin::postLoadPlugin() {
 
 	mWIDatabase.generateVocabulary();
 	mWIDatabase.saveVocabulary("C://tmp//test-voc.yml");
+	mWIDatabase.evaluateDatabase(classLabels(), featurePaths());
 
 	clearFeaturePath();
 }
@@ -210,8 +212,8 @@ void WriterIdentificationPlugin::clearFeaturePath() const {
 }
 
 void WriterIdentificationPlugin::addFeaturePath(const QString & path) const {
-	int idxOfMinus = path.indexOf("-");
-	int idxOfUScore = path.indexOf("_");
+	int idxOfMinus = QFileInfo(path).baseName().indexOf("-");
+	int idxOfUScore = QFileInfo(path).baseName().indexOf("_");
 	int idx = -1;
 	if(idxOfMinus == -1 && idxOfUScore > 0)
 		idx = idxOfUScore;
@@ -219,20 +221,22 @@ void WriterIdentificationPlugin::addFeaturePath(const QString & path) const {
 		idx = idxOfMinus;
 	else if(idxOfMinus > 0 && idxOfUScore > 0)
 		idx = idxOfMinus > idxOfUScore ? idxOfMinus : idxOfUScore;
-
-	QSettings& s = rdf::Config::instance().settings();
-	s.beginGroup("WriterIdentification");
+	QString label = QFileInfo(path).baseName().left(idx);
+	
+	//mutex.lock();
+	QSharedPointer<QSettings> s = rdf::Config::instance().sharedSettings();
+	s->beginGroup("WriterIdentification");
 
 	QStringList paths;
-	paths = s.value("featureFiles", paths).toStringList();
+	paths = s->value("featureFiles", paths).toStringList();
 	paths << path;
-	s.setValue("featureFiles", paths);
+	s->setValue("featureFiles", paths);
 
 	QStringList classLabels;
-	classLabels = s.value("classLabels", classLabels).toStringList();
-	classLabels << path.left(idx);
-	s.setValue("classLabels", classLabels);
-	s.endGroup();
+	classLabels = s->value("classLabels", classLabels).toStringList();
+	classLabels << label;
+	s->setValue("classLabels", classLabels);
+	s->endGroup();
 }
 
 QStringList WriterIdentificationPlugin::featurePaths() const {

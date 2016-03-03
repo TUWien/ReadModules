@@ -37,6 +37,7 @@
 #pragma warning(push, 0)	// no warnings from includes
 // Qt Includes
 #include <QDebug>
+#include <QFile>
 #include "opencv2/ml.hpp"
 #include "opencv2/features2d/features2d.hpp"
 #pragma warning(pop)
@@ -104,11 +105,53 @@ namespace rdm {
 	void WIDatabase::saveVocabulary(QString filePath) const {
 		mVocabulary.saveVocabulary(filePath);
 	}
-	void WIDatabase::evaluateDatabase(QVector<int> classLabels, QString filePath) const {
+	void WIDatabase::evaluateDatabase(QStringList classLabels, QStringList filePaths, QString filePath) const {
 		qDebug() << "evaluating database";
+		QVector<cv::Mat> hists;
+		qDebug() << "calculating histograms for all images";
+		for(int i = 0; i < mDescriptors.length(); i++) {
+			hists.push_back(generateHist(mDescriptors[i]));
+		}
+		int tp = 0; 
+		int fp = 0;
+		for(int i = 0; i < mDescriptors.length(); i++) {
+			QVector<double> distances;
+			for(int j = 0; j < mDescriptors.length(); j++) {
+				if(mVocabulary.type() == WIVocabulary::WI_GMM) {
+					//distances.push_back(); return DkIP::cosineDistance(hist1, hist2); // 0 is equal 2 is orthogonal
+				} else if(mVocabulary.type() == WIVocabulary::WI_BOW) {
+					cv::Mat tmp;
+					pow(hists[i] - hists[j], 2, tmp);
+					cv::Scalar scal = cv::sum(tmp);
+					distances.push_back(sqrt(scal[0]));
+				}
+			}
+			QVector<unsigned int> idxs(distances.length());
+			for(int k = 0; k < distances.length(); k++)
+				idxs[k] = k;
+			std::sort(std::begin(idxs), std::end(idxs), [&](unsigned int a, unsigned int b) {return distances[a] < distances[b]; });
+			std::sort(std::begin(distances), std::end(distances));
+
+			if(!filePath.isEmpty()) {
+				QFile file(filePath);
+				if(file.open(QIODevice::ReadWrite)) {
+					QTextStream stream(&file);
+					for(int k = 0; k < distances.length(); k++) {
+						stream << filePaths[k] + ";";
+					}
+				}
+			}
+			qDebug() << "classLabels[i].toInt():" << classLabels[i].toInt() << " idxs[0]:" << idxs[0] << " classLabels[idxs[0]]:" << classLabels[idxs[0]];
+			if(classLabels[i] == classLabels[idxs[0]])
+				tp++;
+			else
+				fp++;
+		}
+		qDebug() << "total:" << tp+fp << " tp:" << tp << " fp:" << fp;
+		qDebug() << "precision:" << (float)tp / ((float)tp + fp);
 		
 	}
-	cv::Mat WIDatabase::generateHist(cv::Mat desc) {
+	cv::Mat WIDatabase::generateHist(cv::Mat desc) const {
 		if(mVocabulary.type() == WIVocabulary::WI_BOW)
 			return generateHistBOW(desc);
 		else if(mVocabulary.type() == WIVocabulary::WI_GMM)
@@ -166,7 +209,7 @@ namespace rdm {
 		qDebug() << "finished";
 	
 	}
-	cv::Mat WIDatabase::applyPCA(cv::Mat desc) {
+	cv::Mat WIDatabase::applyPCA(cv::Mat desc) const {
 		if(mVocabulary.pcaEigenvalues().empty() || mVocabulary.pcaEigenvectors().empty() || mVocabulary.pcaMean().empty()) {
 			qWarning() << "applyPCA: vocabulary does not have a PCA ... not applying PCA";
 			return desc;
@@ -179,7 +222,7 @@ namespace rdm {
 
 		return desc;
 	}
-	cv::Mat WIDatabase::generateHistBOW(cv::Mat desc) {
+	cv::Mat WIDatabase::generateHistBOW(cv::Mat desc) const {
 		if(mVocabulary.isEmpty()) {
 			qWarning() << "generateHistBOW: vocabulary is empty ... aborting";
 			return cv::Mat();
@@ -214,7 +257,7 @@ namespace rdm {
 
 		return hist;
 	}
-	cv::Mat WIDatabase::generateHistGMM(cv::Mat desc) {
+	cv::Mat WIDatabase::generateHistGMM(cv::Mat desc) const {
 		if(mVocabulary.isEmpty()) {
 			qWarning() << "generateHistGMM: vocabulary is empty ... aborting";
 			return cv::Mat();
@@ -268,7 +311,7 @@ namespace rdm {
 
 		return hist;
 	}
-	cv::Mat WIDatabase::l2Norm(cv::Mat desc) {
+	cv::Mat WIDatabase::l2Norm(cv::Mat desc) const {
 		// L2 - normalization
 		cv::Mat d = (desc - cv::Mat::ones(desc.rows, 1, CV_32F) * mVocabulary.l2Mean().t());
 		for(int i = 0; i < d.rows; i++) {
