@@ -47,10 +47,6 @@ macro(RDM_FIND_OPENCV)
 	get_property(the_include_dirs  DIRECTORY . PROPERTY INCLUDE_DIRECTORIES)
 	list(REMOVE_ITEM the_include_dirs ${OpenCV_INCLUDE_DIRS})
 	set_property(DIRECTORY . PROPERTY INCLUDE_DIRECTORIES ${the_include_dirs})
-	
-	# make RelWithDebInfo link against release instead of debug opencv dlls
-	set_target_properties(${OpenCV_LIBS} PROPERTIES MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
-
 endmacro(RDM_FIND_OPENCV)
 
 macro(RDM_PREPARE_PLUGIN)
@@ -134,6 +130,7 @@ macro(RDM_CREATE_TARGETS)
 				if(matches)
 					file(COPY ${matches} DESTINATION ${NOMACS_BUILD_DIRECTORY}/Debug)
 					add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${matches} ${NOMACS_BUILD_DIRECTORY}/Debug)
+					add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${matches} ${NOMACS_BUILD_DIRECTORY}/RelWithDebInfo)
 				endif()
 				string(REGEX MATCHALL ".*Release.*" matches ${CUR_BIN})
 				if(matches)
