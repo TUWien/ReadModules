@@ -62,7 +62,7 @@ protected:
 	QStringList mMenuNames;
 	QStringList mMenuStatusTips;
 	WIDatabase mWIDatabase;
-
+	
 	void clearFeaturePath() const;
 	void addFeaturePath(const QString& path) const;
 	QStringList featurePaths() const;

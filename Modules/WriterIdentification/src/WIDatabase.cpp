@@ -83,7 +83,6 @@ namespace rdm {
 			allDesc.push_back(mDescriptors[i]);
 		}
 
-		mVocabulary.setNumberOfPCA(64);
 		if(mVocabulary.numberOfPCA() > 0) { 
 			allDesc = calculatePCA(allDesc); // TODO ... currently also making a L2 normalization
 		}		
@@ -118,7 +117,7 @@ namespace rdm {
 			QVector<double> distances;
 			for(int j = 0; j < mDescriptors.length(); j++) {
 				if(mVocabulary.type() == WIVocabulary::WI_GMM) {
-					//distances.push_back(); return DkIP::cosineDistance(hist1, hist2); // 0 is equal 2 is orthogonal
+					distances.push_back(1 - hists[i].dot(hists[j]) / ((norm(hists[i])*norm(hists[j])) + DBL_EPSILON)); // 1-dist ... 0 is equal 2 is orthogonal
 				} else if(mVocabulary.type() == WIVocabulary::WI_BOW) {
 					cv::Mat tmp;
 					pow(hists[i] - hists[j], 2, tmp);
@@ -136,13 +135,13 @@ namespace rdm {
 				QFile file(filePath);
 				if(file.open(QIODevice::ReadWrite)) {
 					QTextStream stream(&file);
-					for(int k = 0; k < distances.length(); k++) {
-						stream << filePaths[k] + ";";
+					for(int k = 0; k < idxs.length(); k++) {
+						stream << filePaths[idxs[k]] + ";";
 					}
 				}
 			}
-			qDebug() << "classLabels[i].toInt():" << classLabels[i].toInt() << " idxs[0]:" << idxs[0] << " classLabels[idxs[0]]:" << classLabels[idxs[0]];
-			if(classLabels[i] == classLabels[idxs[0]])
+			qDebug() << "classLabels[i].toInt():" << classLabels[i].toInt() << " idxs[1]:" << idxs[1] << " classLabels[idxs[1]]:" << classLabels[idxs[1]];
+			if(classLabels[i] == classLabels[idxs[1]])
 				tp++;
 			else
 				fp++;
@@ -196,11 +195,12 @@ namespace rdm {
 		mVocabulary.setVocabulary(bow.cluster(desc));
 	}
 	void WIDatabase::generateGMM(cv::Mat desc) {
-		qDebug() << "start training GMM";
+		qDebug() << "start training GMM";		
 		cv::Ptr<cv::ml::EM> em = cv::ml::EM::create();
 		em->setClustersNumber(mVocabulary.numberOfCluster());
 		em->setCovarianceMatrixType(cv::ml::EM::COV_MAT_DIAGONAL);
 		qDebug() << "start training GMM - number of features:" << desc.rows; 
+		rdf::Image::instance().imageInfo(desc, "all descriptors");
 		if(!em->trainEM(desc)) {
 			qWarning() << "unable to train GMM";
 			return;
@@ -374,7 +374,7 @@ namespace rdm {
 		fs << "NumberOfClusters" << mNumberOfClusters;
 		fs << "NumberOfPCA" << mNumberPCA;
 		fs << "type" << mType;
-		fs << "note" << mNote.toStdString();
+		//fs << "note" << mNote.toStdString();
 		fs << "PcaMean" << mPcaMean;
 		fs << "PcaSigam" << mPcaSigma;
 		fs << "PcaEigenvectors" << mPcaEigenvectors;

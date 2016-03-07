@@ -182,12 +182,15 @@ void WriterIdentificationPlugin::preLoadPlugin() {
 }
 void WriterIdentificationPlugin::postLoadPlugin() {
 	qDebug() << "postLoadPlugin";
+
 	mWIDatabase = WIDatabase();
 	WIVocabulary voc = WIVocabulary();
-	voc.setType(WIVocabulary::WI_BOW);
-	voc.setNumberOfCluster(5);
+	voc.setType(WIVocabulary::WI_GMM);
+	voc.setNumberOfCluster(30);
+	voc.setNumberOfPCA(64);
 	mWIDatabase.setVocabulary(voc);
 	
+
 	QStringList featFiles = featurePaths();
 	for(int i = 0; i < featFiles.length(); i++)
 		mWIDatabase.addFile(featFiles[i]);
@@ -223,7 +226,6 @@ void WriterIdentificationPlugin::addFeaturePath(const QString & path) const {
 		idx = idxOfMinus > idxOfUScore ? idxOfMinus : idxOfUScore;
 	QString label = QFileInfo(path).baseName().left(idx);
 	
-	//mutex.lock();
 	QSettings& s = rdf::Config::instance().settings();
 	s.beginGroup("WriterIdentification");
 
