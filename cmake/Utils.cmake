@@ -45,7 +45,10 @@ macro(RDM_FIND_OPENCV)
 	# unset(OpenCV_DIR)
  
 	find_package(OpenCV REQUIRED ${PACKAGES}) 
- 
+	if( ${NUM_ADDITONAL_PACKAGES} EQUAL 0) # look for the optional components when searching for the RDF packages
+		find_package(OpenCV QUIET OPTIONAL_COMPONENTS ${RDF_OPTIONAL_OPENCV_PACKAGES}) 
+	endif() 
+	
 	if(NOT OpenCV_FOUND)
 	 message(FATAL_ERROR "OpenCV not found.") 
 	else()
@@ -63,6 +66,18 @@ macro(RDM_FIND_OPENCV)
 			
 			message(STATUS "copying ${dllpath} to ${CMAKE_BINARY_DIR}/Debug")
 		endforeach(opencvlib)
+		if( ${NUM_ADDITONAL_PACKAGES} EQUAL 0) # copy  optional components when using  RDF packages
+			foreach(opencvlib ${RDF_OPTIONAL_OPENCV_PACKAGES})
+				file(GLOB dllpath ${OpenCV_DIR}/bin/Release/opencv_${opencvlib}*.dll)
+				file(COPY ${dllpath} DESTINATION ${NOMACS_BUILD_DIRECTORY}/Release)
+				file(COPY ${dllpath} DESTINATION ${NOMACS_BUILD_DIRECTORY}/RelWithDebInfo)
+				
+				file(GLOB dllpath ${OpenCV_DIR}/bin/Debug/opencv_${opencvlib}*d.dll)
+				file(COPY ${dllpath} DESTINATION ${NOMACS_BUILD_DIRECTORY}/Debug)
+				
+				message(STATUS "copying ${dllpath} to ${CMAKE_BINARY_DIR}/Debug")
+			endforeach(opencvlib)			
+		endif()
 	endif(MSVC)
 
 	# unset include directories since OpenCV sets them global
