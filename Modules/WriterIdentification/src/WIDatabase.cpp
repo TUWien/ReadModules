@@ -276,18 +276,18 @@ namespace rdm {
 
 		cv::Ptr<cv::ml::EM> em = mVocabulary.em();
 		for(int i = 0; i < d.rows; i++) {
-			qDebug() << "i: " << i;
+			//qDebug() << "i: " << i;
 			cv::Mat feature = d.row(i);
 			cv::Mat probs, means;
 			std::vector<cv::Mat> covs;
 			
 			cv::Vec2d emOut = em->predict(feature, probs);
-			qDebug() << "getting covs";
+			//qDebug() << "getting covs";
 			em->getCovs(covs);
-			qDebug() << "getting means";
+			//qDebug() << "getting means";
 			means = em->getMeans();
 			means.convertTo(means, CV_32F);
-			qDebug() << "calculate fisher information";
+			//qDebug() << "calculate fisher information";
 			for(int j = 0; j < em->getClustersNumber(); j++) {
 				cv::Mat cov = covs[j];
 				cv::Mat diag = cov.diag(0).t();

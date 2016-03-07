@@ -133,7 +133,7 @@ QList<QAction*> WriterIdentificationPlugin::pluginActions() const {
 * @param plugin ID
 * @param image to be processed
 **/
-QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(const QString &runID, QSharedPointer<nmc::DkImageContainer> imgC) const {
+QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(const QString &runID, QSharedPointer<nmc::DkImageContainer> imgC, QSharedPointer<nmc::DkBatchInfo>& info) const {
 
 	if (!imgC)
 		return imgC;
@@ -161,11 +161,28 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(cons
 		//imgC->setImage(img, tr("SIFT keypoints"));
 	}
 	else if(runID == mRunIDs[id_generate_vocabulary]) {
-		qInfo() << "generating vocabulary";
+		qInfo() << "collecting files for vocabulary generation";
 
 		QString featureFilePath = imgC->filePath();
 		featureFilePath.replace(featureFilePath.length() - 4, featureFilePath.length(), ".yml");
-		addFeaturePath(featureFilePath);
+
+		int idxOfMinus = QFileInfo(imgC->filePath()).baseName().indexOf("-");
+		int idxOfUScore = QFileInfo(imgC->filePath()).baseName().indexOf("_");
+		int idx = -1;
+		if(idxOfMinus == -1 && idxOfUScore > 0)
+			idx = idxOfUScore;
+		else if(idxOfUScore == -1 && idxOfMinus > 0)
+			idx = idxOfMinus;
+		else if(idxOfMinus > 0 && idxOfUScore > 0)
+			idx = idxOfMinus > idxOfUScore ? idxOfMinus : idxOfUScore;
+		QString label = QFileInfo(imgC->filePath()).baseName().left(idx);
+
+		QSharedPointer<WIInfo> wInfo(new WIInfo(runID, imgC->filePath()));
+		wInfo->setWriter(label);
+		wInfo->setFeatureFilePath(featureFilePath);
+
+		info = wInfo;
+
 	}
 	else if(runID == mRunIDs[id_identify_writer]) {
 		qInfo() << "identifying writer";
@@ -175,101 +192,71 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(cons
 	// wrong runID? - do nothing
 	return imgC;
 }
-void WriterIdentificationPlugin::preLoadPlugin() {
+void WriterIdentificationPlugin::preLoadPlugin(const QString& runID) const {
 	qDebug() << "preloading plugin";
-	clearFeaturePath();
 	
 }
-void WriterIdentificationPlugin::postLoadPlugin() {
+void WriterIdentificationPlugin::postLoadPlugin(const QString& runID, const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const {
 	qDebug() << "postLoadPlugin";
 
-	mWIDatabase = WIDatabase();
-	WIVocabulary voc = WIVocabulary();
-	voc.setType(WIVocabulary::WI_GMM);
-	voc.setNumberOfCluster(5);
-	voc.setNumberOfPCA(64);
+	for(auto bi : batchInfo) {
+		qDebug() << bi->filePath() << "computed...";
+		WIInfo * wInfo = dynamic_cast<WIInfo*>(bi.data());
 
-	//voc.setType(WIVocabulary::WI_BOW);
-	//voc.setNumberOfCluster(5);
-	//voc.setNumberOfPCA(64);
+		if(wInfo)
+			qDebug() << "writer: " << wInfo->writer();
 
-	mWIDatabase.setVocabulary(voc);
-	
+	}
+	if(runID == mRunIDs[id_generate_vocabulary]) {
+		WIDatabase mWIDatabase = WIDatabase();
+		WIVocabulary voc = WIVocabulary();
+		voc.setType(WIVocabulary::WI_GMM);
+		voc.setNumberOfCluster(20);
+		voc.setNumberOfPCA(64);
 
-	QStringList featFiles = featurePaths();
-	for(int i = 0; i < featFiles.length(); i++)
-		mWIDatabase.addFile(featFiles[i]);
+		//voc.setType(WIVocabulary::WI_BOW);
+		//voc.setNumberOfCluster(5);
+		//voc.setNumberOfPCA(64);
 
-	mWIDatabase.generateVocabulary();
-	mWIDatabase.saveVocabulary("C://tmp//test3-voc.yml");
-	mWIDatabase.evaluateDatabase(classLabels(), featurePaths());
+		mWIDatabase.setVocabulary(voc);
 
-	clearFeaturePath();
+		QStringList classLabels, featurePaths;
+		for(auto bi : batchInfo) {
+			WIInfo * wInfo = dynamic_cast<WIInfo*>(bi.data());
+			mWIDatabase.addFile(wInfo->featureFilePath());
+			featurePaths.append(wInfo->featureFilePath());
+			classLabels.append(wInfo->writer());
+		}
+
+		mWIDatabase.generateVocabulary();
+		mWIDatabase.saveVocabulary("C://tmp//test3-voc.yml");
+		mWIDatabase.evaluateDatabase(classLabels, featurePaths);
+	}
 }
 
-void WriterIdentificationPlugin::clearFeaturePath() const {
 
-	QSettings& s = rdf::Config::instance().settings();
-	s.beginGroup("WriterIdentification");
-
-	QStringList paths;
-	s.setValue("featureFiles", QStringList());
-	QStringList classLabels;
-	s.setValue("classLabels", classLabels);
-	s.endGroup();
+// WIInfo --------------------------------------------------------------------
+WIInfo::WIInfo(const QString& id, const QString & filePath) : nmc::DkBatchInfo(id, filePath) {
 }
 
-void WriterIdentificationPlugin::addFeaturePath(const QString & path) const {
-	int idxOfMinus = QFileInfo(path).baseName().indexOf("-");
-	int idxOfUScore = QFileInfo(path).baseName().indexOf("_");
-	int idx = -1;
-	if(idxOfMinus == -1 && idxOfUScore > 0)
-		idx = idxOfUScore;
-	else if(idxOfUScore == -1 && idxOfMinus > 0)
-		idx = idxOfMinus;
-	else if(idxOfMinus > 0 && idxOfUScore > 0)
-		idx = idxOfMinus > idxOfUScore ? idxOfMinus : idxOfUScore;
-	QString label = QFileInfo(path).baseName().left(idx);
-	
-	QSettings& s = rdf::Config::instance().settings();
-	s.beginGroup("WriterIdentification");
-
-	QStringList paths;
-	paths = s.value("featureFiles", paths).toStringList();
-	paths << path;
-	s.setValue("featureFiles", paths);
-
-	QStringList classLabels;
-	classLabels = s.value("classLabels", classLabels).toStringList();
-	classLabels << label;
-	s.setValue("classLabels", classLabels);
-	s.endGroup();
+void WIInfo::setWriter(const QString & p) {
+	mWriter = p;
 }
 
-QStringList WriterIdentificationPlugin::featurePaths() const {
-
-	QSettings& s = rdf::Config::instance().settings();
-	s.beginGroup("WriterIdentification");
-
-	QStringList paths;
-	paths = s.value("featureFiles", paths).toStringList();
-	s.endGroup();
-
-	return paths;
+QString WIInfo::writer() const {
+	return mWriter;
 }
 
-QStringList WriterIdentificationPlugin::classLabels() const {
-	QSettings& s = rdf::Config::instance().settings();
-	s.beginGroup("WriterIdentification");
-
-	QStringList classLabels;
-	classLabels = s.value("classLabels", classLabels).toStringList();
-	s.endGroup();
-
-	return classLabels;
+void WIInfo::setFeatureFilePath(const QString & p) {
+	mFeatureFilePath = p;
 }
 
-;
+QString WIInfo::featureFilePath() const {
+	return mFeatureFilePath;
+}
 
 };
+
+
+
 

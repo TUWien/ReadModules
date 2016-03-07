@@ -29,6 +29,22 @@
 
 namespace rdm {
 
+class WIInfo : public nmc::DkBatchInfo {
+
+public:
+	WIInfo(const QString& id = QString(), const QString& filePath = QString());
+
+	void setWriter(const QString& writer);
+	QString writer() const;
+
+	void setFeatureFilePath(const QString& p);
+	QString featureFilePath() const;
+private:
+	QString mWriter;
+	QString mFeatureFilePath;
+
+};
+
 class WriterIdentificationPlugin : public QObject, nmc::DkBatchPluginInterface {
 	Q_OBJECT
 	Q_INTERFACES(nmc::DkBatchPluginInterface)
@@ -44,9 +60,9 @@ public:
 
 	QList<QAction*> createActions(QWidget* parent) override;
 	QList<QAction*> pluginActions() const override;
-	QSharedPointer<nmc::DkImageContainer> runPlugin(const QString &runID = QString(), QSharedPointer<nmc::DkImageContainer> imgC = QSharedPointer<nmc::DkImageContainer>()) const override;
-	void preLoadPlugin() override;
-	void postLoadPlugin() override;
+	QSharedPointer<nmc::DkImageContainer> runPlugin(const QString &runID, QSharedPointer<nmc::DkImageContainer> imgC, QSharedPointer<nmc::DkBatchInfo>& info) const;
+	void preLoadPlugin(const QString& runID) const override;
+	void postLoadPlugin(const QString& runID, const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const override;
 	enum {
 		id_calcuate_features,
 		id_generate_vocabulary,
@@ -62,11 +78,6 @@ protected:
 	QStringList mMenuNames;
 	QStringList mMenuStatusTips;
 	WIDatabase mWIDatabase;
-	
-	void clearFeaturePath() const;
-	void addFeaturePath(const QString& path) const;
-	QStringList featurePaths() const;
-	QStringList classLabels() const;
 };
 
 };
