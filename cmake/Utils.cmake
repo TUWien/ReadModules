@@ -35,7 +35,7 @@ macro(RDM_FIND_OPENCV)
 	unset(OpenCV_LIBRARY_DIRS CACHE)
 	unset(OpenCV_DIR)
  
-	find_package(OpenCV REQUIRED core imgproc)
+	find_package(OpenCV REQUIRED core imgproc stitching imgcodecs flann features2d calib3d xfeatures2d objdetect ml highgui videoio shape video) 
  
 	if(NOT OpenCV_FOUND)
 	 message(FATAL_ERROR "OpenCV not found.") 
@@ -138,7 +138,7 @@ macro(RDM_CREATE_TARGETS)
 				string(REGEX MATCHALL ".*Release.*" matches ${CUR_BIN})
 				if(matches)
 					add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${matches} ${NOMACS_BUILD_DIRECTORY}/Release)
-					add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${matches} ${NOMACS_BUILD_DIRECTORY}/RelWithDebInfo)
+
 				endif()			
 			endforeach()
 		else()
