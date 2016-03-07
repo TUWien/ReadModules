@@ -24,18 +24,27 @@ endmacro(RDM_FIND_QT)
 
 # add OpenCV dependency
 macro(RDM_FIND_OPENCV)
+	set(PACKAGES ${ARGN})
+		
+	list(LENGTH PACKAGES NUM_ADDITONAL_PACKAGES) 
+	if( ${NUM_ADDITONAL_PACKAGES} EQUAL 0) 
+		message(STATUS "RDM_FIND_OPENCV called without arguments.... using ReadFramework dependecies")
+		set(PACKAGES ${RDF_REQUIRED_OPENCV_PACKAGES})
+	endif()
 	
-	# search for opencv
-	unset(OpenCV_LIB_DIR_DBG CACHE)
-	unset(OpenCV_3RDPARTY_LIB_DIR_DBG CACHE)
-	unset(OpenCV_3RDPARTY_LIB_DIR_OPT CACHE)
-	unset(OpenCV_CONFIG_PATH CACHE)
-	unset(OpenCV_LIB_DIR_DBG CACHE)
-	unset(OpenCV_LIB_DIR_OPT CACHE)
-	unset(OpenCV_LIBRARY_DIRS CACHE)
-	unset(OpenCV_DIR)
+	message(STATUS "opencv dependency: ${PACKAGES}")
+
+	# no longer unsetting opencv variables .... needed for opencv dependecies of plugins
+	# unset(OpenCV_LIB_DIR_DBG CACHE)
+	# unset(OpenCV_3RDPARTY_LIB_DIR_DBG CACHE)
+	# unset(OpenCV_3RDPARTY_LIB_DIR_OPT CACHE)
+	# unset(OpenCV_CONFIG_PATH CACHE)
+	# unset(OpenCV_LIB_DIR_DBG CACHE)
+	# unset(OpenCV_LIB_DIR_OPT CACHE)
+	# unset(OpenCV_LIBRARY_DIRS CACHE)
+	# unset(OpenCV_DIR)
  
-	find_package(OpenCV REQUIRED core imgproc stitching imgcodecs flann features2d calib3d xfeatures2d objdetect ml highgui videoio shape video) 
+	find_package(OpenCV REQUIRED ${PACKAGES}) 
  
 	if(NOT OpenCV_FOUND)
 	 message(FATAL_ERROR "OpenCV not found.") 
@@ -43,6 +52,19 @@ macro(RDM_FIND_OPENCV)
 		add_definitions(-DWITH_OPENCV)
 	endif()
  
+ 	if(MSVC) # copy opencv dlls when using visual studio
+		foreach(opencvlib ${PACKAGES})
+			file(GLOB dllpath ${OpenCV_DIR}/bin/Release/opencv_${opencvlib}*.dll)
+			file(COPY ${dllpath} DESTINATION ${NOMACS_BUILD_DIRECTORY}/Release)
+			file(COPY ${dllpath} DESTINATION ${NOMACS_BUILD_DIRECTORY}/RelWithDebInfo)
+			
+			file(GLOB dllpath ${OpenCV_DIR}/bin/Debug/opencv_${opencvlib}*d.dll)
+			file(COPY ${dllpath} DESTINATION ${NOMACS_BUILD_DIRECTORY}/Debug)
+			
+			message(STATUS "copying ${dllpath} to ${CMAKE_BINARY_DIR}/Debug")
+		endforeach(opencvlib)
+	endif(MSVC)
+
 	# unset include directories since OpenCV sets them global
 	get_property(the_include_dirs  DIRECTORY . PROPERTY INCLUDE_DIRECTORIES)
 	list(REMOVE_ITEM the_include_dirs ${OpenCV_INCLUDE_DIRS})
