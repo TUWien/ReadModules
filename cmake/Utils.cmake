@@ -24,18 +24,27 @@ endmacro(RDM_FIND_QT)
 
 # add OpenCV dependency
 macro(RDM_FIND_OPENCV)
+	set(PACKAGES ${ARGN})
+		
+	list(LENGTH PACKAGES NUM_ADDITONAL_PACKAGES) 
+	if( ${NUM_ADDITONAL_PACKAGES} EQUAL 0) 
+		message(STATUS "RDM_FIND_OPENCV called without arguments.... using ReadFramework dependecies")
+		set(PACKAGES ${RDF_REQUIRED_OPENCV_PACKAGES})
+	endif()
 	
-	# search for opencv
-	unset(OpenCV_LIB_DIR_DBG CACHE)
-	unset(OpenCV_3RDPARTY_LIB_DIR_DBG CACHE)
-	unset(OpenCV_3RDPARTY_LIB_DIR_OPT CACHE)
-	unset(OpenCV_CONFIG_PATH CACHE)
-	unset(OpenCV_LIB_DIR_DBG CACHE)
-	unset(OpenCV_LIB_DIR_OPT CACHE)
-	unset(OpenCV_LIBRARY_DIRS CACHE)
-	unset(OpenCV_DIR)
+	message(STATUS "opencv dependency: ${PACKAGES}")
+
+	# no longer unsetting opencv variables .... needed for opencv dependecies of plugins
+	# unset(OpenCV_LIB_DIR_DBG CACHE)
+	# unset(OpenCV_3RDPARTY_LIB_DIR_DBG CACHE)
+	# unset(OpenCV_3RDPARTY_LIB_DIR_OPT CACHE)
+	# unset(OpenCV_CONFIG_PATH CACHE)
+	# unset(OpenCV_LIB_DIR_DBG CACHE)
+	# unset(OpenCV_LIB_DIR_OPT CACHE)
+	# unset(OpenCV_LIBRARY_DIRS CACHE)
+	# unset(OpenCV_DIR)
  
-	find_package(OpenCV REQUIRED core imgproc stitching imgcodecs flann features2d calib3d xfeatures2d objdetect ml highgui videoio shape video) 
+	find_package(OpenCV REQUIRED ${PACKAGES}) 
  
 	if(NOT OpenCV_FOUND)
 	 message(FATAL_ERROR "OpenCV not found.") 
