@@ -33,6 +33,7 @@ related links:
 #pragma once
 
 #include "DkPluginInterface.h"
+#include "DkBatchInfo.h"
 
 // opencv defines
 namespace cv {
@@ -42,10 +43,23 @@ namespace cv {
 
 namespace rdm {
 
+class DkTestInfo : public nmc::DkBatchInfo {
+
+public:
+	DkTestInfo(const QString& id = QString(), const QString& filePath = QString());
+
+	void setProperty(const QString& p);
+	QString property() const;
+
+private:
+	QString mProp;
+
+};
+
 class BatchTest : public QObject, nmc::DkBatchPluginInterface {
 	Q_OBJECT
 		Q_INTERFACES(nmc::DkBatchPluginInterface)
-		Q_PLUGIN_METADATA(IID "com.nomacs.ImageLounge.BatchTest/3.0" FILE "BatchTest.json")
+		Q_PLUGIN_METADATA(IID "com.nomacs.ImageLounge.BatchTest/3.1" FILE "BatchTest.json")
 
 public:
 	BatchTest(QObject* parent = 0);
@@ -57,14 +71,17 @@ public:
 
 	QList<QAction*> createActions(QWidget* parent) override;
 	QList<QAction*> pluginActions() const override;
-	QSharedPointer<nmc::DkImageContainer> runPlugin(const QString &runID = QString(), QSharedPointer<nmc::DkImageContainer> imgC = QSharedPointer<nmc::DkImageContainer>()) const override;
-	void preLoadPlugin() override;
-	void postLoadPlugin() override;
+	QSharedPointer<nmc::DkImageContainer> runPlugin(
+		const QString &runID, 
+		QSharedPointer<nmc::DkImageContainer> imgC,
+		QSharedPointer<nmc::DkBatchInfo>& info) const override;
+	void preLoadPlugin(const QString& runID) const override;
+	void postLoadPlugin(const QString& runID, const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const override;
 
 
 	enum {
-		id_compute_features,
-		id_check_images,
+		id_mirror,
+		id_grayscale,
 		// add actions here
 
 		id_end
@@ -75,9 +92,5 @@ protected:
 	QStringList mRunIDs;
 	QStringList mMenuNames;
 	QStringList mMenuStatusTips;
-
-	void clearFeaturePath() const;
-	void addFeaturePath(const QString& path) const;
-	QStringList featurePaths() const;
 };
 };

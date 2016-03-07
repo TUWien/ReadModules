@@ -53,24 +53,24 @@ BatchTest::BatchTest(QObject* parent) : QObject(parent) {
 	QVector<QString> runIds;
 	runIds.resize(id_end);
 
-	runIds[id_compute_features] = "49dd0f0ea75f4906bfdd5a4676e6341a";
-	runIds[id_check_images] = "3e0a0bdf4ecf475d94498d0889ebe3b6";
+	runIds[id_mirror] = "49dd0f0ea75f4906bfdd5a4676e6341a";
+	runIds[id_grayscale] = "3e0a0bdf4ecf475d94498d0889ebe3b6";
 	mRunIDs = runIds.toList();
 
 	// create menu actions
 	QVector<QString> menuNames;
 	menuNames.resize(id_end);
 
-	menuNames[id_compute_features] = tr("Compute Features");
-	menuNames[id_check_images] = tr("Check Images");
+	menuNames[id_mirror] = tr("Mirror");
+	menuNames[id_grayscale] = tr("Grayscale");
 	mMenuNames = menuNames.toList();
 
 	// create menu status tips
 	QVector<QString> statusTips;
 	statusTips.resize(id_end);
 
-	statusTips[id_compute_features] = tr("Computes some magic features for each image");
-	statusTips[id_check_images] = tr("Checks if all images are valid");
+	statusTips[id_mirror] = tr("Mirrors the image");
+	statusTips[id_grayscale] = tr("Converts image to grayscale");
 	mMenuStatusTips = statusTips.toList();
 }
 /**
@@ -135,75 +135,72 @@ QList<QAction*> BatchTest::pluginActions() const {
 * @param plugin ID
 * @param image to be processed
 **/
-QSharedPointer<nmc::DkImageContainer> BatchTest::runPlugin(const QString &runID, QSharedPointer<nmc::DkImageContainer> imgC) const {
+QSharedPointer<nmc::DkImageContainer> BatchTest::runPlugin(const QString &runID, QSharedPointer<nmc::DkImageContainer> imgC, QSharedPointer<nmc::DkBatchInfo>& info) const {
 
 	if (!imgC)
 		return imgC;
 
-	if(runID == mRunIDs[id_compute_features]) {
-		
+	if(runID == mRunIDs[id_mirror]) {
+
 		QImage img = imgC->image();
 		imgC->setImage(img.mirrored(), "Mirrored");
 
-		// plugins *must not* change members since they are threaded in the batch processing
-		// but: you can store results to the rdf settings...
-		addFeaturePath(imgC->filePath());
+		QSharedPointer<DkTestInfo> testInfo(new DkTestInfo(runID, imgC->filePath()));
+		testInfo->setProperty("Mirrored");
+		qDebug() << "mirrored...";
+
+		info = testInfo;
 	}
-	else if(runID == mRunIDs[id_check_images]) {
-		qDebug() << "not implemented yet - sorry";
+	else if(runID == mRunIDs[id_grayscale]) {
+
+		QImage img = imgC->image();
+		img = img.convertToFormat(QImage::Format_Grayscale8);
+		imgC->setImage(img.mirrored(), "Grayscale");
+
+		QSharedPointer<DkTestInfo> testInfo(new DkTestInfo(runID, imgC->filePath()));
+		testInfo->setProperty("Grayscale");
+		qDebug() << "grayscale...";
+
+		info = testInfo;
 	}
 
 	// wrong runID? - do nothing
 	return imgC;
 }
 
-void BatchTest::preLoadPlugin() {
+void BatchTest::preLoadPlugin(const QString & runID) const {
 
-	// put all 'reseting' code here - it is called before the user clicks ok
-	clearFeaturePath();
 	qDebug() << "[PRE LOADING] Batch Test";
 }
 
-void BatchTest::postLoadPlugin() {
-	
-	// here you can load all files (e.g. *.ymls) again and train some fancy classifier...
-	qDebug() << "[POST LOADING] Batch Test, I processed: " << featurePaths() << "images";
+void BatchTest::postLoadPlugin(const QString & runID, const QVector<QSharedPointer<nmc::DkBatchInfo>>& batchInfo) const {
+
+	for (auto bi : batchInfo) {
+		qDebug() << bi->filePath() << "computed...";
+		DkTestInfo* tInfo = dynamic_cast<DkTestInfo*>(bi.data());
+
+		if (tInfo)
+			qDebug() << "property: " << tInfo->property();
+
+	}
+
+	if (runID == mRunIDs[id_grayscale])
+		qDebug() << "[POST LOADING] grayscale";
+	else
+		qDebug() << "[POST LOADING] mirrored";
 }
 
-void BatchTest::clearFeaturePath() const {
-
-	QSettings& s = rdf::Config::instance().settings();
-	s.beginGroup("BatchTest");
-
-	QStringList paths;
-	s.setValue("featureFiles", QStringList());
-	s.endGroup();
+// DkTestInfo --------------------------------------------------------------------
+DkTestInfo::DkTestInfo(const QString& id, const QString & filePath) : nmc::DkBatchInfo(id, filePath) {
 }
 
-void BatchTest::addFeaturePath(const QString & path) const {
-
-	QSettings& s = rdf::Config::instance().settings();
-	s.beginGroup("BatchTest");
-
-	QStringList paths;
-	paths = s.value("featureFiles", paths).toStringList();
-	paths << path;
-	s.setValue("featureFiles", paths);
-	s.endGroup();
+void DkTestInfo::setProperty(const QString & p) {
+	mProp = p;
 }
 
-QStringList BatchTest::featurePaths() const {
-	
-	QSettings& s = rdf::Config::instance().settings();
-	s.beginGroup("BatchTest");
-
-	QStringList paths;
-	paths = s.value("featureFiles", paths).toStringList();
-	s.endGroup();
-
-	return paths;
+QString DkTestInfo::property() const {
+	return mProp;
 }
-
 
 };
 
