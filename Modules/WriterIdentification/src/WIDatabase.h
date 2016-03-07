@@ -88,20 +88,20 @@ namespace rdm {
 
 
 	private:
-		cv::Mat mVocabulary;
+		cv::Mat mVocabulary = cv::Mat();
 		cv::Ptr<cv::ml::EM> mEM;
-		cv::Mat mPcaMean;
-		cv::Mat mPcaSigma;
-		cv::Mat mPcaEigenvectors;
-		cv::Mat mPcaEigenvalues;
-		cv::Mat mL2Mean;
-		cv::Mat mL2Sigma;
+		cv::Mat mPcaMean = cv::Mat();
+		cv::Mat mPcaSigma = cv::Mat();
+		cv::Mat mPcaEigenvectors = cv::Mat();
+		cv::Mat mPcaEigenvalues = cv::Mat();
+		cv::Mat mL2Mean = cv::Mat();
+		cv::Mat mL2Sigma = cv::Mat();
 
-		int mNumberOfClusters;
-		int mNumberPCA;
-		int mType;
+		int mNumberOfClusters = -1;
+		int mNumberPCA = -1;
+		int mType = WI_UNDEFINED;
 
-		QString mNote;
+		QString mNote = QString();
 	};
 
 // read defines
@@ -130,6 +130,6 @@ namespace rdm {
 		cv::Mat l2Norm(cv::Mat desc) const;
 		QVector<QVector<cv::KeyPoint> > mKeyPoints;
 		QVector<cv::Mat> mDescriptors;
-		WIVocabulary mVocabulary;
+		WIVocabulary mVocabulary = WIVocabulary();
 	};
 };

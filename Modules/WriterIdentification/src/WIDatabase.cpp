@@ -44,7 +44,7 @@
 
 namespace rdm {
 	WIDatabase::WIDatabase() {
-		mVocabulary = WIVocabulary();
+		// do nothing
 	}
 	void WIDatabase::addFile(const QString filePath) {
 		qDebug() << "adding file " << filePath;
@@ -322,18 +322,10 @@ namespace rdm {
 		}
 		return d;
 	}
+
+	// WIVocabulary ----------------------------------------------------------------------------------
 	WIVocabulary::WIVocabulary() {
-		mVocabulary = cv::Mat();
-		mPcaMean = cv::Mat();
-		mPcaSigma = cv::Mat();
-		mPcaEigenvectors = cv::Mat();
-		mPcaEigenvalues = cv::Mat();
-		mL2Mean = cv::Mat();
-		mL2Sigma = cv::Mat();
-		mNumberOfClusters = 0;
-		mNumberPCA = 0;
-		mType = WI_UNDEFINED;
-		mNote = QString();
+		// do nothing
 	}
 	void WIVocabulary::loadVocabulary(const QString filePath) {
 		qDebug() << "loading vocabulary from " << filePath; 
