@@ -114,34 +114,34 @@ namespace rdm {
 		int tp = 0; 
 		int fp = 0;
 		for(int i = 0; i < mDescriptors.length(); i++) {
-			QVector<double> distances;
+			cv::Mat distances(mDescriptors.length(), 1, CV_32FC1);
 			for(int j = 0; j < mDescriptors.length(); j++) {
 				if(mVocabulary.type() == WIVocabulary::WI_GMM) {
-					distances.push_back(1 - hists[i].dot(hists[j]) / ((norm(hists[i])*norm(hists[j])) + DBL_EPSILON)); // 1-dist ... 0 is equal 2 is orthogonal
+					distances.at<float>(j) = (float)(1 - hists[i].dot(hists[j]) / ((norm(hists[i])*norm(hists[j])) + FLT_EPSILON)); // 1-dist ... 0 is equal 2 is orthogonal
 				} else if(mVocabulary.type() == WIVocabulary::WI_BOW) {
 					cv::Mat tmp;
 					pow(hists[i] - hists[j], 2, tmp);
 					cv::Scalar scal = cv::sum(tmp);
-					distances.push_back(sqrt(scal[0]));
+					distances.at<float>(j) = (float)sqrt(scal[0]);
 				}
 			}
-			QVector<unsigned int> idxs(distances.length());
-			for(int k = 0; k < distances.length(); k++)
-				idxs[k] = k;
-			std::sort(std::begin(idxs), std::end(idxs), [&](unsigned int a, unsigned int b) {return distances[a] < distances[b]; });
-			std::sort(std::begin(distances), std::end(distances));
+
+
+			cv::Mat idxs;
+			cv::sortIdx(distances, idxs, CV_SORT_EVERY_COLUMN| CV_SORT_ASCENDING);
+			cv::sort(distances, distances, CV_SORT_EVERY_COLUMN | CV_SORT_ASCENDING);
 
 			if(!filePath.isEmpty()) {
 				QFile file(filePath);
 				if(file.open(QIODevice::ReadWrite)) {
 					QTextStream stream(&file);
-					for(int k = 0; k < idxs.length(); k++) {
-						stream << filePaths[idxs[k]] + ";";
+					for(int k = 0; k < idxs.rows; k++) {
+						stream << filePaths[idxs.at<int>(k)] + ";";
 					}
 				}
 			}
-			qDebug() << "classLabels[i].toInt():" << classLabels[i].toInt() << " idxs[1]:" << idxs[1] << " classLabels[idxs[1]]:" << classLabels[idxs[1]];
-			if(classLabels[i] == classLabels[idxs[1]])
+			qDebug() << "classLabels[i].toInt():" << classLabels[i].toInt() << " idxs.at<int>(1):" << idxs.at<int>(1) << " classLabels[idxs.at<int>(1)]:" << classLabels[idxs.at<int>(1)];
+			if(classLabels[i] == classLabels[idxs.at<int>(1)])
 				tp++;
 			else
 				fp++;
@@ -271,25 +271,28 @@ namespace rdm {
 			d = l2Norm(d);
 			d = applyPCA(d);
 		}
-		cv::Mat fisher(mVocabulary.numberOfCluster(), d.rows, CV_32F);
+		cv::Mat fisher(mVocabulary.numberOfCluster(), d.cols, CV_32F);
 		fisher.setTo(0);
 
 		cv::Ptr<cv::ml::EM> em = mVocabulary.em();
 		for(int i = 0; i < d.rows; i++) {
+			qDebug() << "i: " << i;
 			cv::Mat feature = d.row(i);
 			cv::Mat probs, means;
 			std::vector<cv::Mat> covs;
 			
 			cv::Vec2d emOut = em->predict(feature, probs);
+			qDebug() << "getting covs";
 			em->getCovs(covs);
+			qDebug() << "getting means";
 			means = em->getMeans();
 			means.convertTo(means, CV_32F);
-
-			for(int g = 0; g < em->getClustersNumber(); g++) {
-				cv::Mat cov = covs[g];
+			qDebug() << "calculate fisher information";
+			for(int j = 0; j < em->getClustersNumber(); j++) {
+				cv::Mat cov = covs[j];
 				cv::Mat diag = cov.diag(0).t();
 				diag.convertTo(diag, CV_32F);
-				fisher.row(g) += probs.at<double>(g) * ((feature - means.row(g)) / diag);
+				fisher.row(j) += probs.at<double>(j) * ((feature - means.row(j)) / diag);
 			}
 		}
 		cv::Mat weights = em->getWeights();

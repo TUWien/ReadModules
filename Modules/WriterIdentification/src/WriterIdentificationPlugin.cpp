@@ -186,8 +186,13 @@ void WriterIdentificationPlugin::postLoadPlugin() {
 	mWIDatabase = WIDatabase();
 	WIVocabulary voc = WIVocabulary();
 	voc.setType(WIVocabulary::WI_GMM);
-	voc.setNumberOfCluster(30);
+	voc.setNumberOfCluster(5);
 	voc.setNumberOfPCA(64);
+
+	//voc.setType(WIVocabulary::WI_BOW);
+	//voc.setNumberOfCluster(5);
+	//voc.setNumberOfPCA(64);
+
 	mWIDatabase.setVocabulary(voc);
 	
 
@@ -196,7 +201,7 @@ void WriterIdentificationPlugin::postLoadPlugin() {
 		mWIDatabase.addFile(featFiles[i]);
 
 	mWIDatabase.generateVocabulary();
-	mWIDatabase.saveVocabulary("C://tmp//test-voc.yml");
+	mWIDatabase.saveVocabulary("C://tmp//test3-voc.yml");
 	mWIDatabase.evaluateDatabase(classLabels(), featurePaths());
 
 	clearFeaturePath();
