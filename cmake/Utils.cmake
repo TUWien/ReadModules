@@ -54,31 +54,6 @@ macro(RDM_FIND_OPENCV)
 	else()
 		add_definitions(-DWITH_OPENCV)
 	endif()
- 
- 	if(MSVC) # copy opencv dlls when using visual studio
-		foreach(opencvlib ${PACKAGES})
-			file(GLOB dllpath ${OpenCV_DIR}/bin/Release/opencv_${opencvlib}*.dll)
-			file(COPY ${dllpath} DESTINATION ${NOMACS_BUILD_DIRECTORY}/Release)
-			file(COPY ${dllpath} DESTINATION ${NOMACS_BUILD_DIRECTORY}/RelWithDebInfo)
-			
-			file(GLOB dllpath ${OpenCV_DIR}/bin/Debug/opencv_${opencvlib}*d.dll)
-			file(COPY ${dllpath} DESTINATION ${NOMACS_BUILD_DIRECTORY}/Debug)
-			
-			message(STATUS "copying ${dllpath} to ${CMAKE_BINARY_DIR}/Debug")
-		endforeach(opencvlib)
-		if( ${NUM_ADDITONAL_PACKAGES} EQUAL 0) # copy  optional components when using  RDF packages
-			foreach(opencvlib ${RDF_OPTIONAL_OPENCV_PACKAGES})
-				file(GLOB dllpath ${OpenCV_DIR}/bin/Release/opencv_${opencvlib}*.dll)
-				file(COPY ${dllpath} DESTINATION ${NOMACS_BUILD_DIRECTORY}/Release)
-				file(COPY ${dllpath} DESTINATION ${NOMACS_BUILD_DIRECTORY}/RelWithDebInfo)
-				
-				file(GLOB dllpath ${OpenCV_DIR}/bin/Debug/opencv_${opencvlib}*d.dll)
-				file(COPY ${dllpath} DESTINATION ${NOMACS_BUILD_DIRECTORY}/Debug)
-				
-				message(STATUS "copying ${dllpath} to ${CMAKE_BINARY_DIR}/Debug")
-			endforeach(opencvlib)			
-		endif()
-	endif(MSVC)
 
 	# unset include directories since OpenCV sets them global
 	get_property(the_include_dirs  DIRECTORY . PROPERTY INCLUDE_DIRECTORIES)
