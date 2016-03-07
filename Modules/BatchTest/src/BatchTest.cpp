@@ -144,7 +144,7 @@ QSharedPointer<nmc::DkImageContainer> BatchTest::runPlugin(const QString &runID,
 
 		QImage img = imgC->image();
 		imgC->setImage(img.mirrored(), "Mirrored");
-
+		
 		QSharedPointer<DkTestInfo> testInfo(new DkTestInfo(runID, imgC->filePath()));
 		testInfo->setProperty("Mirrored");
 		qDebug() << "mirrored...";
@@ -168,12 +168,24 @@ QSharedPointer<nmc::DkImageContainer> BatchTest::runPlugin(const QString &runID,
 	return imgC;
 }
 
-void BatchTest::preLoadPlugin(const QString & runID) const {
+void BatchTest::preLoadPlugin() const {
 
 	qDebug() << "[PRE LOADING] Batch Test";
 }
 
-void BatchTest::postLoadPlugin(const QString & runID, const QVector<QSharedPointer<nmc::DkBatchInfo>>& batchInfo) const {
+void BatchTest::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const {
+
+	if (batchInfo.empty())
+		return;
+
+	int runIdx = mRunIDs.indexOf(batchInfo.first()->id());
+
+	if (runIdx == -1) {
+		qWarning() << "unknown run id: " << batchInfo.first()->id();
+		return;
+	}
+
+	qDebug() << "[POST LOADING]" << mMenuNames[runIdx] << "--------------------------------------------";
 
 	for (auto bi : batchInfo) {
 		qDebug() << bi->filePath() << "computed...";
@@ -184,10 +196,7 @@ void BatchTest::postLoadPlugin(const QString & runID, const QVector<QSharedPoint
 
 	}
 
-	if (runID == mRunIDs[id_grayscale])
-		qDebug() << "[POST LOADING] grayscale";
-	else
-		qDebug() << "[POST LOADING] mirrored";
+	qDebug() << "[POST LOADING DONE]" << mMenuNames[runIdx] << "---------------------------------------";
 }
 
 // DkTestInfo --------------------------------------------------------------------
