@@ -53,3 +53,4 @@ script:
 after_success:
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then cd ..; fi
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./config/publish-doxygen; fi
+
