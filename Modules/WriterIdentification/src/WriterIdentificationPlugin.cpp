@@ -192,22 +192,26 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(cons
 	// wrong runID? - do nothing
 	return imgC;
 }
-void WriterIdentificationPlugin::preLoadPlugin(const QString& runID) const {
+void WriterIdentificationPlugin::preLoadPlugin() const {
 	qDebug() << "preloading plugin";
 	
 }
-void WriterIdentificationPlugin::postLoadPlugin(const QString& runID, const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const {
+void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const {
 	qDebug() << "postLoadPlugin";
 
-	for(auto bi : batchInfo) {
-		qDebug() << bi->filePath() << "computed...";
-		WIInfo * wInfo = dynamic_cast<WIInfo*>(bi.data());
+	if(batchInfo.empty())
+		return;
 
-		if(wInfo)
-			qDebug() << "writer: " << wInfo->writer();
+	int runIdx = mRunIDs.indexOf(batchInfo.first()->id());
 
+	if(runIdx == -1) {
+		qWarning() << "unknown run id: " << batchInfo.first()->id();
+		return;
 	}
-	if(runID == mRunIDs[id_generate_vocabulary]) {
+
+	qDebug() << "[POST LOADING]" << mMenuNames[runIdx] << "--------------------------------------------";
+
+	if(runIdx == id_generate_vocabulary) {
 		WIDatabase mWIDatabase = WIDatabase();
 		WIVocabulary voc = WIVocabulary();
 		voc.setType(WIVocabulary::WI_GMM);

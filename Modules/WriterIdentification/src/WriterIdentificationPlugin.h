@@ -48,7 +48,7 @@ private:
 class WriterIdentificationPlugin : public QObject, nmc::DkBatchPluginInterface {
 	Q_OBJECT
 	Q_INTERFACES(nmc::DkBatchPluginInterface)
-	Q_PLUGIN_METADATA(IID "com.nomacs.ImageLounge.WriterIdentificationPlugin/3.0" FILE "WriterIdentificationPlugin.json")
+	Q_PLUGIN_METADATA(IID "com.nomacs.ImageLounge.WriterIdentificationPlugin/5.1" FILE "WriterIdentificationPlugin.json")
 
 public:
 	WriterIdentificationPlugin(QObject* parent = 0);
@@ -61,8 +61,8 @@ public:
 	QList<QAction*> createActions(QWidget* parent) override;
 	QList<QAction*> pluginActions() const override;
 	QSharedPointer<nmc::DkImageContainer> runPlugin(const QString &runID, QSharedPointer<nmc::DkImageContainer> imgC, QSharedPointer<nmc::DkBatchInfo>& info) const;
-	void preLoadPlugin(const QString& runID) const override;
-	void postLoadPlugin(const QString& runID, const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const override;
+	void preLoadPlugin() const override;
+	void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const override;
 	enum {
 		id_calcuate_features,
 		id_generate_vocabulary,
