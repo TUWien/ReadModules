@@ -2,6 +2,7 @@
 READ Modules are document analysis modules developed at CVL/TU Wien for the EU project READ. The READ project  has  received  funding  from  the European  Union’s  Horizon  2020 research  and innovation programme under grant agreement No 674943.
  
 [![Build Status](https://travis-ci.org/TUWien/ReadModules.svg?branch=master)](https://travis-ci.org/TUWien/ReadModules)
+
 Documentation can be found here: http://tuwien.github.io/ReadModules/html/
 
 ## Build on Windows
