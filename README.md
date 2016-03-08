@@ -82,6 +82,10 @@ Florian Kleber
 
 ### related links:
 [1] http://www.caa.tuwien.ac.at/cvl/
+
 [2] https://transkribus.eu/Transkribus/
+
 [3] https://github.com/TUWien/
+
 [4] http://nomacs.org
+
