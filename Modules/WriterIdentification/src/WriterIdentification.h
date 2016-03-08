@@ -49,7 +49,6 @@ namespace rdm {
 	class WriterIdentification {
 	public:
 		WriterIdentification();
-		~WriterIdentification();
 
 		void setImage(cv::Mat img);
 		void calculateFeatures();

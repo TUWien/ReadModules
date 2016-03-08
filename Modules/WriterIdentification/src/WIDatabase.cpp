@@ -43,9 +43,16 @@
 #pragma warning(pop)
 
 namespace rdm {
+	/// <summary>
+	/// Initializes a new instance of the <see cref="WIDatabase"/> class.
+	/// </summary>
 	WIDatabase::WIDatabase() {
 		// do nothing
 	}
+	/// <summary>
+	/// Adds a file with local features representing one image to the database
+	/// </summary>
+	/// <param name="filePath">The file path.</param>
 	void WIDatabase::addFile(const QString filePath) {
 		qDebug() << "adding file " << filePath;
 		cv::FileStorage fs(filePath.toStdString(), cv::FileStorage::READ);
@@ -63,6 +70,9 @@ namespace rdm {
 		mKeyPoints.append(QVector<cv::KeyPoint>::fromStdVector(kp));
 		qDebug() << "lenght of keypoint vector:" << mKeyPoints.length();
 	}
+	/// <summary>
+	/// Generates the vocabulary according to the type set in the vocabulary variable. If the number of PCA components is larger than 0 a PCA is applied beforehand.
+	/// </summary>
 	void WIDatabase::generateVocabulary() {
 		if(mVocabulary.type() == WIVocabulary::WI_UNDEFINED || mVocabulary.numberOfCluster() <= 0 ) {
 			qWarning() << " WIDatabase: vocabulary type and number of clusters have to be set before generating a new vocabulary";
@@ -95,15 +105,33 @@ namespace rdm {
 		}
 
 	}
+	/// <summary>
+	/// Sets the vocabulary for this database
+	/// </summary>
+	/// <param name="voc">The voc.</param>
 	void WIDatabase::setVocabulary(const WIVocabulary voc) {
 		mVocabulary = voc;
 	}
+	/// <summary>
+	/// returns the current vocabulary
+	/// </summary>
+	/// <returns>the current vocabulary</returns>
 	WIVocabulary WIDatabase::vocabulary() const {
 		return mVocabulary;
 	}
+	/// <summary>
+	/// Calls the saveVocabulary function of the current vocabulary
+	/// </summary>
+	/// <param name="filePath">The file path.</param>
 	void WIDatabase::saveVocabulary(QString filePath) const {
 		mVocabulary.saveVocabulary(filePath);
 	}
+	/// <summary>
+	/// Evaluates the database.
+	/// </summary>
+	/// <param name="classLabels">The class labels.</param>
+	/// <param name="filePaths">The file paths containing the local features.</param>
+	/// <param name="filePath">If set a csv file with the evaluation is written to the path.</param>
 	void WIDatabase::evaluateDatabase(QStringList classLabels, QStringList filePaths, QString filePath) const {
 		qDebug() << "evaluating database";
 		QVector<cv::Mat> hists;
@@ -150,6 +178,11 @@ namespace rdm {
 		qDebug() << "precision:" << (float)tp / ((float)tp + fp);
 		
 	}
+	/// <summary>
+	/// Generates the histogram according to the vocabulary type
+	/// </summary>
+	/// <param name="desc">Descriptors of an image.</param>
+	/// <returns>the generated histogram</returns>
 	cv::Mat WIDatabase::generateHist(cv::Mat desc) const {
 		if(mVocabulary.type() == WIVocabulary::WI_BOW)
 			return generateHistBOW(desc);
@@ -158,9 +191,18 @@ namespace rdm {
 		else
 			return cv::Mat();
 	}
+	/// <summary>
+	/// Debug name.
+	/// </summary>
+	/// <returns></returns>
 	QString WIDatabase::debugName() const {
 		return QString("WriterIdentificationDatabase");
 	}
+	/// <summary>
+	/// Calculates a PCA according to the components set in the vocabulary.
+	/// </summary>
+	/// <param name="desc">The desc.</param>
+	/// <returns>the projected descriptors</returns>
 	cv::Mat WIDatabase::calculatePCA(cv::Mat desc) {
 		// calculate mean and stddev for L2 normalization
 		cv::Mat means, stddev;
@@ -190,10 +232,18 @@ namespace rdm {
 		descResult = applyPCA(descResult);
 		return descResult;
 	}
+	/// <summary>
+	/// Generates the BagOfWords for the given descriptors.
+	/// </summary>
+	/// <param name="desc">The desc.</param>
 	void WIDatabase::generateBOW(cv::Mat desc) {
 		cv::BOWKMeansTrainer bow(mVocabulary.numberOfCluster(), cv::TermCriteria(), 10);
 		mVocabulary.setVocabulary(bow.cluster(desc));
 	}
+	/// <summary>
+	/// Generates the GMMs and the Fisher information for the given descriptors.
+	/// </summary>
+	/// <param name="desc">The desc.</param>
 	void WIDatabase::generateGMM(cv::Mat desc) {
 		qDebug() << "start training GMM";		
 		cv::Ptr<cv::ml::EM> em = cv::ml::EM::create();
@@ -209,6 +259,11 @@ namespace rdm {
 		qDebug() << "finished";
 	
 	}
+	/// <summary>
+	/// Applies the PCA with the stored Eigenvalues and Eigenvectors of the vocabulary.
+	/// </summary>
+	/// <param name="desc">The desc.</param>
+	/// <returns>the projected descriptors</returns>
 	cv::Mat WIDatabase::applyPCA(cv::Mat desc) const {
 		if(mVocabulary.pcaEigenvalues().empty() || mVocabulary.pcaEigenvectors().empty() || mVocabulary.pcaMean().empty()) {
 			qWarning() << "applyPCA: vocabulary does not have a PCA ... not applying PCA";
@@ -222,6 +277,11 @@ namespace rdm {
 
 		return desc;
 	}
+	/// <summary>
+	/// Generates the histogram for a BOW vocabulary. 
+	/// </summary>
+	/// <param name="desc">The desc.</param>
+	/// <returns>the histogram</returns>
 	cv::Mat WIDatabase::generateHistBOW(cv::Mat desc) const {
 		if(mVocabulary.isEmpty()) {
 			qWarning() << "generateHistBOW: vocabulary is empty ... aborting";
@@ -257,6 +317,11 @@ namespace rdm {
 
 		return hist;
 	}
+	/// <summary>
+	/// Generates the Fisher vector for a GMM vocabulary.
+	/// </summary>
+	/// <param name="desc">The desc.</param>
+	/// <returns>the Fisher vector</returns>
 	cv::Mat WIDatabase::generateHistGMM(cv::Mat desc) const {
 		if(mVocabulary.isEmpty()) {
 			qWarning() << "generateHistGMM: vocabulary is empty ... aborting";
@@ -276,18 +341,14 @@ namespace rdm {
 
 		cv::Ptr<cv::ml::EM> em = mVocabulary.em();
 		for(int i = 0; i < d.rows; i++) {
-			//qDebug() << "i: " << i;
 			cv::Mat feature = d.row(i);
 			cv::Mat probs, means;
 			std::vector<cv::Mat> covs;
 			
 			cv::Vec2d emOut = em->predict(feature, probs);
-			//qDebug() << "getting covs";
 			em->getCovs(covs);
-			//qDebug() << "getting means";
 			means = em->getMeans();
 			means.convertTo(means, CV_32F);
-			//qDebug() << "calculate fisher information";
 			for(int j = 0; j < em->getClustersNumber(); j++) {
 				cv::Mat cov = covs[j];
 				cv::Mat diag = cov.diag(0).t();
@@ -314,6 +375,11 @@ namespace rdm {
 
 		return hist;
 	}
+	/// <summary>
+	/// Applies a L2 normalization with the values stored in the vocabulary.
+	/// </summary>
+	/// <param name="desc">The desc.</param>
+	/// <returns>normalized descriptors</returns>
 	cv::Mat WIDatabase::l2Norm(cv::Mat desc) const {
 		// L2 - normalization
 		cv::Mat d = (desc - cv::Mat::ones(desc.rows, 1, CV_32F) * mVocabulary.l2Mean().t());
@@ -324,9 +390,16 @@ namespace rdm {
 	}
 
 	// WIVocabulary ----------------------------------------------------------------------------------
+	/// <summary>
+	/// Initializes a new instance of the <see cref="WIVocabulary"/> class.
+	/// </summary>
 	WIVocabulary::WIVocabulary() {
 		// do nothing
 	}
+	/// <summary>
+	/// Loads the vocabulary from the given file path.
+	/// </summary>
+	/// <param name="filePath">The file path.</param>
 	void WIVocabulary::loadVocabulary(const QString filePath) {
 		qDebug() << "loading vocabulary from " << filePath; 
 		cv::FileStorage fs(filePath.toStdString(), cv::FileStorage::READ);
@@ -359,6 +432,10 @@ namespace rdm {
 
 		fs.release();
 	}
+	/// <summary>
+	/// Saves the vocabulary to the given file path.
+	/// </summary>
+	/// <param name="filePath">The file path.</param>
 	void WIVocabulary::saveVocabulary(const QString filePath) const {
 		qDebug() << "saving vocabulary to " << filePath;
 		if(isEmpty()) {
@@ -389,81 +466,181 @@ namespace rdm {
 
 		fs.release();
 	}
+	/// <summary>
+	/// Determines whether the vocabulary is empty respl. not trained.
+	/// </summary>
+	/// <returns></returns>
 	bool WIVocabulary::isEmpty() const {
 		if(mVocabulary.empty() && mType == WI_BOW || mEM.empty() && mType == WI_GMM || mNumberOfClusters <= 0 || mType == WI_UNDEFINED) {
 			return true;
 		}
 		return false;
 	}
+	/// <summary>
+	/// Sets the vocabulary for BOW.
+	/// </summary>
+	/// <param name="voc">The voc.</param>
 	void WIVocabulary::setVocabulary(cv::Mat voc) {
 		mVocabulary = voc;
 	}
+	/// <summary>
+	/// BOW vocabulary of this instance
+	/// </summary>
+	/// <returns>the BOW vocabulary</returns>
 	cv::Mat WIVocabulary::vocabulary() const {
 		return mVocabulary;
 	}
+	/// <summary>
+	/// Sets the em for GMM.
+	/// </summary>
+	/// <param name="em">The em.</param>
 	void WIVocabulary::setEM(cv::Ptr<cv::ml::EM> em) {
 		mEM = em;
 	}
+	/// <summary>
+	/// the EM of this instance.
+	/// </summary>
+	/// <returns></returns>
 	cv::Ptr<cv::ml::EM> WIVocabulary::em() const {
 		return mEM;
 	}
+	/// <summary>
+	/// Sets the mean Mat of the PCA.
+	/// </summary>
+	/// <param name="mean">The mean Mat.</param>
 	void WIVocabulary::setPcaMean(const cv::Mat mean) {
 		mPcaMean = mean;
 	}
+	/// <summary>
+	/// Mean values of the PCA.
+	/// </summary>
+	/// <returns>mean Mat</returns>
 	cv::Mat WIVocabulary::pcaMean() const {
 		return mPcaMean;
 	}
+	/// <summary>
+	/// Sets the variance of the PCA.
+	/// </summary>
+	/// <param name="pcaSigma">The pca sigma.</param>
 	void WIVocabulary::setPcaSigma(const cv::Mat pcaSigma) {
 		mPcaSigma = pcaSigma;
 	}
+	/// <summary>
+	/// Returns the variance of the PCA
+	/// </summary>
+	/// <returns>the variance Mat</returns>
 	cv::Mat WIVocabulary::pcaSigma() const {
 		return mPcaSigma;
 	}
+	/// <summary>
+	/// Sets the pca eigenvectors.
+	/// </summary>
+	/// <param name="ev">The eigenvectors</param>
 	void WIVocabulary::setPcaEigenvectors(const cv::Mat ev) {
 		mPcaEigenvectors = ev;
 	}
+	/// <summary>
+	/// Returns the Eigenvectors of the PCA.
+	/// </summary>
+	/// <returns>Mat of the Eigenvectors</returns>
 	cv::Mat WIVocabulary::pcaEigenvectors() const {
 		return mPcaEigenvectors;
 	}
+	/// <summary>
+	/// Sets the PCA eigenvalues
+	/// </summary>
+	/// <param name="ev">The eigenvalues</param>
 	void WIVocabulary::setPcaEigenvalues(const cv::Mat ev) {
 		mPcaEigenvalues = ev;
 	}
+	/// <summary>
+	/// Returns the Eigenvalues of the PCA
+	/// </summary>
+	/// <returns>Mat of the eigenvalues</returns>
 	cv::Mat WIVocabulary::pcaEigenvalues() const {
 		return mPcaEigenvalues;
 	}
+	/// <summary>
+	/// sets the mean Mat of the L2 noramlization
+	/// </summary>
+	/// <param name="l2mean">Mean Mat.</param>
 	void WIVocabulary::setL2Mean(const cv::Mat l2mean) {
 		mL2Mean = l2mean;
 	}
+	/// <summary>
+	/// Returns the mean Mat of the L2 normalization
+	/// </summary>
+	/// <returns>mean Mat</returns>
 	cv::Mat WIVocabulary::l2Mean() const {
 		return mL2Mean;
 	}
+	/// <summary>
+	/// Sets the variance of the L2 normalization.
+	/// </summary>
+	/// <param name="l2sigma">variance Mat.</param>
 	void WIVocabulary::setL2Sigma(const cv::Mat l2sigma) {
 		mL2Sigma = l2sigma;
 	}
+	/// <summary>
+	/// Returns the variance Mat of the L2 normalization
+	/// </summary>
+	/// <returns>variance Mat </returns>
 	cv::Mat WIVocabulary::l2Sigma() const {
 		return mL2Sigma;
 	}
+	/// <summary>
+	/// Sets the number of cluster.
+	/// </summary>
+	/// <param name="number">number of clusters.</param>
 	void WIVocabulary::setNumberOfCluster(const int number) {
 		mNumberOfClusters = number;
 	}
+	/// <summary>
+	/// Numbers of clusters.
+	/// </summary>
+	/// <returns>number of clusters</returns>
 	int WIVocabulary::numberOfCluster() const {
 		return mNumberOfClusters;
 	}
+	/// <summary>
+	/// Sets the number of PCA components which should be used
+	/// </summary>
+	/// <param name="number">The number of PCA components.</param>
 	void WIVocabulary::setNumberOfPCA(const int number) {
 		mNumberPCA = number;
 	}
+	/// <summary>
+	/// Numbers the of pca.
+	/// </summary>
+	/// <returns>The number of PCA components</returns>
 	int WIVocabulary::numberOfPCA() const {
 		return mNumberPCA;
 	}
+	/// <summary>
+	/// Sets the type of the vocabulary.
+	/// </summary>
+	/// <param name="type">The type.</param>
 	void WIVocabulary::setType(const int type) {
 		mType = type;
 	}
+	/// <summary>
+	/// Returns the vocabulary type.
+	/// </summary>
+	/// <returns>type of the vocabulary</returns>
 	int WIVocabulary::type() const {
 		return mType;
 	}
+	/// <summary>
+	/// Sets a note to the vocabulary. 
+	/// </summary>
+	/// <param name="note">note.</param>
 	void WIVocabulary::setNote(QString note) {
 		mNote = note;
 	}
+	/// <summary>
+	/// Returns the note of the vocabulary.
+	/// </summary>
+	/// <returns></returns>
 	QString WIVocabulary::note() const {
 		return mNote;
 	}

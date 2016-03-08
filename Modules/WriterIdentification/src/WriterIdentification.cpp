@@ -46,15 +46,22 @@
 #pragma warning(pop)
 
 namespace rdm {
+	/// <summary>
+	/// Initializes a new instance of the <see cref="WriterIdentification"/> class.
+	/// </summary>
 	WriterIdentification::WriterIdentification() {
 		// do nothing
 	}
-	WriterIdentification::~WriterIdentification() {
-		// do nothing
-	}
+	/// <summary>
+	/// Sets the image.
+	/// </summary>
+	/// <param name="img">The img.</param>
 	void WriterIdentification::setImage(const cv::Mat img) {
 		this->mImg = img;
 	}
+	/// <summary>
+	/// Calculates the SIFT features of the image.
+	/// </summary>
 	void WriterIdentification::calculateFeatures() {
 		if(mImg.empty())
 			return;
@@ -68,6 +75,10 @@ namespace rdm {
 		mKeyPoints = QVector<cv::KeyPoint>::fromStdVector(kp);
 		
 	}
+	/// <summary>
+	/// Saves the SIFT features to the given file path.
+	/// </summary>
+	/// <param name="filePath">The file path.</param>
 	void WriterIdentification::saveFeatures(QString filePath) {
 		if(mKeyPoints.empty() || mDescriptors.empty()) {
 			qWarning() << debugName() << " keypoints or descriptors empty ... unable to save to file";
@@ -78,6 +89,10 @@ namespace rdm {
 		fs << "descriptors" << mDescriptors;
 		fs.release();
 	}
+	/// <summary>
+	/// Loads the features from the given file path.
+	/// </summary>
+	/// <param name="filePath">The file path.</param>
 	void WriterIdentification::loadFeatures(QString filePath) {
 		cv::FileStorage fs(filePath.toStdString(), cv::FileStorage::READ);
 		if(!fs.isOpened()) {
@@ -90,9 +105,17 @@ namespace rdm {
 		fs["descriptors"] >> mDescriptors;
 		fs.release();
 	}
+	/// <summary>
+	/// Returns the keypoints of the SIFT features.
+	/// </summary>
+	/// <returns>keypoints</returns>
 	QVector<cv::KeyPoint> WriterIdentification::getKeyPoints() {
 		return mKeyPoints;
 	}
+	/// <summary>
+	/// Debug name
+	/// </summary>
+	/// <returns></returns>
 	QString WriterIdentification::debugName() {
 		return "WriterIdentification";
 	}
