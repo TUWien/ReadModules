@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Readmodules by TUWien</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Readmodules</h1>
+        <p>CVL/READ Modules including Basic Layout Analysis and Writer Identification/Retrieval</p>
+
+        <p class="view"><a href="https://github.com/TUWien/ReadModules">View the Project on GitHub <small>TUWien/ReadModules</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/TUWien/ReadModules/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/TUWien/ReadModules/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/TUWien/ReadModules">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a id="read-modules" class="anchor" href="#read-modules" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>READ Modules</h1>
+
+<p>READ Modules are document analysis modules developed at CVL/TU Wien for the EU project READ. The READ project  has  received  funding  from  the European  Union’s  Horizon  2020 research  and innovation programme under grant agreement No 674943.</p>
+
+<p><a href="https://travis-ci.org/TUWien/ReadModules"><img src="https://travis-ci.org/TUWien/ReadModules.svg?branch=master" alt="Build Status"></a>
+Documentation can be found here: <a href="http://tuwien.github.io/ReadModules/html/">http://tuwien.github.io/ReadModules/html/</a></p>
+
+<h2>
+<a id="build-on-windows" class="anchor" href="#build-on-windows" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Build on Windows</h2>
+
+<p>todo</p>
+
+<h2>
+<a id="build-on-ubuntu" class="anchor" href="#build-on-ubuntu" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Build on Ubuntu</h2>
+
+<p>note that Qt 5.5 is needed, thus Ubuntu version must be &gt;= 16.04 or backports of Qt 5.5 have to be used (see .travis.yml for an ppa repository and names packages which need to be installed)</p>
+
+<p>Get required packages:</p>
+
+<div class="highlight highlight-text-shell-session"><pre><span class="pl-mo">sudo apt-get install qt5-qmake qttools5-dev-tools qt5-default libqt5svg5-dev qt5-image-formats-plugins libopencv-dev cmake git libexiv2-dev libraw-dev</span></pre></div>
+
+<p>Get nomacs sources from github:</p>
+
+<div class="highlight highlight-text-shell-session"><pre><span class="pl-mo">git clone https://github.com/nomacs/nomacs</span></pre></div>
+
+<p>This will by default place the source into ./nomacs
+Go to the nomacs directory and run <code>cmake</code> to get the Makefiles:</p>
+
+<div class="highlight highlight-text-shell-session"><pre><span class="pl-mo">cd nomacs</span>
+<span class="pl-mo">cmake ImageLounge/.</span></pre></div>
+
+<p>Compile nomacs: </p>
+
+<div class="highlight highlight-text-shell-session"><pre><span class="pl-mo">make</span></pre></div>
+
+<p>Get the READ Framework sources from github:</p>
+
+<div class="highlight highlight-text-shell-session"><pre><span class="pl-mo">git clone https://github.com/TUWien/ReadFramework</span></pre></div>
+
+<p>This will by default place the source into ./ReadFramework</p>
+
+<p>Go to the ReadFramework directory and run <code>cmake</code> to get the Makefiles:</p>
+
+<div class="highlight highlight-text-shell-session"><pre><span class="pl-mo">cd ReadFramework</span>
+<span class="pl-mo">cmake . </span></pre></div>
+
+<p>Compile READ Framework: </p>
+
+<div class="highlight highlight-text-shell-session"><pre><span class="pl-mo">make</span></pre></div>
+
+<p>Get the READ Modules sources from github:</p>
+
+<div class="highlight highlight-text-shell-session"><pre><span class="pl-mo">git clone https://github.com/TUWien/ReadModules</span></pre></div>
+
+<p>This will by default place the source into ./ReadModules</p>
+
+<p>Go to the ReadModules directory and run <code>cmake</code> to get the Makefiles:
+you have to set the correct nomacs and ReadFramework build directories</p>
+
+<div class="highlight highlight-text-shell-session"><pre><span class="pl-mo">cd ReadModules</span>
+<span class="pl-mo">cmake -Dnomacs_DIR=../nomacs/ -DReadFramework_DIR=../ReadFramework . </span></pre></div>
+
+<p>Compile READ Modules: </p>
+
+<div class="highlight highlight-text-shell-session"><pre><span class="pl-mo">make</span></pre></div>
+
+<p>The READ modules are nomacs plugins which will be automatically copied to the nomacs build directory after compiling. Go to the nomacs build directory and start nomacs</p>
+
+<div class="highlight highlight-text-shell-session"><pre><span class="pl-mo">./nomacs</span></pre></div>
+
+<p>The READ modules are now available in the Menu -&gt; Plugins (you have to execute the PluginManager once from the menu)</p>
+
+<h3>
+<a id="authors" class="anchor" href="#authors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>authors</h3>
+
+<p>Markus Diem
+Stefan Fiel
+Florian Kleber</p>
+
+<h3>
+<a id="related-links" class="anchor" href="#related-links" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>related links:</h3>
+
+<p>[1] <a href="http://www.caa.tuwien.ac.at/cvl/">http://www.caa.tuwien.ac.at/cvl/</a>
+[2] <a href="https://transkribus.eu/Transkribus/">https://transkribus.eu/Transkribus/</a>
+[3] <a href="https://github.com/TUWien/">https://github.com/TUWien/</a>
+[4] <a href="http://nomacs.org">http://nomacs.org</a></p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/TUWien">TUWien</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
