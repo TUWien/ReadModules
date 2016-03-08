@@ -215,7 +215,7 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 		WIDatabase mWIDatabase = WIDatabase();
 		WIVocabulary voc = WIVocabulary();
 		voc.setType(WIVocabulary::WI_GMM);
-		voc.setNumberOfCluster(20);
+		voc.setNumberOfCluster(40);
 		voc.setNumberOfPCA(64);
 
 		//voc.setType(WIVocabulary::WI_BOW);
