@@ -74,6 +74,7 @@ namespace rdm {
 	/// Generates the vocabulary according to the type set in the vocabulary variable. If the number of PCA components is larger than 0 a PCA is applied beforehand.
 	/// </summary>
 	void WIDatabase::generateVocabulary() {
+		qDebug() << "generating vocabulary:" << mVocabulary.toString();
 		if(mVocabulary.type() == WIVocabulary::WI_UNDEFINED || mVocabulary.numberOfCluster() <= 0 ) {
 			qWarning() << " WIDatabase: vocabulary type and number of clusters have to be set before generating a new vocabulary";
 			return;
@@ -445,6 +446,8 @@ namespace rdm {
 			return;
 		}
 		cv::FileStorage fs(filePath.toStdString(), cv::FileStorage::WRITE);
+
+		fs << "description" << toString().toStdString();
 		fs << "NumberOfClusters" << mNumberOfClusters;
 		fs << "NumberOfPCA" << mNumberPCA;
 		fs << "type" << mType;
@@ -645,6 +648,18 @@ namespace rdm {
 	/// <returns></returns>
 	QString WIVocabulary::note() const {
 		return mNote;
+	}
+	QString WIVocabulary::toString() const {
+		QString description = "";
+		if(type() == WI_GMM)
+			description.append("GMM ");
+		else if(type() == WI_BOW)
+			description.append("BOW ");
+		description += " clusters:";
+		description.append(mNumberOfClusters);
+		description.append(" pca:");
+		description.append(mNumberPCA);
+		return description;
 	}
 }
 

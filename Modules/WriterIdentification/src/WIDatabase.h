@@ -85,7 +85,7 @@ namespace rdm {
 		int type() const;
 		void setNote(QString note);
 		QString note() const;
-
+		QString toString() const;
 
 	private:
 		cv::Mat mVocabulary = cv::Mat();
