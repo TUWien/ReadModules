@@ -67,6 +67,7 @@ public:
 		id_calcuate_features,
 		id_generate_vocabulary,
 		id_identify_writer,
+		id_evaluate_database,
 		// add actions here
 
 		id_end

@@ -130,7 +130,7 @@ namespace rdm {
 	/// Evaluates the database.
 	/// </summary>
 	/// <param name="classLabels">The class labels.</param>
-	/// <param name="filePaths">The file paths containing the local features.</param>
+	/// <param name="filePaths">The files paths of the images if needed in the evaluation output</param>
 	/// <param name="filePath">If set a csv file with the evaluation is written to the path.</param>
 	void WIDatabase::evaluateDatabase(QStringList classLabels, QStringList filePaths, QString filePath) const {
 		qDebug() << "evaluating database";
@@ -188,8 +188,10 @@ namespace rdm {
 			return generateHistBOW(desc);
 		else if(mVocabulary.type() == WIVocabulary::WI_GMM)
 			return generateHistGMM(desc);
-		else
+		else {
+			qWarning() << "vocabulary type is undefined... not generating histograms";
 			return cv::Mat();
+		}
 	}
 	/// <summary>
 	/// Debug name.
@@ -424,7 +426,7 @@ namespace rdm {
 		else {
 			std::string gmmPath;
 			fs["GmmPath"] >> gmmPath;
-			mEM->load<cv::ml::EM>(gmmPath);
+			mEM = cv::ml::EM::load<cv::ml::EM>(gmmPath);
 
 			//cv::FileNode fn = fs["StatModel.EM"];
 			//mEM->read(fn);

@@ -51,15 +51,17 @@ WriterIdentificationPlugin::WriterIdentificationPlugin(QObject* parent) : QObjec
 	runIds[id_calcuate_features] = "1bb00c5713a849eebb9ea16fcf794740";
 	runIds[id_generate_vocabulary] = "aa8cf182dc4348aa9917cd3c3fc95d8c";
 	runIds[id_identify_writer] = "b9fc66129483473fa901ddf627bd8b9a";
+	runIds[id_evaluate_database] = "e247a635ebb3449ba88204abf8d5f089";
 	mRunIDs = runIds.toList();
 
 	// create menu actions
 	QVector<QString> menuNames;
 	menuNames.resize(id_end);
 
-	menuNames[id_calcuate_features] = tr("&Calcuate Features");
-	menuNames[id_generate_vocabulary] = tr("&Generate Vocabulary");
-	menuNames[id_identify_writer] = tr("&Identify Writer");
+	menuNames[id_calcuate_features] = tr("Calcuate Features");
+	menuNames[id_generate_vocabulary] = tr("Generate Vocabulary");
+	menuNames[id_identify_writer] = tr("Identify Writer");
+	menuNames[id_evaluate_database] = tr("Evaluate Database");
 	mMenuNames = menuNames.toList();
 
 	// create menu status tips
@@ -69,6 +71,7 @@ WriterIdentificationPlugin::WriterIdentificationPlugin(QObject* parent) : QObjec
 	statusTips[id_calcuate_features] = tr("Calculates the features for writer identification on this page");
 	statusTips[id_generate_vocabulary] = tr("Generates a new vocabulary using the given pages");
 	statusTips[id_identify_writer] = tr("Identifies the writer of the given page");
+	statusTips[id_evaluate_database] = tr("Evaluates the selected files");
 	mMenuStatusTips = statusTips.toList();
 }
 /**
@@ -182,10 +185,33 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(cons
 		wInfo->setFeatureFilePath(featureFilePath);
 
 		info = wInfo;
-
 	}
 	else if(runID == mRunIDs[id_identify_writer]) {
 		qInfo() << "identifying writer";
+	}
+	else if(runID == mRunIDs[id_evaluate_database]) {
+		qInfo() << "collecting files evaluation";
+
+		QString featureFilePath = imgC->filePath();
+		featureFilePath.replace(featureFilePath.length() - 4, featureFilePath.length(), ".yml");
+
+		int idxOfMinus = QFileInfo(imgC->filePath()).baseName().indexOf("-");
+		int idxOfUScore = QFileInfo(imgC->filePath()).baseName().indexOf("_");
+		int idx = -1;
+		if(idxOfMinus == -1 && idxOfUScore > 0)
+			idx = idxOfUScore;
+		else if(idxOfUScore == -1 && idxOfMinus > 0)
+			idx = idxOfMinus;
+		else if(idxOfMinus > 0 && idxOfUScore > 0)
+			idx = idxOfMinus > idxOfUScore ? idxOfMinus : idxOfUScore;
+		QString label = QFileInfo(imgC->filePath()).baseName().left(idx);
+
+		QSharedPointer<WIInfo> wInfo(new WIInfo(runID, imgC->filePath()));
+		wInfo->setWriter(label);
+		wInfo->setFeatureFilePath(featureFilePath);
+
+		info = wInfo;
+
 	}
 
 
@@ -212,29 +238,43 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 	qDebug() << "[POST LOADING]" << mMenuNames[runIdx] << "--------------------------------------------";
 
 	if(runIdx == id_generate_vocabulary) {
-		WIDatabase mWIDatabase = WIDatabase();
+		WIDatabase wiDatabase = WIDatabase();
 		WIVocabulary voc = WIVocabulary();
 		voc.setType(WIVocabulary::WI_GMM);
 		voc.setNumberOfCluster(40);
 		voc.setNumberOfPCA(64);
 
 		//voc.setType(WIVocabulary::WI_BOW);
-		//voc.setNumberOfCluster(5);
+		//voc.setNumberOfCluster(100);
 		//voc.setNumberOfPCA(64);
 
-		mWIDatabase.setVocabulary(voc);
+		wiDatabase.setVocabulary(voc);
 
 		QStringList classLabels, featurePaths;
 		for(auto bi : batchInfo) {
 			WIInfo * wInfo = dynamic_cast<WIInfo*>(bi.data());
-			mWIDatabase.addFile(wInfo->featureFilePath());
+			wiDatabase.addFile(wInfo->featureFilePath());
 			featurePaths.append(wInfo->featureFilePath());
 			classLabels.append(wInfo->writer());
 		}
 
-		mWIDatabase.generateVocabulary();
-		mWIDatabase.saveVocabulary("C://tmp//test3-voc.yml");
-		mWIDatabase.evaluateDatabase(classLabels, featurePaths);
+		wiDatabase.generateVocabulary();
+		wiDatabase.saveVocabulary("C://tmp//test5-voc.yml");
+		wiDatabase.evaluateDatabase(classLabels, featurePaths);
+	}
+	else if(runIdx == id_evaluate_database) {
+		WIDatabase wiDatabase = WIDatabase(); 
+		QStringList classLabels, featurePaths;
+		for(auto bi : batchInfo) {
+			WIInfo * wInfo = dynamic_cast<WIInfo*>(bi.data());
+			wiDatabase.addFile(wInfo->featureFilePath());
+			featurePaths.append(wInfo->featureFilePath());
+			classLabels.append(wInfo->writer());
+		}
+		WIVocabulary voc = WIVocabulary();
+		voc.loadVocabulary("C://tmp//test5-voc.yml");
+		wiDatabase.setVocabulary(voc);
+		wiDatabase.evaluateDatabase(classLabels, featurePaths);
 	}
 }
 
