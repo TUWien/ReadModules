@@ -62,6 +62,23 @@ macro(RDM_FIND_OPENCV)
 	
 	# make RelWithDebInfo link against release instead of debug opencv dlls
 	set_target_properties(${OpenCV_LIBS} PROPERTIES MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
+
+	if(MSVC)
+		foreach(opencvlib ${PACKAGES})
+			file(GLOB dllpath ${OpenCV_DIR}/bin/Release/opencv_${opencvlib}*.dll)
+			file(COPY ${dllpath} DESTINATION ${CMAKE_BINARY_DIR}/Release)
+			
+			set(RDM_OPENCV_BINARIES ${RDM_OPENCV_BINARIES} ${dllpath})
+			
+			file(GLOB dllpath ${OpenCV_DIR}/bin/Debug/opencv_${opencvlib}*d.dll)
+			file(COPY ${dllpath} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+			file(COPY ${dllpath} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
+			
+			set(RDM_OPENCV_BINARIES ${RDM_OPENCV_BINARIES} ${dllpath})
+			
+			message(STATUS "copying ${dllpath} to ${CMAKE_BINARY_DIR}/Debug")
+		endforeach(opencvlib)
+	endif(MSVC)
 endmacro(RDM_FIND_OPENCV)
 
 macro(RDM_PREPARE_PLUGIN)
@@ -139,18 +156,17 @@ macro(RDM_CREATE_TARGETS)
 			
 			message(STATUS "opencv dlls: ${RDF_OPENCV_BINARIES}")
 			
-			set(BINS ${RDF_BINARIES} ${RDF_OPENCV_BINARIES})
+			set(BINS ${RDF_BINARIES} ${RDF_OPENCV_BINARIES} ${RDM_OPENCV_BINARIES})
 			foreach(CUR_BIN ${BINS})
 				string(REGEX MATCHALL ".*Debug.*" matches ${CUR_BIN})
 				if(matches)
 					file(COPY ${matches} DESTINATION ${NOMACS_BUILD_DIRECTORY}/Debug)
 					add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${matches} ${NOMACS_BUILD_DIRECTORY}/Debug)
-					add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${matches} ${NOMACS_BUILD_DIRECTORY}/RelWithDebInfo)
 				endif()
 				string(REGEX MATCHALL ".*Release.*" matches ${CUR_BIN})
 				if(matches)
 					add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${matches} ${NOMACS_BUILD_DIRECTORY}/Release)
-
+					add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${matches} ${NOMACS_BUILD_DIRECTORY}/RelWithDebInfo)
 				endif()			
 			endforeach()
 		else()
