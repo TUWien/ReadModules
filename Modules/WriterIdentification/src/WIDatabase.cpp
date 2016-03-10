@@ -135,8 +135,15 @@ namespace rdm {
 		for(int i = 0; i < mDescriptors.length(); i++) {
 			hists.push_back(generateHist(mDescriptors[i]));
 		}
+		qDebug() << "starting evaluating";
 		int tp = 0; 
 		int fp = 0;
+		QVector<int> soft;
+		QVector<int> hard;
+		for(int i = 0; i <= 10; i++) {
+			soft.push_back(0);
+			hard.push_back(0);
+		}
 		for(int i = 0; i < mDescriptors.length(); i++) {
 			cv::Mat distances(mDescriptors.length(), 1, CV_32FC1);
 			for(int j = 0; j < mDescriptors.length(); j++) {
@@ -164,14 +171,67 @@ namespace rdm {
 					}
 				}
 			}
-			qDebug() << "classLabels[i].toInt():" << classLabels[i].toInt() << " idxs.at<int>(1):" << idxs.at<int>(1) << " classLabels[idxs.at<int>(1)]:" << classLabels[idxs.at<int>(1)];
+			//qDebug() << "classLabels[i].toInt():" << classLabels[i].toInt() << " idxs.at<int>(1):" << idxs.at<int>(1) << " classLabels[idxs.at<int>(1)]:" << classLabels[idxs.at<int>(1)];
 			if(classLabels[i] == classLabels[idxs.at<int>(1)])
 				tp++;
 			else
 				fp++;
+			if(idxs.rows > 11) {
+				bool allCorrect = true;
+				bool oneCorrect = false;
+				for(int j = 1; j <= 11; j++) { // 1 because idx 0 is the original file
+					if(classLabels[i] == classLabels[idxs.at<int>(j)]) 
+						oneCorrect = true;
+					else
+						allCorrect = false;
+
+					if(oneCorrect)
+						soft[j-1] += 1;
+					if(allCorrect)
+						hard[j-1] += 1;
+				}
+			}
 		}
+
+		// begin evluation output
 		qDebug() << "total:" << tp+fp << " tp:" << tp << " fp:" << fp;
 		qDebug() << "precision:" << (float)tp / ((float)tp + fp);
+
+		QVector<float> softPerc;
+		QVector<float> hardPerc;
+		for(int i = 0; i < soft.size(); i++) {
+			softPerc.push_back(soft[i] / (float)(tp + fp));
+			hardPerc.push_back(hard[i] / (float)(tp + fp));
+		}
+
+		QVector<int> softCriteria({ 1, 2, 5, 7 });
+		QString softOutputHeader = "soft evaluation\n";
+		QString softOutput = "";
+		for(int i = 0; i < softCriteria.size(); i++) {
+			if(softCriteria[i] > soft.size()) {
+				qDebug() << "Database evaluation: criteria " << softCriteria[i] << " is larger than " << soft.size()-1 << " ... skipping";
+				continue;
+			}
+			softOutputHeader += "Top " + QString::number(softCriteria[i]) + "\t";
+			softOutput += QString::number(softPerc[softCriteria[i] - 1], 'f', 3) + "\t";
+		}
+
+		QVector<int> hardCriteria({ 2, 5, 7 });
+		QString hardOutputHeader = "hard evaluation:\n";
+		QString hardOutput = "";
+		for(int i = 0; i < hardCriteria.size(); i++) {
+			if(hardCriteria[i] > hard.size()) {
+				qDebug() << "Database evaluation: criteria " << hardCriteria[i] << " is larger than " << hard.size()-1 << " ... skipping";
+				continue;
+			}
+			hardOutputHeader += "Top " + QString::number(hardCriteria[i]) + "\t";
+			hardOutput += QString::number(hardPerc[hardCriteria[i] - 1], 'f', 3) + "\t";
+		}
+
+		qDebug().noquote() << softOutputHeader;
+		qDebug().noquote() << softOutput;
+		qDebug().noquote() << hardOutputHeader;
+		qDebug().noquote() << hardOutput;
 		
 	}
 	/// <summary>
