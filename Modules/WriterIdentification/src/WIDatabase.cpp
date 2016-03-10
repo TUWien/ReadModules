@@ -74,7 +74,6 @@ namespace rdm {
 	/// Generates the vocabulary according to the type set in the vocabulary variable. If the number of PCA components is larger than 0 a PCA is applied beforehand.
 	/// </summary>
 	void WIDatabase::generateVocabulary() {
-		qDebug() << "generating vocabulary:" << mVocabulary.toString();
 		if(mVocabulary.type() == WIVocabulary::WI_UNDEFINED || mVocabulary.numberOfCluster() <= 0 ) {
 			qWarning() << " WIDatabase: vocabulary type and number of clusters have to be set before generating a new vocabulary";
 			return;
@@ -83,12 +82,8 @@ namespace rdm {
 			qWarning() << " WIDatabase: at least one image has to be in the dataset before generating a new vocabulary";
 			return;
 		}
+		qDebug() << "generating vocabulary:" << mVocabulary.toString();
 
-		//int numberOfRows;
-		//int numberOfCols = mDescriptors[0].cols; // must exist because of if
-		//for(int i = 0; i < mDescriptors.size(); i++) {
-		//	numberOfRows += mDescriptors[i].rows;
-		//}
 		cv::Mat allDesc(0, 0, CV_32FC1);
 		for(int i = 0; i < mDescriptors.size(); i++) {
 			allDesc.push_back(mDescriptors[i]);
@@ -124,7 +119,7 @@ namespace rdm {
 	/// Calls the saveVocabulary function of the current vocabulary
 	/// </summary>
 	/// <param name="filePath">The file path.</param>
-	void WIDatabase::saveVocabulary(QString filePath) const {
+	void WIDatabase::saveVocabulary(QString filePath) {
 		mVocabulary.saveVocabulary(filePath);
 	}
 	/// <summary>
@@ -401,6 +396,7 @@ namespace rdm {
 	}
 	/// <summary>
 	/// Loads the vocabulary from the given file path.
+	/// updates the mVocabulary path
 	/// </summary>
 	/// <param name="filePath">The file path.</param>
 	void WIVocabulary::loadVocabulary(const QString filePath) {
@@ -434,12 +430,14 @@ namespace rdm {
 		}
 
 		fs.release();
+		mVocabularyPath = filePath;
 	}
 	/// <summary>
 	/// Saves the vocabulary to the given file path.
+	/// updates the mVocabularyPath, thus this method is not const
 	/// </summary>
 	/// <param name="filePath">The file path.</param>
-	void WIVocabulary::saveVocabulary(const QString filePath) const {
+	void WIVocabulary::saveVocabulary(const QString filePath) {
 		qDebug() << "saving vocabulary to " << filePath;
 		if(isEmpty()) {
 			qWarning() << "WIVocabulary: isEmpty() is true ... unable to save to file";
@@ -468,7 +466,7 @@ namespace rdm {
 			
 			//mEM->write(fs);
 		}
-
+		mVocabularyPath = filePath;
 		fs.release();
 	}
 	/// <summary>
@@ -655,11 +653,11 @@ namespace rdm {
 			description.append("GMM ");
 		else if(type() == WI_BOW)
 			description.append("BOW ");
-		description += " clusters:";
-		description.append(mNumberOfClusters);
-		description.append(" pca:");
-		description.append(mNumberPCA);
+		description += " clusters:" + QString::number(mNumberOfClusters) + " pca:" + QString::number(mNumberPCA);
 		return description;
+	}
+	QString WIVocabulary::vacabularyPath() const {
+		return mVocabularyPath;
 	}
 }
 

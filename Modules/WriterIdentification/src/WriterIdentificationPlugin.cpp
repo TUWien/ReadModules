@@ -24,12 +24,15 @@
 
 #include "WriterIdentificationPlugin.h"
 
+ // nomacs includes
+#include "DkSettings.h"
+#include "DkImageStorage.h"
+
 #include "WriterIdentification.h"
 #include "WIDatabase.h"
 #include "Image.h"
 #include "Settings.h"
 
-#include "DkImageStorage.h"
 
 #pragma warning(push, 0)	// no warnings from includes - begin
 #include <QAction>
@@ -73,6 +76,8 @@ WriterIdentificationPlugin::WriterIdentificationPlugin(QObject* parent) : QObjec
 	statusTips[id_identify_writer] = tr("Identifies the writer of the given page");
 	statusTips[id_evaluate_database] = tr("Evaluates the selected files");
 	mMenuStatusTips = statusTips.toList();
+
+	init();
 }
 /**
 *	Destructor
@@ -155,9 +160,8 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(cons
 		cv::drawKeypoints(imgCv, kp.toStdVector(), imgCv, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
 		//cv::drawKeypoints(imgCv, wi.getKeyPoints().toStdVector(), imgCv, cv::Scalar::all(-1));
 		
-		QString featureFilePath = imgC->filePath();
-		featureFilePath.replace(featureFilePath.length() - 4, featureFilePath.length(), ".yml");
-		wi.saveFeatures(featureFilePath);
+		QString fFilePath = featureFilePath(imgC->filePath(), true);
+		wi.saveFeatures(fFilePath);
 
 		//QImage img = nmc::DkImage::mat2QImage(imgCv);
 		//img = img.convertToFormat(QImage::Format_ARGB32);
@@ -166,8 +170,8 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(cons
 	else if(runID == mRunIDs[id_generate_vocabulary]) {
 		qInfo() << "collecting files for vocabulary generation";
 
-		QString featureFilePath = imgC->filePath();
-		featureFilePath.replace(featureFilePath.length() - 4, featureFilePath.length(), ".yml");
+		QString ffPath = featureFilePath(imgC->filePath());
+		ffPath.replace(ffPath.length() - 4, ffPath.length(), ".yml");
 
 		int idxOfMinus = QFileInfo(imgC->filePath()).baseName().indexOf("-");
 		int idxOfUScore = QFileInfo(imgC->filePath()).baseName().indexOf("_");
@@ -182,7 +186,7 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(cons
 
 		QSharedPointer<WIInfo> wInfo(new WIInfo(runID, imgC->filePath()));
 		wInfo->setWriter(label);
-		wInfo->setFeatureFilePath(featureFilePath);
+		wInfo->setFeatureFilePath(ffPath);
 
 		info = wInfo;
 	}
@@ -192,26 +196,29 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(cons
 	else if(runID == mRunIDs[id_evaluate_database]) {
 		qInfo() << "collecting files evaluation";
 
-		QString featureFilePath = imgC->filePath();
-		featureFilePath.replace(featureFilePath.length() - 4, featureFilePath.length(), ".yml");
+		QString fFilePath = featureFilePath(imgC->filePath());
 
-		int idxOfMinus = QFileInfo(imgC->filePath()).baseName().indexOf("-");
-		int idxOfUScore = QFileInfo(imgC->filePath()).baseName().indexOf("_");
-		int idx = -1;
-		if(idxOfMinus == -1 && idxOfUScore > 0)
-			idx = idxOfUScore;
-		else if(idxOfUScore == -1 && idxOfMinus > 0)
-			idx = idxOfMinus;
-		else if(idxOfMinus > 0 && idxOfUScore > 0)
-			idx = idxOfMinus > idxOfUScore ? idxOfMinus : idxOfUScore;
-		QString label = QFileInfo(imgC->filePath()).baseName().left(idx);
+		if(QFileInfo(fFilePath).exists()) {
 
-		QSharedPointer<WIInfo> wInfo(new WIInfo(runID, imgC->filePath()));
-		wInfo->setWriter(label);
-		wInfo->setFeatureFilePath(featureFilePath);
+			int idxOfMinus = QFileInfo(imgC->filePath()).baseName().indexOf("-");
+			int idxOfUScore = QFileInfo(imgC->filePath()).baseName().indexOf("_");
+			int idx = -1;
+			if(idxOfMinus == -1 && idxOfUScore > 0)
+				idx = idxOfUScore;
+			else if(idxOfUScore == -1 && idxOfMinus > 0)
+				idx = idxOfMinus;
+			else if(idxOfMinus > 0 && idxOfUScore > 0)
+				idx = idxOfMinus > idxOfUScore ? idxOfMinus : idxOfUScore;
+			QString label = QFileInfo(imgC->filePath()).baseName().left(idx);
 
-		info = wInfo;
+			QSharedPointer<WIInfo> wInfo(new WIInfo(runID, imgC->filePath()));
+			wInfo->setWriter(label);
+			wInfo->setFeatureFilePath(fFilePath);
 
+			info = wInfo;
+		} else {
+			qDebug() << "no features files exists for image: " << imgC->filePath()  << "... skipping";
+		}
 	}
 
 
@@ -240,13 +247,21 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 	if(runIdx == id_generate_vocabulary) {
 		WIDatabase wiDatabase = WIDatabase();
 		WIVocabulary voc = WIVocabulary();
-		voc.setType(WIVocabulary::WI_GMM);
-		voc.setNumberOfCluster(40);
-		voc.setNumberOfPCA(64);
+		if(mVocType != WIVocabulary::WI_UNDEFINED) {
+			voc.setType(mVocType);
+			voc.setNumberOfCluster(mVocNumberOfClusters);
+			voc.setNumberOfPCA(mVocNumberOfPCA);
+		}
+		else {
+			qDebug() << "vocabulary in settings file undefined. Using default values";
+			voc.setType(WIVocabulary::WI_GMM);
+			voc.setNumberOfCluster(40);
+			voc.setNumberOfPCA(64);
 
-		//voc.setType(WIVocabulary::WI_BOW);
-		//voc.setNumberOfCluster(100);
-		//voc.setNumberOfPCA(64);
+			//voc.setType(WIVocabulary::WI_BOW);
+			//voc.setNumberOfCluster(300);
+			//voc.setNumberOfPCA(0);
+		}
 
 		wiDatabase.setVocabulary(voc);
 
@@ -259,11 +274,16 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 		}
 
 		wiDatabase.generateVocabulary();
-		wiDatabase.saveVocabulary("C://tmp//test5-voc.yml");
+		wiDatabase.saveVocabulary(mVocType == WIVocabulary::WI_UNDEFINED ? "C://tmp//voc-woSettings.yml" : mSettingsVocPath);
 		wiDatabase.evaluateDatabase(classLabels, featurePaths);
 	}
 	else if(runIdx == id_evaluate_database) {
 		WIDatabase wiDatabase = WIDatabase(); 
+		WIVocabulary voc = WIVocabulary();
+		if(mVocType == WIVocabulary::WI_UNDEFINED)
+			qDebug() << "vocabulary path not set in settings file. Using default path";
+		voc.loadVocabulary(mVocType == WIVocabulary::WI_UNDEFINED ? "C://tmp//voc-woSettings.yml" : mSettingsVocPath);
+		wiDatabase.setVocabulary(voc);
 		QStringList classLabels, featurePaths;
 		for(auto bi : batchInfo) {
 			WIInfo * wInfo = dynamic_cast<WIInfo*>(bi.data());
@@ -271,13 +291,60 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 			featurePaths.append(wInfo->featureFilePath());
 			classLabels.append(wInfo->writer());
 		}
-		WIVocabulary voc = WIVocabulary();
-		voc.loadVocabulary("C://tmp//test5-voc.yml");
-		wiDatabase.setVocabulary(voc);
 		wiDatabase.evaluateDatabase(classLabels, featurePaths);
 	}
 }
 
+void WriterIdentificationPlugin::init() {
+	loadSettings(nmc::Settings::instance().getSettings());
+}
+
+void WriterIdentificationPlugin::loadSettings(QSettings & settings) {
+	settings.beginGroup("WriterIdentification");
+	mSettingsVocPath = settings.value("vocPath", QString()).toString();
+	mVocType = settings.value("vocType", WIVocabulary::WI_UNDEFINED).toInt();
+	if(mVocType > WIVocabulary::WI_UNDEFINED)
+		mVocType = WIVocabulary::WI_UNDEFINED;
+	mVocNumberOfClusters = settings.value("numberOfClusters", -1).toInt();
+	mVocNumberOfPCA = settings.value("numberOfPCA", -1).toInt();
+	mFeatureDir = settings.value("featureDir", QString()).toString();
+	qDebug() << "settings read: path: " << mSettingsVocPath << " type:" << mVocType << " numberOfClusters:" << mVocNumberOfClusters << " numberOfPCA: " << mVocNumberOfPCA;
+	settings.endGroup();
+}
+
+void WriterIdentificationPlugin::saveSettings(QSettings & settings) const {
+	settings.beginGroup("WriterIdentification");
+
+	settings.endGroup();
+}
+
+QString WriterIdentificationPlugin::featureFilePath(QString imgPath, bool createDir) const {
+	if(mFeatureDir.isEmpty()) {
+		QString featureFilePath = imgPath;
+		return featureFilePath.replace(featureFilePath.length() - 4, featureFilePath.length(), ".yml");
+	}
+	else {
+		QString ffPath;
+		QFileInfo fImgPath(imgPath);
+		QFileInfo fFeatPath(mFeatureDir);
+		if(fFeatPath.isAbsolute()) {
+			ffPath = fFeatPath.absoluteDir().path() + fImgPath.baseName();
+		}
+		else {
+			QFileInfo combined(fImgPath.absoluteDir().path() + "/" + mFeatureDir + "/");
+			if(!combined.exists() && createDir) {
+				QDir dir(fImgPath.absoluteDir());
+				if(!dir.mkdir(mFeatureDir)) {
+					qDebug() << "unable to create subdirectory";
+				}
+			}
+			ffPath = combined.absoluteDir().path() + "/" + fImgPath.baseName() + ".yml";
+		}
+		qDebug() << "fFPath.isAbsolute():" << fFeatPath.isAbsolute() << " fFPath.isRelative():" << fFeatPath.isRelative();
+
+		return ffPath;
+	}
+}
 
 // WIInfo --------------------------------------------------------------------
 WIInfo::WIInfo(const QString& id, const QString & filePath) : nmc::DkBatchInfo(id, filePath) {

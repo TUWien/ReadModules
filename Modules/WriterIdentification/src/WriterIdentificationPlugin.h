@@ -27,8 +27,9 @@
 #include "DkPluginInterface.h"
 #include "WIDatabase.h"
 
+class QSettings;
 namespace rdm {
-
+	
 class WIInfo : public nmc::DkBatchInfo {
 
 public:
@@ -79,6 +80,18 @@ protected:
 	QStringList mMenuNames;
 	QStringList mMenuStatusTips;
 	WIDatabase mWIDatabase;
+
+private:
+	void init();
+	void loadSettings(QSettings& settings);
+	void saveSettings(QSettings& settings) const;
+	QString featureFilePath(QString imgPath, bool createDir=false) const;
+
+	QString mSettingsVocPath = QString();
+	int mVocType = WIVocabulary::WI_UNDEFINED;
+	int mVocNumberOfClusters = -1;
+	int mVocNumberOfPCA = -1;
+	QString mFeatureDir = QString();
 };
 
 };

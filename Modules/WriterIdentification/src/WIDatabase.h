@@ -50,7 +50,7 @@ namespace rdm {
 		WIVocabulary();
 
 		void loadVocabulary(const QString filePath);
-		void saveVocabulary(const QString filePath) const;
+		void saveVocabulary(const QString filePath);
 
 		bool isEmpty() const;
 
@@ -87,6 +87,8 @@ namespace rdm {
 		QString note() const;
 		QString toString() const;
 
+		QString vacabularyPath() const;
+
 	private:
 		cv::Mat mVocabulary = cv::Mat();
 		cv::Ptr<cv::ml::EM> mEM;
@@ -102,6 +104,8 @@ namespace rdm {
 		int mType = WI_UNDEFINED;
 
 		QString mNote = QString();
+
+		QString mVocabularyPath = QString();
 	};
 
 // read defines
@@ -114,7 +118,7 @@ namespace rdm {
 
 		void setVocabulary(const WIVocabulary voc);
 		WIVocabulary vocabulary() const;
-		void saveVocabulary(QString filePath) const;
+		void saveVocabulary(QString filePath);
 
 		void evaluateDatabase(QStringList classLabels, QStringList filePaths, QString filePath = QString()) const;
 		cv::Mat generateHist(cv::Mat desc) const;

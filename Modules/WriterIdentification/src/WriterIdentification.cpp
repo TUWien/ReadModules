@@ -84,6 +84,10 @@ namespace rdm {
 			qWarning() << debugName() << " keypoints or descriptors empty ... unable to save to file";
 			return;
 		}
+		QFileInfo fi(filePath);
+		if(!fi.absoluteDir().exists()) {
+			qWarning() << debugName() << " unable to save features, directory " << fi.absoluteDir().path() << "does not exist";
+		}
 		cv::FileStorage fs(filePath.toStdString(), cv::FileStorage::WRITE);
 		fs << "keypoints" << mKeyPoints.toStdVector();
 		fs << "descriptors" << mDescriptors;
