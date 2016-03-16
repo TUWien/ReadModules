@@ -56,8 +56,10 @@ namespace rdm {
 		void loadFeatures(QString filePath);
 
 
-		QVector<cv::KeyPoint> getKeyPoints();
-
+		void setKeyPoints(QVector<cv::KeyPoint> kp);
+		QVector<cv::KeyPoint> keyPoints() const;
+		void setDescriptors(cv::Mat desc);
+		cv::Mat descriptors() const;
 		
 
 	private:

@@ -34,6 +34,9 @@
 #include "WriterIdentification.h"
 #include "Image.h"
 
+#include <iostream>
+#include <fstream>
+
 #pragma warning(push, 0)	// no warnings from includes
 // Qt Includes
 #include <QDebug>
@@ -307,6 +310,7 @@ namespace rdm {
 		cv::Ptr<cv::ml::EM> em = cv::ml::EM::create();
 		em->setClustersNumber(mVocabulary.numberOfCluster());
 		em->setCovarianceMatrixType(cv::ml::EM::COV_MAT_DIAGONAL);
+
 		qDebug() << "start training GMM - number of features:" << desc.rows; 
 		rdf::Image::instance().imageInfo(desc, "all descriptors");
 		if(!em->trainEM(desc)) {
@@ -315,7 +319,23 @@ namespace rdm {
 		} 
 		mVocabulary.setEM(em);
 		qDebug() << "finished";
-	
+
+		cv::Mat means = em->getMeans();
+		std::vector<cv::Mat> covs;
+		em->getCovs(covs);
+
+	}
+	void WIDatabase::writeMatToFile(const cv::Mat mat, const QString filePath) const {
+		std::ofstream fileStream;
+		fileStream.open(filePath.toStdString());
+		fileStream << mat.cols << "\n" << mat.rows << "\n" << std::flush;
+		for(int i = 0; i < mat.rows; i++) {
+			const float* row = mat.ptr<float>(i);
+			for(int j = 0; j < mat.cols; j++)
+				fileStream << row[j] << " ";
+			fileStream << "\n" << std::flush;
+		}
+		fileStream.close();
 	}
 	/// <summary>
 	/// Applies the PCA with the stored Eigenvalues and Eigenvectors of the vocabulary.

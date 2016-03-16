@@ -128,6 +128,7 @@ namespace rdm {
 		cv::Mat calculatePCA(cv::Mat desc);
 		void generateBOW(cv::Mat desc);
 		void generateGMM(cv::Mat desc);
+		void writeMatToFile(const cv::Mat, const QString filePath) const;
 		cv::Mat applyPCA(cv::Mat desc) const;
 		cv::Mat generateHistBOW(cv::Mat desc) const;
 		cv::Mat generateHistGMM(cv::Mat desc) const;

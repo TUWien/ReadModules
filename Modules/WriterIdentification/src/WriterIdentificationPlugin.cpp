@@ -28,6 +28,8 @@
 #include "DkSettings.h"
 #include "DkImageStorage.h"
 
+#include <fstream>
+
 #include "WriterIdentification.h"
 #include "WIDatabase.h"
 #include "Image.h"
@@ -153,19 +155,35 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(cons
 		wi.setImage(imgCv);
 		wi.calculateFeatures();
 		cv::cvtColor(imgCv, imgCv, CV_RGB2GRAY);
-		QVector<cv::KeyPoint> kp = wi.getKeyPoints();
-		for(int i = 0; i < kp.length(); i++) {
-			kp[i].size *= 1.5 * 4;
+		QVector<cv::KeyPoint> kp = wi.keyPoints();
+		QVector<cv::KeyPoint>::iterator kpItr = kp.begin();
+		cv::Mat desc = wi.descriptors();
+		cv::Mat newDesc = cv::Mat(0, desc.cols, desc.type());
+		int r = 0;
+		rdf::Image::instance().imageInfo(desc, "desc");
+		for(auto kpItr = kp.begin(); kpItr != kp.end(); r++) {
+			kpItr->size *= 1.5 * 4;
+			if(kpItr->size > 70) {
+				kpItr = kp.erase(kpItr);
+			} else if(kpItr->size < 20) {
+				kpItr = kp.erase(kpItr);
+			} else {
+				kpItr++;
+				newDesc.push_back(desc.row(r).clone());
+			}
 		}
+		rdf::Image::instance().imageInfo(newDesc, "newDesc");
+		wi.setDescriptors(newDesc);
+		wi.setKeyPoints(kp);
 		cv::drawKeypoints(imgCv, kp.toStdVector(), imgCv, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
 		//cv::drawKeypoints(imgCv, wi.getKeyPoints().toStdVector(), imgCv, cv::Scalar::all(-1));
 		
-		QString fFilePath = featureFilePath(imgC->filePath(), true);
-		wi.saveFeatures(fFilePath);
+		//QString fFilePath = featureFilePath(imgC->filePath(), true);
+		wi.saveFeatures(featureFilePath(imgC->filePath(), true));
 
-		//QImage img = nmc::DkImage::mat2QImage(imgCv);
-		//img = img.convertToFormat(QImage::Format_ARGB32);
-		//imgC->setImage(img, tr("SIFT keypoints"));
+		QImage img = nmc::DkImage::mat2QImage(imgCv);
+		img = img.convertToFormat(QImage::Format_ARGB32);
+		imgC->setImage(img, tr("SIFT keypoints"));
 	}
 	else if(runID == mRunIDs[id_generate_vocabulary]) {
 		qInfo() << "collecting files for vocabulary generation";
@@ -310,6 +328,24 @@ void WriterIdentificationPlugin::loadSettings(QSettings & settings) {
 	mFeatureDir = settings.value("featureDir", QString()).toString();
 	qDebug() << "settings read: path: " << mSettingsVocPath << " type:" << mVocType << " numberOfClusters:" << mVocNumberOfClusters << " numberOfPCA: " << mVocNumberOfPCA;
 	settings.endGroup();
+
+	WIVocabulary voc = WIVocabulary();
+	voc.loadVocabulary(mSettingsVocPath);
+
+	//cv::Mat m = voc.em()->getMeans();
+	//std::ofstream fileStream;
+	//fileStream.open("c:\\tmp\\means.m");
+	//fileStream << m.cols << "\n" << m.rows << "\n" << std::flush;
+	//for(int i = 0; i < m.rows; i++) {
+	//	const float* row = m.ptr<float>(i);
+	//	for(int j = 0; j < m.cols; j++)
+	//		fileStream << row[j] << " ";
+	//	fileStream << "\n" << std::flush;
+	//}
+	//fileStream.close();
+	//m.release();
+
+
 }
 
 void WriterIdentificationPlugin::saveSettings(QSettings & settings) const {

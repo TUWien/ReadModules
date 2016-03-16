@@ -109,12 +109,21 @@ namespace rdm {
 		fs["descriptors"] >> mDescriptors;
 		fs.release();
 	}
+	void WriterIdentification::setKeyPoints(QVector<cv::KeyPoint> kp) {
+		mKeyPoints = kp;
+	}
 	/// <summary>
 	/// Returns the keypoints of the SIFT features.
 	/// </summary>
 	/// <returns>keypoints</returns>
-	QVector<cv::KeyPoint> WriterIdentification::getKeyPoints() {
+	QVector<cv::KeyPoint> WriterIdentification::keyPoints() const {
 		return mKeyPoints;
+	}
+	void WriterIdentification::setDescriptors(cv::Mat desc) {
+		mDescriptors = desc;
+	}
+	cv::Mat WriterIdentification::descriptors() const {
+		return mDescriptors;
 	}
 	/// <summary>
 	/// Debug name
