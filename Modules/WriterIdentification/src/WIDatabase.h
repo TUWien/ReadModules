@@ -67,8 +67,6 @@ namespace rdm {
 		cv::Ptr<cv::ml::EM> em() const;
 		void setPcaMean(cv::Mat mean);
 		cv::Mat pcaMean() const;
-		void setPcaSigma(cv::Mat pcaSigma);
-		cv::Mat pcaSigma() const;
 		void setPcaEigenvectors(cv::Mat ev);
 		cv::Mat pcaEigenvectors() const;
 		void setPcaEigenvalues(cv::Mat ev);
@@ -77,6 +75,10 @@ namespace rdm {
 		cv::Mat l2Mean() const;
 		void setL2Sigma(const cv::Mat l2sigma);
 		cv::Mat l2Sigma() const;
+		void setHistL2Mean(const cv::Mat mean);
+		cv::Mat histL2Mean() const;
+		void setHistL2Sigma(const cv::Mat sigma);
+		cv::Mat histL2Sigma() const;
 		void setNumberOfCluster(const int number);
 		int numberOfCluster() const;
 		void setNumberOfPCA(const int number);
@@ -93,11 +95,12 @@ namespace rdm {
 		cv::Mat mVocabulary = cv::Mat();
 		cv::Ptr<cv::ml::EM> mEM;
 		cv::Mat mPcaMean = cv::Mat();
-		cv::Mat mPcaSigma = cv::Mat();
 		cv::Mat mPcaEigenvectors = cv::Mat();
 		cv::Mat mPcaEigenvalues = cv::Mat();
 		cv::Mat mL2Mean = cv::Mat();
 		cv::Mat mL2Sigma = cv::Mat();
+		cv::Mat mHistL2Mean = cv::Mat();
+		cv::Mat mHistL2Sigma = cv::Mat();
 
 		int mNumberOfClusters = -1;
 		int mNumberPCA = -1;
@@ -125,14 +128,14 @@ namespace rdm {
 
 	private:
 		QString debugName() const;
-		cv::Mat calculatePCA(cv::Mat desc);
+		cv::Mat calculatePCA(const cv::Mat desc);
 		void generateBOW(cv::Mat desc);
 		void generateGMM(cv::Mat desc);
 		void writeMatToFile(const cv::Mat, const QString filePath) const;
 		cv::Mat applyPCA(cv::Mat desc) const;
 		cv::Mat generateHistBOW(cv::Mat desc) const;
 		cv::Mat generateHistGMM(cv::Mat desc) const;
-		cv::Mat l2Norm(cv::Mat desc) const;
+		cv::Mat l2Norm(cv::Mat desc, cv::Mat mean, cv::Mat sigma) const;
 		QVector<QVector<cv::KeyPoint> > mKeyPoints;
 		QVector<cv::Mat> mDescriptors;
 		WIVocabulary mVocabulary = WIVocabulary();

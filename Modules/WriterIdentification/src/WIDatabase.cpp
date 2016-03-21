@@ -87,12 +87,14 @@ namespace rdm {
 		}
 		qDebug() << "generating vocabulary:" << mVocabulary.toString();
 
+		rdf::Image::instance().imageInfo(mDescriptors[0], "mDescriptors[0]");
 		cv::Mat allDesc(0, 0, CV_32FC1);
 		for(int i = 0; i < mDescriptors.size(); i++) {
 			allDesc.push_back(mDescriptors[i]);
 		}
 
 		if(mVocabulary.numberOfPCA() > 0) { 
+			rdf::Image::instance().imageInfo(allDesc, "allDesc vor aufruf calculatePCA");
 			allDesc = calculatePCA(allDesc); // TODO ... currently also making a L2 normalization
 		}		
 
@@ -100,9 +102,30 @@ namespace rdm {
 		case WIVocabulary::WI_BOW:	generateBOW(allDesc); break;
 		case WIVocabulary::WI_GMM:	generateGMM(allDesc); break;
 		default: qWarning() << "WIVocabulary has unknown type"; // should not happen
-			break;
+			return;
 		}
 
+		// allDesc.cols is either PCA number or descriptor size
+		qDebug() << "mVocabulary.numberOfCluster() * allDesc.cols:" << mVocabulary.numberOfCluster() * allDesc.cols;
+		cv::Mat allHists = cv::Mat(0, mVocabulary.numberOfCluster() * allDesc.cols, CV_32F);
+		qDebug() << "calculating histograms for all images";
+		for(int i = 0; i < mDescriptors.length(); i++) {
+			cv::Mat hist = generateHist(mDescriptors[i]);
+			allHists.push_back(hist);
+		}
+		
+		// calculate mean and stddev for L2 normalization
+		//cv::Mat means, stddev;
+		//for(int i = 0; i < allHists.cols; i++) {
+		//	cv::Scalar m, s;
+		//	meanStdDev(allHists.col(i), m, s);
+		//	means.push_back(m.val[0]);
+		//	stddev.push_back(s.val[0]);
+		//}
+		//stddev.convertTo(stddev, CV_32F);
+		//means.convertTo(means, CV_32F);
+		//mVocabulary.setHistL2Mean(means);
+		//mVocabulary.setHistL2Sigma(stddev);
 	}
 	/// <summary>
 	/// Sets the vocabulary for this database
@@ -264,7 +287,7 @@ namespace rdm {
 	/// </summary>
 	/// <param name="desc">The desc.</param>
 	/// <returns>the projected descriptors</returns>
-	cv::Mat WIDatabase::calculatePCA(cv::Mat desc) {
+	cv::Mat WIDatabase::calculatePCA(const cv::Mat desc) {
 		// calculate mean and stddev for L2 normalization
 		cv::Mat means, stddev;
 		for(int i = 0; i < desc.cols; i++) {
@@ -279,18 +302,23 @@ namespace rdm {
 		mVocabulary.setL2Sigma(stddev);
 
 		// L2 normalization 
+		rdf::Image::instance().imageInfo(desc, "desc vor l2");
 		cv::Mat descResult = (desc - cv::Mat::ones(desc.rows, 1, CV_32F) * means.t());
+		rdf::Image::instance().imageInfo(descResult, "descResults vor l2 after subtracting means");
 		for(int i = 0; i < descResult.rows; i++) {
 			descResult.row(i) = descResult.row(i) / stddev.t();	// caution - don't clone this line unless you know what you do (without an operator / the assignment does nothing)
 		}
+		rdf::Image::instance().imageInfo(descResult, "descResults nach l2");
 
 		qDebug() << "calculating PCA";
 		cv::PCA pca = cv::PCA(descResult, cv::Mat(), CV_PCA_DATA_AS_ROW, mVocabulary.numberOfPCA());
 		mVocabulary.setPcaEigenvectors(pca.eigenvectors);
 		mVocabulary.setPcaEigenvalues(pca.eigenvalues);
 		mVocabulary.setPcaMean(pca.mean);
+		
 
 		descResult = applyPCA(descResult);
+		rdf::Image::instance().imageInfo(descResult, "descResults nach pca");
 		return descResult;
 	}
 	/// <summary>
@@ -319,11 +347,6 @@ namespace rdm {
 		} 
 		mVocabulary.setEM(em);
 		qDebug() << "finished";
-
-		cv::Mat means = em->getMeans();
-		std::vector<cv::Mat> covs;
-		em->getCovs(covs);
-
 	}
 	void WIDatabase::writeMatToFile(const cv::Mat mat, const QString filePath) const {
 		std::ofstream fileStream;
@@ -369,8 +392,12 @@ namespace rdm {
 			return cv::Mat();
 
 		cv::Mat d = desc.clone();
+		if(!mVocabulary.l2Mean().empty())
+			d = l2Norm(d, mVocabulary.l2Mean(), mVocabulary.l2Sigma());
+		else
+			qDebug() << "gnerateHistGMM: mVocabulary.l2Mean() is empty ... no L2 normalization done";
+
 		if(mVocabulary.numberOfPCA() > 0) {
-			d = l2Norm(d);
 			d = applyPCA(d);
 		}
 		cv::Mat dists, idx;
@@ -410,8 +437,12 @@ namespace rdm {
 
 		
 		cv::Mat d = desc.clone();
+		if(!mVocabulary.l2Mean().empty())
+			d = l2Norm(d, mVocabulary.l2Mean(), mVocabulary.l2Sigma());
+		else
+			qDebug() << "gnerateHistGMM: mVocabulary.l2Mean() is empty ... no L2 normalization done";
+
 		if(mVocabulary.numberOfPCA() > 0) {
-			d = l2Norm(d);
 			d = applyPCA(d);
 		}
 		cv::Mat fisher(mVocabulary.numberOfCluster(), d.cols, CV_32F);
@@ -423,7 +454,7 @@ namespace rdm {
 			cv::Mat probs, means;
 			std::vector<cv::Mat> covs;
 			
-			cv::Vec2d emOut = em->predict(feature, probs);
+			cv::Vec2d emOut = em->predict2(feature, probs);
 			em->getCovs(covs);
 			means = em->getMeans();
 			means.convertTo(means, CV_32F);
@@ -441,15 +472,23 @@ namespace rdm {
 		}
 		cv::Mat hist = fisher.reshape(0, 1);
 
-		float power = 0.5;
+		double power = 0.5;
 		qDebug() << "power normaliazion by " << power;
 		cv::Mat tmp;
 		cv::pow(abs(hist), power, tmp);
 		for(int i = 0; i < hist.cols; i++) {
 			if(hist.at<float>(i) < 0)
-				tmp.at<float>(i) *= 1;
+				tmp.at<float>(i) *= -1;
 		}
 		hist = tmp;
+
+		qDebug() << "normalizing histogram with cv::norm";
+		hist = hist / cv::norm(hist);
+
+		if(!mVocabulary.histL2Mean().empty())
+			hist = l2Norm(hist, mVocabulary.histL2Mean(), mVocabulary.histL2Sigma());
+		else
+			qDebug() << "no l2 normalization of the histogram";
 
 		return hist;
 	}
@@ -458,11 +497,11 @@ namespace rdm {
 	/// </summary>
 	/// <param name="desc">The desc.</param>
 	/// <returns>normalized descriptors</returns>
-	cv::Mat WIDatabase::l2Norm(cv::Mat desc) const {
+	cv::Mat WIDatabase::l2Norm(cv::Mat desc, cv::Mat mean, cv::Mat sigma) const {
 		// L2 - normalization
-		cv::Mat d = (desc - cv::Mat::ones(desc.rows, 1, CV_32F) * mVocabulary.l2Mean().t());
+		cv::Mat d = (desc - cv::Mat::ones(desc.rows, 1, CV_32F) * mean.t());
 		for(int i = 0; i < d.rows; i++) {
-			d.row(i) = d.row(i) / mVocabulary.l2Sigma().t();
+			d.row(i) = d.row(i) / sigma.t();
 		}
 		return d;
 	}
@@ -487,11 +526,12 @@ namespace rdm {
 			return;
 		}
 		fs["PcaMean"] >> mPcaMean;
-		fs["PcaSigam"] >> mPcaSigma;
 		fs["PcaEigenvectors"] >> mPcaEigenvectors;
 		fs["PcaEigenvalues"] >> mPcaEigenvalues;
 		fs["L2Mean"] >> mL2Mean;
 		fs["L2Sigma"] >> mL2Sigma;
+		fs["histL2Mean"] >> mHistL2Mean;
+		fs["histL2Sigma"] >> mHistL2Sigma;
 		fs["NumberOfClusters"] >> mNumberOfClusters;
 		fs["NumberOfPCA"] >> mNumberPCA;
 		fs["type"] >> mType;
@@ -531,11 +571,12 @@ namespace rdm {
 		fs << "type" << mType;
 		//fs << "note" << mNote.toStdString();
 		fs << "PcaMean" << mPcaMean;
-		fs << "PcaSigam" << mPcaSigma;
 		fs << "PcaEigenvectors" << mPcaEigenvectors;
 		fs << "PcaEigenvalues" << mPcaEigenvalues;
 		fs << "L2Mean" << mL2Mean;
 		fs << "L2Sigma" << mL2Sigma;
+		fs << "histL2Mean" << mHistL2Mean;
+		fs << "histL2Sigma" << mHistL2Sigma;
 		if(mType == WI_BOW)
 			fs << "Vocabulary" << mVocabulary;
 		else if(mType == WI_GMM) {
@@ -602,20 +643,6 @@ namespace rdm {
 		return mPcaMean;
 	}
 	/// <summary>
-	/// Sets the variance of the PCA.
-	/// </summary>
-	/// <param name="pcaSigma">The pca sigma.</param>
-	void WIVocabulary::setPcaSigma(const cv::Mat pcaSigma) {
-		mPcaSigma = pcaSigma;
-	}
-	/// <summary>
-	/// Returns the variance of the PCA
-	/// </summary>
-	/// <returns>the variance Mat</returns>
-	cv::Mat WIVocabulary::pcaSigma() const {
-		return mPcaSigma;
-	}
-	/// <summary>
 	/// Sets the pca eigenvectors.
 	/// </summary>
 	/// <param name="ev">The eigenvectors</param>
@@ -670,6 +697,18 @@ namespace rdm {
 	/// <returns>variance Mat </returns>
 	cv::Mat WIVocabulary::l2Sigma() const {
 		return mL2Sigma;
+	}
+	void WIVocabulary::setHistL2Mean(const cv::Mat mean) {
+		mHistL2Mean = mean;
+	}
+	cv::Mat WIVocabulary::histL2Mean() const {
+		return mHistL2Mean;
+	}
+	void WIVocabulary::setHistL2Sigma(const cv::Mat sigma) {
+		mHistL2Sigma = sigma;
+	}
+	cv::Mat WIVocabulary::histL2Sigma() const {
+		return mHistL2Sigma;
 	}
 	/// <summary>
 	/// Sets the number of cluster.
