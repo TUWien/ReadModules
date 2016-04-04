@@ -237,6 +237,7 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(cons
 			idx = idxOfMinus > idxOfUScore ? idxOfMinus : idxOfUScore;
 		QString label = QFileInfo(imgC->filePath()).baseName().left(idx);
 
+
 		QSharedPointer<WIInfo> wInfo(new WIInfo(runID, imgC->filePath()));
 		wInfo->setWriter(label);
 		wInfo->setFeatureFilePath(ffPath);
@@ -263,6 +264,7 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(cons
 			else if(idxOfMinus > 0 && idxOfUScore > 0)
 				idx = idxOfMinus > idxOfUScore ? idxOfMinus : idxOfUScore;
 			QString label = QFileInfo(imgC->filePath()).baseName().left(idx);
+			qDebug() << "label: " << label << "\t\tbaseName:" << QFileInfo(imgC->filePath()).baseName();
 
 			QSharedPointer<WIInfo> wInfo(new WIInfo(runID, imgC->filePath()));
 			wInfo->setWriter(label);
@@ -344,7 +346,7 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 			featurePaths.append(wInfo->featureFilePath());
 			classLabels.append(wInfo->writer());
 		}
-		wiDatabase.evaluateDatabase(classLabels, featurePaths);
+		wiDatabase.evaluateDatabase(classLabels, featurePaths, QString("c:\\tmp\\eval-2.txt"));
 	}
 }
 

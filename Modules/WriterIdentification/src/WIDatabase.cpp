@@ -41,6 +41,7 @@
 // Qt Includes
 #include <QDebug>
 #include <QFile>
+#include <QFileInfo>
 #include "opencv2/ml.hpp"
 #include "opencv2/features2d/features2d.hpp"
 #pragma warning(pop)
@@ -72,6 +73,9 @@ namespace rdm {
 		mDescriptors.append(descriptors);
 		mKeyPoints.append(QVector<cv::KeyPoint>::fromStdVector(kp));
 		qDebug() << "lenght of keypoint vector:" << mKeyPoints.length();
+
+		QString descFile = filePath;
+		writeMatToFile(descriptors, descFile.append("-desc.txt"));
 	}
 	/// <summary>
 	/// Generates the vocabulary according to the type set in the vocabulary variable. If the number of PCA components is larger than 0 a PCA is applied beforehand.
@@ -106,13 +110,13 @@ namespace rdm {
 		}
 
 		// allDesc.cols is either PCA number or descriptor size
-		qDebug() << "mVocabulary.numberOfCluster() * allDesc.cols:" << mVocabulary.numberOfCluster() * allDesc.cols;
-		cv::Mat allHists = cv::Mat(0, mVocabulary.numberOfCluster() * allDesc.cols, CV_32F);
-		qDebug() << "calculating histograms for all images";
-		for(int i = 0; i < mDescriptors.length(); i++) {
-			cv::Mat hist = generateHist(mDescriptors[i]);
-			allHists.push_back(hist);
-		}
+		//qDebug() << "mVocabulary.numberOfCluster() * allDesc.cols:" << mVocabulary.numberOfCluster() * allDesc.cols;
+		//cv::Mat allHists = cv::Mat(0, mVocabulary.numberOfCluster() * allDesc.cols, CV_32F);
+		//qDebug() << "calculating histograms for all images";
+		//for(int i = 0; i < mDescriptors.length(); i++) {
+		//	cv::Mat hist = generateHist(mDescriptors[i]);
+		//	allHists.push_back(hist);
+		//}
 		
 		// calculate mean and stddev for L2 normalization
 		//cv::Mat means, stddev;
@@ -172,9 +176,10 @@ namespace rdm {
 		}
 		for(int i = 0; i < mDescriptors.length(); i++) {
 			cv::Mat distances(mDescriptors.length(), 1, CV_32FC1);
+			distances.setTo(0);
 			for(int j = 0; j < mDescriptors.length(); j++) {
 				if(mVocabulary.type() == WIVocabulary::WI_GMM) {
-					distances.at<float>(j) = (float)(1 - hists[i].dot(hists[j]) / ((norm(hists[i])*norm(hists[j])) + FLT_EPSILON)); // 1-dist ... 0 is equal 2 is orthogonal
+					distances.at<float>(j) = (float)(1 - hists[i].dot(hists[j]) / (cv::norm(hists[i])*cv::norm(hists[j]) + DBL_EPSILON)); // 1-dist ... 0 is equal 2 is orthogonal
 				} else if(mVocabulary.type() == WIVocabulary::WI_BOW) {
 					cv::Mat tmp;
 					pow(hists[i] - hists[j], 2, tmp);
@@ -182,20 +187,48 @@ namespace rdm {
 					distances.at<float>(j) = (float)sqrt(scal[0]);
 				}
 			}
-
-
 			cv::Mat idxs;
+			writeMatToFile(distances, "c:\\tmp\\distances-unsorted.txt");
 			cv::sortIdx(distances, idxs, CV_SORT_EVERY_COLUMN| CV_SORT_ASCENDING);
 			cv::sort(distances, distances, CV_SORT_EVERY_COLUMN | CV_SORT_ASCENDING);
 
+			writeMatToFile(distances, "c:\\tmp\\distances.txt");
+			writeMatToFile(idxs, "c:\\tmp\\distances-idxs.txt");
+			QFile file("c:\\tmp\\distances-idxs.txt");
+			file.open(QIODevice::ReadWrite);
+			QTextStream stream(&file);
+			QString out;
+			for(int i = 0; i < idxs.rows; i++) {
+				out += QString::number(idxs.at<int>(i)) + "\n";
+			}
+			stream << out;
+			file.close();
+
+			QFile file2(filePaths[i].append("-hist.txt"));
+			file2.open(QIODevice::ReadWrite | QIODevice::Truncate);
+			QTextStream stream2(&file2);
+			QString out2;
+			for(int j = 0; j < hists[i].cols; j++) {
+				out2 += QString::number(hists[i].at<float>(j));
+				out2 += " ";
+			}
+			stream2 << out2 << "\n";
+			file2.close();
+
+
 			if(!filePath.isEmpty()) {
 				QFile file(filePath);
-				if(file.open(QIODevice::ReadWrite)) {
+				if(file.open(QIODevice::ReadWrite | QIODevice::Append)) {
 					QTextStream stream(&file);
+					QFileInfo fi = QFileInfo(filePaths[i]);
+					stream << "'" << fi.baseName() << "'," << classLabels[i] << ",";
 					for(int k = 0; k < idxs.rows; k++) {
-						stream << filePaths[idxs.at<int>(k)] + ";";
+						QString out = classLabels[idxs.at<int>(k)] + "," + QString::number(distances.at<float>(k)) + "," + QString::number(idxs.at<int>(k)) + ",";
+						stream << out;
 					}
+					stream << "\n";
 				}
+				file.close();
 			}
 			//qDebug() << "classLabels[i].toInt():" << classLabels[i].toInt() << " idxs.at<int>(1):" << idxs.at<int>(1) << " classLabels[idxs.at<int>(1)]:" << classLabels[idxs.at<int>(1)];
 			if(classLabels[i] == classLabels[idxs.at<int>(1)])
@@ -304,6 +337,10 @@ namespace rdm {
 		// L2 normalization 
 		rdf::Image::instance().imageInfo(desc, "desc vor l2");
 		cv::Mat descResult = (desc - cv::Mat::ones(desc.rows, 1, CV_32F) * means.t());
+		
+		//cv::Mat descResult = desc.clone();
+		//qDebug() << "using modified L2";
+		
 		rdf::Image::instance().imageInfo(descResult, "descResults vor l2 after subtracting means");
 		for(int i = 0; i < descResult.rows; i++) {
 			descResult.row(i) = descResult.row(i) / stddev.t();	// caution - don't clone this line unless you know what you do (without an operator / the assignment does nothing)
@@ -338,6 +375,8 @@ namespace rdm {
 		cv::Ptr<cv::ml::EM> em = cv::ml::EM::create();
 		em->setClustersNumber(mVocabulary.numberOfCluster());
 		em->setCovarianceMatrixType(cv::ml::EM::COV_MAT_DIAGONAL);
+		cv::TermCriteria tc = cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 5000, FLT_EPSILON);
+		em->setTermCriteria(tc);
 
 		qDebug() << "start training GMM - number of features:" << desc.rows; 
 		rdf::Image::instance().imageInfo(desc, "all descriptors");
@@ -345,6 +384,7 @@ namespace rdm {
 			qWarning() << "unable to train GMM";
 			return;
 		} 
+		
 		mVocabulary.setEM(em);
 		qDebug() << "finished";
 	}
@@ -455,6 +495,7 @@ namespace rdm {
 			std::vector<cv::Mat> covs;
 			
 			cv::Vec2d emOut = em->predict2(feature, probs);
+			probs.convertTo(probs, CV_32F);
 			em->getCovs(covs);
 			means = em->getMeans();
 			means.convertTo(means, CV_32F);
@@ -462,13 +503,14 @@ namespace rdm {
 				cv::Mat cov = covs[j];
 				cv::Mat diag = cov.diag(0).t();
 				diag.convertTo(diag, CV_32F);
-				fisher.row(j) += probs.at<double>(j) * ((feature - means.row(j)) / diag);
+				fisher.row(j) += probs.at<float>(j) * ((feature - means.row(j)) / diag);
 			}
 		}
 		cv::Mat weights = em->getWeights();
 		weights.convertTo(weights, CV_32F);
 		for(int j = 0; j < em->getClustersNumber(); j++) {
-			fisher.row(j) *= 1.0f / (d.rows* sqrt(weights.at<float>(j)) + DBL_EPSILON);
+			//fisher.row(j) *= 1.0f / (d.rows* sqrt(weights.at<float>(j)) + DBL_EPSILON);
+			fisher.row(j) *= 1.0f / (sqrt(weights.at<float>(j)) + DBL_EPSILON);
 		}
 		cv::Mat hist = fisher.reshape(0, 1);
 
@@ -482,8 +524,8 @@ namespace rdm {
 		}
 		hist = tmp;
 
-		qDebug() << "normalizing histogram with cv::norm";
-		hist = hist / cv::norm(hist);
+		//qDebug() << "normalizing histogram with cv::norm";
+		//hist = hist / cv::norm(hist);
 
 		if(!mVocabulary.histL2Mean().empty())
 			hist = l2Norm(hist, mVocabulary.histL2Mean(), mVocabulary.histL2Sigma());
@@ -500,6 +542,10 @@ namespace rdm {
 	cv::Mat WIDatabase::l2Norm(cv::Mat desc, cv::Mat mean, cv::Mat sigma) const {
 		// L2 - normalization
 		cv::Mat d = (desc - cv::Mat::ones(desc.rows, 1, CV_32F) * mean.t());
+		
+		//qDebug() << "modified L2";
+		//cv::Mat d = desc;
+
 		for(int i = 0; i < d.rows; i++) {
 			d.row(i) = d.row(i) / sigma.t();
 		}
