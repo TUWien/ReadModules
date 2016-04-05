@@ -812,6 +812,10 @@ namespace rdm {
 	QString WIVocabulary::note() const {
 		return mNote;
 	}
+	/// <summary>
+	/// Creates a string with a description of the current vocabulary
+	/// </summary>
+	/// <returns>a short description</returns>
 	QString WIVocabulary::toString() const {
 		QString description = "";
 		if(type() == WI_GMM)
@@ -821,7 +825,11 @@ namespace rdm {
 		description += " clusters:" + QString::number(mNumberOfClusters) + " pca:" + QString::number(mNumberPCA);
 		return description;
 	}
-	QString WIVocabulary::vacabularyPath() const {
+	/// <summary>
+	/// Path of the vocabulary
+	/// </summary>
+	/// <returns></returns>
+	QString WIVocabulary::vocabularyPath() const {
 		return mVocabularyPath;
 	}
 }

@@ -89,7 +89,7 @@ namespace rdm {
 		QString note() const;
 		QString toString() const;
 
-		QString vacabularyPath() const;
+		QString vocabularyPath() const;
 
 	private:
 		cv::Mat mVocabulary = cv::Mat();
