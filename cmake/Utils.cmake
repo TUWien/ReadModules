@@ -271,6 +271,13 @@ macro(RDM_READ_PLUGIN_ID_AND_VERSION)
 	else()
 		message(FATAL_ERROR "${PROJECT_NAME}: Version missing in json file")
 	endif()
+	
+	if(ADDITIONAL_OPENCV_PACKAGES_PATHS)
+		file(STRINGS ${PLUGIN_JSON} line REGEX ".*\"Dependencies\".*:")
+		if(NOT line)
+			message(WARNING "${PROJECT_NAME}: JSON file does not contain a Dependencies line but additional opencv libraries are required")
+		endif()
+	endif()
 endmacro(RDM_READ_PLUGIN_ID_AND_VERSION)
 	
 macro(RDM_GENERATE_PACKAGE_XML)
