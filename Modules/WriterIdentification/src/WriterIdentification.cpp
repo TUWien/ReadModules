@@ -68,9 +68,16 @@ namespace rdm {
 
 		cv::Ptr<cv::Feature2D> sift = cv::xfeatures2d::SIFT::create();
 		std::vector<cv::KeyPoint> kp;
-		//sift->detect(mImg, kp, cv::Mat());
-		//sift->compute(mImg, kp, mDescriptors);
-		sift->detectAndCompute(mImg, cv::Mat(), kp, mDescriptors);
+		sift->detect(mImg, kp, cv::Mat());
+
+		qWarning() << "using modified SIFT";
+		for(int i = 0; i < kp.size(); i++) {
+			if(kp[i].angle > 180)
+				kp[i].angle -= 180;
+		}
+
+		sift->compute(mImg, kp, mDescriptors);
+		//sift->detectAndCompute(mImg, cv::Mat(), kp, mDescriptors);
 
 		mKeyPoints = QVector<cv::KeyPoint>::fromStdVector(kp);
 		

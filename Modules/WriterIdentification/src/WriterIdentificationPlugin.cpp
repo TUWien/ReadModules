@@ -150,12 +150,12 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(cons
 
 	if(runID == mRunIDs[id_calcuate_features]) {
 		qInfo() << "calculating features for writer identification";
-		//WriterIdentification wi = WriterIdentification();
-		//cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
-		//wi.setImage(imgCv);
-		//wi.calculateFeatures();
-		//cv::cvtColor(imgCv, imgCv, CV_RGB2GRAY);
-		//QVector<cv::KeyPoint> kp = wi.keyPoints();
+		WriterIdentification wi = WriterIdentification();
+		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
+		wi.setImage(imgCv);
+		wi.calculateFeatures();
+		cv::cvtColor(imgCv, imgCv, CV_RGB2GRAY);
+		QVector<cv::KeyPoint> kp = wi.keyPoints();
 		//QVector<cv::KeyPoint>::iterator kpItr = kp.begin();
 		//cv::Mat desc = wi.descriptors();
 		//cv::Mat newDesc = cv::Mat(0, desc.cols, desc.type());
@@ -175,51 +175,16 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(cons
 		//rdf::Image::instance().imageInfo(newDesc, "newDesc");
 		//wi.setDescriptors(newDesc);
 		//wi.setKeyPoints(kp);
-		//cv::drawKeypoints(imgCv, kp.toStdVector(), imgCv, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+		cv::drawKeypoints(imgCv, kp.toStdVector(), imgCv, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
 		////cv::drawKeypoints(imgCv, wi.getKeyPoints().toStdVector(), imgCv, cv::Scalar::all(-1));
 		//
 		////QString fFilePath = featureFilePath(imgC->filePath(), true);
-		//wi.saveFeatures(featureFilePath(imgC->filePath(), true));
+		wi.saveFeatures(featureFilePath(imgC->filePath(), true));
 
 		//QImage img = nmc::DkImage::mat2QImage(imgCv);
 		//img = img.convertToFormat(QImage::Format_ARGB32);
 		//imgC->setImage(img, tr("SIFT keypoints"));
 
-		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
-		std::vector<cv::KeyPoint> kp1, kp2;
-		cv::Mat desc1, desc2;
-
-		cv::FileStorage fs = cv::FileStorage();
-		QString filePath = imgC->filePath();
-		filePath.replace(filePath.length() - 4, filePath.length(), ".yml");
-		fs.open(filePath.toStdString(), cv::FileStorage::READ);
-		fs["keypoints"] >> kp1;
-		fs["descriptors"] >> desc1;
-		fs.release();
-
-		filePath = imgC->filePath();
-		filePath.replace(filePath.length() - 4, filePath.length(), "_attributes.xml.yml");
-		fs.open(filePath.toStdString(), cv::FileStorage::READ);
-		fs["keypoints"] >> kp2;
-		fs["descriptors"] >> desc2;
-		fs.release();
-		for(auto kpItr = kp1.begin(); kpItr != kp1.end(); kpItr++) 
-			kpItr->size *= 1.5 * 4;
-		for(auto kpItr = kp2.begin(); kpItr != kp2.end(); kpItr++) 
-			kpItr->size *= 1.5 * 4;
-
-		cv::cvtColor(imgCv, imgCv, CV_RGB2GRAY);
-		cv::Mat img1, img2;
-		cv::drawKeypoints(imgCv, kp1, img1, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-		cv::drawKeypoints(imgCv, kp2, img2, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-		
-		rdf::Image::instance().imageInfo(desc1, "desc1");
-		rdf::Image::instance().imageInfo(desc2, "desc2");
-
-		img1.push_back(img2);
-		QImage img = nmc::DkImage::mat2QImage(img1);
-		img = img.convertToFormat(QImage::Format_ARGB32);
-		imgC->setImage(img, tr("SIFT keypoints"));
 	}
 	else if(runID == mRunIDs[id_generate_vocabulary]) {
 		qInfo() << "collecting files for vocabulary generation";
