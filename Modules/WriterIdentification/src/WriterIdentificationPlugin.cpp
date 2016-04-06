@@ -107,15 +107,6 @@ QImage WriterIdentificationPlugin::image() const {
 	return QImage(":/WriterIdentificationPlugin/img/read.png");
 };
 
-/**
-* Returns plugin version for every ID
-* @param plugin ID
-**/
-QString WriterIdentificationPlugin::version() const {
-
-	return PLUGIN_VERSION;
-};
-
 QList<QAction*> WriterIdentificationPlugin::createActions(QWidget* parent) {
 
 	if (mActions.empty()) {
@@ -331,9 +322,8 @@ void WriterIdentificationPlugin::loadSettings(QSettings & settings) {
 	qDebug() << "settings read: path: " << mSettingsVocPath << " type:" << mVocType << " numberOfClusters:" << mVocNumberOfClusters << " numberOfPCA: " << mVocNumberOfPCA;
 	settings.endGroup();
 
-	WIVocabulary voc = WIVocabulary();
-	voc.loadVocabulary(mSettingsVocPath);
-
+	//WIVocabulary voc = WIVocabulary();
+	//voc.loadVocabulary(mSettingsVocPath);
 	//cv::Mat m = voc.em()->getMeans();
 	//std::ofstream fileStream;
 	//fileStream.open("c:\\tmp\\means.m");

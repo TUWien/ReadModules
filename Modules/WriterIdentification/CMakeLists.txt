@@ -13,17 +13,17 @@ add_definitions(-DPLUGIN_ID="${PLUGIN_ID}")
 
 
 if (NOT BUILDING_MULTIPLE_PLUGINS)
-  # prepare plugin
-  RDM_PREPARE_PLUGIN()
+	# prepare plugin
+	RDM_PREPARE_PLUGIN()
 
-  # locate the READ framework
-  RDM_FIND_RDF()
-  
-  # find the Qt
-  RDM_FIND_QT()
-
-  # OpenCV
-  RDM_FIND_OPENCV()
+	# locate the READ framework
+	RDM_FIND_RDF()
+	
+	# find the Qt
+	RDM_FIND_QT()
+	
+	# OpenCV
+	RDM_FIND_OPENCV()
 endif()
 
 # OpenCV additional package

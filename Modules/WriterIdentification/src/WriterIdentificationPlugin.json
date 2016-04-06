@@ -5,7 +5,8 @@
 	"AuthorName" 	: "Stefan Fiel",
 	"Company"		: "Computer Vision Lab",
 	"DateCreated" 	: "2016-02-10",
-	"DateModified"	: "2016-04-05",
+	"DateModified"	: "2016-04-06",
 	"PluginId"		: "8518f3eae3324287806eae042e172a4c",
-	"Version"		: "0.0.1"
+	"Version"		: "0.0.1",
+	"Dependencies"	: "opencv_ml310.dll,opencv_xfeatures2d310.dll"
 }
