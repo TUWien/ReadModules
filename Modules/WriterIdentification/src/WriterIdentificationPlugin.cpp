@@ -262,6 +262,8 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 			voc.setType(mVocType);
 			voc.setNumberOfCluster(mVocNumberOfClusters);
 			voc.setNumberOfPCA(mVocNumberOfPCA);
+			voc.setMaximumSIFTSize(mVocMaxSIFTSize);
+			voc.setMinimumSIFTSize(mVocMinSIFTSize);
 		}
 		else {
 			qDebug() << "vocabulary in settings file undefined. Using default values";
@@ -318,7 +320,11 @@ void WriterIdentificationPlugin::loadSettings(QSettings & settings) {
 		mVocType = WIVocabulary::WI_UNDEFINED;
 	mVocNumberOfClusters = settings.value("numberOfClusters", -1).toInt();
 	mVocNumberOfPCA = settings.value("numberOfPCA", -1).toInt();
+	mVocMaxSIFTSize = settings.value("maxSIFTSize", -1).toInt();
+	mVocMinSIFTSize = settings.value("minSIFTSize", -1).toInt();
 	mFeatureDir = settings.value("featureDir", QString()).toString();
+	
+	
 	qDebug() << "settings read: path: " << mSettingsVocPath << " type:" << mVocType << " numberOfClusters:" << mVocNumberOfClusters << " numberOfPCA: " << mVocNumberOfPCA;
 	settings.endGroup();
 

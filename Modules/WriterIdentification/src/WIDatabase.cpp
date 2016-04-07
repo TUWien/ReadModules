@@ -70,12 +70,31 @@ namespace rdm {
 		fs["descriptors"] >> descriptors;
 		fs.release();
 
+		if(mVocabulary.minimumSIFTSize() > 0 || mVocabulary.maximumSIFTSize() > 0) {
+			cv::Mat filteredDesc = cv::Mat(0, descriptors.cols, descriptors.type());
+			int r = 0;
+			for(auto kpItr = kp.begin(); kpItr != kp.end(); r++) {
+				if(kpItr->size*1.5*4 > mVocabulary.maximumSIFTSize() && mVocabulary.maximumSIFTSize() > 0 ) {
+					kpItr = kp.erase(kpItr);
+				} else if(kpItr->size * 1.5*4 < mVocabulary.minimumSIFTSize()) {
+					kpItr = kp.erase(kpItr);
+				} else {
+					kpItr++;
+					filteredDesc.push_back(descriptors.row(r).clone());
+				}
+			}
+			qDebug() << "filtered " << descriptors.rows - filteredDesc.rows << " SIFT features (maxSize:" << mVocabulary.maximumSIFTSize() << " minSize:" << mVocabulary.minimumSIFTSize() << ")";
+			descriptors = filteredDesc;
+		}
+		else
+			qDebug() << "not filtering SIFT features, vocabulary is emtpy, or min or max size not set";
+
 		mDescriptors.append(descriptors);
 		mKeyPoints.append(QVector<cv::KeyPoint>::fromStdVector(kp));
 		qDebug() << "lenght of keypoint vector:" << mKeyPoints.length();
 
-		QString descFile = filePath;
-		writeMatToFile(descriptors, descFile.append("-desc.txt"));
+		//QString descFile = filePath;
+		//writeMatToFile(descriptors, descFile.append("-desc.txt"));
 	}
 	/// <summary>
 	/// Generates the vocabulary according to the type set in the vocabulary variable. If the number of PCA components is larger than 0 a PCA is applied beforehand.
@@ -581,6 +600,8 @@ namespace rdm {
 		fs["NumberOfClusters"] >> mNumberOfClusters;
 		fs["NumberOfPCA"] >> mNumberPCA;
 		fs["type"] >> mType;
+		fs["minimumSIFTSize"] >> mMinimumSIFTSize;
+		fs["maximumSIFTSize"] >> mMaximumSIFTSize;
 		std::string note;
 		fs["note"] >> note;
 		mNote = QString::fromStdString(note);
@@ -615,6 +636,8 @@ namespace rdm {
 		fs << "NumberOfClusters" << mNumberOfClusters;
 		fs << "NumberOfPCA" << mNumberPCA;
 		fs << "type" << mType;
+		fs << "minimumSIFTSize" << mMinimumSIFTSize;
+		fs << "maximumSIFTSize" << mMaximumSIFTSize;
 		//fs << "note" << mNote.toStdString();
 		fs << "PcaMean" << mPcaMean;
 		fs << "PcaEigenvectors" << mPcaEigenvectors;
@@ -804,6 +827,18 @@ namespace rdm {
 	/// <param name="note">note.</param>
 	void WIVocabulary::setNote(QString note) {
 		mNote = note;
+	}
+	void WIVocabulary::setMinimumSIFTSize(const int size) {
+		mMinimumSIFTSize = size;
+	}
+	int WIVocabulary::minimumSIFTSize() const {
+		return mMinimumSIFTSize;
+	}
+	void WIVocabulary::setMaximumSIFTSize(const int size) {
+		mMaximumSIFTSize = size;
+	}
+	int WIVocabulary::maximumSIFTSize() const {
+		return mMaximumSIFTSize;
 	}
 	/// <summary>
 	/// Returns the note of the vocabulary.

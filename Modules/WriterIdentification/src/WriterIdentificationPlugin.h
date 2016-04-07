@@ -90,6 +90,8 @@ private:
 	int mVocType = WIVocabulary::WI_UNDEFINED;
 	int mVocNumberOfClusters = -1;
 	int mVocNumberOfPCA = -1;
+	int mVocMaxSIFTSize = -1;
+	int mVocMinSIFTSize = -1;
 	QString mFeatureDir = QString();
 };
 

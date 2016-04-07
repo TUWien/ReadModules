@@ -86,6 +86,11 @@ namespace rdm {
 		void setType(const int type);
 		int type() const;
 		void setNote(QString note);
+		void setMinimumSIFTSize(const int size);
+		int minimumSIFTSize() const;
+		void setMaximumSIFTSize(const int size);
+		int maximumSIFTSize() const;
+
 		QString note() const;
 		QString toString() const;
 
@@ -105,6 +110,8 @@ namespace rdm {
 		int mNumberOfClusters = -1;
 		int mNumberPCA = -1;
 		int mType = WI_UNDEFINED;
+		int mMinimumSIFTSize = -1;
+		int mMaximumSIFTSize = -1;
 
 		QString mNote = QString();
 
