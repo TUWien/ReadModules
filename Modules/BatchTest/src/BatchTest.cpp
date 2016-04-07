@@ -99,15 +99,6 @@ QImage BatchTest::image() const {
 	return QImage(":/BatchTest/img/read.png");
 };
 
-/**
-* Returns plugin version for every ID
-* @param plugin ID
-**/
-QString BatchTest::version() const {
-
-	return PLUGIN_VERSION;
-};
-
 QList<QAction*> BatchTest::createActions(QWidget* parent) {
 
 	if (mActions.empty()) {
@@ -168,12 +159,13 @@ QSharedPointer<nmc::DkImageContainer> BatchTest::runPlugin(const QString &runID,
 	return imgC;
 }
 
-void BatchTest::preLoadPlugin(const QString & runID) const {
+void BatchTest::preLoadPlugin() const {
 
 	qDebug() << "[PRE LOADING] Batch Test";
 }
 
-void BatchTest::postLoadPlugin(const QString & runID, const QVector<QSharedPointer<nmc::DkBatchInfo>>& batchInfo) const {
+void BatchTest::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo>>& batchInfo) const {
+	int runIdx = mRunIDs.indexOf(batchInfo.first()->id());
 
 	for (auto bi : batchInfo) {
 		qDebug() << bi->filePath() << "computed...";
@@ -184,7 +176,7 @@ void BatchTest::postLoadPlugin(const QString & runID, const QVector<QSharedPoint
 
 	}
 
-	if (runID == mRunIDs[id_grayscale])
+	if (runIdx == id_grayscale)
 		qDebug() << "[POST LOADING] grayscale";
 	else
 		qDebug() << "[POST LOADING] mirrored";

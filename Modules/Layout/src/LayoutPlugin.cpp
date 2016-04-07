@@ -99,15 +99,6 @@ QImage LayoutPlugin::image() const {
 	return QImage(":/LayoutPlugin/img/read.png");
 };
 
-/**
-* Returns plugin version for every ID
-* @param plugin ID
-**/
-QString LayoutPlugin::version() const {
-
-	return PLUGIN_VERSION;
-};
-
 QList<QAction*> LayoutPlugin::createActions(QWidget* parent) {
 
 	if (mActions.empty()) {

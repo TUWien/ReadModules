@@ -70,19 +70,6 @@ QImage PageVisPlugin::image() const {
 };
 
 /**
-* Returns plugin version for every ID
-* @param plugin ID
-**/
-QString PageVisPlugin::version() const {
-
-	return PLUGIN_VERSION;
-};
-
-bool PageVisPlugin::closesOnImageChange() const {
-	return false;
-}
-
-/**
 * Main function: runs plugin based on its ID
 * @param plugin ID
 * @param image to be processed

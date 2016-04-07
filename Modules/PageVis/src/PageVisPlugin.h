@@ -38,7 +38,6 @@ public:
 	~PageVisPlugin();
 
 	QString id() const override;
-	QString version() const override;
 	QImage image() const override;
 
 	bool closesOnImageChange() const override;

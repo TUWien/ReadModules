@@ -97,15 +97,6 @@ QImage BinarizationPlugin::image() const {
 	return QImage(":/BinarizationPlugin/img/read.png");
 };
 
-/**
-* Returns plugin version for every ID
-* @param plugin ID
-**/
-QString BinarizationPlugin::version() const {
-
-	return PLUGIN_VERSION;
-};
-
 QList<QAction*> BinarizationPlugin::createActions(QWidget* parent) {
 
 	if (mActions.empty()) {

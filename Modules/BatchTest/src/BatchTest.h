@@ -66,7 +66,6 @@ public:
 	~BatchTest();
 
 	QString id() const override;
-	QString version() const override;
 	QImage image() const override;
 
 	QList<QAction*> createActions(QWidget* parent) override;
@@ -75,9 +74,9 @@ public:
 		const QString &runID, 
 		QSharedPointer<nmc::DkImageContainer> imgC,
 		QSharedPointer<nmc::DkBatchInfo>& info) const override;
-	void preLoadPlugin(const QString& runID) const override;
-	void postLoadPlugin(const QString& runID, const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const override;
 
+	void preLoadPlugin() const override;
+	void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const override;
 
 	enum {
 		id_mirror,
