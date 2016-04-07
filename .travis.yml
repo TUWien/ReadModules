@@ -12,7 +12,8 @@ sudo: required
 dist: trusty
 
 before_script:
-  - MODULE_CMAKE_ARGS="-DENABLE_BINARIZATION=true -DENABLE_WRITERIDENTIFICATION=true -DENABLE_LAYOUT=true"
+  - if [ "$TRAVIS_OS_NAME" = "linux" ];then  MODULE_CMAKE_ARGS="-DENABLE_BINARIZATION=true -DENABLE_WRITERIDENTIFICATION=true -DENABLE_LAYOUT=true -DENABLE_PAGEVIS=true"; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then MODULE_CMAKE_ARGS="-DENABLE_BINARIZATION=true -DENABLE_WRITERIDENTIFICATION=true -DENABLE_LAYOUT=true -DENABLE_PAGEVIS=false"; fi
 
   # OSX dependencies
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; fi
