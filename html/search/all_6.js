@@ -1,7 +1,6 @@
 var searchData=
 [
-  ['mactions',['mActions',['../classrdm_1_1_batch_test.html#a31c3e8e4d993cfe6de86962bcdcf0213',1,'rdm::BatchTest::mActions()'],['../classrdm_1_1_binarization_plugin.html#a9c9ddb8ea99f944940c87599d084797b',1,'rdm::BinarizationPlugin::mActions()'],['../classrdm_1_1_layout_plugin.html#a534ecdd7f9ebd5126af9b07688e2917b',1,'rdm::LayoutPlugin::mActions()']]],
-  ['mmenunames',['mMenuNames',['../classrdm_1_1_batch_test.html#a6f197a68fcfeaedc09083698a294dfba',1,'rdm::BatchTest::mMenuNames()'],['../classrdm_1_1_binarization_plugin.html#a2e75bdc3d393dbe63abb640bb9d8f4cd',1,'rdm::BinarizationPlugin::mMenuNames()'],['../classrdm_1_1_layout_plugin.html#abb802b823b08aac7c26ff278b52252ea',1,'rdm::LayoutPlugin::mMenuNames()']]],
-  ['mmenustatustips',['mMenuStatusTips',['../classrdm_1_1_batch_test.html#ac96a09a869d357c07b7e512280747946',1,'rdm::BatchTest::mMenuStatusTips()'],['../classrdm_1_1_binarization_plugin.html#af5143c3cdce2e716cbd5c1f13e68a362',1,'rdm::BinarizationPlugin::mMenuStatusTips()'],['../classrdm_1_1_layout_plugin.html#a830d524f34883f04b2e623dce0094db0',1,'rdm::LayoutPlugin::mMenuStatusTips()']]],
-  ['mrunids',['mRunIDs',['../classrdm_1_1_batch_test.html#a5c549854aeb4b581963fe414408e1636',1,'rdm::BatchTest::mRunIDs()'],['../classrdm_1_1_binarization_plugin.html#a4a5085a67510cfdc1bf539acfcc9e583',1,'rdm::BinarizationPlugin::mRunIDs()'],['../classrdm_1_1_layout_plugin.html#a01942dee3dcf0f15d82d3d3fd0bdaafe',1,'rdm::LayoutPlugin::mRunIDs()']]]
+  ['generatehist',['generateHist',['../classrdm_1_1_w_i_database.html#a226765c0b1223cc98ac03e5f701e88e4',1,'rdm::WIDatabase']]],
+  ['generatevocabulary',['generateVocabulary',['../classrdm_1_1_w_i_database.html#a773c38656db6eddc31059a74412d2332',1,'rdm::WIDatabase']]],
+  ['getviewport',['getViewPort',['../classrdm_1_1_page_vis_plugin.html#a0f3f3e299a0a59dfcb9da52fbf0cf2e8',1,'rdm::PageVisPlugin']]]
 ];

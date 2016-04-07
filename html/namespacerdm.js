@@ -10,5 +10,10 @@ var namespacerdm =
     [ "XmlLabel", "classrdm_1_1_xml_label.html", "classrdm_1_1_xml_label" ],
     [ "PageDock", "classrdm_1_1_page_dock.html", "classrdm_1_1_page_dock" ],
     [ "PageViewport", "classrdm_1_1_page_viewport.html", "classrdm_1_1_page_viewport" ],
-    [ "PageVisPlugin", "classrdm_1_1_page_vis_plugin.html", "classrdm_1_1_page_vis_plugin" ]
+    [ "PageVisPlugin", "classrdm_1_1_page_vis_plugin.html", "classrdm_1_1_page_vis_plugin" ],
+    [ "WIVocabulary", "classrdm_1_1_w_i_vocabulary.html", "classrdm_1_1_w_i_vocabulary" ],
+    [ "WIDatabase", "classrdm_1_1_w_i_database.html", "classrdm_1_1_w_i_database" ],
+    [ "WriterIdentification", "classrdm_1_1_writer_identification.html", "classrdm_1_1_writer_identification" ],
+    [ "WIInfo", "classrdm_1_1_w_i_info.html", "classrdm_1_1_w_i_info" ],
+    [ "WriterIdentificationPlugin", "classrdm_1_1_writer_identification_plugin.html", "classrdm_1_1_writer_identification_plugin" ]
 ];

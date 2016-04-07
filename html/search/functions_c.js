@@ -1,4 +1,7 @@
 var searchData=
 [
-  ['version',['version',['../classrdm_1_1_batch_test.html#a4b381c1dbf600db61e02324c527570c6',1,'rdm::BatchTest::version()'],['../classrdm_1_1_binarization_plugin.html#a5aa7ed5970841d04483bcb4ce10d4a24',1,'rdm::BinarizationPlugin::version()'],['../classrdm_1_1_layout_plugin.html#a5538c38db7aa15d7c68d322e51028f13',1,'rdm::LayoutPlugin::version()'],['../classrdm_1_1_page_vis_plugin.html#a3856e584382a15705379897d6277987b',1,'rdm::PageVisPlugin::version()']]]
+  ['newcolor',['newColor',['../classrdm_1_1_color_button.html#a717df239e892cfcb32f82e11087c07dc',1,'rdm::ColorButton']]],
+  ['note',['note',['../classrdm_1_1_w_i_vocabulary.html#ad01ff57d92e8e85c91fd0de47c754251',1,'rdm::WIVocabulary']]],
+  ['numberofcluster',['numberOfCluster',['../classrdm_1_1_w_i_vocabulary.html#a6b90fc80df4c4009c8cae3614b6c7b2a',1,'rdm::WIVocabulary']]],
+  ['numberofpca',['numberOfPCA',['../classrdm_1_1_w_i_vocabulary.html#a240c2dbb9a35efd1042282f49b6cbea2',1,'rdm::WIVocabulary']]]
 ];

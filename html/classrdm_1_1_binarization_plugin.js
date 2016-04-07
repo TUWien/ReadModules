@@ -10,7 +10,6 @@ var classrdm_1_1_binarization_plugin =
     [ "image", "classrdm_1_1_binarization_plugin.html#a287982776a8f88b78529fe01c430e814", null ],
     [ "pluginActions", "classrdm_1_1_binarization_plugin.html#a02f234a20f290089697c5062ea95d7b8", null ],
     [ "runPlugin", "classrdm_1_1_binarization_plugin.html#ad2cc09e48e041d1734f9efc71a6f2ec4", null ],
-    [ "version", "classrdm_1_1_binarization_plugin.html#a5aa7ed5970841d04483bcb4ce10d4a24", null ],
     [ "mActions", "classrdm_1_1_binarization_plugin.html#a9c9ddb8ea99f944940c87599d084797b", null ],
     [ "mMenuNames", "classrdm_1_1_binarization_plugin.html#a2e75bdc3d393dbe63abb640bb9d8f4cd", null ],
     [ "mMenuStatusTips", "classrdm_1_1_binarization_plugin.html#af5143c3cdce2e716cbd5c1f13e68a362", null ],

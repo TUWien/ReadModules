@@ -1,14 +1,17 @@
 var searchData=
 [
-  ['on_5fbrushbutton_5fnewcolor',['on_brushButton_newColor',['../classrdm_1_1_config_widget.html#abb3527a88b12e8e88311976552f49516',1,'rdm::ConfigWidget']]],
-  ['on_5fcolorbutton_5fclicked',['on_colorButton_clicked',['../classrdm_1_1_color_button.html#ab8e8e9cee59754d8ae4055208b26f4e9',1,'rdm::ColorButton']]],
-  ['on_5fconfigcombo_5fcurrentindexchanged',['on_configCombo_currentIndexChanged',['../classrdm_1_1_page_dock.html#a082fa4e048a4f6a5759755d093b39c8f',1,'rdm::PageDock']]],
-  ['on_5fconfigwidget_5fupdated',['on_configWidget_updated',['../classrdm_1_1_page_dock.html#a30ab8d8e718478ab88370e6ab3501087',1,'rdm::PageDock']]],
-  ['on_5fdraw_5fclicked',['on_draw_clicked',['../classrdm_1_1_config_widget.html#a8f7e7f31c489d75dbc7fbf514ab359c9',1,'rdm::ConfigWidget']]],
-  ['on_5fdrawbaseline_5fclicked',['on_drawBaseline_clicked',['../classrdm_1_1_config_widget.html#a781345a19e025519c8172c2e6f37ae13',1,'rdm::ConfigWidget']]],
-  ['on_5fdrawcheckbox_5ftoggled',['on_drawCheckbox_toggled',['../classrdm_1_1_page_dock.html#a126e14ae26a0355d7fdaa7b5ed1b5d5a',1,'rdm::PageDock']]],
-  ['on_5fdrawpolygon_5fclicked',['on_drawPolygon_clicked',['../classrdm_1_1_config_widget.html#a6b043153f6dd13070026b77a135c10a8',1,'rdm::ConfigWidget']]],
-  ['on_5fdrawtext_5fclicked',['on_drawText_clicked',['../classrdm_1_1_config_widget.html#ae5175a297fb233103d1cab9f85eb23c4',1,'rdm::ConfigWidget']]],
-  ['on_5foutlinebutton_5fnewcolor',['on_outlineButton_newColor',['../classrdm_1_1_config_widget.html#a33c31a3dba9b0e47d2f3e824164c811c',1,'rdm::ConfigWidget']]],
-  ['on_5fstrokebox_5fvaluechanged',['on_strokeBox_valueChanged',['../classrdm_1_1_config_widget.html#ae886fc588020f155c207928518c38496',1,'rdm::ConfigWidget']]]
+  ['id',['id',['../classrdm_1_1_batch_test.html#a040603432f68dbb84de037c7f3e08d94',1,'rdm::BatchTest::id()'],['../classrdm_1_1_binarization_plugin.html#a9937b154c891a54f7800d2aaa89aac3f',1,'rdm::BinarizationPlugin::id()'],['../classrdm_1_1_layout_plugin.html#ab005035b46893cbf47e3e0f961c7c4fe',1,'rdm::LayoutPlugin::id()'],['../classrdm_1_1_page_vis_plugin.html#a18fe46d2b82dc2852c942dc3e80324b2',1,'rdm::PageVisPlugin::id()'],['../classrdm_1_1_writer_identification_plugin.html#a12e54f8c3f987c8ee2f0f05b10e17bf5',1,'rdm::WriterIdentificationPlugin::id()']]],
+  ['id_5fbinarize_5fotsu',['id_binarize_otsu',['../classrdm_1_1_binarization_plugin.html#a67aab775df76148970a3b6b03fb3af75ac40aabc32d63d0fcf3eddc5d9cbeeb04',1,'rdm::BinarizationPlugin']]],
+  ['id_5fbinarize_5fsu',['id_binarize_su',['../classrdm_1_1_binarization_plugin.html#a67aab775df76148970a3b6b03fb3af75af8dfc9c39457b2fc03503733d2791451',1,'rdm::BinarizationPlugin']]],
+  ['id_5fcalcuate_5ffeatures',['id_calcuate_features',['../classrdm_1_1_writer_identification_plugin.html#af658f6eeb5a79fd3db0bccc219ee2d4ca7f8473dcf065fc44566d1a761e36f58f',1,'rdm::WriterIdentificationPlugin']]],
+  ['id_5fend',['id_end',['../classrdm_1_1_batch_test.html#a7fdf0afbbd2dfa1e5383085f66cdf28ba1f0beae088418ca16c5400ed261c2b33',1,'rdm::BatchTest::id_end()'],['../classrdm_1_1_binarization_plugin.html#a67aab775df76148970a3b6b03fb3af75a3056614b11339a74b78a4d4b6febc855',1,'rdm::BinarizationPlugin::id_end()'],['../classrdm_1_1_layout_plugin.html#af54a16d3e0266040fb24ecfee432c8a7a41e7e3883025d3b712fbbd9592e53e42',1,'rdm::LayoutPlugin::id_end()'],['../classrdm_1_1_writer_identification_plugin.html#af658f6eeb5a79fd3db0bccc219ee2d4ca1cf2064f9a21b3bb5486e5e78c90312a',1,'rdm::WriterIdentificationPlugin::id_end()']]],
+  ['id_5fevaluate_5fdatabase',['id_evaluate_database',['../classrdm_1_1_writer_identification_plugin.html#af658f6eeb5a79fd3db0bccc219ee2d4ca28e91dfeed285fb3a9d7d3dd051f82b2',1,'rdm::WriterIdentificationPlugin']]],
+  ['id_5fgenerate_5fvocabulary',['id_generate_vocabulary',['../classrdm_1_1_writer_identification_plugin.html#af658f6eeb5a79fd3db0bccc219ee2d4ca5af31cb40ec9ca4e1abc1e3a1188fe57',1,'rdm::WriterIdentificationPlugin']]],
+  ['id_5fgrayscale',['id_grayscale',['../classrdm_1_1_batch_test.html#a7fdf0afbbd2dfa1e5383085f66cdf28ba2a043b79f6cda7dad1a5c9d6567e1d6e',1,'rdm::BatchTest']]],
+  ['id_5fidentify_5fwriter',['id_identify_writer',['../classrdm_1_1_writer_identification_plugin.html#af658f6eeb5a79fd3db0bccc219ee2d4cadb2305ffc67d482c950477ba3efb2938',1,'rdm::WriterIdentificationPlugin']]],
+  ['id_5flayout_5fdraw',['id_layout_draw',['../classrdm_1_1_layout_plugin.html#af54a16d3e0266040fb24ecfee432c8a7a523f7f2abaf9c37975671c382a733f2c',1,'rdm::LayoutPlugin']]],
+  ['id_5flayout_5fxml',['id_layout_xml',['../classrdm_1_1_layout_plugin.html#af54a16d3e0266040fb24ecfee432c8a7a1b357b1a40ee7524f99bd6a63870ae04',1,'rdm::LayoutPlugin']]],
+  ['id_5fmirror',['id_mirror',['../classrdm_1_1_batch_test.html#a7fdf0afbbd2dfa1e5383085f66cdf28ba1173b10343cc4dc9edcdc9c47dfe2795',1,'rdm::BatchTest']]],
+  ['image',['image',['../classrdm_1_1_batch_test.html#afcb8f88be082edbce3c1128cddeec819',1,'rdm::BatchTest::image()'],['../classrdm_1_1_binarization_plugin.html#a287982776a8f88b78529fe01c430e814',1,'rdm::BinarizationPlugin::image()'],['../classrdm_1_1_layout_plugin.html#ab25924c30a2b6c8dc31ab7a115f22d18',1,'rdm::LayoutPlugin::image()'],['../classrdm_1_1_page_vis_plugin.html#a7422e29b6226f23f05b41cc861a26d3b',1,'rdm::PageVisPlugin::image()'],['../classrdm_1_1_writer_identification_plugin.html#a7c77499a9357c4113cdebacf303bdd9a',1,'rdm::WriterIdentificationPlugin::image()']]],
+  ['isempty',['isEmpty',['../classrdm_1_1_w_i_vocabulary.html#a16c65e474273effe600c6396ab0aa9dc',1,'rdm::WIVocabulary']]]
 ];

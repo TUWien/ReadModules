@@ -1,7 +1,9 @@
 var searchData=
 [
-  ['setcolor',['setColor',['../classrdm_1_1_color_button.html#aba129e4357ace2932f4d459cf261c05e',1,'rdm::ColorButton']]],
-  ['setpage',['setPage',['../classrdm_1_1_xml_label.html#a24797d4dd66b2a499d06a15743c71ca8',1,'rdm::XmlLabel']]],
-  ['setproperty',['setProperty',['../classrdm_1_1_dk_test_info.html#a8aa5562b8cf829a163f88877b867f25d',1,'rdm::DkTestInfo']]],
-  ['setregionconfig',['setRegionConfig',['../classrdm_1_1_config_widget.html#a87626d610f156201c696e9bf70235529',1,'rdm::ConfigWidget']]]
+  ['l2mean',['l2Mean',['../classrdm_1_1_w_i_vocabulary.html#ab23c4c73825398adafa80fe0b477a737',1,'rdm::WIVocabulary']]],
+  ['l2sigma',['l2Sigma',['../classrdm_1_1_w_i_vocabulary.html#a8fb378bee3e969660979c899e340bf78',1,'rdm::WIVocabulary']]],
+  ['layoutplugin',['LayoutPlugin',['../classrdm_1_1_layout_plugin.html#aef229f4628a1ec74710442897f7a4844',1,'rdm::LayoutPlugin']]],
+  ['loadfeatures',['loadFeatures',['../classrdm_1_1_writer_identification.html#aafc632c319a3a0838339f2e9c3502d05',1,'rdm::WriterIdentification']]],
+  ['loadvocabulary',['loadVocabulary',['../classrdm_1_1_w_i_vocabulary.html#a75ec6cab1d111c9428f038654e635fae',1,'rdm::WIVocabulary']]],
+  ['loadxml',['loadXml',['../classrdm_1_1_xml_label.html#ae1f33fa9200d94d5a35c8a6622e7bcb1',1,'rdm::XmlLabel']]]
 ];

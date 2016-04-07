@@ -78,6 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="functions.html"><span>All</span></a></li>
       <li><a href="functions_func.html"><span>Functions</span></a></li>
       <li><a href="functions_vars.html"><span>Variables</span></a></li>
+      <li><a href="functions_enum.html"><span>Enumerations</span></a></li>
       <li class="current"><a href="functions_eval.html"><span>Enumerator</span></a></li>
     </ul>
   </div>
@@ -101,7 +102,7 @@ $(document).ready(function(){initNavTree('functions_eval.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerator</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -118,13 +119,26 @@ $(document).ready(function(){initNavTree('functions_eval.html','');});
 <li>id_binarize_su
 : <a class="el" href="classrdm_1_1_binarization_plugin.html#a67aab775df76148970a3b6b03fb3af75af8dfc9c39457b2fc03503733d2791451">rdm::BinarizationPlugin</a>
 </li>
+<li>id_calcuate_features
+: <a class="el" href="classrdm_1_1_writer_identification_plugin.html#af658f6eeb5a79fd3db0bccc219ee2d4ca7f8473dcf065fc44566d1a761e36f58f">rdm::WriterIdentificationPlugin</a>
+</li>
 <li>id_end
 : <a class="el" href="classrdm_1_1_batch_test.html#a7fdf0afbbd2dfa1e5383085f66cdf28ba1f0beae088418ca16c5400ed261c2b33">rdm::BatchTest</a>
 , <a class="el" href="classrdm_1_1_binarization_plugin.html#a67aab775df76148970a3b6b03fb3af75a3056614b11339a74b78a4d4b6febc855">rdm::BinarizationPlugin</a>
 , <a class="el" href="classrdm_1_1_layout_plugin.html#af54a16d3e0266040fb24ecfee432c8a7a41e7e3883025d3b712fbbd9592e53e42">rdm::LayoutPlugin</a>
+, <a class="el" href="classrdm_1_1_writer_identification_plugin.html#af658f6eeb5a79fd3db0bccc219ee2d4ca1cf2064f9a21b3bb5486e5e78c90312a">rdm::WriterIdentificationPlugin</a>
+</li>
+<li>id_evaluate_database
+: <a class="el" href="classrdm_1_1_writer_identification_plugin.html#af658f6eeb5a79fd3db0bccc219ee2d4ca28e91dfeed285fb3a9d7d3dd051f82b2">rdm::WriterIdentificationPlugin</a>
+</li>
+<li>id_generate_vocabulary
+: <a class="el" href="classrdm_1_1_writer_identification_plugin.html#af658f6eeb5a79fd3db0bccc219ee2d4ca5af31cb40ec9ca4e1abc1e3a1188fe57">rdm::WriterIdentificationPlugin</a>
 </li>
 <li>id_grayscale
 : <a class="el" href="classrdm_1_1_batch_test.html#a7fdf0afbbd2dfa1e5383085f66cdf28ba2a043b79f6cda7dad1a5c9d6567e1d6e">rdm::BatchTest</a>
+</li>
+<li>id_identify_writer
+: <a class="el" href="classrdm_1_1_writer_identification_plugin.html#af658f6eeb5a79fd3db0bccc219ee2d4cadb2305ffc67d482c950477ba3efb2938">rdm::WriterIdentificationPlugin</a>
 </li>
 <li>id_layout_draw
 : <a class="el" href="classrdm_1_1_layout_plugin.html#af54a16d3e0266040fb24ecfee432c8a7a523f7f2abaf9c37975671c382a733f2c">rdm::LayoutPlugin</a>
@@ -134,6 +148,15 @@ $(document).ready(function(){initNavTree('functions_eval.html','');});
 </li>
 <li>id_mirror
 : <a class="el" href="classrdm_1_1_batch_test.html#a7fdf0afbbd2dfa1e5383085f66cdf28ba1173b10343cc4dc9edcdc9c47dfe2795">rdm::BatchTest</a>
+</li>
+<li>WI_BOW
+: <a class="el" href="classrdm_1_1_w_i_vocabulary.html#a17bb64744dfdb662a092cf1233ca46b3abcfa391f66041c04cff7e50385017b86">rdm::WIVocabulary</a>
+</li>
+<li>WI_GMM
+: <a class="el" href="classrdm_1_1_w_i_vocabulary.html#a17bb64744dfdb662a092cf1233ca46b3a080cd1ccc9dcced7ac4583662ceac571">rdm::WIVocabulary</a>
+</li>
+<li>WI_UNDEFINED
+: <a class="el" href="classrdm_1_1_w_i_vocabulary.html#a17bb64744dfdb662a092cf1233ca46b3a19ded423a4d38b71f0e807e82548f554">rdm::WIVocabulary</a>
 </li>
 </ul>
 </div><!-- contents -->

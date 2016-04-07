@@ -1,12 +1,11 @@
 var searchData=
 [
-  ['closesonimagechange',['closesOnImageChange',['../classrdm_1_1_page_vis_plugin.html#a4a7f8f3b159b7722a424db2ba86a7a85',1,'rdm::PageVisPlugin']]],
-  ['colorbutton',['ColorButton',['../classrdm_1_1_color_button.html',1,'rdm']]],
-  ['colorbutton',['ColorButton',['../classrdm_1_1_color_button.html#a2cc04950dbe135849656a9ad3985a70e',1,'rdm::ColorButton']]],
-  ['compute',['compute',['../classrdm_1_1_layout_plugin.html#a79c310f89b9e44874be7ef2ed61fde76',1,'rdm::LayoutPlugin']]],
-  ['config',['config',['../classrdm_1_1_page_data.html#a0d0b073ce0cf314e5a943b9ee751a04f',1,'rdm::PageData::config()'],['../classrdm_1_1_page_dock.html#a911a509a5045c862f46c17b150f02006',1,'rdm::PageDock::config()']]],
-  ['configwidget',['ConfigWidget',['../classrdm_1_1_config_widget.html#ac475e40eed9ddbb93b6786d29098e98e',1,'rdm::ConfigWidget']]],
-  ['configwidget',['ConfigWidget',['../classrdm_1_1_config_widget.html',1,'rdm']]],
-  ['createactions',['createActions',['../classrdm_1_1_batch_test.html#a510425e49293b9fbf813b7e4b0e0d88d',1,'rdm::BatchTest::createActions()'],['../classrdm_1_1_binarization_plugin.html#a05bf9dd62628c9277f7c94c25d3d0994',1,'rdm::BinarizationPlugin::createActions()'],['../classrdm_1_1_layout_plugin.html#a855a33d9645c608d17ea0ada30d852e9',1,'rdm::LayoutPlugin::createActions()']]],
-  ['cv',['cv',['../namespacecv.html',1,'']]]
+  ['batchtest',['BatchTest',['../classrdm_1_1_batch_test.html',1,'rdm']]],
+  ['batchtest',['BatchTest',['../classrdm_1_1_batch_test.html#acb0d14145cc0fd6051baa22050740031',1,'rdm::BatchTest']]],
+  ['batchtest_2ecpp',['BatchTest.cpp',['../_batch_test_8cpp.html',1,'']]],
+  ['batchtest_2eh',['BatchTest.h',['../_batch_test_8h.html',1,'']]],
+  ['binarizationplugin',['BinarizationPlugin',['../classrdm_1_1_binarization_plugin.html',1,'rdm']]],
+  ['binarizationplugin',['BinarizationPlugin',['../classrdm_1_1_binarization_plugin.html#a841d52c2c542538b2856ff619ba1ad09',1,'rdm::BinarizationPlugin']]],
+  ['binarizationplugin_2ecpp',['BinarizationPlugin.cpp',['../_binarization_plugin_8cpp.html',1,'']]],
+  ['binarizationplugin_2eh',['BinarizationPlugin.h',['../_binarization_plugin_8h.html',1,'']]]
 ];

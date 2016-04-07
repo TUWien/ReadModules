@@ -11,7 +11,6 @@ var classrdm_1_1_layout_plugin =
     [ "image", "classrdm_1_1_layout_plugin.html#ab25924c30a2b6c8dc31ab7a115f22d18", null ],
     [ "pluginActions", "classrdm_1_1_layout_plugin.html#a2823b962e93bb5cf7e2ee67ed5aaf975", null ],
     [ "runPlugin", "classrdm_1_1_layout_plugin.html#a1517f9765b94086ff26c03b235132a1f", null ],
-    [ "version", "classrdm_1_1_layout_plugin.html#a5538c38db7aa15d7c68d322e51028f13", null ],
     [ "mActions", "classrdm_1_1_layout_plugin.html#a534ecdd7f9ebd5126af9b07688e2917b", null ],
     [ "mMenuNames", "classrdm_1_1_layout_plugin.html#abb802b823b08aac7c26ff278b52252ea", null ],
     [ "mMenuStatusTips", "classrdm_1_1_layout_plugin.html#a830d524f34883f04b2e623dce0094db0", null ],

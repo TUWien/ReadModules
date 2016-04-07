@@ -1,7 +1,8 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node2" href="$classrdm_1_1_batch_test.html" title="rdm::BatchTest" alt="" coords="236,5,348,32"/>
-<area shape="rect" id="node4" href="$classrdm_1_1_binarization_plugin.html" title="rdm::BinarizationPlugin" alt="" coords="214,107,370,133"/>
-<area shape="rect" id="node5" href="$classrdm_1_1_layout_plugin.html" title="rdm::LayoutPlugin" alt="" coords="229,56,355,83"/>
-<area shape="rect" id="node7" href="$classrdm_1_1_page_vis_plugin.html" title="rdm::PageVisPlugin" alt="" coords="223,208,361,235"/>
-<area shape="rect" id="node9" href="$classrdm_1_1_page_data.html" title="rdm::PageData" alt="" coords="237,157,347,184"/>
+<area shape="rect" id="node2" href="$classrdm_1_1_batch_test.html" title="rdm::BatchTest" alt="" coords="239,5,351,32"/>
+<area shape="rect" id="node3" href="$classrdm_1_1_writer_identification_plugin.html" title="rdm::WriterIdentification\lPlugin" alt="" coords="214,57,375,98"/>
+<area shape="rect" id="node5" href="$classrdm_1_1_binarization_plugin.html" title="rdm::BinarizationPlugin" alt="" coords="217,173,373,200"/>
+<area shape="rect" id="node6" href="$classrdm_1_1_layout_plugin.html" title="rdm::LayoutPlugin" alt="" coords="231,224,358,251"/>
+<area shape="rect" id="node8" href="$classrdm_1_1_page_vis_plugin.html" title="rdm::PageVisPlugin" alt="" coords="226,275,363,301"/>
+<area shape="rect" id="node10" href="$classrdm_1_1_page_data.html" title="rdm::PageData" alt="" coords="239,123,350,149"/>
 </map>

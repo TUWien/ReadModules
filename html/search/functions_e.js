@@ -1,10 +1,17 @@
 var searchData=
 [
-  ['_7ebatchtest',['~BatchTest',['../classrdm_1_1_batch_test.html#a6948dfb2f9c381b620a4679fb5641c99',1,'rdm::BatchTest']]],
-  ['_7ebinarizationplugin',['~BinarizationPlugin',['../classrdm_1_1_binarization_plugin.html#a2110afed3f21428f5935a3e39f0a909c',1,'rdm::BinarizationPlugin']]],
-  ['_7elayoutplugin',['~LayoutPlugin',['../classrdm_1_1_layout_plugin.html#af46aed2a29c724f2b5f34e030607de67',1,'rdm::LayoutPlugin']]],
-  ['_7epagedata',['~PageData',['../classrdm_1_1_page_data.html#ad71132ec05e4ba83aeaacecf3637068e',1,'rdm::PageData']]],
-  ['_7epagedock',['~PageDock',['../classrdm_1_1_page_dock.html#a81b9c704f5a3054bb04a919b99a944bb',1,'rdm::PageDock']]],
-  ['_7epageviewport',['~PageViewport',['../classrdm_1_1_page_viewport.html#a9e97ac40f5441cb00ab0484bac72f6b0',1,'rdm::PageViewport']]],
-  ['_7epagevisplugin',['~PageVisPlugin',['../classrdm_1_1_page_vis_plugin.html#a0397917743b57d10d4ce5311df3031c8',1,'rdm::PageVisPlugin']]]
+  ['page',['page',['../classrdm_1_1_page_data.html#aa57335928333412e876abcd8cd16681b',1,'rdm::PageData']]],
+  ['pagedata',['PageData',['../classrdm_1_1_page_data.html#a90b354a5ccf41c02a05029bd2da92db2',1,'rdm::PageData']]],
+  ['pagedock',['PageDock',['../classrdm_1_1_page_dock.html#a010cb79befcdb0b5bfe1022af259baeb',1,'rdm::PageDock']]],
+  ['pageviewport',['PageViewport',['../classrdm_1_1_page_viewport.html#aed3ff39e6c04a6291ffa332943153472',1,'rdm::PageViewport']]],
+  ['pagevisplugin',['PageVisPlugin',['../classrdm_1_1_page_vis_plugin.html#a1b28db74df056bc5870b4540ce2be5b8',1,'rdm::PageVisPlugin']]],
+  ['parse',['parse',['../classrdm_1_1_page_data.html#a8fc67ff630d6e8875bdb9cd2343a6db8',1,'rdm::PageData']]],
+  ['pathupdated',['pathUpdated',['../classrdm_1_1_xml_label.html#a7a0ba424221a7978f0c838ea5c77fa94',1,'rdm::XmlLabel']]],
+  ['pcaeigenvalues',['pcaEigenvalues',['../classrdm_1_1_w_i_vocabulary.html#a7560d87aedb342a3dad330810a86e3f0',1,'rdm::WIVocabulary']]],
+  ['pcaeigenvectors',['pcaEigenvectors',['../classrdm_1_1_w_i_vocabulary.html#aa4d906e6352cce16918f0183e006bcc1',1,'rdm::WIVocabulary']]],
+  ['pcamean',['pcaMean',['../classrdm_1_1_w_i_vocabulary.html#a851931bac29b000f0d9d18c6f8e70b3d',1,'rdm::WIVocabulary']]],
+  ['pluginactions',['pluginActions',['../classrdm_1_1_batch_test.html#a95634d26c93f178cb550cefe269afb20',1,'rdm::BatchTest::pluginActions()'],['../classrdm_1_1_binarization_plugin.html#a02f234a20f290089697c5062ea95d7b8',1,'rdm::BinarizationPlugin::pluginActions()'],['../classrdm_1_1_layout_plugin.html#a2823b962e93bb5cf7e2ee67ed5aaf975',1,'rdm::LayoutPlugin::pluginActions()'],['../classrdm_1_1_writer_identification_plugin.html#abe355116e2dc01b9db7eca8f525f2ba7',1,'rdm::WriterIdentificationPlugin::pluginActions()']]],
+  ['postloadplugin',['postLoadPlugin',['../classrdm_1_1_batch_test.html#a2830ebdf2dc6b56332d23c36bcf90391',1,'rdm::BatchTest::postLoadPlugin()'],['../classrdm_1_1_writer_identification_plugin.html#a6c3263d1d6aa37b071d76456b5665a0e',1,'rdm::WriterIdentificationPlugin::postLoadPlugin()']]],
+  ['preloadplugin',['preLoadPlugin',['../classrdm_1_1_batch_test.html#a6a9efc38aa38451e915e50342c588a2a',1,'rdm::BatchTest::preLoadPlugin()'],['../classrdm_1_1_writer_identification_plugin.html#a7636d0331d65dd441dd7ffe4b77e801d',1,'rdm::WriterIdentificationPlugin::preLoadPlugin()']]],
+  ['property',['property',['../classrdm_1_1_dk_test_info.html#a443987b17ddcdd59271038079eb15842',1,'rdm::DkTestInfo']]]
 ];
