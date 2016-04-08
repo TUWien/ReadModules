@@ -12,6 +12,7 @@ var searchData=
   ['pcamean',['pcaMean',['../classrdm_1_1_w_i_vocabulary.html#a851931bac29b000f0d9d18c6f8e70b3d',1,'rdm::WIVocabulary']]],
   ['pluginactions',['pluginActions',['../classrdm_1_1_batch_test.html#a95634d26c93f178cb550cefe269afb20',1,'rdm::BatchTest::pluginActions()'],['../classrdm_1_1_binarization_plugin.html#a02f234a20f290089697c5062ea95d7b8',1,'rdm::BinarizationPlugin::pluginActions()'],['../classrdm_1_1_layout_plugin.html#a2823b962e93bb5cf7e2ee67ed5aaf975',1,'rdm::LayoutPlugin::pluginActions()'],['../classrdm_1_1_writer_identification_plugin.html#abe355116e2dc01b9db7eca8f525f2ba7',1,'rdm::WriterIdentificationPlugin::pluginActions()']]],
   ['postloadplugin',['postLoadPlugin',['../classrdm_1_1_batch_test.html#a2830ebdf2dc6b56332d23c36bcf90391',1,'rdm::BatchTest::postLoadPlugin()'],['../classrdm_1_1_writer_identification_plugin.html#a6c3263d1d6aa37b071d76456b5665a0e',1,'rdm::WriterIdentificationPlugin::postLoadPlugin()']]],
+  ['powernormalization',['powerNormalization',['../classrdm_1_1_w_i_vocabulary.html#a52092cc194e2f2ec97460bac4bfd4d13',1,'rdm::WIVocabulary']]],
   ['preloadplugin',['preLoadPlugin',['../classrdm_1_1_batch_test.html#a6a9efc38aa38451e915e50342c588a2a',1,'rdm::BatchTest::preLoadPlugin()'],['../classrdm_1_1_writer_identification_plugin.html#a7636d0331d65dd441dd7ffe4b77e801d',1,'rdm::WriterIdentificationPlugin::preLoadPlugin()']]],
   ['property',['property',['../classrdm_1_1_dk_test_info.html#a443987b17ddcdd59271038079eb15842',1,'rdm::DkTestInfo']]]
 ];

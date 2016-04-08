@@ -21,6 +21,7 @@ var searchData=
   ['setpcaeigenvalues',['setPcaEigenvalues',['../classrdm_1_1_w_i_vocabulary.html#a332299edd4a9cd23095e9ed801391655',1,'rdm::WIVocabulary']]],
   ['setpcaeigenvectors',['setPcaEigenvectors',['../classrdm_1_1_w_i_vocabulary.html#a5237c42fa609a082c29d6722736dd20f',1,'rdm::WIVocabulary']]],
   ['setpcamean',['setPcaMean',['../classrdm_1_1_w_i_vocabulary.html#a9b1ef160e8b1a702a098b055b4bdeb5d',1,'rdm::WIVocabulary']]],
+  ['setpowernormalization',['setPowerNormalization',['../classrdm_1_1_w_i_vocabulary.html#a6307c9a989cc9444a568586657264d5e',1,'rdm::WIVocabulary']]],
   ['setproperty',['setProperty',['../classrdm_1_1_dk_test_info.html#a8aa5562b8cf829a163f88877b867f25d',1,'rdm::DkTestInfo']]],
   ['setregionconfig',['setRegionConfig',['../classrdm_1_1_config_widget.html#a87626d610f156201c696e9bf70235529',1,'rdm::ConfigWidget']]],
   ['settype',['setType',['../classrdm_1_1_w_i_vocabulary.html#a9d594b74ccaad5a1ea5c438584872df1',1,'rdm::WIVocabulary']]],
