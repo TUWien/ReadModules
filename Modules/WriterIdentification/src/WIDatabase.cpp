@@ -207,21 +207,21 @@ namespace rdm {
 				}
 			}
 			cv::Mat idxs;
-			writeMatToFile(distances, "c:\\tmp\\distances-unsorted.txt");
+			//writeMatToFile(distances, "c:\\tmp\\distances-unsorted.txt");
 			cv::sortIdx(distances, idxs, CV_SORT_EVERY_COLUMN| CV_SORT_ASCENDING);
 			cv::sort(distances, distances, CV_SORT_EVERY_COLUMN | CV_SORT_ASCENDING);
 
-			writeMatToFile(distances, "c:\\tmp\\distances.txt");
-			writeMatToFile(idxs, "c:\\tmp\\distances-idxs.txt");
-			QFile file("c:\\tmp\\distances-idxs.txt");
-			file.open(QIODevice::ReadWrite);
-			QTextStream stream(&file);
-			QString out;
-			for(int i = 0; i < idxs.rows; i++) {
-				out += QString::number(idxs.at<int>(i)) + "\n";
-			}
-			stream << out;
-			file.close();
+			//writeMatToFile(distances, "c:\\tmp\\distances.txt");
+			//writeMatToFile(idxs, "c:\\tmp\\distances-idxs.txt");
+			//QFile file("c:\\tmp\\distances-idxs.txt");
+			//file.open(QIODevice::ReadWrite);
+			//QTextStream stream(&file);
+			//QString out;
+			//for(int i = 0; i < idxs.rows; i++) {
+			//	out += QString::number(idxs.at<int>(i)) + "\n";
+			//}
+			//stream << out;
+			//file.close();
 
 			QFile file2(filePaths[i].append("-hist.txt"));
 			file2.open(QIODevice::ReadWrite | QIODevice::Truncate);
