@@ -264,6 +264,7 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 			voc.setNumberOfPCA(mVocNumberOfPCA);
 			voc.setMaximumSIFTSize(mVocMaxSIFTSize);
 			voc.setMinimumSIFTSize(mVocMinSIFTSize);
+			voc.setPowerNormalization(mVocPowerNormalization);
 		}
 		else {
 			qDebug() << "vocabulary in settings file undefined. Using default values";
@@ -322,6 +323,7 @@ void WriterIdentificationPlugin::loadSettings(QSettings & settings) {
 	mVocNumberOfPCA = settings.value("numberOfPCA", -1).toInt();
 	mVocMaxSIFTSize = settings.value("maxSIFTSize", -1).toInt();
 	mVocMinSIFTSize = settings.value("minSIFTSize", -1).toInt();
+	mVocPowerNormalization = settings.value("powerNormalization", 1).toDouble();
 	mFeatureDir = settings.value("featureDir", QString()).toString();
 	
 	

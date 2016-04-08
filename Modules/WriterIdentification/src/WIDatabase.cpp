@@ -129,26 +129,26 @@ namespace rdm {
 		}
 
 		// allDesc.cols is either PCA number or descriptor size
-		//qDebug() << "mVocabulary.numberOfCluster() * allDesc.cols:" << mVocabulary.numberOfCluster() * allDesc.cols;
-		//cv::Mat allHists = cv::Mat(0, mVocabulary.numberOfCluster() * allDesc.cols, CV_32F);
-		//qDebug() << "calculating histograms for all images";
-		//for(int i = 0; i < mDescriptors.length(); i++) {
-		//	cv::Mat hist = generateHist(mDescriptors[i]);
-		//	allHists.push_back(hist);
-		//}
+		qDebug() << "mVocabulary.numberOfCluster() * allDesc.cols:" << mVocabulary.numberOfCluster() * allDesc.cols;
+		cv::Mat allHists = cv::Mat(0, mVocabulary.numberOfCluster() * allDesc.cols, CV_32F);
+		qDebug() << "calculating histograms for all images";
+		for(int i = 0; i < mDescriptors.length(); i++) {
+			cv::Mat hist = generateHist(mDescriptors[i]);
+			allHists.push_back(hist);
+		}
 		
-		// calculate mean and stddev for L2 normalization
-		//cv::Mat means, stddev;
-		//for(int i = 0; i < allHists.cols; i++) {
-		//	cv::Scalar m, s;
-		//	meanStdDev(allHists.col(i), m, s);
-		//	means.push_back(m.val[0]);
-		//	stddev.push_back(s.val[0]);
-		//}
-		//stddev.convertTo(stddev, CV_32F);
-		//means.convertTo(means, CV_32F);
-		//mVocabulary.setHistL2Mean(means);
-		//mVocabulary.setHistL2Sigma(stddev);
+		 //calculate mean and stddev for L2 normalization
+		cv::Mat means, stddev;
+		for(int i = 0; i < allHists.cols; i++) {
+			cv::Scalar m, s;
+			meanStdDev(allHists.col(i), m, s);
+			means.push_back(m.val[0]);
+			stddev.push_back(s.val[0]);
+		}
+		stddev.convertTo(stddev, CV_32F);
+		means.convertTo(means, CV_32F);
+		mVocabulary.setHistL2Mean(means);
+		mVocabulary.setHistL2Sigma(stddev);
 	}
 	/// <summary>
 	/// Sets the vocabulary for this database
@@ -176,11 +176,16 @@ namespace rdm {
 	/// </summary>
 	/// <param name="classLabels">The class labels.</param>
 	/// <param name="filePaths">The files paths of the images if needed in the evaluation output</param>
-	/// <param name="filePath">If set a csv file with the evaluation is written to the path.</param>
-	void WIDatabase::evaluateDatabase(QStringList classLabels, QStringList filePaths, QString filePath) const {
+	/// <param name="evalFilePath">If set a csv file with the evaluation is written to the path.</param>
+	void WIDatabase::evaluateDatabase(QStringList classLabels, QStringList filePaths, QString evalFilePath) const {
 		qDebug() << "evaluating database";
 		QVector<cv::Mat> hists;
 		qDebug() << "calculating histograms for all images";
+		if(!mVocabulary.histL2Mean().empty())
+			qDebug() << "no l2 normalization of the histogram";
+		if(abs(mVocabulary.powerNormalization() - 1.0f) > DBL_EPSILON)
+			qDebug() << "power normalization of " << mVocabulary.powerNormalization() << " applied to the feature vector";
+
 		for(int i = 0; i < mDescriptors.length(); i++) {
 			hists.push_back(generateHist(mDescriptors[i]));
 		}
@@ -223,20 +228,20 @@ namespace rdm {
 			//stream << out;
 			//file.close();
 
-			QFile file2(filePaths[i].append("-hist.txt"));
-			file2.open(QIODevice::ReadWrite | QIODevice::Truncate);
-			QTextStream stream2(&file2);
-			QString out2;
-			for(int j = 0; j < hists[i].cols; j++) {
-				out2 += QString::number(hists[i].at<float>(j));
-				out2 += " ";
-			}
-			stream2 << out2 << "\n";
-			file2.close();
+			//QFile file2(filePaths[i].append("-hist.txt"));
+			//file2.open(QIODevice::ReadWrite | QIODevice::Truncate);
+			//QTextStream stream2(&file2);
+			//QString out2;
+			//for(int j = 0; j < hists[i].cols; j++) {
+			//	out2 += QString::number(hists[i].at<float>(j));
+			//	out2 += " ";
+			//}
+			//stream2 << out2 << "\n";
+			//file2.close();
 
 
-			if(!filePath.isEmpty()) {
-				QFile file(filePath);
+			if(!evalFilePath.isEmpty()) {
+				QFile file(evalFilePath);
 				if(file.open(QIODevice::ReadWrite | QIODevice::Append)) {
 					QTextStream stream(&file);
 					QFileInfo fi = QFileInfo(filePaths[i]);
@@ -320,8 +325,9 @@ namespace rdm {
 	cv::Mat WIDatabase::generateHist(cv::Mat desc) const {
 		if(mVocabulary.type() == WIVocabulary::WI_BOW)
 			return generateHistBOW(desc);
-		else if(mVocabulary.type() == WIVocabulary::WI_GMM)
+		else if(mVocabulary.type() == WIVocabulary::WI_GMM) {
 			return generateHistGMM(desc);
+		} 
 		else {
 			qWarning() << "vocabulary type is undefined... not generating histograms";
 			return cv::Mat();
@@ -407,6 +413,11 @@ namespace rdm {
 		mVocabulary.setEM(em);
 		qDebug() << "finished";
 	}
+	/// <summary>
+	/// Writes an opencv mat to txt file.
+	/// </summary>
+	/// <param name="mat">mat</param>
+	/// <param name="filePath">The file path.</param>
 	void WIDatabase::writeMatToFile(const cv::Mat mat, const QString filePath) const {
 		std::ofstream fileStream;
 		fileStream.open(filePath.toStdString());
@@ -453,8 +464,6 @@ namespace rdm {
 		cv::Mat d = desc.clone();
 		if(!mVocabulary.l2Mean().empty())
 			d = l2Norm(d, mVocabulary.l2Mean(), mVocabulary.l2Sigma());
-		else
-			qDebug() << "gnerateHistGMM: mVocabulary.l2Mean() is empty ... no L2 normalization done";
 
 		if(mVocabulary.numberOfPCA() > 0) {
 			d = applyPCA(d);
@@ -533,10 +542,8 @@ namespace rdm {
 		}
 		cv::Mat hist = fisher.reshape(0, 1);
 
-		double power = 0.5;
-		qDebug() << "power normaliazion by " << power;
 		cv::Mat tmp;
-		cv::pow(abs(hist), power, tmp);
+		cv::pow(abs(hist), mVocabulary.powerNormalization(), tmp);
 		for(int i = 0; i < hist.cols; i++) {
 			if(hist.at<float>(i) < 0)
 				tmp.at<float>(i) *= -1;
@@ -548,8 +555,6 @@ namespace rdm {
 
 		if(!mVocabulary.histL2Mean().empty())
 			hist = l2Norm(hist, mVocabulary.histL2Mean(), mVocabulary.histL2Sigma());
-		else
-			qDebug() << "no l2 normalization of the histogram";
 
 		return hist;
 	}
@@ -602,6 +607,7 @@ namespace rdm {
 		fs["type"] >> mType;
 		fs["minimumSIFTSize"] >> mMinimumSIFTSize;
 		fs["maximumSIFTSize"] >> mMaximumSIFTSize;
+		fs["powerNormalization"] >> mMaximumSIFTSize;
 		std::string note;
 		fs["note"] >> note;
 		mNote = QString::fromStdString(note);
@@ -636,6 +642,7 @@ namespace rdm {
 		fs << "NumberOfClusters" << mNumberOfClusters;
 		fs << "NumberOfPCA" << mNumberPCA;
 		fs << "type" << mType;
+		fs << "powerNormalization" << mPowerNormalization;
 		fs << "minimumSIFTSize" << mMinimumSIFTSize;
 		fs << "maximumSIFTSize" << mMaximumSIFTSize;
 		//fs << "note" << mNote.toStdString();
@@ -828,17 +835,47 @@ namespace rdm {
 	void WIVocabulary::setNote(QString note) {
 		mNote = note;
 	}
+	/// <summary>
+	/// Sets the minimum size for sift features, all features smaller than this size are filtered out.
+	/// </summary>
+	/// <param name="size">The minimum size in pixels.</param>
 	void WIVocabulary::setMinimumSIFTSize(const int size) {
 		mMinimumSIFTSize = size;
 	}
+	/// <summary>
+	/// Returns the value of the minimum SIFT features size
+	/// </summary>
+	/// <returns>minimum size of the SIFT features</returns>
 	int WIVocabulary::minimumSIFTSize() const {
 		return mMinimumSIFTSize;
 	}
+	/// <summary>
+	/// Sets the maximum size for sift features, all features larger than this size are filtered out.
+	/// </summary>
+	/// <param name="size">The size.</param>
 	void WIVocabulary::setMaximumSIFTSize(const int size) {
 		mMaximumSIFTSize = size;
 	}
+	/// <summary>
+	/// Returns the value of the maximum SIFT features size
+	/// </summary>
+	/// <returns>maximum size of the SIFT features</returns>
 	int WIVocabulary::maximumSIFTSize() const {
 		return mMaximumSIFTSize;
+	}
+	/// <summary>
+	/// Sets the power normalization for the feature vector.
+	/// </summary>
+	/// <param name="power">The power normalization factor.</param>
+	void WIVocabulary::setPowerNormalization(const double power) {
+		mPowerNormalization = power;
+	}
+	/// <summary>
+	/// Returns the factor of the power normalization used.
+	/// </summary>
+	/// <returns>the current power normalization factor</returns>
+	double WIVocabulary::powerNormalization() const {
+		return mPowerNormalization;
 	}
 	/// <summary>
 	/// Returns the note of the vocabulary.

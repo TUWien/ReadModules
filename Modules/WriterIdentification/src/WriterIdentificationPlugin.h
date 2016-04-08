@@ -92,6 +92,7 @@ private:
 	int mVocNumberOfPCA = -1;
 	int mVocMaxSIFTSize = -1;
 	int mVocMinSIFTSize = -1;
+	double mVocPowerNormalization;
 	QString mFeatureDir = QString();
 };
 

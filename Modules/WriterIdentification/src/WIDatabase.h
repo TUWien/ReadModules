@@ -90,6 +90,9 @@ namespace rdm {
 		int minimumSIFTSize() const;
 		void setMaximumSIFTSize(const int size);
 		int maximumSIFTSize() const;
+		void setPowerNormalization(const double power);
+		double powerNormalization() const;
+		
 
 		QString note() const;
 		QString toString() const;
@@ -112,7 +115,7 @@ namespace rdm {
 		int mType = WI_UNDEFINED;
 		int mMinimumSIFTSize = -1;
 		int mMaximumSIFTSize = -1;
-
+		double mPowerNormalization = 1;
 		QString mNote = QString();
 
 		QString mVocabularyPath = QString();
