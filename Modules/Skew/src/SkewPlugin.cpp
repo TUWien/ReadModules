@@ -43,9 +43,18 @@ related links:
 #pragma warning(push, 0)	// no warnings from includes - begin
 #include <QAction>
 #include <QSettings>
+#include <QVector>
+#include <QVector2D>
+#include <QVector3D>
 #pragma warning(pop)		// no warnings from includes - end
 
 namespace rdm {
+
+
+bool lessThanSkew(const QVector3D v1, const QVector3D v2) {
+
+	return (std::abs(v1.x() - v1.y()) <= std::abs(v2.x() - v2.y()));
+}
 
 /**
 *	Constructor
@@ -160,9 +169,24 @@ QSharedPointer<nmc::DkImageContainer> SkewEstPlugin::runPlugin(const QString &ru
 		
 		imgC->setImage(result, "Skew corrected");
 
+		//parse string
+		QRegExp rx("[+-]?[0-9]*[\\.?][0-9]*");
+		//QString test = "IMG(0006)_SA[-5.76].png";
+		int gtFound = rx.indexIn(imgC->fileName());
+		QStringList list = rx.capturedTexts();
+		double skewGt = 0;
+		if (list.size() != 1) {
+			qWarning() << "no GT found";
+		}
+		else {
+			QString skGTs = list[0];
+			skewGt = skGTs.toDouble();
+		}
+
 		QSharedPointer<SkewInfo> skewInfo(new SkewInfo(runID, imgC->filePath()));
 		//testInfo->setProperty("Mirrored");
-		skewInfo->setSkew(skewAngle);
+		skewInfo->setSkew(-skewAngle/CV_PI*180.0);
+		skewInfo->setSkewGt(skewGt);
 		skewInfo->setProperty(imgC->fileName());
 		qDebug() << "skew calculated...";
 
@@ -184,6 +208,12 @@ void SkewEstPlugin::preLoadPlugin() const {
 void SkewEstPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo>>& batchInfo) const {
 	int runIdx = mRunIDs.indexOf(batchInfo.first()->id());
 
+	QVector<QVector3D> angles;
+	QVector<QString> filenames;
+
+	double errorAcc = 0;
+	double errorCE = 0;
+
 	for (auto bi : batchInfo) {
 		qDebug() << bi->filePath() << "computed...";
 		SkewInfo* tInfo = dynamic_cast<SkewInfo*>(bi.data());
@@ -192,27 +222,37 @@ void SkewEstPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 			qDebug() << "property: " << tInfo->property();
 
 			double sk = tInfo->skew();
-			double skGT = 0;
-			QString fn = tInfo->property();
-			//parse string
-			QRegExp rx("[+-]?[0-9]*[\\.?][0-9]*");
-			//QString test = "IMG(0006)_SA[-5.76].png";
-			int gtFound = rx.indexIn(fn);
-			QStringList list = rx.capturedTexts();
-			if (list.size() != 1) {
-				qWarning() << "no GT found";
-			}
-			else {
-				QString skGTs = list[0];
-				skGT = skGTs.toDouble();
-			}
+			double skGT = tInfo->skewGt();
+			QString fileN = tInfo->property();
 
+			double error = std::abs(sk - skGT);
+			errorAcc += error;
+			if (error <= 0.1) {
+				errorCE += error;
+			}
+			
+			angles.push_back(QVector3D((float)sk, (float)skGT, (float)error));
+			filenames.push_back(fileN);
 			//push back
 		}
-
 	}
 
 	//write to file
+	//TODO
+
+	//write metrics as debug output
+	double aed = errorAcc / (double)angles.size();
+	double ce = errorCE / (double)angles.size();
+	qDebug() << "AED: " << aed;
+	qDebug() << "CE: " << ce;
+	qSort(angles.begin(), angles.end(), lessThanSkew);
+	int m = (int)(angles.size() * 0.8);
+	double top80 = 0;
+	for (int i = 0; i <= m; i++) {
+		top80 += angles[i].z();
+	}
+	top80 /= (float)m;
+	qDebug() << "Top80: " << top80;
 
 
 	if (runIdx == id_skewnative)
@@ -241,6 +281,16 @@ void SkewInfo::setSkew(const double skew)
 double SkewInfo::skew() const
 {
 	return mSkew;
+}
+
+void SkewInfo::setSkewGt(const double skew)
+{
+	mSkewGt = skew;
+}
+
+double SkewInfo::skewGt() const
+{
+	return mSkewGt;
 }
 
 };

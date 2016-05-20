@@ -35,6 +35,7 @@ related links:
 #include "DkPluginInterface.h"
 #include "DkBatchInfo.h"
 
+
 // opencv defines
 namespace cv {
 	class Mat;
@@ -42,6 +43,7 @@ namespace cv {
 
 
 namespace rdm {
+
 
 class SkewInfo : public nmc::DkBatchInfo {
 
@@ -54,9 +56,13 @@ public:
 	void setSkew(const double skew);
 	double skew() const;
 
+	void setSkewGt(const double skew);
+	double skewGt() const;
+
 private:
 	QString mProp;
 	double mSkew;
+	double mSkewGt;
 
 };
 
