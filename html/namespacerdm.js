@@ -11,6 +11,8 @@ var namespacerdm =
     [ "PageDock", "classrdm_1_1_page_dock.html", "classrdm_1_1_page_dock" ],
     [ "PageViewport", "classrdm_1_1_page_viewport.html", "classrdm_1_1_page_viewport" ],
     [ "PageVisPlugin", "classrdm_1_1_page_vis_plugin.html", "classrdm_1_1_page_vis_plugin" ],
+    [ "SkewInfo", "classrdm_1_1_skew_info.html", "classrdm_1_1_skew_info" ],
+    [ "SkewEstPlugin", "classrdm_1_1_skew_est_plugin.html", "classrdm_1_1_skew_est_plugin" ],
     [ "WIVocabulary", "classrdm_1_1_w_i_vocabulary.html", "classrdm_1_1_w_i_vocabulary" ],
     [ "WIDatabase", "classrdm_1_1_w_i_database.html", "classrdm_1_1_w_i_database" ],
     [ "WriterIdentification", "classrdm_1_1_writer_identification.html", "classrdm_1_1_writer_identification" ],

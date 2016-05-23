@@ -4,5 +4,6 @@ var dir_f2541a3b18981391fa76fac5599e978a =
     [ "Binarization", "dir_bb08ff6c1fb3b2282e890f49121a6006.html", "dir_bb08ff6c1fb3b2282e890f49121a6006" ],
     [ "Layout", "dir_4faa5eb87779cd9498fc816dab3f695c.html", "dir_4faa5eb87779cd9498fc816dab3f695c" ],
     [ "PageVis", "dir_a84f60cfd302ffa3ea821a8ffb5765f2.html", "dir_a84f60cfd302ffa3ea821a8ffb5765f2" ],
+    [ "Skew", "dir_92676d93804a126d65d8ba32cb9b06db.html", "dir_92676d93804a126d65d8ba32cb9b06db" ],
     [ "WriterIdentification", "dir_5aa05dd540406743ec820f0b80cdb85a.html", "dir_5aa05dd540406743ec820f0b80cdb85a" ]
 ];

@@ -2,7 +2,11 @@ var NAVTREE =
 [
   [ "ReadModules", "index.html", [
     [ "Namespaces", null, [
-      [ "Namespace List", "namespaces.html", "namespaces" ]
+      [ "Namespace List", "namespaces.html", "namespaces" ],
+      [ "Namespace Members", "namespacemembers.html", [
+        [ "All", "namespacemembers.html", null ],
+        [ "Functions", "namespacemembers_func.html", null ]
+      ] ]
     ] ],
     [ "Classes", null, [
       [ "Class List", "annotated.html", "annotated" ],
@@ -24,7 +28,8 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"_batch_test_8cpp.html"
+"_batch_test_8cpp.html",
+"classrdm_1_1_xml_label.html#a7a0ba424221a7978f0c838ea5c77fa94"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

@@ -22,9 +22,15 @@ var searchData=
   ['setpcaeigenvectors',['setPcaEigenvectors',['../classrdm_1_1_w_i_vocabulary.html#a5237c42fa609a082c29d6722736dd20f',1,'rdm::WIVocabulary']]],
   ['setpcamean',['setPcaMean',['../classrdm_1_1_w_i_vocabulary.html#a9b1ef160e8b1a702a098b055b4bdeb5d',1,'rdm::WIVocabulary']]],
   ['setpowernormalization',['setPowerNormalization',['../classrdm_1_1_w_i_vocabulary.html#a6307c9a989cc9444a568586657264d5e',1,'rdm::WIVocabulary']]],
-  ['setproperty',['setProperty',['../classrdm_1_1_dk_test_info.html#a8aa5562b8cf829a163f88877b867f25d',1,'rdm::DkTestInfo']]],
+  ['setproperty',['setProperty',['../classrdm_1_1_dk_test_info.html#a8aa5562b8cf829a163f88877b867f25d',1,'rdm::DkTestInfo::setProperty()'],['../classrdm_1_1_skew_info.html#aed2af68705b2b15949968c43b31d3fbd',1,'rdm::SkewInfo::setProperty()']]],
   ['setregionconfig',['setRegionConfig',['../classrdm_1_1_config_widget.html#a87626d610f156201c696e9bf70235529',1,'rdm::ConfigWidget']]],
+  ['setskew',['setSkew',['../classrdm_1_1_skew_info.html#a1d68a848e11fc58449e7e8aa52ddc884',1,'rdm::SkewInfo']]],
+  ['setskewgt',['setSkewGt',['../classrdm_1_1_skew_info.html#af946dae71f1b1962fff8e98b11623f55',1,'rdm::SkewInfo']]],
   ['settype',['setType',['../classrdm_1_1_w_i_vocabulary.html#a9d594b74ccaad5a1ea5c438584872df1',1,'rdm::WIVocabulary']]],
   ['setvocabulary',['setVocabulary',['../classrdm_1_1_w_i_vocabulary.html#a09322aa563b00ebefe2d53192239178c',1,'rdm::WIVocabulary::setVocabulary()'],['../classrdm_1_1_w_i_database.html#a18dd6b9ac8ad423028656d69fec3705b',1,'rdm::WIDatabase::setVocabulary()']]],
-  ['setwriter',['setWriter',['../classrdm_1_1_w_i_info.html#a8361dbb4010a0297587ddc3481f6c813',1,'rdm::WIInfo']]]
+  ['setwriter',['setWriter',['../classrdm_1_1_w_i_info.html#a8361dbb4010a0297587ddc3481f6c813',1,'rdm::WIInfo']]],
+  ['skew',['skew',['../classrdm_1_1_skew_info.html#aedfd0344eaab089da0d91660730d7ef6',1,'rdm::SkewInfo']]],
+  ['skewestplugin',['SkewEstPlugin',['../classrdm_1_1_skew_est_plugin.html#a9cbadc7356513f64ce539973b658b964',1,'rdm::SkewEstPlugin']]],
+  ['skewgt',['skewGt',['../classrdm_1_1_skew_info.html#ac277f90e175ccea6dd5c8f477dfb4286',1,'rdm::SkewInfo']]],
+  ['skewinfo',['SkewInfo',['../classrdm_1_1_skew_info.html#ad217ba6ac99f170dd292d552e2cf9f45',1,'rdm::SkewInfo']]]
 ];
