@@ -65,7 +65,7 @@ PageViewport::~PageViewport() {
 
 void PageViewport::init() {
 	
-	DkPluginViewPort::init();
+	//DkPluginViewPort::init();
 	setObjectName("PageViewport");
 	
 	loadSettings(nmc::Settings::instance().getSettings());

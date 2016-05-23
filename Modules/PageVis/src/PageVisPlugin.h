@@ -40,7 +40,7 @@ public:
 	QString id() const override;
 	QImage image() const override;
 
-	bool closesOnImageChange() const override;
+	virtual bool closesOnImageChange() const override;
 
 	QSharedPointer<nmc::DkImageContainer> runPlugin(const QString &runID = QString(), QSharedPointer<nmc::DkImageContainer> imgC = QSharedPointer<nmc::DkImageContainer>()) const override;
 

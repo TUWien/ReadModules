@@ -67,7 +67,11 @@ QString PageVisPlugin::id() const {
 QImage PageVisPlugin::image() const {
 
 	return QImage(":/PageVisPlugin/img/read.png");
-};
+}
+bool PageVisPlugin::closesOnImageChange() const {
+	return false;
+}
+;
 
 /**
 * Main function: runs plugin based on its ID

@@ -61,7 +61,7 @@ public:
 	PageDock* dock() const;
 
 private:
-	void init() override;
+	void init();
 	void loadSettings(QSettings& settings);
 	void saveSettings(QSettings& settings) const;
 
