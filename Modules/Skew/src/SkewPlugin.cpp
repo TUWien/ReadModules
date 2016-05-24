@@ -34,11 +34,12 @@ related links:
 
 // nomacs
 #include "DkImageStorage.h"
-#include "Image.h"
-#include "Algorithms.h"
+#include "DkSettings.h"
 
 #include "Settings.h"
 #include "SkewEstimation.h"
+#include "Image.h"
+#include "Algorithms.h"
 
 #pragma warning(push, 0)	// no warnings from includes - begin
 #include <QAction>
@@ -84,6 +85,8 @@ SkewEstPlugin::SkewEstPlugin(QObject* parent) : QObject(parent) {
 	statusTips[id_skewnative] = tr("Calculates the skew");
 	statusTips[id_skewdoc] = tr("Calculates the skew for documents");
 	mMenuStatusTips = statusTips.toList();
+
+	init();
 }
 /**
 *	Destructor
@@ -190,6 +193,8 @@ QSharedPointer<nmc::DkImageContainer> SkewEstPlugin::runPlugin(const QString &ru
 		skewInfo->setProperty(imgC->fileName());
 		qDebug() << "skew calculated...";
 
+		//saveSettings(nmc::Settings::instance().getSettings());
+
 		info = skewInfo; 
 	}
 	else if(runID == mRunIDs[id_skewdoc]) {
@@ -213,6 +218,7 @@ void SkewEstPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 
 	double errorAcc = 0;
 	double errorCE = 0;
+	double errCeCnt = 0;
 
 	for (auto bi : batchInfo) {
 		qDebug() << bi->filePath() << "computed...";
@@ -229,6 +235,7 @@ void SkewEstPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 			errorAcc += error;
 			if (error <= 0.1) {
 				errorCE += error;
+				errCeCnt++;
 			}
 			
 			angles.push_back(QVector3D((float)sk, (float)skGT, (float)error));
@@ -238,13 +245,34 @@ void SkewEstPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 	}
 
 	//write to file
-	//TODO
+	QString fp;
+	//QString fp = "D:\\tmp\\evalSkew.txt";
+	//QString fp = "F:\\flo\\evalSkew.txt";
+	fp = mFilePath;
+	QFile file(fp);
+	if (file.open(QIODevice::WriteOnly)) {
+
+		for (int i = 0; i < angles.size(); i++) {
+
+			QString tmpStr = QString::number(angles[i].x());
+			tmpStr += " ";
+			tmpStr += QString::number(angles[i].y());
+			tmpStr += " ";
+			tmpStr += filenames[i];
+			tmpStr += "\n";
+			QTextStream out(&file);
+			out << tmpStr;
+		}
+		file.close();
+	}
 
 	//write metrics as debug output
 	double aed = errorAcc / (double)angles.size();
 	double ce = errorCE / (double)angles.size();
+	double ce2 = errorCE / (double)errCeCnt;
 	qDebug() << "AED: " << aed;
 	qDebug() << "CE: " << ce;
+	qDebug() << "CE2: " << ce2;
 	qSort(angles.begin(), angles.end(), lessThanSkew);
 	int m = (int)(angles.size() * 0.8);
 	double top80 = 0;
@@ -254,11 +282,49 @@ void SkewEstPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 	top80 /= (float)m;
 	qDebug() << "Top80: " << top80;
 
+	saveSettings(nmc::Settings::instance().getSettings());
+
 
 	if (runIdx == id_skewnative)
 		qDebug() << "[POST LOADING] skew native";
 	else
 		qDebug() << "[POST LOADING] skew doc";
+}
+
+void SkewEstPlugin::setFilePath(QString fp)
+{
+	mFilePath = fp;
+}
+
+QString SkewEstPlugin::filePath() const
+{
+	return mFilePath;
+}
+
+void SkewEstPlugin::init()
+{
+	loadSettings(nmc::Settings::instance().getSettings());
+
+	if (mFilePath.isEmpty()) {
+		mFilePath = "D:\\tmp\\evalSkew.txt";
+	}
+}
+
+void SkewEstPlugin::loadSettings(QSettings & settings)
+{
+	settings.beginGroup("SkewEstimation");
+
+	mFilePath = settings.value("skewEvalPath", mFilePath).toString();
+	qDebug() << "settings read: path: " << mFilePath;
+
+	settings.endGroup();
+}
+
+void SkewEstPlugin::saveSettings(QSettings & settings) const
+{
+	settings.beginGroup("SkewEstimation");
+	settings.setValue("skewEvalPath", mFilePath);
+	settings.endGroup();
 }
 
 // DkTestInfo --------------------------------------------------------------------

@@ -35,6 +35,8 @@ related links:
 #include "DkPluginInterface.h"
 #include "DkBatchInfo.h"
 
+class QSettings;
+
 
 // opencv defines
 namespace cv {
@@ -88,6 +90,9 @@ public:
 	void preLoadPlugin() const override;
 	void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const override;
 
+	void setFilePath(QString fp);
+	QString filePath() const;
+
 	enum {
 		id_skewnative,
 		id_skewdoc,
@@ -101,5 +106,13 @@ protected:
 	QStringList mRunIDs;
 	QStringList mMenuNames;
 	QStringList mMenuStatusTips;
+
+	QString mFilePath;
+
+private:
+	void init();
+	void loadSettings(QSettings& settings);
+	void saveSettings(QSettings& settings) const;
+
 };
 };
