@@ -305,7 +305,7 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 			featurePaths.append(wInfo->featureFilePath());
 			classLabels.append(wInfo->writer());
 		}
-		wiDatabase.evaluateDatabase(classLabels, featurePaths, QString("c:\\tmp\\eval-2.txt"));
+		wiDatabase.evaluateDatabase(classLabels, featurePaths/*, QString("c:\\tmp\\eval-2.txt")*/);
 	}
 }
 

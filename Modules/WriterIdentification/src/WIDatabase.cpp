@@ -179,13 +179,13 @@ namespace rdm {
 	/// <param name="evalFilePath">If set a csv file with the evaluation is written to the path.</param>
 	void WIDatabase::evaluateDatabase(QStringList classLabels, QStringList filePaths, QString evalFilePath) const {
 		qDebug() << "evaluating database";
-		QVector<cv::Mat> hists;
-		qDebug() << "calculating histograms for all images";
-		if(!mVocabulary.histL2Mean().empty())
+		if(mVocabulary.histL2Mean().empty())
 			qDebug() << "no l2 normalization of the histogram";
 		if(abs(mVocabulary.powerNormalization() - 1.0f) > DBL_EPSILON)
 			qDebug() << "power normalization of " << mVocabulary.powerNormalization() << " applied to the feature vector";
 
+		QVector<cv::Mat> hists;
+		qDebug() << "calculating histograms for all images";
 		for(int i = 0; i < mDescriptors.length(); i++) {
 			hists.push_back(generateHist(mDescriptors[i]));
 		}
@@ -607,7 +607,7 @@ namespace rdm {
 		fs["type"] >> mType;
 		fs["minimumSIFTSize"] >> mMinimumSIFTSize;
 		fs["maximumSIFTSize"] >> mMaximumSIFTSize;
-		fs["powerNormalization"] >> mMaximumSIFTSize;
+		fs["powerNormalization"] >> mPowerNormalization;
 		std::string note;
 		fs["note"] >> note;
 		mNote = QString::fromStdString(note);
