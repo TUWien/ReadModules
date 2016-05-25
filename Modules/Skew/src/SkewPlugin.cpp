@@ -157,6 +157,20 @@ QSharedPointer<nmc::DkImageContainer> SkewEstPlugin::runPlugin(const QString &ru
 		if (inputImg.channels() != 1) cv::cvtColor(inputImg, inputImg, CV_RGB2GRAY);
 
 		bse.setImages(inputImg);
+
+
+		int w = qRound(inputImg.cols / 1430.0*49.0); //check  (nomacs plugin version)
+		bse.setW(w);
+		int h = qRound(inputImg.rows / 700.0*12.0); //check (nomacs plugin version)
+		bse.setH(h);
+		int delta = qRound(inputImg.cols / 1430.0*20.0); //check (nomacs plugin version)
+		bse.setDelta(delta);
+		int minLL = qRound(inputImg.cols / 1430.0 * 20.0); //check
+		bse.setmMinLineLength(minLL);
+		bse.setThr(0.1);
+		bse.setFixedThr(false);
+
+
 		bool skewComp = bse.compute();
 		if (!skewComp) {
 			qDebug() << "could not compute skew";
@@ -198,6 +212,56 @@ QSharedPointer<nmc::DkImageContainer> SkewEstPlugin::runPlugin(const QString &ru
 		info = skewInfo; 
 	}
 	else if(runID == mRunIDs[id_skewdoc]) {
+
+		QImage img = imgC->image();
+
+		rdf::BaseSkewEstimation bse;
+		cv::Mat inputImg = rdf::Image::instance().qImage2Mat(img);
+		if (inputImg.channels() != 1) cv::cvtColor(inputImg, inputImg, CV_RGB2GRAY);
+
+		bse.setImages(inputImg);
+		bse.setFixedThr(true);
+
+		bool skewComp = bse.compute();
+		if (!skewComp) {
+			qDebug() << "could not compute skew";
+		}
+
+		double skewAngle = bse.getAngle();
+		skewAngle = -skewAngle / 180.0 * CV_PI;
+
+		cv::Mat rotatedImage = rdf::Algorithms::instance().rotateImage(inputImg, skewAngle);
+		cv::cvtColor(rotatedImage, rotatedImage, CV_GRAY2BGRA);
+
+		QImage result = rdf::Image::instance().mat2QImage(rotatedImage);
+
+		imgC->setImage(result, "Skew corrected");
+
+		//parse string
+		QRegExp rx("[+-]?[0-9]*[\\.?][0-9]*");
+		//QString test = "IMG(0006)_SA[-5.76].png";
+		int gtFound = rx.indexIn(imgC->fileName());
+		QStringList list = rx.capturedTexts();
+		double skewGt = 0;
+		if (list.size() != 1) {
+			qWarning() << "no GT found";
+		}
+		else {
+			QString skGTs = list[0];
+			skewGt = skGTs.toDouble();
+		}
+
+		QSharedPointer<SkewInfo> skewInfo(new SkewInfo(runID, imgC->filePath()));
+		//testInfo->setProperty("Mirrored");
+		skewInfo->setSkew(-skewAngle / CV_PI*180.0);
+		skewInfo->setSkewGt(skewGt);
+		skewInfo->setProperty(imgC->fileName());
+		qDebug() << "skew calculated...";
+
+		//saveSettings(nmc::Settings::instance().getSettings());
+
+		info = skewInfo;
+
 
 	}
 
