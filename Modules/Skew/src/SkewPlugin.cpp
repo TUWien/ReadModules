@@ -220,7 +220,7 @@ QSharedPointer<nmc::DkImageContainer> SkewEstPlugin::runPlugin(const QString &ru
 		if (inputImg.channels() != 1) cv::cvtColor(inputImg, inputImg, CV_RGB2GRAY);
 
 		bse.setImages(inputImg);
-		bse.setFixedThr(true);
+		bse.setFixedThr(false);
 
 		bool skewComp = bse.compute();
 		if (!skewComp) {

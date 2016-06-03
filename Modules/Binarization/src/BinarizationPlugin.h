@@ -55,6 +55,7 @@ public:
 	enum {
 		id_binarize_otsu,
 		id_binarize_su,
+		id_binarize_su_mask,
 		// add actions here
 
 		id_end

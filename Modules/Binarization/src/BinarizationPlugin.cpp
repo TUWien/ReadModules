@@ -53,6 +53,7 @@ BinarizationPlugin::BinarizationPlugin(QObject* parent) : QObject(parent) {
 
 	runIds[id_binarize_otsu] = "4398d8e26fe9454384432e690b47d4d3";
 	runIds[id_binarize_su] = "73c1efff27c043d298d8acd99530af1d";
+	runIds[id_binarize_su_mask] = "051d7f9d278a4c7ab3f97822a288c276";
 	mRunIDs = runIds.toList();
 
 	// create menu actions
@@ -61,6 +62,7 @@ BinarizationPlugin::BinarizationPlugin(QObject* parent) : QObject(parent) {
 
 	menuNames[id_binarize_otsu] = tr("&Otsu Threshold");
 	menuNames[id_binarize_su] = tr("&Su Binarization");
+	menuNames[id_binarize_su_mask] = tr("&Su Binarization with Mask Estimation");
 	mMenuNames = menuNames.toList();
 
 	// create menu status tips
@@ -69,6 +71,7 @@ BinarizationPlugin::BinarizationPlugin(QObject* parent) : QObject(parent) {
 
 	statusTips[id_binarize_otsu] = tr("Thresholds a document with the famous Otsu method");
 	statusTips[id_binarize_su] = tr("Thresholds a document with the Su method");
+	statusTips[id_binarize_su_mask] = tr("Thresholds a document with the Su method and estimates the mask");
 	mMenuStatusTips = statusTips.toList();
 }
 /**
@@ -142,6 +145,21 @@ QSharedPointer<nmc::DkImageContainer> BinarizationPlugin::runPlugin(const QStrin
 		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
 		
 		rdf::BinarizationSuAdapted segSuM(imgCv);
+		segSuM.compute();
+		imgCv = segSuM.binaryImage();
+
+		QImage img = nmc::DkImage::mat2QImage(imgCv);
+		img = img.convertToFormat(QImage::Format_ARGB32);
+
+		imgC->setImage(img, tr("Su Binarization"));
+	}
+	else if (runID == mRunIDs[id_binarize_su]) {
+	
+		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
+
+		cv::Mat mask = rdf::Algorithms::instance().estimateMask(imgCv);
+
+		rdf::BinarizationSuAdapted segSuM(imgCv, mask);
 		segSuM.compute();
 		imgCv = segSuM.binaryImage();
 
