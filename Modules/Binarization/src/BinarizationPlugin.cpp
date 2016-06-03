@@ -153,12 +153,13 @@ QSharedPointer<nmc::DkImageContainer> BinarizationPlugin::runPlugin(const QStrin
 
 		imgC->setImage(img, tr("Su Binarization"));
 	}
-	else if (runID == mRunIDs[id_binarize_su]) {
+	else if (runID == mRunIDs[id_binarize_su_mask]) {
 	
 		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
 
 		cv::Mat mask = rdf::Algorithms::instance().estimateMask(imgCv);
 
+		
 		rdf::BinarizationSuAdapted segSuM(imgCv, mask);
 		segSuM.compute();
 		imgCv = segSuM.binaryImage();
