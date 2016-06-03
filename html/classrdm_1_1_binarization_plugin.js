@@ -2,6 +2,7 @@ var classrdm_1_1_binarization_plugin =
 [
     [ "id_binarize_otsu", "classrdm_1_1_binarization_plugin.html#a67aab775df76148970a3b6b03fb3af75ac40aabc32d63d0fcf3eddc5d9cbeeb04", null ],
     [ "id_binarize_su", "classrdm_1_1_binarization_plugin.html#a67aab775df76148970a3b6b03fb3af75af8dfc9c39457b2fc03503733d2791451", null ],
+    [ "id_binarize_su_mask", "classrdm_1_1_binarization_plugin.html#a67aab775df76148970a3b6b03fb3af75a44a52bbd2dd695c0d0835b852ad82294", null ],
     [ "id_end", "classrdm_1_1_binarization_plugin.html#a67aab775df76148970a3b6b03fb3af75a3056614b11339a74b78a4d4b6febc855", null ],
     [ "BinarizationPlugin", "classrdm_1_1_binarization_plugin.html#a841d52c2c542538b2856ff619ba1ad09", null ],
     [ "~BinarizationPlugin", "classrdm_1_1_binarization_plugin.html#a2110afed3f21428f5935a3e39f0a909c", null ],
