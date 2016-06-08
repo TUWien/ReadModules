@@ -332,11 +332,11 @@ void SkewEstPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 
 	//write metrics as debug output
 	double aed = errorAcc / (double)angles.size();
-	double ce = errorCE / (double)angles.size();
-	double ce2 = errorCE / (double)errCeCnt;
+	double ce = (double)errCeCnt / (double)angles.size();
+	//double ce2 = errorCE / (double)errCeCnt;
 	qDebug() << "AED: " << aed;
 	qDebug() << "CE: " << ce;
-	qDebug() << "CE2: " << ce2;
+	//qDebug() << "CE2: " << ce2;
 	qSort(angles.begin(), angles.end(), lessThanSkew);
 	int m = (int)(angles.size() * 0.8);
 	double top80 = 0;
