@@ -99,7 +99,17 @@ namespace rdm {
 
 		QString vocabularyPath() const;
 
+		cv::Mat generateHist(cv::Mat desc) const;
+
+		cv::Mat applyPCA(cv::Mat desc) const;
+
 	private:
+		cv::Mat generateHistBOW(cv::Mat desc) const;
+		cv::Mat generateHistGMM(cv::Mat desc) const;
+		
+		cv::Mat l2Norm(cv::Mat desc, cv::Mat mean, cv::Mat sigma) const;
+
+
 		cv::Mat mVocabulary = cv::Mat();
 		cv::Ptr<cv::ml::EM> mEM;
 		cv::Mat mPcaMean = cv::Mat();
@@ -134,7 +144,7 @@ namespace rdm {
 		void saveVocabulary(QString filePath);
 
 		void evaluateDatabase(QStringList classLabels, QStringList filePaths, QString filePath = QString()) const;
-		cv::Mat generateHist(cv::Mat desc) const;
+		void evaluateDatabase(QVector<cv::Mat>, QStringList classLabels, QStringList filePaths, QString filePath = QString()) const;
 
 	private:
 		QString debugName() const;
@@ -142,10 +152,6 @@ namespace rdm {
 		void generateBOW(cv::Mat desc);
 		void generateGMM(cv::Mat desc);
 		void writeMatToFile(const cv::Mat, const QString filePath) const;
-		cv::Mat applyPCA(cv::Mat desc) const;
-		cv::Mat generateHistBOW(cv::Mat desc) const;
-		cv::Mat generateHistGMM(cv::Mat desc) const;
-		cv::Mat l2Norm(cv::Mat desc, cv::Mat mean, cv::Mat sigma) const;
 		QVector<QVector<cv::KeyPoint> > mKeyPoints;
 		QVector<cv::Mat> mDescriptors;
 		WIVocabulary mVocabulary = WIVocabulary();

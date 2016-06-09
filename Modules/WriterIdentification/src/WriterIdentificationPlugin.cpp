@@ -206,6 +206,11 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(cons
 	else if(runID == mRunIDs[id_evaluate_database]) {
 		qInfo() << "collecting files evaluation";
 
+		if(mVocabulary.isEmpty()) {
+			qWarning() << "batchProcess: vocabulary is empty ... not evaluating";
+			return imgC;
+		}
+
 		QString fFilePath = featureFilePath(imgC->filePath());
 
 		if(QFileInfo(fFilePath).exists()) {
@@ -222,9 +227,44 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(cons
 			QString label = QFileInfo(imgC->filePath()).baseName().left(idx);
 			qDebug() << "label: " << label << "\t\tbaseName:" << QFileInfo(imgC->filePath()).baseName();
 
+			cv::FileStorage fs(fFilePath.toStdString(), cv::FileStorage::READ);
+			if(!fs.isOpened()) {
+				qWarning() << " unable to read file " << fFilePath;
+				return imgC;
+			}
+			std::vector<cv::KeyPoint> kp;
+			fs["keypoints"] >> kp;
+			cv::Mat descriptors;
+			fs["descriptors"] >> descriptors;
+			fs.release();
+
+			if(mVocabulary.minimumSIFTSize() > 0 || mVocabulary.maximumSIFTSize() > 0) {
+				cv::Mat filteredDesc = cv::Mat(0, descriptors.cols, descriptors.type());
+				int r = 0;
+				for(auto kpItr = kp.begin(); kpItr != kp.end(); r++) {
+					if(kpItr->size*1.5 * 4 > mVocabulary.maximumSIFTSize() && mVocabulary.maximumSIFTSize() > 0) {
+						kpItr = kp.erase(kpItr);
+					}
+					else if(kpItr->size * 1.5 * 4 < mVocabulary.minimumSIFTSize()) {
+						kpItr = kp.erase(kpItr);
+					}
+					else {
+						kpItr++;
+						filteredDesc.push_back(descriptors.row(r).clone());
+					}
+				}
+				qDebug() << "filtered " << descriptors.rows - filteredDesc.rows << " SIFT features (maxSize:" << mVocabulary.maximumSIFTSize() << " minSize:" << mVocabulary.minimumSIFTSize() << ")";
+				descriptors = filteredDesc;
+			}
+			else
+				qDebug() << "not filtering SIFT features, min or max size not set";
+
+			cv::Mat feature = mVocabulary.generateHist(descriptors);
+
 			QSharedPointer<WIInfo> wInfo(new WIInfo(runID, imgC->filePath()));
 			wInfo->setWriter(label);
 			wInfo->setFeatureFilePath(fFilePath);
+			wInfo->setFeatureVector(feature);
 
 			info = wInfo;
 		} else {
@@ -293,19 +333,20 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 	}
 	else if(runIdx == id_evaluate_database) {
 		WIDatabase wiDatabase = WIDatabase(); 
-		WIVocabulary voc = WIVocabulary();
-		if(mVocType == WIVocabulary::WI_UNDEFINED)
-			qDebug() << "vocabulary path not set in settings file. Using default path";
-		voc.loadVocabulary(mVocType == WIVocabulary::WI_UNDEFINED ? "C://tmp//voc-woSettings.yml" : mSettingsVocPath);
-		wiDatabase.setVocabulary(voc);
+		//WIVocabulary voc = WIVocabulary();
+		//if(mVocType == WIVocabulary::WI_UNDEFINED)
+		//	qDebug() << "vocabulary path not set in settings file. Using default path";
+		//voc.loadVocabulary(mVocType == WIVocabulary::WI_UNDEFINED ? "C://tmp//voc-woSettings.yml" : mSettingsVocPath);
+		//wiDatabase.setVocabulary(voc);
 		QStringList classLabels, featurePaths;
+		QVector<cv::Mat> hists;
 		for(auto bi : batchInfo) {
 			WIInfo * wInfo = dynamic_cast<WIInfo*>(bi.data());
-			wiDatabase.addFile(wInfo->featureFilePath());
 			featurePaths.append(wInfo->featureFilePath());
 			classLabels.append(wInfo->writer());
+			hists.append(wInfo->featureVector());
 		}
-		wiDatabase.evaluateDatabase(classLabels, featurePaths/*, QString("c:\\tmp\\eval-2.txt")*/);
+		wiDatabase.evaluateDatabase(hists, classLabels, featurePaths/*, QString("c:\\tmp\\eval-2.txt")*/);
 	}
 }
 
@@ -316,6 +357,9 @@ void WriterIdentificationPlugin::init() {
 void WriterIdentificationPlugin::loadSettings(QSettings & settings) {
 	settings.beginGroup("WriterIdentification");
 	mSettingsVocPath = settings.value("vocPath", QString()).toString();
+	if(!mSettingsVocPath.isEmpty()) {
+		mVocabulary.loadVocabulary(mSettingsVocPath);
+	}
 	mVocType = settings.value("vocType", WIVocabulary::WI_UNDEFINED).toInt();
 	if(mVocType > WIVocabulary::WI_UNDEFINED)
 		mVocType = WIVocabulary::WI_UNDEFINED;
@@ -400,6 +444,14 @@ void WIInfo::setFeatureFilePath(const QString & p) {
 
 QString WIInfo::featureFilePath() const {
 	return mFeatureFilePath;
+}
+
+void WIInfo::setFeatureVector(const cv::Mat featureVec) {
+	mFeatureVec = featureVec;
+}
+
+cv::Mat WIInfo::featureVector() const {
+	return mFeatureVec;
 }
 
 };
