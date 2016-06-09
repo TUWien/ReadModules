@@ -182,7 +182,7 @@ namespace rdm {
 		qDebug() << "evaluating database";
 		if(mVocabulary.histL2Mean().empty())
 			qDebug() << "no l2 normalization of the histogram";
-		if(abs(mVocabulary.powerNormalization() - 1.0f) > DBL_EPSILON)
+		if(std::abs(mVocabulary.powerNormalization() - 1.0f) > DBL_EPSILON)
 			qDebug() << "power normalization of " << mVocabulary.powerNormalization() << " applied to the feature vector";
 
 		QVector<cv::Mat> hists;
@@ -861,7 +861,7 @@ namespace rdm {
 		cv::Mat hist = fisher.reshape(0, 1);
 
 		cv::Mat tmp;
-		cv::pow(abs(hist), powerNormalization(), tmp);
+		cv::pow(cv::abs(hist), powerNormalization(), tmp);
 		for(int i = 0; i < hist.cols; i++) {
 			if(hist.at<float>(i) < 0)
 				tmp.at<float>(i) *= -1;
