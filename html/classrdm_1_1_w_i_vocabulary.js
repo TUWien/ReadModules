@@ -6,7 +6,9 @@ var classrdm_1_1_w_i_vocabulary =
       [ "WI_UNDEFINED", "classrdm_1_1_w_i_vocabulary.html#a17bb64744dfdb662a092cf1233ca46b3a19ded423a4d38b71f0e807e82548f554", null ]
     ] ],
     [ "WIVocabulary", "classrdm_1_1_w_i_vocabulary.html#a67ad41a188f00630729ad929f4b135d1", null ],
+    [ "applyPCA", "classrdm_1_1_w_i_vocabulary.html#ada137de887923d52359544d0344e47bd", null ],
     [ "em", "classrdm_1_1_w_i_vocabulary.html#ac8d8ed0b7a84ab2c1690f8106861e62e", null ],
+    [ "generateHist", "classrdm_1_1_w_i_vocabulary.html#ae47f0a467d0c2de1342072b6f958bc7c", null ],
     [ "histL2Mean", "classrdm_1_1_w_i_vocabulary.html#a088d807ad9def67b440451048becc3b0", null ],
     [ "histL2Sigma", "classrdm_1_1_w_i_vocabulary.html#a22e066a0ca4be526e500f47ef9733570", null ],
     [ "isEmpty", "classrdm_1_1_w_i_vocabulary.html#a16c65e474273effe600c6396ab0aa9dc", null ],

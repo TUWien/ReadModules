@@ -234,6 +234,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a0e7340c12821842f9eab477646444166"><td class="memItemLeft" align="right" valign="top">QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_w_i_vocabulary.html#a0e7340c12821842f9eab477646444166">vocabularyPath</a> () const </td></tr>
 <tr class="memdesc:a0e7340c12821842f9eab477646444166"><td class="mdescLeft">&#160;</td><td class="mdescRight">Path of the vocabulary  <a href="#a0e7340c12821842f9eab477646444166">More...</a><br/></td></tr>
 <tr class="separator:a0e7340c12821842f9eab477646444166"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae47f0a467d0c2de1342072b6f958bc7c"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_w_i_vocabulary.html#ae47f0a467d0c2de1342072b6f958bc7c">generateHist</a> (cv::Mat desc) const </td></tr>
+<tr class="memdesc:ae47f0a467d0c2de1342072b6f958bc7c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates the histogram according to the vocabulary type  <a href="#ae47f0a467d0c2de1342072b6f958bc7c">More...</a><br/></td></tr>
+<tr class="separator:ae47f0a467d0c2de1342072b6f958bc7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada137de887923d52359544d0344e47bd"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_w_i_vocabulary.html#ada137de887923d52359544d0344e47bd">applyPCA</a> (cv::Mat desc) const </td></tr>
+<tr class="memdesc:ada137de887923d52359544d0344e47bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Applies the PCA with the stored Eigenvalues and Eigenvectors of the vocabulary.  <a href="#ada137de887923d52359544d0344e47bd">More...</a><br/></td></tr>
+<tr class="separator:ada137de887923d52359544d0344e47bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Enumeration Documentation</h2>
 <a class="anchor" id="a17bb64744dfdb662a092cf1233ca46b3"></a>
@@ -278,6 +284,31 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="ada137de887923d52359544d0344e47bd"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">cv::Mat rdm::WIVocabulary::applyPCA </td>
+          <td>(</td>
+          <td class="paramtype">cv::Mat&#160;</td>
+          <td class="paramname"><em>desc</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Applies the PCA with the stored Eigenvalues and Eigenvectors of the vocabulary. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">desc</td><td>The desc.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the projected descriptors</dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="ac8d8ed0b7a84ab2c1690f8106861e62e"></a>
 <div class="memitem">
 <div class="memproto">
@@ -293,6 +324,31 @@ Public Member Functions</h2></td></tr>
 
 <p>the EM of this instance. </p>
 <dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ae47f0a467d0c2de1342072b6f958bc7c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">cv::Mat rdm::WIVocabulary::generateHist </td>
+          <td>(</td>
+          <td class="paramtype">cv::Mat&#160;</td>
+          <td class="paramname"><em>desc</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Generates the histogram according to the vocabulary type </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">desc</td><td>Descriptors of an image.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the generated histogram</dd></dl>
 
 </div>
 </div>

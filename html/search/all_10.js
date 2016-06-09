@@ -6,6 +6,7 @@ var searchData=
   ['setdescriptors',['setDescriptors',['../classrdm_1_1_writer_identification.html#a6bec81b8752358c9acbaa624ddd507d1',1,'rdm::WriterIdentification']]],
   ['setem',['setEM',['../classrdm_1_1_w_i_vocabulary.html#af661b0107d7dc6448814d9a2189c9c93',1,'rdm::WIVocabulary']]],
   ['setfeaturefilepath',['setFeatureFilePath',['../classrdm_1_1_w_i_info.html#a9cc030824849fbe112743fcc48504cba',1,'rdm::WIInfo']]],
+  ['setfeaturevector',['setFeatureVector',['../classrdm_1_1_w_i_info.html#a5eb80500db80ed3174461bb9ac5a7b3f',1,'rdm::WIInfo']]],
   ['setfilepath',['setFilePath',['../classrdm_1_1_skew_est_plugin.html#a10def0eb630b4fbd164ce730eb994157',1,'rdm::SkewEstPlugin']]],
   ['sethistl2mean',['setHistL2Mean',['../classrdm_1_1_w_i_vocabulary.html#a675cacc8373c0ae2707a6e45f78efc2b',1,'rdm::WIVocabulary']]],
   ['sethistl2sigma',['setHistL2Sigma',['../classrdm_1_1_w_i_vocabulary.html#aa788c0f522eb2c90c95e61a00f77d040',1,'rdm::WIVocabulary']]],
