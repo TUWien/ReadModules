@@ -154,7 +154,7 @@ QSharedPointer<nmc::DkImageContainer> SkewEstPlugin::runPlugin(const QString &ru
 		
 		rdf::BaseSkewEstimation bse;
 		cv::Mat inputImg = rdf::Image::instance().qImage2Mat(img);
-		if (inputImg.channels() != 1) cv::cvtColor(inputImg, inputImg, CV_RGB2GRAY);
+		//if (inputImg.channels() != 1) cv::cvtColor(inputImg, inputImg, CV_RGB2GRAY);
 
 		bse.setImages(inputImg);
 
@@ -180,7 +180,9 @@ QSharedPointer<nmc::DkImageContainer> SkewEstPlugin::runPlugin(const QString &ru
 		skewAngle = -skewAngle / 180.0 * CV_PI;
 		
 		cv::Mat rotatedImage = rdf::Algorithms::instance().rotateImage(inputImg, skewAngle);
-		cv::cvtColor(rotatedImage, rotatedImage, CV_GRAY2BGRA);
+		if (rotatedImage.channels() == 1) {
+			cv::cvtColor(rotatedImage, rotatedImage, CV_GRAY2BGRA);
+		}
 
 		QImage result = rdf::Image::instance().mat2QImage(rotatedImage);
 		
@@ -217,7 +219,7 @@ QSharedPointer<nmc::DkImageContainer> SkewEstPlugin::runPlugin(const QString &ru
 
 		rdf::BaseSkewEstimation bse;
 		cv::Mat inputImg = rdf::Image::instance().qImage2Mat(img);
-		if (inputImg.channels() != 1) cv::cvtColor(inputImg, inputImg, CV_RGB2GRAY);
+		//if (inputImg.channels() != 1) cv::cvtColor(inputImg, inputImg, CV_RGB2GRAY);
 
 		bse.setImages(inputImg);
 		bse.setFixedThr(false);
@@ -231,7 +233,9 @@ QSharedPointer<nmc::DkImageContainer> SkewEstPlugin::runPlugin(const QString &ru
 		skewAngle = -skewAngle / 180.0 * CV_PI;
 
 		cv::Mat rotatedImage = rdf::Algorithms::instance().rotateImage(inputImg, skewAngle);
-		cv::cvtColor(rotatedImage, rotatedImage, CV_GRAY2BGRA);
+		if (rotatedImage.channels() == 1) {
+			cv::cvtColor(rotatedImage, rotatedImage, CV_GRAY2BGRA);
+		}
 
 		QImage result = rdf::Image::instance().mat2QImage(rotatedImage);
 
