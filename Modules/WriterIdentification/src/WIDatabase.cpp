@@ -59,38 +59,12 @@ namespace rdm {
 	/// <param name="filePath">The file path.</param>
 	void WIDatabase::addFile(const QString filePath) {
 		qDebug() << "adding file " << filePath;
-		cv::FileStorage fs(filePath.toStdString(), cv::FileStorage::READ);
-		if(!fs.isOpened()) {
-			qWarning() << debugName() << " unable to read file " << filePath;
-			return;
-		}
-		std::vector<cv::KeyPoint> kp;
-		fs["keypoints"] >> kp;
 		cv::Mat descriptors;
-		fs["descriptors"] >> descriptors;
-		fs.release();
-
-		if(mVocabulary.minimumSIFTSize() > 0 || mVocabulary.maximumSIFTSize() > 0) {
-			cv::Mat filteredDesc = cv::Mat(0, descriptors.cols, descriptors.type());
-			int r = 0;
-			for(auto kpItr = kp.begin(); kpItr != kp.end(); r++) {
-				if(kpItr->size*1.5*4 > mVocabulary.maximumSIFTSize() && mVocabulary.maximumSIFTSize() > 0 ) {
-					kpItr = kp.erase(kpItr);
-				} else if(kpItr->size * 1.5*4 < mVocabulary.minimumSIFTSize()) {
-					kpItr = kp.erase(kpItr);
-				} else {
-					kpItr++;
-					filteredDesc.push_back(descriptors.row(r).clone());
-				}
-			}
-			qDebug() << "filtered " << descriptors.rows - filteredDesc.rows << " SIFT features (maxSize:" << mVocabulary.maximumSIFTSize() << " minSize:" << mVocabulary.minimumSIFTSize() << ")";
-			descriptors = filteredDesc;
-		}
-		else
-			qDebug() << "not filtering SIFT features, vocabulary is emtpy, or min or max size not set";
+		QVector<cv::KeyPoint> kp;
+		loadFeatures(filePath, descriptors, kp);
 
 		mDescriptors.append(descriptors);
-		mKeyPoints.append(QVector<cv::KeyPoint>::fromStdVector(kp));
+		mKeyPoints.append(kp);
 		qDebug() << "lenght of keypoint vector:" << mKeyPoints.length();
 
 		//QString descFile = filePath;
@@ -178,12 +152,24 @@ namespace rdm {
 	/// <param name="classLabels">The class labels.</param>
 	/// <param name="filePaths">The files paths of the images if needed in the evaluation output</param>
 	/// <param name="evalFilePath">If set a csv file with the evaluation is written to the path.</param>
-	void WIDatabase::evaluateDatabase(QStringList classLabels, QStringList filePaths, QString evalFilePath) const {
+	void WIDatabase::evaluateDatabase(QStringList classLabels, QStringList filePaths, QString evalFilePath)  {
 		qDebug() << "evaluating database";
 		if(mVocabulary.histL2Mean().empty())
 			qDebug() << "no l2 normalization of the histogram";
 		if(std::abs(mVocabulary.powerNormalization() - 1.0f) > DBL_EPSILON)
 			qDebug() << "power normalization of " << mVocabulary.powerNormalization() << " applied to the feature vector";
+
+
+		if(mDescriptors.empty() && !filePaths.empty()) { // load features if not already loaded
+			qDebug() << "descriptors empty, loading features from filePaths";
+			for(int i = 0; i < filePaths.length(); i++) {
+				cv::Mat desc;
+				QVector<cv::KeyPoint> kp;
+				loadFeatures(QString(filePaths.at(i)), desc, kp);
+				mDescriptors.append(desc);
+				mKeyPoints.append(kp);
+			}
+		}
 
 		QVector<cv::Mat> hists;
 		qDebug() << "calculating histograms for all images";
@@ -203,10 +189,10 @@ namespace rdm {
 			soft.push_back(0);
 			hard.push_back(0);
 		}
-		for(int i = 0; i < mDescriptors.length(); i++) {
-			cv::Mat distances(mDescriptors.length(), 1, CV_32FC1);
+		for(int i = 0; i < hists.length(); i++) {
+			cv::Mat distances(hists.length(), 1, CV_32FC1);
 			distances.setTo(0);
-			for(int j = 0; j < mDescriptors.length(); j++) {
+			for(int j = 0; j < hists.length(); j++) {
 				if(mVocabulary.type() == WIVocabulary::WI_GMM) {
 					distances.at<float>(j) = (float)(1 - hists[i].dot(hists[j]) / (cv::norm(hists[i])*cv::norm(hists[j]) + DBL_EPSILON)); // 1-dist ... 0 is equal 2 is orthogonal
 				} else if(mVocabulary.type() == WIVocabulary::WI_BOW) {
@@ -418,6 +404,41 @@ namespace rdm {
 			fileStream << "\n" << std::flush;
 		}
 		fileStream.close();
+	}
+
+	void WIDatabase::loadFeatures(const QString filePath, cv::Mat & descriptors, QVector<cv::KeyPoint>& keypoints) {
+		cv::FileStorage fs(filePath.toStdString(), cv::FileStorage::READ);
+		if(!fs.isOpened()) {
+			qWarning() << debugName() << " unable to read file " << filePath;
+			return;
+		}
+		std::vector<cv::KeyPoint> kp;
+		fs["keypoints"] >> kp;
+		fs["descriptors"] >> descriptors;
+		fs.release();
+
+		if(mVocabulary.minimumSIFTSize() > 0 || mVocabulary.maximumSIFTSize() > 0) {
+			cv::Mat filteredDesc = cv::Mat(0, descriptors.cols, descriptors.type());
+			int r = 0;
+			for(auto kpItr = kp.begin(); kpItr != kp.end(); r++) {
+				if(kpItr->size*1.5 * 4 > mVocabulary.maximumSIFTSize() && mVocabulary.maximumSIFTSize() > 0) {
+					kpItr = kp.erase(kpItr);
+				}
+				else if(kpItr->size * 1.5 * 4 < mVocabulary.minimumSIFTSize()) {
+					kpItr = kp.erase(kpItr);
+				}
+				else {
+					kpItr++;
+					filteredDesc.push_back(descriptors.row(r).clone());
+				}
+			}
+			qDebug() << "filtered " << descriptors.rows - filteredDesc.rows << " SIFT features (maxSize:" << mVocabulary.maximumSIFTSize() << " minSize:" << mVocabulary.minimumSIFTSize() << ")";
+			descriptors = filteredDesc;
+		}
+		else
+			qDebug() << "not filtering SIFT features, vocabulary is emtpy, or min or max size not set";
+
+		keypoints = QVector<cv::KeyPoint>::fromStdVector(kp);
 	}
 
 	// WIVocabulary ----------------------------------------------------------------------------------
@@ -826,7 +847,7 @@ namespace rdm {
 		if(!mL2Mean .empty())
 			d = l2Norm(d, mL2Mean, mL2Sigma);
 		else
-			qDebug() << "gnerateHistGMM: mVocabulary.l2Mean() is empty ... no L2 normalization done";
+			qDebug() << "gnerateHistGMM: mVocabulary.l2Mean() is empty ... no L2 normalization (before fisher vector) done";
 
 		if(mNumberPCA > 0) {
 			d = applyPCA(d);

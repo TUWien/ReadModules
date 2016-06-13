@@ -223,7 +223,7 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(cons
 			else if(idxOfUScore == -1 && idxOfMinus > 0)
 				idx = idxOfMinus;
 			else if(idxOfMinus > 0 && idxOfUScore > 0)
-				idx = idxOfMinus > idxOfUScore ? idxOfMinus : idxOfUScore;
+				idx = idxOfMinus < idxOfUScore ? idxOfMinus : idxOfUScore;
 			QString label = QFileInfo(imgC->filePath()).baseName().left(idx);
 			qDebug() << "label: " << label << "\t\tbaseName:" << QFileInfo(imgC->filePath()).baseName();
 
@@ -260,6 +260,9 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(cons
 				qDebug() << "not filtering SIFT features, min or max size not set";
 
 			cv::Mat feature = mVocabulary.generateHist(descriptors);
+
+			rdf::Image::instance().imageInfo(descriptors, "descriptors");
+			rdf::Image::instance().imageInfo(feature, "feature");
 
 			QSharedPointer<WIInfo> wInfo(new WIInfo(runID, imgC->filePath()));
 			wInfo->setWriter(label);
@@ -333,6 +336,7 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 	}
 	else if(runIdx == id_evaluate_database) {
 		WIDatabase wiDatabase = WIDatabase(); 
+		wiDatabase.setVocabulary(mVocabulary);
 		//WIVocabulary voc = WIVocabulary();
 		//if(mVocType == WIVocabulary::WI_UNDEFINED)
 		//	qDebug() << "vocabulary path not set in settings file. Using default path";
@@ -346,7 +350,9 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 			classLabels.append(wInfo->writer());
 			hists.append(wInfo->featureVector());
 		}
-		wiDatabase.evaluateDatabase(hists, classLabels, featurePaths/*, QString("c:\\tmp\\eval-2.txt")*/);
+		//wiDatabase.evaluateDatabase(classLabels, featurePaths/*, QString("c:\\tmp\\eval-2.txt")*/);
+		//wiDatabase.evaluateDatabase(hists, classLabels, featurePaths/*, QString("c:\\tmp\\eval-2.txt")*/);
+		wiDatabase.evaluateDatabase(hists, classLabels, featurePaths, QString("c:\\tmp\\onlyAreaEval.txt"));
 	}
 }
 

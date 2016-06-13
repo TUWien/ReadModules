@@ -143,7 +143,7 @@ namespace rdm {
 		WIVocabulary vocabulary() const;
 		void saveVocabulary(QString filePath);
 
-		void evaluateDatabase(QStringList classLabels, QStringList filePaths, QString filePath = QString()) const;
+		void evaluateDatabase(QStringList classLabels, QStringList filePaths, QString filePath = QString());
 		void evaluateDatabase(QVector<cv::Mat>, QStringList classLabels, QStringList filePaths, QString filePath = QString()) const;
 
 	private:
@@ -152,6 +152,7 @@ namespace rdm {
 		void generateBOW(cv::Mat desc);
 		void generateGMM(cv::Mat desc);
 		void writeMatToFile(const cv::Mat, const QString filePath) const;
+		void loadFeatures(const QString filePath, cv::Mat& descriptors, QVector<cv::KeyPoint>& keypoints);
 		QVector<QVector<cv::KeyPoint> > mKeyPoints;
 		QVector<cv::Mat> mDescriptors;
 		WIVocabulary mVocabulary = WIVocabulary();
