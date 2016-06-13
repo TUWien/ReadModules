@@ -5,7 +5,7 @@
 	"AuthorName" 	: "Florian Kleber",
 	"Company"		: "Computer Vision Lab",
 	"DateCreated" 	: "2016-05-20",
-	"DateModified"	: "2016-05-25",
+	"DateModified"	: "2016-06-13",
 	"PluginId"		: "7bcd5ed3ee2147dea5c5acc34fcabf28",
 	"Version"		: "0.1.0",
 	"Dependencies"	: "ReadFrameworkCore,ReadFrameworkModule"

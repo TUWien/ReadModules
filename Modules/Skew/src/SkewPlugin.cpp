@@ -223,6 +223,13 @@ QSharedPointer<nmc::DkImageContainer> SkewEstPlugin::runPlugin(const QString &ru
 
 		bse.setImages(inputImg);
 		bse.setFixedThr(false);
+		
+		//use this settings for documents (best results based on disec evaluation):
+		//Attention: overrides settings file
+		//bse.setW(60);
+		//bse.setH(28);
+		//bse.setSigma(0.5);
+
 
 		bool skewComp = bse.compute();
 		if (!skewComp) {
