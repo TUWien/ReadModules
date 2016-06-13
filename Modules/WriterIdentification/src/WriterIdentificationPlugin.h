@@ -40,9 +40,13 @@ public:
 
 	void setFeatureFilePath(const QString& p);
 	QString featureFilePath() const;
+
+	void setFeatureVector(const cv::Mat featureVec);
+	cv::Mat featureVector() const;
 private:
 	QString mWriter;
 	QString mFeatureFilePath;
+	cv::Mat mFeatureVec;
 
 };
 
@@ -93,6 +97,7 @@ private:
 	int mVocMaxSIFTSize = -1;
 	int mVocMinSIFTSize = -1;
 	double mVocPowerNormalization;
+	WIVocabulary mVocabulary = WIVocabulary();
 	QString mFeatureDir = QString();
 };
 

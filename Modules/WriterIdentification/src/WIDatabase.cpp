@@ -59,43 +59,18 @@ namespace rdm {
 	/// <param name="filePath">The file path.</param>
 	void WIDatabase::addFile(const QString filePath) {
 		qDebug() << "adding file " << filePath;
-		cv::FileStorage fs(filePath.toStdString(), cv::FileStorage::READ);
-		if(!fs.isOpened()) {
-			qWarning() << debugName() << " unable to read file " << filePath;
-			return;
-		}
-		std::vector<cv::KeyPoint> kp;
-		fs["keypoints"] >> kp;
 		cv::Mat descriptors;
-		fs["descriptors"] >> descriptors;
-		fs.release();
-
-		if(mVocabulary.minimumSIFTSize() > 0 || mVocabulary.maximumSIFTSize() > 0) {
-			cv::Mat filteredDesc = cv::Mat(0, descriptors.cols, descriptors.type());
-			int r = 0;
-			for(auto kpItr = kp.begin(); kpItr != kp.end(); r++) {
-				if(kpItr->size*1.5*4 > mVocabulary.maximumSIFTSize() && mVocabulary.maximumSIFTSize() > 0 ) {
-					kpItr = kp.erase(kpItr);
-				} else if(kpItr->size * 1.5*4 < mVocabulary.minimumSIFTSize()) {
-					kpItr = kp.erase(kpItr);
-				} else {
-					kpItr++;
-					filteredDesc.push_back(descriptors.row(r).clone());
-				}
-			}
-			qDebug() << "filtered " << descriptors.rows - filteredDesc.rows << " SIFT features (maxSize:" << mVocabulary.maximumSIFTSize() << " minSize:" << mVocabulary.minimumSIFTSize() << ")";
-			descriptors = filteredDesc;
-		}
-		else
-			qDebug() << "not filtering SIFT features, vocabulary is emtpy, or min or max size not set";
+		QVector<cv::KeyPoint> kp;
+		loadFeatures(filePath, descriptors, kp);
 
 		mDescriptors.append(descriptors);
-		mKeyPoints.append(QVector<cv::KeyPoint>::fromStdVector(kp));
+		mKeyPoints.append(kp);
 		qDebug() << "lenght of keypoint vector:" << mKeyPoints.length();
 
 		//QString descFile = filePath;
 		//writeMatToFile(descriptors, descFile.append("-desc.txt"));
 	}
+
 	/// <summary>
 	/// Generates the vocabulary according to the type set in the vocabulary variable. If the number of PCA components is larger than 0 a PCA is applied beforehand.
 	/// </summary>
@@ -133,7 +108,7 @@ namespace rdm {
 		cv::Mat allHists = cv::Mat(0, mVocabulary.numberOfCluster() * allDesc.cols, CV_32F);
 		qDebug() << "calculating histograms for all images";
 		for(int i = 0; i < mDescriptors.length(); i++) {
-			cv::Mat hist = generateHist(mDescriptors[i]);
+			cv::Mat hist = mVocabulary.generateHist(mDescriptors[i]);
 			allHists.push_back(hist);
 		}
 		
@@ -177,18 +152,34 @@ namespace rdm {
 	/// <param name="classLabels">The class labels.</param>
 	/// <param name="filePaths">The files paths of the images if needed in the evaluation output</param>
 	/// <param name="evalFilePath">If set a csv file with the evaluation is written to the path.</param>
-	void WIDatabase::evaluateDatabase(QStringList classLabels, QStringList filePaths, QString evalFilePath) const {
+	void WIDatabase::evaluateDatabase(QStringList classLabels, QStringList filePaths, QString evalFilePath)  {
 		qDebug() << "evaluating database";
 		if(mVocabulary.histL2Mean().empty())
 			qDebug() << "no l2 normalization of the histogram";
-		if(abs(mVocabulary.powerNormalization() - 1.0f) > DBL_EPSILON)
+		if(std::abs(mVocabulary.powerNormalization() - 1.0f) > DBL_EPSILON)
 			qDebug() << "power normalization of " << mVocabulary.powerNormalization() << " applied to the feature vector";
+
+
+		if(mDescriptors.empty() && !filePaths.empty()) { // load features if not already loaded
+			qDebug() << "descriptors empty, loading features from filePaths";
+			for(int i = 0; i < filePaths.length(); i++) {
+				cv::Mat desc;
+				QVector<cv::KeyPoint> kp;
+				loadFeatures(QString(filePaths.at(i)), desc, kp);
+				mDescriptors.append(desc);
+				mKeyPoints.append(kp);
+			}
+		}
 
 		QVector<cv::Mat> hists;
 		qDebug() << "calculating histograms for all images";
 		for(int i = 0; i < mDescriptors.length(); i++) {
-			hists.push_back(generateHist(mDescriptors[i]));
+			hists.push_back(mVocabulary.generateHist(mDescriptors[i]));
 		}
+		evaluateDatabase(hists, classLabels, filePaths, evalFilePath);
+	}
+
+	void WIDatabase::evaluateDatabase(QVector<cv::Mat> hists, QStringList classLabels, QStringList filePaths, QString evalFilePath) const {
 		qDebug() << "starting evaluating";
 		int tp = 0; 
 		int fp = 0;
@@ -198,10 +189,10 @@ namespace rdm {
 			soft.push_back(0);
 			hard.push_back(0);
 		}
-		for(int i = 0; i < mDescriptors.length(); i++) {
-			cv::Mat distances(mDescriptors.length(), 1, CV_32FC1);
+		for(int i = 0; i < hists.length(); i++) {
+			cv::Mat distances(hists.length(), 1, CV_32FC1);
 			distances.setTo(0);
-			for(int j = 0; j < mDescriptors.length(); j++) {
+			for(int j = 0; j < hists.length(); j++) {
 				if(mVocabulary.type() == WIVocabulary::WI_GMM) {
 					distances.at<float>(j) = (float)(1 - hists[i].dot(hists[j]) / (cv::norm(hists[i])*cv::norm(hists[j]) + DBL_EPSILON)); // 1-dist ... 0 is equal 2 is orthogonal
 				} else if(mVocabulary.type() == WIVocabulary::WI_BOW) {
@@ -318,22 +309,6 @@ namespace rdm {
 		
 	}
 	/// <summary>
-	/// Generates the histogram according to the vocabulary type
-	/// </summary>
-	/// <param name="desc">Descriptors of an image.</param>
-	/// <returns>the generated histogram</returns>
-	cv::Mat WIDatabase::generateHist(cv::Mat desc) const {
-		if(mVocabulary.type() == WIVocabulary::WI_BOW)
-			return generateHistBOW(desc);
-		else if(mVocabulary.type() == WIVocabulary::WI_GMM) {
-			return generateHistGMM(desc);
-		} 
-		else {
-			qWarning() << "vocabulary type is undefined... not generating histograms";
-			return cv::Mat();
-		}
-	}
-	/// <summary>
 	/// Debug name.
 	/// </summary>
 	/// <returns></returns>
@@ -379,7 +354,7 @@ namespace rdm {
 		mVocabulary.setPcaMean(pca.mean);
 		
 
-		descResult = applyPCA(descResult);
+		descResult = mVocabulary.applyPCA(descResult);
 		rdf::Image::instance().imageInfo(descResult, "descResults nach pca");
 		return descResult;
 	}
@@ -430,150 +405,40 @@ namespace rdm {
 		}
 		fileStream.close();
 	}
-	/// <summary>
-	/// Applies the PCA with the stored Eigenvalues and Eigenvectors of the vocabulary.
-	/// </summary>
-	/// <param name="desc">The desc.</param>
-	/// <returns>the projected descriptors</returns>
-	cv::Mat WIDatabase::applyPCA(cv::Mat desc) const {
-		if(mVocabulary.pcaEigenvalues().empty() || mVocabulary.pcaEigenvectors().empty() || mVocabulary.pcaMean().empty()) {
-			qWarning() << "applyPCA: vocabulary does not have a PCA ... not applying PCA";
-			return desc;
+
+	void WIDatabase::loadFeatures(const QString filePath, cv::Mat & descriptors, QVector<cv::KeyPoint>& keypoints) {
+		cv::FileStorage fs(filePath.toStdString(), cv::FileStorage::READ);
+		if(!fs.isOpened()) {
+			qWarning() << debugName() << " unable to read file " << filePath;
+			return;
 		}
-		cv::PCA pca;
-		pca.eigenvalues = mVocabulary.pcaEigenvalues();
-		pca.eigenvectors = mVocabulary.pcaEigenvectors();
-		pca.mean = mVocabulary.pcaMean();
-		pca.project(desc, desc);
+		std::vector<cv::KeyPoint> kp;
+		fs["keypoints"] >> kp;
+		fs["descriptors"] >> descriptors;
+		fs.release();
 
-		return desc;
-	}
-	/// <summary>
-	/// Generates the histogram for a BOW vocabulary. 
-	/// </summary>
-	/// <param name="desc">The desc.</param>
-	/// <returns>the histogram</returns>
-	cv::Mat WIDatabase::generateHistBOW(cv::Mat desc) const {
-		if(mVocabulary.isEmpty()) {
-			qWarning() << "generateHistBOW: vocabulary is empty ... aborting";
-			return cv::Mat();
-		}
-		if(desc.empty())
-			return cv::Mat();
-
-		cv::Mat d = desc.clone();
-		if(!mVocabulary.l2Mean().empty())
-			d = l2Norm(d, mVocabulary.l2Mean(), mVocabulary.l2Sigma());
-
-		if(mVocabulary.numberOfPCA() > 0) {
-			d = applyPCA(d);
-		}
-		cv::Mat dists, idx;
-		
-		cv::flann::Index flann_index(mVocabulary.vocabulary(), cv::flann::LinearIndexParams());
-		cv::Mat hist = cv::Mat(1, (int)mVocabulary.vocabulary().rows, CV_32FC1);
-		hist.setTo(0);
-
-		flann_index.knnSearch(d, idx, dists, 1, cv::flann::SearchParams(64));
-
-		float *ptrHist = hist.ptr<float>(0);
-		int *ptrLabels = idx.ptr<int>(0);		//float?
-
-		for(int i = 0; i < idx.rows; i++) {
-
-			ptrHist[(int)*ptrLabels]++;
-			ptrLabels++;
-		}
-
-		hist /= (float)d.rows;
-
-
-		return hist;
-	}
-	/// <summary>
-	/// Generates the Fisher vector for a GMM vocabulary.
-	/// </summary>
-	/// <param name="desc">The desc.</param>
-	/// <returns>the Fisher vector</returns>
-	cv::Mat WIDatabase::generateHistGMM(cv::Mat desc) const {
-		if(mVocabulary.isEmpty()) {
-			qWarning() << "generateHistGMM: vocabulary is empty ... aborting";
-			return cv::Mat();
-		}
-		if(desc.empty())
-			return cv::Mat();
-
-		
-		cv::Mat d = desc.clone();
-		if(!mVocabulary.l2Mean().empty())
-			d = l2Norm(d, mVocabulary.l2Mean(), mVocabulary.l2Sigma());
-		else
-			qDebug() << "gnerateHistGMM: mVocabulary.l2Mean() is empty ... no L2 normalization done";
-
-		if(mVocabulary.numberOfPCA() > 0) {
-			d = applyPCA(d);
-		}
-		cv::Mat fisher(mVocabulary.numberOfCluster(), d.cols, CV_32F);
-		fisher.setTo(0);
-
-		cv::Ptr<cv::ml::EM> em = mVocabulary.em();
-		for(int i = 0; i < d.rows; i++) {
-			cv::Mat feature = d.row(i);
-			cv::Mat probs, means;
-			std::vector<cv::Mat> covs;
-			
-			cv::Vec2d emOut = em->predict2(feature, probs);
-			probs.convertTo(probs, CV_32F);
-			em->getCovs(covs);
-			means = em->getMeans();
-			means.convertTo(means, CV_32F);
-			for(int j = 0; j < em->getClustersNumber(); j++) {
-				cv::Mat cov = covs[j];
-				cv::Mat diag = cov.diag(0).t();
-				diag.convertTo(diag, CV_32F);
-				fisher.row(j) += probs.at<float>(j) * ((feature - means.row(j)) / diag);
+		if(mVocabulary.minimumSIFTSize() > 0 || mVocabulary.maximumSIFTSize() > 0) {
+			cv::Mat filteredDesc = cv::Mat(0, descriptors.cols, descriptors.type());
+			int r = 0;
+			for(auto kpItr = kp.begin(); kpItr != kp.end(); r++) {
+				if(kpItr->size*1.5 * 4 > mVocabulary.maximumSIFTSize() && mVocabulary.maximumSIFTSize() > 0) {
+					kpItr = kp.erase(kpItr);
+				}
+				else if(kpItr->size * 1.5 * 4 < mVocabulary.minimumSIFTSize()) {
+					kpItr = kp.erase(kpItr);
+				}
+				else {
+					kpItr++;
+					filteredDesc.push_back(descriptors.row(r).clone());
+				}
 			}
+			qDebug() << "filtered " << descriptors.rows - filteredDesc.rows << " SIFT features (maxSize:" << mVocabulary.maximumSIFTSize() << " minSize:" << mVocabulary.minimumSIFTSize() << ")";
+			descriptors = filteredDesc;
 		}
-		cv::Mat weights = em->getWeights();
-		weights.convertTo(weights, CV_32F);
-		for(int j = 0; j < em->getClustersNumber(); j++) {
-			//fisher.row(j) *= 1.0f / (d.rows* sqrt(weights.at<float>(j)) + DBL_EPSILON);
-			fisher.row(j) *= 1.0f / (sqrt(weights.at<float>(j)) + DBL_EPSILON);
-		}
-		cv::Mat hist = fisher.reshape(0, 1);
+		else
+			qDebug() << "not filtering SIFT features, vocabulary is emtpy, or min or max size not set";
 
-		cv::Mat tmp;
-		cv::pow(abs(hist), mVocabulary.powerNormalization(), tmp);
-		for(int i = 0; i < hist.cols; i++) {
-			if(hist.at<float>(i) < 0)
-				tmp.at<float>(i) *= -1;
-		}
-		hist = tmp;
-
-		//qDebug() << "normalizing histogram with cv::norm";
-		//hist = hist / cv::norm(hist);
-
-		if(!mVocabulary.histL2Mean().empty())
-			hist = l2Norm(hist, mVocabulary.histL2Mean(), mVocabulary.histL2Sigma());
-
-		return hist;
-	}
-	/// <summary>
-	/// Applies a L2 normalization with the values stored in the vocabulary.
-	/// </summary>
-	/// <param name="desc">The desc.</param>
-	/// <returns>normalized descriptors</returns>
-	cv::Mat WIDatabase::l2Norm(cv::Mat desc, cv::Mat mean, cv::Mat sigma) const {
-		// L2 - normalization
-		cv::Mat d = (desc - cv::Mat::ones(desc.rows, 1, CV_32F) * mean.t());
-		
-		//qDebug() << "modified L2";
-		//cv::Mat d = desc;
-
-		for(int i = 0; i < d.rows; i++) {
-			d.row(i) = d.row(i) / sigma.t();
-		}
-		return d;
+		keypoints = QVector<cv::KeyPoint>::fromStdVector(kp);
 	}
 
 	// WIVocabulary ----------------------------------------------------------------------------------
@@ -904,6 +769,170 @@ namespace rdm {
 	QString WIVocabulary::vocabularyPath() const {
 		return mVocabularyPath;
 	}
+
+	/// <summary>
+	/// Generates the histogram according to the vocabulary type
+	/// </summary>
+	/// <param name="desc">Descriptors of an image.</param>
+	/// <returns>the generated histogram</returns>
+	cv::Mat WIVocabulary::generateHist(cv::Mat desc) const {
+		if(mVocabulary.type() == WIVocabulary::WI_BOW)
+			return generateHistBOW(desc);
+		else if(mVocabulary.type() == WIVocabulary::WI_GMM) {
+			return generateHistGMM(desc);
+		}
+		else {
+			qWarning() << "vocabulary type is undefined... not generating histograms";
+			return cv::Mat();
+		}
+	}
+
+	/// <summary>
+	/// Generates the histogram for a BOW vocabulary. 
+	/// </summary>
+	/// <param name="desc">The desc.</param>
+	/// <returns>the histogram</returns>
+	cv::Mat WIVocabulary::generateHistBOW(cv::Mat desc) const {
+		if(isEmpty()) {
+			qWarning() << "generateHistBOW: vocabulary is empty ... aborting";
+			return cv::Mat();
+		}
+		if(desc.empty())
+			return cv::Mat();
+
+		cv::Mat d = desc.clone();
+		if(!mL2Mean.empty())
+			d = l2Norm(d, mL2Mean, mL2Sigma);
+
+		if(numberOfPCA() > 0) {
+			d = applyPCA(d);
+		}
+		cv::Mat dists, idx;
+
+		cv::flann::Index flann_index(mVocabulary, cv::flann::LinearIndexParams());
+		cv::Mat hist = cv::Mat(1, (int)mVocabulary.rows, CV_32FC1);
+		hist.setTo(0);
+
+		flann_index.knnSearch(d, idx, dists, 1, cv::flann::SearchParams(64));
+
+		float *ptrHist = hist.ptr<float>(0);
+		int *ptrLabels = idx.ptr<int>(0);		//float?
+
+		for(int i = 0; i < idx.rows; i++) {
+
+			ptrHist[(int)*ptrLabels]++;
+			ptrLabels++;
+		}
+
+		hist /= (float)d.rows;
+
+
+		return hist;
+	}
+	/// <summary>
+	/// Generates the Fisher vector for a GMM vocabulary.
+	/// </summary>
+	/// <param name="desc">The desc.</param>
+	/// <returns>the Fisher vector</returns>
+	cv::Mat WIVocabulary::generateHistGMM(cv::Mat desc) const {
+		if(isEmpty()) {
+			qWarning() << "generateHistGMM: vocabulary is empty ... aborting";
+			return cv::Mat();
+		}
+		if(desc.empty())
+			return cv::Mat();
+
+
+		cv::Mat d = desc.clone();
+		if(!mL2Mean .empty())
+			d = l2Norm(d, mL2Mean, mL2Sigma);
+		else
+			qDebug() << "gnerateHistGMM: mVocabulary.l2Mean() is empty ... no L2 normalization (before fisher vector) done";
+
+		if(mNumberPCA > 0) {
+			d = applyPCA(d);
+		}
+		cv::Mat fisher(mNumberOfClusters, d.cols, CV_32F);
+		fisher.setTo(0);
+
+		cv::Ptr<cv::ml::EM> em = mEM;
+		for(int i = 0; i < d.rows; i++) {
+			cv::Mat feature = d.row(i);
+			cv::Mat probs, means;
+			std::vector<cv::Mat> covs;
+
+			cv::Vec2d emOut = em->predict2(feature, probs);
+			probs.convertTo(probs, CV_32F);
+			em->getCovs(covs);
+			means = em->getMeans();
+			means.convertTo(means, CV_32F);
+			for(int j = 0; j < em->getClustersNumber(); j++) {
+				cv::Mat cov = covs[j];
+				cv::Mat diag = cov.diag(0).t();
+				diag.convertTo(diag, CV_32F);
+				fisher.row(j) += probs.at<float>(j) * ((feature - means.row(j)) / diag);
+			}
+		}
+		cv::Mat weights = em->getWeights();
+		weights.convertTo(weights, CV_32F);
+		for(int j = 0; j < em->getClustersNumber(); j++) {
+			//fisher.row(j) *= 1.0f / (d.rows* sqrt(weights.at<float>(j)) + DBL_EPSILON);
+			fisher.row(j) *= 1.0f / (sqrt(weights.at<float>(j)) + DBL_EPSILON);
+		}
+		cv::Mat hist = fisher.reshape(0, 1);
+
+		cv::Mat tmp;
+		cv::pow(cv::abs(hist), powerNormalization(), tmp);
+		for(int i = 0; i < hist.cols; i++) {
+			if(hist.at<float>(i) < 0)
+				tmp.at<float>(i) *= -1;
+		}
+		hist = tmp;
+
+		//qDebug() << "normalizing histogram with cv::norm";
+		//hist = hist / cv::norm(hist);
+
+		if(!mHistL2Mean.empty())
+			hist = l2Norm(hist, mHistL2Mean, mHistL2Sigma);
+
+		return hist;
+	}
+	/// <summary>
+	/// Applies the PCA with the stored Eigenvalues and Eigenvectors of the vocabulary.
+	/// </summary>
+	/// <param name="desc">The desc.</param>
+	/// <returns>the projected descriptors</returns>
+	cv::Mat WIVocabulary::applyPCA(cv::Mat desc) const {
+		if(mPcaEigenvalues.empty() || mPcaEigenvectors.empty() || mPcaMean.empty()) {
+			qWarning() << "applyPCA: vocabulary does not have a PCA ... not applying PCA";
+			return desc;
+		}
+		cv::PCA pca;
+		pca.eigenvalues = mPcaEigenvalues;
+		pca.eigenvectors = mPcaEigenvectors;
+		pca.mean = mPcaMean;
+		pca.project(desc, desc);
+
+		return desc;
+	}
+	/// <summary>
+	/// Applies a L2 normalization with the values stored in the vocabulary.
+	/// </summary>
+	/// <param name="desc">The desc.</param>
+	/// <returns>normalized descriptors</returns>
+	cv::Mat WIVocabulary::l2Norm(cv::Mat desc, cv::Mat mean, cv::Mat sigma) const {
+		// L2 - normalization
+		cv::Mat d = (desc - cv::Mat::ones(desc.rows, 1, CV_32F) * mean.t());
+
+		//qDebug() << "modified L2";
+		//cv::Mat d = desc;
+
+		for(int i = 0; i < d.rows; i++) {
+			d.row(i) = d.row(i) / sigma.t();
+		}
+		return d;
+	}
+
 }
 
 
