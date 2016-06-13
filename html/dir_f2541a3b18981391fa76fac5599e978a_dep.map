@@ -1,9 +1,10 @@
 <map id="Modules" name="Modules">
-<area shape="rect" id="node2" href="dir_46ac5284ce27909ca1a701c9fc2b62a8.html" title="BatchTest" alt="" coords="584,27,665,75"/>
-<area shape="rect" id="node3" href="dir_bb08ff6c1fb3b2282e890f49121a6006.html" title="Binarization" alt="" coords="469,27,560,75"/>
-<area shape="rect" id="node4" href="dir_4faa5eb87779cd9498fc816dab3f695c.html" title="Layout" alt="" coords="373,27,445,75"/>
-<area shape="rect" id="node5" href="dir_a84f60cfd302ffa3ea821a8ffb5765f2.html" title="PageVis" alt="" coords="277,27,349,75"/>
-<area shape="rect" id="node6" href="dir_92676d93804a126d65d8ba32cb9b06db.html" title="Skew" alt="" coords="181,27,253,75"/>
-<area shape="rect" id="node7" href="dir_5aa05dd540406743ec820f0b80cdb85a.html" title="WriterIdentification" alt="" coords="27,27,156,75"/>
-<area shape="rect" id="clust1" href="dir_f2541a3b18981391fa76fac5599e978a.html" alt="" coords="16,16,773,85"/>
+<area shape="rect" id="node2" href="dir_46ac5284ce27909ca1a701c9fc2b62a8.html" title="BatchTest" alt="" coords="717,27,799,75"/>
+<area shape="rect" id="node3" href="dir_bb08ff6c1fb3b2282e890f49121a6006.html" title="Binarization" alt="" coords="603,27,693,75"/>
+<area shape="rect" id="node4" href="dir_f195c979f69c682d12190c1e73058773.html" title="FocusMeasure" alt="" coords="470,27,577,75"/>
+<area shape="rect" id="node5" href="dir_4faa5eb87779cd9498fc816dab3f695c.html" title="Layout" alt="" coords="373,27,445,75"/>
+<area shape="rect" id="node6" href="dir_a84f60cfd302ffa3ea821a8ffb5765f2.html" title="PageVis" alt="" coords="277,27,349,75"/>
+<area shape="rect" id="node7" href="dir_92676d93804a126d65d8ba32cb9b06db.html" title="Skew" alt="" coords="181,27,253,75"/>
+<area shape="rect" id="node8" href="dir_5aa05dd540406743ec820f0b80cdb85a.html" title="WriterIdentification" alt="" coords="27,27,156,75"/>
+<area shape="rect" id="clust1" href="dir_f2541a3b18981391fa76fac5599e978a.html" alt="" coords="16,16,907,85"/>
 </map>

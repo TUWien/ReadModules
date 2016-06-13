@@ -24,7 +24,7 @@ var searchData=
   ['setpcaeigenvectors',['setPcaEigenvectors',['../classrdm_1_1_w_i_vocabulary.html#a5237c42fa609a082c29d6722736dd20f',1,'rdm::WIVocabulary']]],
   ['setpcamean',['setPcaMean',['../classrdm_1_1_w_i_vocabulary.html#a9b1ef160e8b1a702a098b055b4bdeb5d',1,'rdm::WIVocabulary']]],
   ['setpowernormalization',['setPowerNormalization',['../classrdm_1_1_w_i_vocabulary.html#a6307c9a989cc9444a568586657264d5e',1,'rdm::WIVocabulary']]],
-  ['setproperty',['setProperty',['../classrdm_1_1_dk_test_info.html#a8aa5562b8cf829a163f88877b867f25d',1,'rdm::DkTestInfo::setProperty()'],['../classrdm_1_1_skew_info.html#aed2af68705b2b15949968c43b31d3fbd',1,'rdm::SkewInfo::setProperty()']]],
+  ['setproperty',['setProperty',['../classrdm_1_1_dk_test_info.html#a8aa5562b8cf829a163f88877b867f25d',1,'rdm::DkTestInfo::setProperty()'],['../classrdm_1_1_focus_info.html#acae102a2ae09313539942f9310a93862',1,'rdm::FocusInfo::setProperty()'],['../classrdm_1_1_skew_info.html#aed2af68705b2b15949968c43b31d3fbd',1,'rdm::SkewInfo::setProperty()']]],
   ['setregionconfig',['setRegionConfig',['../classrdm_1_1_config_widget.html#a87626d610f156201c696e9bf70235529',1,'rdm::ConfigWidget']]],
   ['setskew',['setSkew',['../classrdm_1_1_skew_info.html#a1d68a848e11fc58449e7e8aa52ddc884',1,'rdm::SkewInfo']]],
   ['setskewgt',['setSkewGt',['../classrdm_1_1_skew_info.html#af946dae71f1b1962fff8e98b11623f55',1,'rdm::SkewInfo']]],

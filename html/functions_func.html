@@ -184,6 +184,7 @@ $(document).ready(function(){initNavTree('functions_func.html','');});
 <li>createActions()
 : <a class="el" href="classrdm_1_1_batch_test.html#a510425e49293b9fbf813b7e4b0e0d88d">rdm::BatchTest</a>
 , <a class="el" href="classrdm_1_1_binarization_plugin.html#a05bf9dd62628c9277f7c94c25d3d0994">rdm::BinarizationPlugin</a>
+, <a class="el" href="classrdm_1_1_focus_plugin.html#ab7e8c6d6ef8caa96503d927dd35fdd72">rdm::FocusPlugin</a>
 , <a class="el" href="classrdm_1_1_layout_plugin.html#a855a33d9645c608d17ea0ada30d852e9">rdm::LayoutPlugin</a>
 , <a class="el" href="classrdm_1_1_skew_est_plugin.html#a7e9bcf04046e06279e1f68449cc2376b">rdm::SkewEstPlugin</a>
 , <a class="el" href="classrdm_1_1_writer_identification_plugin.html#a6a22eda64179b17eacc47d1843aec71d">rdm::WriterIdentificationPlugin</a>
@@ -230,6 +231,12 @@ $(document).ready(function(){initNavTree('functions_func.html','');});
 <li>filePath()
 : <a class="el" href="classrdm_1_1_skew_est_plugin.html#a848599e3d7a18039b4dbbb757835079f">rdm::SkewEstPlugin</a>
 </li>
+<li>FocusInfo()
+: <a class="el" href="classrdm_1_1_focus_info.html#a2379329a802e9075c064f7b3c196d427">rdm::FocusInfo</a>
+</li>
+<li>FocusPlugin()
+: <a class="el" href="classrdm_1_1_focus_plugin.html#abce1828bdb2430b515c9e030b1248512">rdm::FocusPlugin</a>
+</li>
 </ul>
 
 
@@ -260,6 +267,7 @@ $(document).ready(function(){initNavTree('functions_func.html','');});
 <li>id()
 : <a class="el" href="classrdm_1_1_batch_test.html#a040603432f68dbb84de037c7f3e08d94">rdm::BatchTest</a>
 , <a class="el" href="classrdm_1_1_binarization_plugin.html#a9937b154c891a54f7800d2aaa89aac3f">rdm::BinarizationPlugin</a>
+, <a class="el" href="classrdm_1_1_focus_plugin.html#ad7a26af14fb05404bc7d45e6798351ca">rdm::FocusPlugin</a>
 , <a class="el" href="classrdm_1_1_layout_plugin.html#ab005035b46893cbf47e3e0f961c7c4fe">rdm::LayoutPlugin</a>
 , <a class="el" href="classrdm_1_1_page_vis_plugin.html#a18fe46d2b82dc2852c942dc3e80324b2">rdm::PageVisPlugin</a>
 , <a class="el" href="classrdm_1_1_skew_est_plugin.html#a1d7642af4e46e55f7118150952dcf5fb">rdm::SkewEstPlugin</a>
@@ -268,6 +276,7 @@ $(document).ready(function(){initNavTree('functions_func.html','');});
 <li>image()
 : <a class="el" href="classrdm_1_1_batch_test.html#afcb8f88be082edbce3c1128cddeec819">rdm::BatchTest</a>
 , <a class="el" href="classrdm_1_1_binarization_plugin.html#a287982776a8f88b78529fe01c430e814">rdm::BinarizationPlugin</a>
+, <a class="el" href="classrdm_1_1_focus_plugin.html#af964c6226c5c2610c49a84d1d2787b6a">rdm::FocusPlugin</a>
 , <a class="el" href="classrdm_1_1_layout_plugin.html#ab25924c30a2b6c8dc31ab7a115f22d18">rdm::LayoutPlugin</a>
 , <a class="el" href="classrdm_1_1_page_vis_plugin.html#a7422e29b6226f23f05b41cc861a26d3b">rdm::PageVisPlugin</a>
 , <a class="el" href="classrdm_1_1_skew_est_plugin.html#a7191ce4c9661cd8c2acfbd65b091f62c">rdm::SkewEstPlugin</a>
@@ -405,12 +414,14 @@ $(document).ready(function(){initNavTree('functions_func.html','');});
 <li>pluginActions()
 : <a class="el" href="classrdm_1_1_batch_test.html#a95634d26c93f178cb550cefe269afb20">rdm::BatchTest</a>
 , <a class="el" href="classrdm_1_1_binarization_plugin.html#a02f234a20f290089697c5062ea95d7b8">rdm::BinarizationPlugin</a>
+, <a class="el" href="classrdm_1_1_focus_plugin.html#ac468a1b7ebab454c90bd6531d9ea55e6">rdm::FocusPlugin</a>
 , <a class="el" href="classrdm_1_1_layout_plugin.html#a2823b962e93bb5cf7e2ee67ed5aaf975">rdm::LayoutPlugin</a>
 , <a class="el" href="classrdm_1_1_skew_est_plugin.html#a95dbd075c4d1c94c765a50cb07f12320">rdm::SkewEstPlugin</a>
 , <a class="el" href="classrdm_1_1_writer_identification_plugin.html#abe355116e2dc01b9db7eca8f525f2ba7">rdm::WriterIdentificationPlugin</a>
 </li>
 <li>postLoadPlugin()
 : <a class="el" href="classrdm_1_1_batch_test.html#a2830ebdf2dc6b56332d23c36bcf90391">rdm::BatchTest</a>
+, <a class="el" href="classrdm_1_1_focus_plugin.html#a6434af302fcd66eb265b7d2e9f4f4b55">rdm::FocusPlugin</a>
 , <a class="el" href="classrdm_1_1_skew_est_plugin.html#a95af7ce2b930d61ef62725741759a251">rdm::SkewEstPlugin</a>
 , <a class="el" href="classrdm_1_1_writer_identification_plugin.html#a6c3263d1d6aa37b071d76456b5665a0e">rdm::WriterIdentificationPlugin</a>
 </li>
@@ -419,11 +430,13 @@ $(document).ready(function(){initNavTree('functions_func.html','');});
 </li>
 <li>preLoadPlugin()
 : <a class="el" href="classrdm_1_1_batch_test.html#a6a9efc38aa38451e915e50342c588a2a">rdm::BatchTest</a>
+, <a class="el" href="classrdm_1_1_focus_plugin.html#afdc48ae4a0c5261f0cc429df8fac7aa8">rdm::FocusPlugin</a>
 , <a class="el" href="classrdm_1_1_skew_est_plugin.html#a24675f3294aba17535d4bf31107b5f8b">rdm::SkewEstPlugin</a>
 , <a class="el" href="classrdm_1_1_writer_identification_plugin.html#a7636d0331d65dd441dd7ffe4b77e801d">rdm::WriterIdentificationPlugin</a>
 </li>
 <li>property()
 : <a class="el" href="classrdm_1_1_dk_test_info.html#a443987b17ddcdd59271038079eb15842">rdm::DkTestInfo</a>
+, <a class="el" href="classrdm_1_1_focus_info.html#a9db1c4e1c17e778913d52bbf7dae2c3c">rdm::FocusInfo</a>
 , <a class="el" href="classrdm_1_1_skew_info.html#a74f228859353a44551375e1bdc5e1fe6">rdm::SkewInfo</a>
 </li>
 </ul>
@@ -433,6 +446,7 @@ $(document).ready(function(){initNavTree('functions_func.html','');});
 <li>runPlugin()
 : <a class="el" href="classrdm_1_1_batch_test.html#af95d4e28a3a51b2614a9d329e5794f85">rdm::BatchTest</a>
 , <a class="el" href="classrdm_1_1_binarization_plugin.html#ad2cc09e48e041d1734f9efc71a6f2ec4">rdm::BinarizationPlugin</a>
+, <a class="el" href="classrdm_1_1_focus_plugin.html#ab59807fc78fcec372c8f99ae8119ab89">rdm::FocusPlugin</a>
 , <a class="el" href="classrdm_1_1_layout_plugin.html#a1517f9765b94086ff26c03b235132a1f">rdm::LayoutPlugin</a>
 , <a class="el" href="classrdm_1_1_page_vis_plugin.html#ab18fb0f1b66648dbe1bbd22532281b65">rdm::PageVisPlugin</a>
 , <a class="el" href="classrdm_1_1_skew_est_plugin.html#a5ef032682a3fbad77a2b29a430090ac5">rdm::SkewEstPlugin</a>
@@ -517,6 +531,7 @@ $(document).ready(function(){initNavTree('functions_func.html','');});
 </li>
 <li>setProperty()
 : <a class="el" href="classrdm_1_1_dk_test_info.html#a8aa5562b8cf829a163f88877b867f25d">rdm::DkTestInfo</a>
+, <a class="el" href="classrdm_1_1_focus_info.html#acae102a2ae09313539942f9310a93862">rdm::FocusInfo</a>
 , <a class="el" href="classrdm_1_1_skew_info.html#aed2af68705b2b15949968c43b31d3fbd">rdm::SkewInfo</a>
 </li>
 <li>setRegionConfig()
@@ -625,6 +640,9 @@ $(document).ready(function(){initNavTree('functions_func.html','');});
 </li>
 <li>~BinarizationPlugin()
 : <a class="el" href="classrdm_1_1_binarization_plugin.html#a2110afed3f21428f5935a3e39f0a909c">rdm::BinarizationPlugin</a>
+</li>
+<li>~FocusPlugin()
+: <a class="el" href="classrdm_1_1_focus_plugin.html#a3dfd0ba3e957df78ac5def239822220e">rdm::FocusPlugin</a>
 </li>
 <li>~LayoutPlugin()
 : <a class="el" href="classrdm_1_1_layout_plugin.html#af46aed2a29c724f2b5f34e030607de67">rdm::LayoutPlugin</a>

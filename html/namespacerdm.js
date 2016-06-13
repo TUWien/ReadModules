@@ -3,6 +3,8 @@ var namespacerdm =
     [ "DkTestInfo", "classrdm_1_1_dk_test_info.html", "classrdm_1_1_dk_test_info" ],
     [ "BatchTest", "classrdm_1_1_batch_test.html", "classrdm_1_1_batch_test" ],
     [ "BinarizationPlugin", "classrdm_1_1_binarization_plugin.html", "classrdm_1_1_binarization_plugin" ],
+    [ "FocusInfo", "classrdm_1_1_focus_info.html", "classrdm_1_1_focus_info" ],
+    [ "FocusPlugin", "classrdm_1_1_focus_plugin.html", "classrdm_1_1_focus_plugin" ],
     [ "LayoutPlugin", "classrdm_1_1_layout_plugin.html", "classrdm_1_1_layout_plugin" ],
     [ "PageData", "classrdm_1_1_page_data.html", "classrdm_1_1_page_data" ],
     [ "ColorButton", "classrdm_1_1_color_button.html", "classrdm_1_1_color_button" ],
