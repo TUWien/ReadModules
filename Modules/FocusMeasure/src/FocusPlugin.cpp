@@ -148,7 +148,9 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(const QString &runI
 
 		cv::Mat inputImg = rdf::Image::instance().qImage2Mat(img);
 		rdf::FocusEstimation fe;
-		fe.setWindowSize(500);
+		//int ws = inputImg.cols / 5;
+		int ws = 500;
+		fe.setWindowSize(ws);
 		fe.setImg(inputImg);
 
 		if (!fe.compute()) {
@@ -165,17 +167,35 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(const QString &runI
 		for (int i = 0; i < results.size(); i++) {
 			rdf::Patch tmpPatch = results[i];
 			cv::Point tmpPoint = tmpPatch.center() - cv::Point(20,20);
-			QString fmVal = QString::number(tmpPatch.fm(),'g', 2); 
+			double fmV = tmpPatch.fm();
+			QString fmVal = QString::number(fmV,'g', 2);
 
 			QRect fmCenter(QPoint(tmpPoint.x, tmpPoint.y), QSize(40, 40));
-
-			QPen myPen(QColor(255, 0, 0));
+			QRect fmCenter2(QPoint(tmpPatch.upperLeft().x, tmpPatch.upperLeft().y), QSize(ws, ws));
+			
+			QPen myPen;
+			if (fmV < 0.02) {
+				myPen.setColor(QColor(255, 0, 0));
+			}
+			else {
+				myPen.setColor(QColor(0, 255, 0));
+			}
+			
 			myPen.setWidth(5);
 			//p.setPen(QPen(QColor(255, 0, 0)));
 			p.setPen(myPen);
 			p.drawRect(fmCenter);
+
+			myPen.setColor(QColor(0, 0, 255));
+			p.setPen(myPen);
+			p.drawRect(fmCenter2);
+
+
 			myPen.setColor(QColor(0, 0, 255));
 			myPen.setWidth(0);
+			QFont f;
+			f.setPixelSize(40);
+			p.setFont(f);
 			p.setPen(myPen);
 			cv::Point tmpCenter = tmpPatch.center();
 			//p.setPen(QPen(QColor(100, 100, 100)));
@@ -194,9 +214,75 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(const QString &runI
 	}
 	else if(runID == mRunIDs[id_fmRel]) {
 
+
 		QImage img = imgC->image();
-		img = img.convertToFormat(QImage::Format_Grayscale8);
-		imgC->setImage(img.mirrored(), "Grayscale");
+
+
+		cv::Mat inputImg = rdf::Image::instance().qImage2Mat(img);
+		rdf::FocusEstimation fe;
+		//int ws = inputImg.cols / 5;
+		int ws = 500;
+		fe.setWindowSize(ws);
+		fe.setImg(inputImg);
+
+		if (!fe.compute()) {
+			qWarning() << "could not compute focus measures...";
+		}
+
+		std::vector<rdf::Patch> results = fe.fmPatches();
+		fe.computeRefPatches();
+		std::vector<rdf::Patch> refResults = fe.fmPatches();
+
+		QImage fmImg = img.copy();
+		QPainter p(&fmImg);
+		p.setPen(QPen(QColor(255, 0, 0)));
+		p.setBrush(Qt::NoBrush);
+
+		for (int i = 0; i < results.size(); i++) {
+			rdf::Patch tmpPatch = results[i];
+			rdf::Patch tmpPatchRef = refResults[i];
+			cv::Point tmpPoint = tmpPatch.center() - cv::Point(20, 20);
+			double fmV = tmpPatch.fm() / tmpPatchRef.fm();
+			QString fmVal = QString::number(fmV, 'g', 2);
+
+			QRect fmCenter(QPoint(tmpPoint.x, tmpPoint.y), QSize(40, 40));
+			QRect fmCenter2(QPoint(tmpPatch.upperLeft().x, tmpPatch.upperLeft().y), QSize(ws, ws));
+
+			QPen myPen;
+			//if (fmV < 0.4) {
+			if (fmV < 0.15) {
+				myPen.setColor(QColor(255, 0, 0));
+			}
+			else {
+				myPen.setColor(QColor(0, 255, 0));
+			}
+
+			myPen.setWidth(5);
+			//p.setPen(QPen(QColor(255, 0, 0)));
+			p.setPen(myPen);
+			p.drawRect(fmCenter);
+
+			myPen.setColor(QColor(0, 0, 255));
+			p.setPen(myPen);
+			p.drawRect(fmCenter2);
+
+
+			myPen.setColor(QColor(0, 0, 255));
+			myPen.setWidth(0);
+			QFont f;
+			f.setPixelSize(40);
+			p.setFont(f);
+			p.setPen(myPen);
+			cv::Point tmpCenter = tmpPatch.center();
+			//p.setPen(QPen(QColor(100, 100, 100)));
+			p.drawText(QPoint(tmpCenter.x - 40, tmpCenter.y - 30), fmVal);
+			//p.drawText(fmCenter, Qt::AlignCenter, fmVal);
+		}
+		p.end();
+
+		imgC->setImage(fmImg, "Focus measures...");
+
+
 
 		QSharedPointer<FocusInfo> testInfo(new FocusInfo(runID, imgC->filePath()));
 		testInfo->setProperty("gradient based and normalized wrt binary...");
