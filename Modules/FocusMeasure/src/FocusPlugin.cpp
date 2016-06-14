@@ -35,6 +35,14 @@ related links:
 // nomacs
 #include "DkImageStorage.h"
 #include "Settings.h"
+#include "FocusMeasure.h"
+#include "Algorithms.h"
+#include "Image.h"
+
+#include "DkImageStorage.h"
+#include "DkSettings.h"
+
+
 
 #pragma warning(push, 0)	// no warnings from includes - begin
 #include <QAction>
@@ -136,11 +144,51 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(const QString &runI
 	if(runID == mRunIDs[id_fmGrad]) {
 
 		QImage img = imgC->image();
-		imgC->setImage(img.mirrored(), "Mirrored");
+		
+
+		cv::Mat inputImg = rdf::Image::instance().qImage2Mat(img);
+		rdf::FocusEstimation fe;
+		fe.setWindowSize(500);
+		fe.setImg(inputImg);
+
+		if (!fe.compute()) {
+			qWarning() << "could not compute focus measures...";
+		}
+
+		std::vector<rdf::Patch> results = fe.fmPatches();
+
+		QImage fmImg = img.copy();
+		QPainter p(&fmImg);
+		p.setPen(QPen(QColor(255, 0, 0)));
+		p.setBrush(Qt::NoBrush);
+		
+		for (int i = 0; i < results.size(); i++) {
+			rdf::Patch tmpPatch = results[i];
+			cv::Point tmpPoint = tmpPatch.center() - cv::Point(20,20);
+			QString fmVal = QString::number(tmpPatch.fm(),'g', 2); 
+
+			QRect fmCenter(QPoint(tmpPoint.x, tmpPoint.y), QSize(40, 40));
+
+			QPen myPen(QColor(255, 0, 0));
+			myPen.setWidth(5);
+			//p.setPen(QPen(QColor(255, 0, 0)));
+			p.setPen(myPen);
+			p.drawRect(fmCenter);
+			myPen.setColor(QColor(0, 0, 255));
+			myPen.setWidth(0);
+			p.setPen(myPen);
+			cv::Point tmpCenter = tmpPatch.center();
+			//p.setPen(QPen(QColor(100, 100, 100)));
+			p.drawText(QPoint(tmpCenter.x-40, tmpCenter.y-30), fmVal);
+			//p.drawText(fmCenter, Qt::AlignCenter, fmVal);
+		}
+		p.end();
+
+		imgC->setImage(fmImg, "Focus measures...");
 
 		QSharedPointer<FocusInfo> testInfo(new FocusInfo(runID, imgC->filePath()));
-		testInfo->setProperty("Mirrored");
-		qDebug() << "mirrored...";
+		testInfo->setProperty("gradient based...");
+		qDebug() << "gradient based...";
 
 		info = testInfo;
 	}
@@ -151,8 +199,8 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(const QString &runI
 		imgC->setImage(img.mirrored(), "Grayscale");
 
 		QSharedPointer<FocusInfo> testInfo(new FocusInfo(runID, imgC->filePath()));
-		testInfo->setProperty("Grayscale");
-		qDebug() << "grayscale...";
+		testInfo->setProperty("gradient based and normalized wrt binary...");
+		qDebug() << "gradient based and normalized wrt binary...";
 
 		info = testInfo;
 	}
