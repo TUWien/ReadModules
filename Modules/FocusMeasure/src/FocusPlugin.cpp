@@ -242,7 +242,8 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(const QString &runI
 			rdf::Patch tmpPatch = results[i];
 			rdf::Patch tmpPatchRef = refResults[i];
 			cv::Point tmpPoint = tmpPatch.center() - cv::Point(20, 20);
-			double fmV = tmpPatch.fm() / tmpPatchRef.fm();
+			double refVal = tmpPatchRef.fm();
+			double fmV = refVal > 0 ? tmpPatch.fm() / tmpPatchRef.fm() : 0;
 			QString fmVal = QString::number(fmV, 'g', 2);
 
 			QRect fmCenter(QPoint(tmpPoint.x, tmpPoint.y), QSize(40, 40));
