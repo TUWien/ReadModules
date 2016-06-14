@@ -236,8 +236,10 @@ namespace rdm {
 				if(file.open(QIODevice::ReadWrite | QIODevice::Append)) {
 					QTextStream stream(&file);
 					QFileInfo fi = QFileInfo(filePaths[i]);
+					// eval file: file path , real label
 					stream << "'" << fi.baseName() << "'," << classLabels[i] << ",";
 					for(int k = 0; k < idxs.rows; k++) {
+						// eval file: real writer id, distance, number of page
 						QString out = classLabels[idxs.at<int>(k)] + "," + QString::number(distances.at<float>(k)) + "," + QString::number(idxs.at<int>(k)) + ",";
 						stream << out;
 					}
@@ -290,7 +292,8 @@ namespace rdm {
 			softOutput += QString::number(softPerc[softCriteria[i] - 1], 'f', 3) + "\t";
 		}
 
-		QVector<int> hardCriteria({ 2, 5, 7 });
+		//QVector<int> hardCriteria({ 2, 5, 7 });
+		QVector<int> hardCriteria({ 2, 3, 4 });
 		QString hardOutputHeader = "hard evaluation:\n";
 		QString hardOutput = "";
 		for(int i = 0; i < hardCriteria.size(); i++) {
