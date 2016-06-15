@@ -99,6 +99,7 @@ private:
 	double mVocPowerNormalization;
 	WIVocabulary mVocabulary = WIVocabulary();
 	QString mFeatureDir = QString();
+	QString mEvalFile = QString();
 };
 
 };

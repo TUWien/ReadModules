@@ -352,7 +352,7 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 		}
 		//wiDatabase.evaluateDatabase(classLabels, featurePaths/*, QString("c:\\tmp\\eval-2.txt")*/);
 		//wiDatabase.evaluateDatabase(hists, classLabels, featurePaths/*, QString("c:\\tmp\\eval-2.txt")*/);
-		wiDatabase.evaluateDatabase(hists, classLabels, featurePaths, QString("c:\\tmp\\onlyAreaEval.txt"));
+		wiDatabase.evaluateDatabase(hists, classLabels, featurePaths, mEvalFile);
 	}
 }
 
@@ -376,6 +376,7 @@ void WriterIdentificationPlugin::loadSettings(QSettings & settings) {
 	mVocPowerNormalization = settings.value("powerNormalization", 1).toDouble();
 	mFeatureDir = settings.value("featureDir", QString()).toString();
 	
+	mEvalFile = settings.value("evalFile", QString()).toString();
 	
 	qDebug() << "settings read: path: " << mSettingsVocPath << " type:" << mVocType << " numberOfClusters:" << mVocNumberOfClusters << " numberOfPCA: " << mVocNumberOfPCA;
 	settings.endGroup();
