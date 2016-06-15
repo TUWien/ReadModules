@@ -148,12 +148,22 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(const QString &runI
 
 		cv::Mat inputImg = rdf::Image::instance().qImage2Mat(img);
 		rdf::FocusEstimation fe;
-		//int ws = inputImg.cols / 5;
-		int ws = 500;
+		int w = inputImg.cols < inputImg.rows ? inputImg.cols : inputImg.rows;
+		int ws = (int)ceil((double)w / 5.0);
+		//int ws = 500;
 		fe.setWindowSize(ws);
+
 		fe.setImg(inputImg);
 
-		if (!fe.compute()) {
+		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::GLLV)) {
+		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::GLVA)) {
+		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::GLVN)) {
+		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::GRAS)) {
+		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::GRAT)) {
+		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::LAPE)) {
+		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::LAPV)) {
+		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::ROGR)) {
+		if (!fe.compute()) {  // = BREN
 			qWarning() << "could not compute focus measures...";
 		}
 
@@ -220,8 +230,10 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(const QString &runI
 
 		cv::Mat inputImg = rdf::Image::instance().qImage2Mat(img);
 		rdf::FocusEstimation fe;
-		//int ws = inputImg.cols / 5;
-		int ws = 500;
+
+		int w = inputImg.cols < inputImg.rows ? inputImg.cols : inputImg.rows;
+		int ws = (int)ceil((double)w / 5.0);
+		//int ws = 500;
 		fe.setWindowSize(ws);
 		fe.setImg(inputImg);
 
