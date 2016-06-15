@@ -179,6 +179,13 @@ namespace rdm {
 		evaluateDatabase(hists, classLabels, filePaths, evalFilePath);
 	}
 
+	/// <summary>
+	/// Evaluates the database with the histograms stored in the vector hists
+	/// </summary>
+	/// <param name="hists">A vector of the histograms.</param>
+	/// <param name="classLabels">The class labels.</param>
+	/// <param name="filePaths">The file paths.</param>
+	/// <param name="evalFilePath">The eval file path.</param>
 	void WIDatabase::evaluateDatabase(QVector<cv::Mat> hists, QStringList classLabels, QStringList filePaths, QString evalFilePath) const {
 		qDebug() << "starting evaluating";
 		int tp = 0; 
@@ -409,6 +416,12 @@ namespace rdm {
 		fileStream.close();
 	}
 
+	/// <summary>
+	/// Loads the features from the given file path and puts it into descriptors and keypoints
+	/// </summary>
+	/// <param name="filePath">The file path.</param>
+	/// <param name="descriptors">The descriptors which are read from the file.</param>
+	/// <param name="keypoints">The keypoints which are read from the file.</param>
 	void WIDatabase::loadFeatures(const QString filePath, cv::Mat & descriptors, QVector<cv::KeyPoint>& keypoints) {
 		cv::FileStorage fs(filePath.toStdString(), cv::FileStorage::READ);
 		if(!fs.isOpened()) {
@@ -642,15 +655,31 @@ namespace rdm {
 	cv::Mat WIVocabulary::l2Sigma() const {
 		return mL2Sigma;
 	}
+	/// <summary>
+	/// Sets the l2 mean which is applied to the histograms.
+	/// </summary>
+	/// <param name="mean">The mean.</param>
 	void WIVocabulary::setHistL2Mean(const cv::Mat mean) {
 		mHistL2Mean = mean;
 	}
+	/// <summary>
+	/// Returns the means which are applied to the histogram
+	/// </summary>
+	/// <returns></returns>
 	cv::Mat WIVocabulary::histL2Mean() const {
 		return mHistL2Mean;
 	}
+	/// <summary>
+	/// Sets the l2 mean which is applied to the features.
+	/// </summary>
+	/// <param name="sigma">The sigma.</param>
 	void WIVocabulary::setHistL2Sigma(const cv::Mat sigma) {
 		mHistL2Sigma = sigma;
 	}
+	/// <summary>
+	/// Returns the means which are applied to the features
+	/// </summary>
+	/// <returns></returns>
 	cv::Mat WIVocabulary::histL2Sigma() const {
 		return mHistL2Sigma;
 	}
@@ -919,7 +948,7 @@ namespace rdm {
 		return desc;
 	}
 	/// <summary>
-	/// Applies a L2 normalization with the values stored in the vocabulary.
+	/// Applies a L2 normalization with the values given
 	/// </summary>
 	/// <param name="desc">The desc.</param>
 	/// <returns>normalized descriptors</returns>
