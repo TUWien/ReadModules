@@ -179,6 +179,13 @@ namespace rdm {
 		evaluateDatabase(hists, classLabels, filePaths, evalFilePath);
 	}
 
+	/// <summary>
+	/// Evaluates the database with the histograms stored in the vector hists
+	/// </summary>
+	/// <param name="hists">A vector of the histograms.</param>
+	/// <param name="classLabels">The class labels.</param>
+	/// <param name="filePaths">The file paths.</param>
+	/// <param name="evalFilePath">The eval file path.</param>
 	void WIDatabase::evaluateDatabase(QVector<cv::Mat> hists, QStringList classLabels, QStringList filePaths, QString evalFilePath) const {
 		qDebug() << "starting evaluating";
 		int tp = 0; 
@@ -304,7 +311,7 @@ namespace rdm {
 			hardOutputHeader += "Top " + QString::number(hardCriteria[i]) + "\t";
 			hardOutput += QString::number(hardPerc[hardCriteria[i] - 1], 'f', 3) + "\t";
 		}
-
+		qDebug() << mVocabulary.toString();
 		qDebug().noquote() << softOutputHeader;
 		qDebug().noquote() << softOutput;
 		qDebug().noquote() << hardOutputHeader;
@@ -322,34 +329,41 @@ namespace rdm {
 	/// Calculates a PCA according to the components set in the vocabulary.
 	/// </summary>
 	/// <param name="desc">The desc.</param>
+	/// <param name="normalizeBefore">if true the descriptors are normalized before applying the PCA.</param>
 	/// <returns>the projected descriptors</returns>
-	cv::Mat WIDatabase::calculatePCA(const cv::Mat desc) {
-		// calculate mean and stddev for L2 normalization
-		cv::Mat means, stddev;
-		for(int i = 0; i < desc.cols; i++) {
-			cv::Scalar m, s;
-			meanStdDev(desc.col(i), m, s);
-			means.push_back(m.val[0]);
-			stddev.push_back(s.val[0]);
-		}
-		stddev.convertTo(stddev, CV_32F);
-		means.convertTo(means, CV_32F);
-		mVocabulary.setL2Mean(means);
-		mVocabulary.setL2Sigma(stddev);
+	cv::Mat WIDatabase::calculatePCA(const cv::Mat desc, bool normalizeBefore) {
+		cv::Mat descResult;
+		if(normalizeBefore) {
+			// calculate mean and stddev for L2 normalization
+			cv::Mat means, stddev;
+			for(int i = 0; i < desc.cols; i++) {
+				cv::Scalar m, s;
+				meanStdDev(desc.col(i), m, s);
+				means.push_back(m.val[0]);
+				stddev.push_back(s.val[0]);
+			}
+			stddev.convertTo(stddev, CV_32F);
+			means.convertTo(means, CV_32F);
+			mVocabulary.setL2Mean(means);
+			mVocabulary.setL2Sigma(stddev);
 
-		// L2 normalization 
-		rdf::Image::instance().imageInfo(desc, "desc vor l2");
-		cv::Mat descResult = (desc - cv::Mat::ones(desc.rows, 1, CV_32F) * means.t());
-		
-		//cv::Mat descResult = desc.clone();
-		//qDebug() << "using modified L2";
-		
-		rdf::Image::instance().imageInfo(descResult, "descResults vor l2 after subtracting means");
-		for(int i = 0; i < descResult.rows; i++) {
-			descResult.row(i) = descResult.row(i) / stddev.t();	// caution - don't clone this line unless you know what you do (without an operator / the assignment does nothing)
-		}
-		rdf::Image::instance().imageInfo(descResult, "descResults nach l2");
+			// L2 normalization 
+			rdf::Image::instance().imageInfo(desc, "desc vor l2");
+			descResult = (desc - cv::Mat::ones(desc.rows, 1, CV_32F) * means.t());
 
+			//cv::Mat descResult = desc.clone();
+			//qDebug() << "using modified L2";
+
+			rdf::Image::instance().imageInfo(descResult, "descResults vor l2 after subtracting means");
+			for(int i = 0; i < descResult.rows; i++) {
+				descResult.row(i) = descResult.row(i) / stddev.t();	// caution - don't clone this line unless you know what you do (without an operator / the assignment does nothing)
+			}
+			rdf::Image::instance().imageInfo(descResult, "descResults nach l2");
+		}
+		else {
+			qDebug() << "normalization before L2 is turned off ... skipping";
+			descResult = desc;
+		}
 		qDebug() << "calculating PCA";
 		cv::PCA pca = cv::PCA(descResult, cv::Mat(), CV_PCA_DATA_AS_ROW, mVocabulary.numberOfPCA());
 		mVocabulary.setPcaEigenvectors(pca.eigenvectors);
@@ -367,7 +381,8 @@ namespace rdm {
 	/// <param name="desc">The desc.</param>
 	void WIDatabase::generateBOW(cv::Mat desc) {
 		cv::BOWKMeansTrainer bow(mVocabulary.numberOfCluster(), cv::TermCriteria(), 10);
-		mVocabulary.setVocabulary(bow.cluster(desc));
+		cv::Mat voc = bow.cluster(desc);
+		mVocabulary.setVocabulary(voc);
 	}
 	/// <summary>
 	/// Generates the GMMs and the Fisher information for the given descriptors.
@@ -409,6 +424,12 @@ namespace rdm {
 		fileStream.close();
 	}
 
+	/// <summary>
+	/// Loads the features from the given file path and puts it into descriptors and keypoints
+	/// </summary>
+	/// <param name="filePath">The file path.</param>
+	/// <param name="descriptors">The descriptors which are read from the file.</param>
+	/// <param name="keypoints">The keypoints which are read from the file.</param>
 	void WIDatabase::loadFeatures(const QString filePath, cv::Mat & descriptors, QVector<cv::KeyPoint>& keypoints) {
 		cv::FileStorage fs(filePath.toStdString(), cv::FileStorage::READ);
 		if(!fs.isOpened()) {
@@ -642,15 +663,31 @@ namespace rdm {
 	cv::Mat WIVocabulary::l2Sigma() const {
 		return mL2Sigma;
 	}
+	/// <summary>
+	/// Sets the l2 mean which is applied to the histograms.
+	/// </summary>
+	/// <param name="mean">The mean.</param>
 	void WIVocabulary::setHistL2Mean(const cv::Mat mean) {
 		mHistL2Mean = mean;
 	}
+	/// <summary>
+	/// Returns the means which are applied to the histogram
+	/// </summary>
+	/// <returns></returns>
 	cv::Mat WIVocabulary::histL2Mean() const {
 		return mHistL2Mean;
 	}
+	/// <summary>
+	/// Sets the l2 mean which is applied to the features.
+	/// </summary>
+	/// <param name="sigma">The sigma.</param>
 	void WIVocabulary::setHistL2Sigma(const cv::Mat sigma) {
 		mHistL2Sigma = sigma;
 	}
+	/// <summary>
+	/// Returns the means which are applied to the features
+	/// </summary>
+	/// <returns></returns>
 	cv::Mat WIVocabulary::histL2Sigma() const {
 		return mHistL2Sigma;
 	}
@@ -779,9 +816,9 @@ namespace rdm {
 	/// <param name="desc">Descriptors of an image.</param>
 	/// <returns>the generated histogram</returns>
 	cv::Mat WIVocabulary::generateHist(cv::Mat desc) const {
-		if(mVocabulary.type() == WIVocabulary::WI_BOW)
+		if(mType == WIVocabulary::WI_BOW)
 			return generateHistBOW(desc);
-		else if(mVocabulary.type() == WIVocabulary::WI_GMM) {
+		else if(mType == WIVocabulary::WI_GMM) {
 			return generateHistGMM(desc);
 		}
 		else {
@@ -919,7 +956,7 @@ namespace rdm {
 		return desc;
 	}
 	/// <summary>
-	/// Applies a L2 normalization with the values stored in the vocabulary.
+	/// Applies a L2 normalization with the values given
 	/// </summary>
 	/// <param name="desc">The desc.</param>
 	/// <returns>normalized descriptors</returns>
