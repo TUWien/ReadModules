@@ -65,6 +65,7 @@ namespace rdm {
 
 	runIds[id_fmGrad] = "43aa999c555d4142918fa65f6281b9c8";
 	runIds[id_fmRel] = "afa3dc198f8c4683ba34c189375ee509";
+	runIds[id_fmRelArea] = "81485799-11d8-4e85-9434-7fde401d62d5";
 	mRunIDs = runIds.toList();
 
 	// create menu actions
@@ -73,6 +74,7 @@ namespace rdm {
 
 	menuNames[id_fmGrad] = tr("Gradient Based Focus");
 	menuNames[id_fmRel] = tr("Gradient Based Focus Normalized");
+	menuNames[id_fmRelArea] = tr("Gradient Based Focus Normalized- wrt Area");
 	mMenuNames = menuNames.toList();
 
 	// create menu status tips
@@ -81,6 +83,7 @@ namespace rdm {
 
 	statusTips[id_fmGrad] = tr("Estimates the Focus based on Gradients");
 	statusTips[id_fmRel] = tr("Estimates the Focus based on Gradients (Normalized)");
+	statusTips[id_fmRelArea] = tr("Estimates the Focus based on Gradients (Normalized and wrt to the area)");
 	mMenuStatusTips = statusTips.toList();
 }
 /**
@@ -160,10 +163,10 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(const QString &runI
 		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::GLVN)) {
 		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::GRAS)) {
 		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::GRAT)) {
-		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::LAPE)) {
-		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::LAPV)) {
+		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::LAPE)) {  // <- test in future
+		if (!fe.compute(rdf::FocusEstimation::FocusMeasure::LAPV)) {
 		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::ROGR)) {
-		if (!fe.compute()) {  // = BREN
+		//if (!fe.compute()) {  // = BREN
 			qWarning() << "could not compute focus measures...";
 		}
 
@@ -295,6 +298,100 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(const QString &runI
 
 		imgC->setImage(fmImg, "Focus measures...");
 
+
+
+		QSharedPointer<FocusInfo> testInfo(new FocusInfo(runID, imgC->filePath()));
+		testInfo->setProperty("gradient based and normalized wrt binary...");
+		qDebug() << "gradient based and normalized wrt binary...";
+
+		info = testInfo;
+	}
+	else if (runID == mRunIDs[id_fmRelArea]) {
+
+
+		QImage img = imgC->image();
+
+
+		cv::Mat inputImg = rdf::Image::instance().qImage2Mat(img);
+		rdf::FocusEstimation fe;
+
+		//cv::Mat binImg;
+		//cv::cvtColor(inputImg, inputImg, CV_RGB2GRAY);
+		//inputImg.convertTo(binImg, CV_8U, 255);
+		//cv::threshold(binImg, binImg, 0, 255, CV_THRESH_BINARY_INV | CV_THRESH_OTSU);
+		////binImg.convertTo(binImg, CV_64F);
+
+		int w = inputImg.cols < inputImg.rows ? inputImg.cols : inputImg.rows;
+		int ws = (int)ceil((double)w / 5.0);
+		//int ws = 500;
+		fe.setWindowSize(ws);
+		fe.setImg(inputImg);
+
+		if (!fe.compute()) {
+			qWarning() << "could not compute focus measures...";
+		}
+
+		std::vector<rdf::Patch> results = fe.fmPatches();
+		fe.computeRefPatches(rdf::FocusEstimation::FocusMeasure::BREN, true);
+		std::vector<rdf::Patch> refResults = fe.fmPatches();
+
+		QImage fmImg = img.copy();
+		QPainter p(&fmImg);
+		p.setPen(QPen(QColor(255, 0, 0)));
+		p.setBrush(Qt::NoBrush);
+
+		for (int i = 0; i < results.size(); i++) {
+			rdf::Patch tmpPatch = results[i];
+			rdf::Patch tmpPatchRef = refResults[i];
+			cv::Point tmpPoint = tmpPatch.center() - cv::Point(20, 20);
+			double refVal = tmpPatchRef.fm();
+			double fmV = refVal > 0 ? tmpPatch.fm() / tmpPatchRef.fm() : 0;
+			//fmV *= tmpPatchRef.weight();
+			QString fmVal = QString::number(fmV, 'g', 2);
+
+			QRect fmCenter(QPoint(tmpPoint.x, tmpPoint.y), QSize(40, 40));
+			QRect fmCenter2(QPoint(tmpPatch.upperLeft().x, tmpPatch.upperLeft().y), QSize(ws, ws));
+
+			QPen myPen;
+			//if (fmV < 0.4) {
+			if (fmV < 0.15 && tmpPatchRef.area() > 0.03) {
+				myPen.setColor(QColor(255, 0, 0));
+			}
+			else if (tmpPatchRef.area() > 0.03) {
+				myPen.setColor(QColor(0, 255, 0));
+			}
+		    else {
+				myPen.setColor(QColor(100, 100, 100));
+			}
+
+			myPen.setWidth(5);
+			//p.setPen(QPen(QColor(255, 0, 0)));
+			p.setPen(myPen);
+			p.drawRect(fmCenter);
+
+			myPen.setColor(QColor(0, 0, 255));
+			p.setPen(myPen);
+			p.drawRect(fmCenter2);
+
+
+			myPen.setColor(QColor(0, 0, 255));
+			myPen.setWidth(0);
+			QFont f;
+			f.setPixelSize(40);
+			p.setFont(f);
+			p.setPen(myPen);
+			cv::Point tmpCenter = tmpPatch.center();
+			//p.setPen(QPen(QColor(100, 100, 100)));
+			p.drawText(QPoint(tmpCenter.x - 40, tmpCenter.y - 30), fmVal);
+			//p.drawText(fmCenter, Qt::AlignCenter, fmVal);
+		}
+		p.end();
+
+		imgC->setImage(fmImg, "Focus measures...");
+
+		//QImage img2 = nmc::DkImage::mat2QImage(binImg);
+		//img2 = img2.convertToFormat(QImage::Format_ARGB32);
+		//imgC->setImage(img2, "binimg");
 
 
 		QSharedPointer<FocusInfo> testInfo(new FocusInfo(runID, imgC->filePath()));

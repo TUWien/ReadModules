@@ -83,6 +83,7 @@ public:
 	enum {
 		id_fmGrad,
 		id_fmRel,
+		id_fmRelArea,
 		// add actions here
 
 		id_end
