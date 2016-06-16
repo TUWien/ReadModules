@@ -148,7 +148,7 @@ namespace rdm {
 
 	private:
 		QString debugName() const;
-		cv::Mat calculatePCA(const cv::Mat desc);
+		cv::Mat calculatePCA(const cv::Mat desc, bool normalizeBefore = false);
 		void generateBOW(cv::Mat desc);
 		void generateGMM(cv::Mat desc);
 		void writeMatToFile(const cv::Mat, const QString filePath) const;

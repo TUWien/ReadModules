@@ -311,7 +311,7 @@ namespace rdm {
 			hardOutputHeader += "Top " + QString::number(hardCriteria[i]) + "\t";
 			hardOutput += QString::number(hardPerc[hardCriteria[i] - 1], 'f', 3) + "\t";
 		}
-
+		qDebug() << mVocabulary.toString();
 		qDebug().noquote() << softOutputHeader;
 		qDebug().noquote() << softOutput;
 		qDebug().noquote() << hardOutputHeader;
@@ -329,34 +329,41 @@ namespace rdm {
 	/// Calculates a PCA according to the components set in the vocabulary.
 	/// </summary>
 	/// <param name="desc">The desc.</param>
+	/// <param name="normalizeBefore">if true the descriptors are normalized before applying the PCA.</param>
 	/// <returns>the projected descriptors</returns>
-	cv::Mat WIDatabase::calculatePCA(const cv::Mat desc) {
-		// calculate mean and stddev for L2 normalization
-		cv::Mat means, stddev;
-		for(int i = 0; i < desc.cols; i++) {
-			cv::Scalar m, s;
-			meanStdDev(desc.col(i), m, s);
-			means.push_back(m.val[0]);
-			stddev.push_back(s.val[0]);
-		}
-		stddev.convertTo(stddev, CV_32F);
-		means.convertTo(means, CV_32F);
-		mVocabulary.setL2Mean(means);
-		mVocabulary.setL2Sigma(stddev);
+	cv::Mat WIDatabase::calculatePCA(const cv::Mat desc, bool normalizeBefore) {
+		cv::Mat descResult;
+		if(normalizeBefore) {
+			// calculate mean and stddev for L2 normalization
+			cv::Mat means, stddev;
+			for(int i = 0; i < desc.cols; i++) {
+				cv::Scalar m, s;
+				meanStdDev(desc.col(i), m, s);
+				means.push_back(m.val[0]);
+				stddev.push_back(s.val[0]);
+			}
+			stddev.convertTo(stddev, CV_32F);
+			means.convertTo(means, CV_32F);
+			mVocabulary.setL2Mean(means);
+			mVocabulary.setL2Sigma(stddev);
 
-		// L2 normalization 
-		rdf::Image::instance().imageInfo(desc, "desc vor l2");
-		cv::Mat descResult = (desc - cv::Mat::ones(desc.rows, 1, CV_32F) * means.t());
-		
-		//cv::Mat descResult = desc.clone();
-		//qDebug() << "using modified L2";
-		
-		rdf::Image::instance().imageInfo(descResult, "descResults vor l2 after subtracting means");
-		for(int i = 0; i < descResult.rows; i++) {
-			descResult.row(i) = descResult.row(i) / stddev.t();	// caution - don't clone this line unless you know what you do (without an operator / the assignment does nothing)
-		}
-		rdf::Image::instance().imageInfo(descResult, "descResults nach l2");
+			// L2 normalization 
+			rdf::Image::instance().imageInfo(desc, "desc vor l2");
+			descResult = (desc - cv::Mat::ones(desc.rows, 1, CV_32F) * means.t());
 
+			//cv::Mat descResult = desc.clone();
+			//qDebug() << "using modified L2";
+
+			rdf::Image::instance().imageInfo(descResult, "descResults vor l2 after subtracting means");
+			for(int i = 0; i < descResult.rows; i++) {
+				descResult.row(i) = descResult.row(i) / stddev.t();	// caution - don't clone this line unless you know what you do (without an operator / the assignment does nothing)
+			}
+			rdf::Image::instance().imageInfo(descResult, "descResults nach l2");
+		}
+		else {
+			qDebug() << "normalization before L2 is turned off ... skipping";
+			descResult = desc;
+		}
 		qDebug() << "calculating PCA";
 		cv::PCA pca = cv::PCA(descResult, cv::Mat(), CV_PCA_DATA_AS_ROW, mVocabulary.numberOfPCA());
 		mVocabulary.setPcaEigenvectors(pca.eigenvectors);
@@ -374,7 +381,8 @@ namespace rdm {
 	/// <param name="desc">The desc.</param>
 	void WIDatabase::generateBOW(cv::Mat desc) {
 		cv::BOWKMeansTrainer bow(mVocabulary.numberOfCluster(), cv::TermCriteria(), 10);
-		mVocabulary.setVocabulary(bow.cluster(desc));
+		cv::Mat voc = bow.cluster(desc);
+		mVocabulary.setVocabulary(voc);
 	}
 	/// <summary>
 	/// Generates the GMMs and the Fisher information for the given descriptors.
@@ -808,9 +816,9 @@ namespace rdm {
 	/// <param name="desc">Descriptors of an image.</param>
 	/// <returns>the generated histogram</returns>
 	cv::Mat WIVocabulary::generateHist(cv::Mat desc) const {
-		if(mVocabulary.type() == WIVocabulary::WI_BOW)
+		if(mType == WIVocabulary::WI_BOW)
 			return generateHistBOW(desc);
-		else if(mVocabulary.type() == WIVocabulary::WI_GMM) {
+		else if(mType == WIVocabulary::WI_GMM) {
 			return generateHistGMM(desc);
 		}
 		else {

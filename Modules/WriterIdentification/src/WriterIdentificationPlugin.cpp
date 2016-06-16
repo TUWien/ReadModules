@@ -321,7 +321,7 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 		}
 
 		wiDatabase.setVocabulary(voc);
-
+		qDebug() << "postLoad: vocabulary:" << voc.toString();
 		QStringList classLabels, featurePaths;
 		for(auto bi : batchInfo) {
 			WIInfo * wInfo = dynamic_cast<WIInfo*>(bi.data());
@@ -331,7 +331,7 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 		}
 
 		wiDatabase.generateVocabulary();
-		wiDatabase.saveVocabulary(mVocType == WIVocabulary::WI_UNDEFINED ? "C://tmp//voc-woSettings.yml" : mSettingsVocPath);
+		wiDatabase.saveVocabulary(voc.type() == WIVocabulary::WI_UNDEFINED ? "C://tmp//voc-woSettings.yml" : mSettingsVocPath);
 		wiDatabase.evaluateDatabase(classLabels, featurePaths);
 	}
 	else if(runIdx == id_evaluate_database) {
@@ -353,6 +353,8 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 		//wiDatabase.evaluateDatabase(classLabels, featurePaths/*, QString("c:\\tmp\\eval-2.txt")*/);
 		//wiDatabase.evaluateDatabase(hists, classLabels, featurePaths/*, QString("c:\\tmp\\eval-2.txt")*/);
 		wiDatabase.evaluateDatabase(hists, classLabels, featurePaths, mEvalFile);
+		if(!mEvalFile.isEmpty())
+			qDebug() << "evaluation written to " << mEvalFile;
 	}
 }
 
@@ -380,22 +382,6 @@ void WriterIdentificationPlugin::loadSettings(QSettings & settings) {
 	
 	qDebug() << "settings read: path: " << mSettingsVocPath << " type:" << mVocType << " numberOfClusters:" << mVocNumberOfClusters << " numberOfPCA: " << mVocNumberOfPCA;
 	settings.endGroup();
-
-	//WIVocabulary voc = WIVocabulary();
-	//voc.loadVocabulary(mSettingsVocPath);
-	//cv::Mat m = voc.em()->getMeans();
-	//std::ofstream fileStream;
-	//fileStream.open("c:\\tmp\\means.m");
-	//fileStream << m.cols << "\n" << m.rows << "\n" << std::flush;
-	//for(int i = 0; i < m.rows; i++) {
-	//	const float* row = m.ptr<float>(i);
-	//	for(int j = 0; j < m.cols; j++)
-	//		fileStream << row[j] << " ";
-	//	fileStream << "\n" << std::flush;
-	//}
-	//fileStream.close();
-	//m.release();
-
 
 }
 
