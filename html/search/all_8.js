@@ -9,6 +9,7 @@ var searchData=
   ['id_5fevaluate_5fdatabase',['id_evaluate_database',['../classrdm_1_1_writer_identification_plugin.html#aff98a44a8191e54a1e7155da19f58358a28e91dfeed285fb3a9d7d3dd051f82b2',1,'rdm::WriterIdentificationPlugin']]],
   ['id_5ffmgrad',['id_fmGrad',['../classrdm_1_1_focus_plugin.html#a60ae25f2d5d78fc6eb75550816dd36adaa87ad496bfd4d7eba496278558ee07ea',1,'rdm::FocusPlugin']]],
   ['id_5ffmrel',['id_fmRel',['../classrdm_1_1_focus_plugin.html#a60ae25f2d5d78fc6eb75550816dd36adadbc189d7f9a36984d54aaf4bd417798a',1,'rdm::FocusPlugin']]],
+  ['id_5ffmrelarea',['id_fmRelArea',['../classrdm_1_1_focus_plugin.html#a60ae25f2d5d78fc6eb75550816dd36ada73f2cf262cb68b1de4f40cbe499a1e61',1,'rdm::FocusPlugin']]],
   ['id_5fgenerate_5fvocabulary',['id_generate_vocabulary',['../classrdm_1_1_writer_identification_plugin.html#aff98a44a8191e54a1e7155da19f58358a5af31cb40ec9ca4e1abc1e3a1188fe57',1,'rdm::WriterIdentificationPlugin']]],
   ['id_5fgrayscale',['id_grayscale',['../classrdm_1_1_batch_test.html#a7fdf0afbbd2dfa1e5383085f66cdf28ba2a043b79f6cda7dad1a5c9d6567e1d6e',1,'rdm::BatchTest']]],
   ['id_5fidentify_5fwriter',['id_identify_writer',['../classrdm_1_1_writer_identification_plugin.html#aff98a44a8191e54a1e7155da19f58358adb2305ffc67d482c950477ba3efb2938',1,'rdm::WriterIdentificationPlugin']]],

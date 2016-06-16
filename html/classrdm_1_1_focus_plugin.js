@@ -2,6 +2,7 @@ var classrdm_1_1_focus_plugin =
 [
     [ "id_fmGrad", "classrdm_1_1_focus_plugin.html#a60ae25f2d5d78fc6eb75550816dd36adaa87ad496bfd4d7eba496278558ee07ea", null ],
     [ "id_fmRel", "classrdm_1_1_focus_plugin.html#a60ae25f2d5d78fc6eb75550816dd36adadbc189d7f9a36984d54aaf4bd417798a", null ],
+    [ "id_fmRelArea", "classrdm_1_1_focus_plugin.html#a60ae25f2d5d78fc6eb75550816dd36ada73f2cf262cb68b1de4f40cbe499a1e61", null ],
     [ "id_end", "classrdm_1_1_focus_plugin.html#a60ae25f2d5d78fc6eb75550816dd36adae03315823a86ba900528c445a4af86b1", null ],
     [ "FocusPlugin", "classrdm_1_1_focus_plugin.html#abce1828bdb2430b515c9e030b1248512", null ],
     [ "~FocusPlugin", "classrdm_1_1_focus_plugin.html#a3dfd0ba3e957df78ac5def239822220e", null ],
