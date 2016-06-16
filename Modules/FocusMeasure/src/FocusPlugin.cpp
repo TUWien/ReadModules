@@ -65,7 +65,7 @@ namespace rdm {
 
 	runIds[id_fmGrad] = "43aa999c555d4142918fa65f6281b9c8";
 	runIds[id_fmRel] = "afa3dc198f8c4683ba34c189375ee509";
-	runIds[id_fmRelArea] = "81485799-11d8-4e85-9434-7fde401d62d5";
+	runIds[id_fmRelArea] = "63b8000b1e604cfba818e64b83c897f6";
 	mRunIDs = runIds.toList();
 
 	// create menu actions
