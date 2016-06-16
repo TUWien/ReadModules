@@ -352,6 +352,10 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 		}
 		//wiDatabase.evaluateDatabase(classLabels, featurePaths/*, QString("c:\\tmp\\eval-2.txt")*/);
 		//wiDatabase.evaluateDatabase(hists, classLabels, featurePaths/*, QString("c:\\tmp\\eval-2.txt")*/);
+		if(!mSettingsVocPath.isEmpty()) {
+			qDebug() << "vocabulary path:" << mSettingsVocPath;
+		}
+
 		wiDatabase.evaluateDatabase(hists, classLabels, featurePaths, mEvalFile);
 		if(!mEvalFile.isEmpty())
 			qDebug() << "evaluation written to " << mEvalFile;

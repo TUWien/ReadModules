@@ -187,7 +187,7 @@ namespace rdm {
 	/// <param name="filePaths">The file paths.</param>
 	/// <param name="evalFilePath">The eval file path.</param>
 	void WIDatabase::evaluateDatabase(QVector<cv::Mat> hists, QStringList classLabels, QStringList filePaths, QString evalFilePath) const {
-		qDebug() << "starting evaluating";
+		qDebug() << "starting evaluation";
 		int tp = 0; 
 		int fp = 0;
 		QVector<int> soft;
