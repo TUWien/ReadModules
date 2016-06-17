@@ -84,6 +84,7 @@ public:
 		id_fmGrad,
 		id_fmRel,
 		id_fmRelArea,
+		id_contMeasure,
 		// add actions here
 
 		id_end

@@ -66,6 +66,7 @@ namespace rdm {
 	runIds[id_fmGrad] = "43aa999c555d4142918fa65f6281b9c8";
 	runIds[id_fmRel] = "afa3dc198f8c4683ba34c189375ee509";
 	runIds[id_fmRelArea] = "63b8000b1e604cfba818e64b83c897f6";
+	runIds[id_contMeasure] = "7620810cc8904dafa16a998fe9d5fe46";
 	mRunIDs = runIds.toList();
 
 	// create menu actions
@@ -75,6 +76,7 @@ namespace rdm {
 	menuNames[id_fmGrad] = tr("Gradient Based Focus");
 	menuNames[id_fmRel] = tr("Gradient Based Focus Normalized");
 	menuNames[id_fmRelArea] = tr("Gradient Based Focus Normalized- wrt Area");
+	menuNames[id_contMeasure] = tr("Contrast Measure");
 	mMenuNames = menuNames.toList();
 
 	// create menu status tips
@@ -84,6 +86,7 @@ namespace rdm {
 	statusTips[id_fmGrad] = tr("Estimates the Focus based on Gradients");
 	statusTips[id_fmRel] = tr("Estimates the Focus based on Gradients (Normalized)");
 	statusTips[id_fmRelArea] = tr("Estimates the Focus based on Gradients (Normalized and wrt to the area)");
+	statusTips[id_contMeasure] = tr("Estimates Contrast");
 	mMenuStatusTips = statusTips.toList();
 }
 /**
@@ -397,6 +400,76 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(const QString &runI
 		QSharedPointer<FocusInfo> testInfo(new FocusInfo(runID, imgC->filePath()));
 		testInfo->setProperty("gradient based and normalized wrt binary...");
 		qDebug() << "gradient based and normalized wrt binary...";
+
+		info = testInfo;
+	}
+	else if (runID == mRunIDs[id_contMeasure]) {
+		QImage img = imgC->image();
+
+
+		cv::Mat inputImg = rdf::Image::instance().qImage2Mat(img);
+		rdf::ContrastEstimation ce;
+		//int w = inputImg.cols < inputImg.rows ? inputImg.cols : inputImg.rows;
+		//int ws = (int)ceil((double)w / 5.0);
+		//int ws = 500;
+		ce.setWindowSize(200);
+		int ws = ce.windowSize();
+		//ce.setWindowSize(ws);
+		//ce.setLum(true);
+		ce.setImg(inputImg);
+
+		//if (!ce.compute(rdf::ContrastEstimation::ContrastMeasure::RMS)) {
+		//if (!ce.compute(rdf::ContrastEstimation::ContrastMeasure::MICHELSON)) {
+		if (!ce.compute(rdf::ContrastEstimation::ContrastMeasure::WEBER)) {
+			qWarning() << "could not compute focus measures...";
+		}
+
+		std::vector<rdf::Patch> results = ce.cPatches();
+
+		QImage fmImg = img.copy();
+		QPainter p(&fmImg);
+		p.setPen(QPen(QColor(255, 0, 0)));
+		p.setBrush(Qt::NoBrush);
+
+		for (int i = 0; i < results.size(); i++) {
+			rdf::Patch tmpPatch = results[i];
+			cv::Point tmpPoint = tmpPatch.center() - cv::Point(20, 20);
+			double cV = tmpPatch.fm();
+			QString cVal = QString::number(cV, 'g', 2);
+
+			QRect fmCenter(QPoint(tmpPoint.x, tmpPoint.y), QSize(40, 40));
+			QRect fmCenter2(QPoint(tmpPatch.upperLeft().x, tmpPatch.upperLeft().y), QSize(ws, ws));
+
+			QPen myPen;
+			myPen.setColor(QColor(0, 255, 0));
+			myPen.setWidth(5);
+			//p.setPen(QPen(QColor(255, 0, 0)));
+			p.setPen(myPen);
+			//p.drawRect(fmCenter);
+
+			myPen.setColor(QColor(0, 0, 255));
+			p.setPen(myPen);
+			p.drawRect(fmCenter2);
+
+
+			myPen.setColor(QColor(0, 0, 255));
+			myPen.setWidth(0);
+			QFont f;
+			f.setPixelSize(40);
+			p.setFont(f);
+			p.setPen(myPen);
+			cv::Point tmpCenter = tmpPatch.center();
+			//p.setPen(QPen(QColor(100, 100, 100)));
+			p.drawText(QPoint(tmpCenter.x - 40, tmpCenter.y), cVal);
+			//p.drawText(fmCenter, Qt::AlignCenter, fmVal);
+		}
+		p.end();
+
+		imgC->setImage(fmImg, "Contrast measures...");
+
+		QSharedPointer<FocusInfo> testInfo(new FocusInfo(runID, imgC->filePath()));
+		testInfo->setProperty("contrast based...");
+		qDebug() << "contrast based...";
 
 		info = testInfo;
 	}
