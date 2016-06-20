@@ -81,6 +81,7 @@ public:
 	void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const override;
 
 	enum {
+		id_gtPage,
 		id_fmGrad,
 		id_fmRel,
 		id_fmRelArea,
