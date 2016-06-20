@@ -352,9 +352,47 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 		}
 		//wiDatabase.evaluateDatabase(classLabels, featurePaths/*, QString("c:\\tmp\\eval-2.txt")*/);
 		//wiDatabase.evaluateDatabase(hists, classLabels, featurePaths/*, QString("c:\\tmp\\eval-2.txt")*/);
-		wiDatabase.evaluateDatabase(hists, classLabels, featurePaths, mEvalFile);
+		if(!mSettingsVocPath.isEmpty()) {
+			qDebug() << "vocabulary path:" << mSettingsVocPath;
+		}
+		QFileInfo fi = QFileInfo(mEvalFile);
+		QString evalFile = mEvalFile;
+		if(fi.isDir()) {
+			evalFile += "/eval";
+
+			if(!featurePaths.empty()) {
+				QString ffp = featurePaths[1];
+				QFileInfo fi = QFileInfo(ffp);
+				QDir dir = fi.dir();
+				if(dir.absolutePath().contains("sift", Qt::CaseInsensitive)) {
+					dir.cdUp();
+				}
+				evalFile += "-" + dir.dirName();
+			}
+
+			if(mVocabulary.type() == WIVocabulary::WI_BOW)
+				evalFile += "-BOW";
+			else if(mVocabulary.type() == WIVocabulary::WI_GMM) {
+				evalFile += "-GMM";
+				evalFile += "-" + QString::number(mVocabulary.powerNormalization(),'f',2) + "pow";
+			} 
+			else
+				evalFile += "-Unkown";
+
+			evalFile += "-" + QString::number(mVocabulary.numberOfCluster()) + "c";
+			evalFile += "-" + QString::number(mVocabulary.numberOfPCA()) + "PCA";
+			evalFile += "-" + QString::number(mVocabulary.maximumSIFTSize()) + "SIFTmax";
+			evalFile += "-" + QString::number(mVocabulary.minimumSIFTSize()) + "SIFTmin";
+			if(mVocabulary.l2Mean().empty())
+				evalFile += "-wol2Mean";
+			if(mVocabulary.histL2Mean().empty())
+				evalFile += "-wol2hist";
+			evalFile += ".txt";
+		}
+
+		wiDatabase.evaluateDatabase(hists, classLabels, featurePaths, evalFile);
 		if(!mEvalFile.isEmpty())
-			qDebug() << "evaluation written to " << mEvalFile;
+			qDebug() << "evaluation written to " << evalFile;
 	}
 }
 
