@@ -306,11 +306,13 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(const QString &runI
 		fe.setWindowSize(ws);
 		fe.setImg(inputImg);
 
+		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::LAPV)) {
 		if (!fe.compute()) {
 			qWarning() << "could not compute focus measures...";
 		}
 
 		std::vector<rdf::Patch> results = fe.fmPatches();
+		//fe.computeRefPatches(rdf::FocusEstimation::FocusMeasure::LAPV);
 		fe.computeRefPatches();
 		std::vector<rdf::Patch> refResults = fe.fmPatches();
 
