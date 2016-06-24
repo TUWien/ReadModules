@@ -231,9 +231,9 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(const QString &runI
 		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::GRAS)) {
 		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::GRAT)) {
 		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::LAPE)) {  // <- test in future
-		if (!fe.compute(rdf::FocusEstimation::FocusMeasure::LAPV)) {
+		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::LAPV)) {
 		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::ROGR)) {
-		//if (!fe.compute()) {  // = BREN
+		if (!fe.compute()) {  // = BREN
 			qWarning() << "could not compute focus measures...";
 		}
 
