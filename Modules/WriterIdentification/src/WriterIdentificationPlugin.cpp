@@ -387,6 +387,14 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 				evalFile += "-wol2Mean";
 			if(mVocabulary.histL2Mean().empty())
 				evalFile += "-wol2hist";
+			if(QFileInfo(evalFile + ".txt").exists()) {
+				int i = 1;
+
+				while(QFileInfo(evalFile + "-" + QString::number(i) + ".txt").exists()) {
+					i++;
+				}
+				evalFile = evalFile + "-" + QString::number(i);
+			}
 			evalFile += ".txt";
 		}
 
