@@ -61,6 +61,7 @@ public:
 	enum {
 		id_layout_draw,
 		id_layout_xml,
+		id_lines,
 		// add actions here
 
 		id_end

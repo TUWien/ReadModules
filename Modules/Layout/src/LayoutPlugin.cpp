@@ -34,6 +34,10 @@ related links:
 
 // ReadFramework
 #include "SuperPixel.h"
+#include "LineTrace.h"
+#include "Algorithms.h"
+#include "Binarization.h"
+#include "SkewEstimation.h"
 
 // nomacs
 #include "DkImageStorage.h"
@@ -55,6 +59,7 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 
 	runIds[id_layout_draw] = "4cbb58ada14d4b64a17fe3285696446b";
 	runIds[id_layout_xml] = "b56790b60a904a32975621e4b54ab939";
+	runIds[id_lines] = "9af887d7003c44e999ba2db50d65ec85";
 	mRunIDs = runIds.toList();
 
 	// create menu actions
@@ -63,6 +68,7 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 
 	menuNames[id_layout_draw] = tr("Draw Layout");
 	menuNames[id_layout_xml] = tr("PAGE Xml");
+	menuNames[id_lines] = tr("Calculate Lines");
 	mMenuNames = menuNames.toList();
 
 	// create menu status tips
@@ -71,6 +77,7 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 
 	statusTips[id_layout_draw] = tr("Draws the current layout outputs to the image");
 	statusTips[id_layout_xml] = tr("Writes the layout analysis results to an XML");
+	statusTips[id_lines] = tr("Calculates the lines in the binarized image");
 	mMenuStatusTips = statusTips.toList();
 }
 /**
@@ -144,6 +151,53 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(const QString &run
 
 
 		qDebug() << "not implemented yet - sorry";
+	}
+	else if (runID == mRunIDs[id_lines]) {
+
+		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
+
+		if (imgCv.depth() != CV_8U) {
+			imgCv.convertTo(imgCv, CV_8U, 255);
+			
+		}
+
+		if (imgCv.channels() != 1) {
+			cv::cvtColor(imgCv, imgCv, CV_RGB2GRAY);
+		}
+		
+		//cv::Mat mask = rdf::Algorithms::instance().estimateMask(imgCv);
+		cv::Mat mask = cv::Mat();
+
+		rdf::BaseSkewEstimation bse;
+		bse.setImages(imgCv);
+		bse.setFixedThr(false);
+		if (!bse.compute()) {
+			qWarning() << "could not compute skew";
+		}
+		double skewAngle = bse.getAngle();
+		skewAngle = skewAngle / 180.0 * CV_PI; //check if minus angle is needed....
+		
+		rdf::BinarizationSuAdapted binarizeImg(imgCv, mask);
+		binarizeImg.compute();
+		cv::Mat bwImg = binarizeImg.binaryImage();
+
+		rdf::LineTrace lt(bwImg, mask);
+		lt.setAngle(skewAngle);
+
+		lt.compute();
+
+		//cv::Mat lImg = lt.lineImage();
+		cv::Mat synLine = lt.generatedLineImage();
+		QVector<rdf::Line> hlines = lt.getHLines();
+		QVector<rdf::Line> vlines = lt.getVLines();
+
+		//TODO
+		//save lines to xml
+
+		//visualize
+		QImage img = nmc::DkImage::mat2QImage(synLine);
+		imgC->setImage(img, tr("Calculated lines"));
+
 	}
 
 	// wrong runID? - do nothing
