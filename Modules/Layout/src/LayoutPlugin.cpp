@@ -165,17 +165,20 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(const QString &run
 			cv::cvtColor(imgCv, imgCv, CV_RGB2GRAY);
 		}
 		
+		//if mask will is estimated
 		//cv::Mat mask = rdf::Algorithms::instance().estimateMask(imgCv);
 		cv::Mat mask = cv::Mat();
 
-		rdf::BaseSkewEstimation bse;
-		bse.setImages(imgCv);
-		bse.setFixedThr(false);
-		if (!bse.compute()) {
-			qWarning() << "could not compute skew";
-		}
-		double skewAngle = bse.getAngle();
-		skewAngle = skewAngle / 180.0 * CV_PI; //check if minus angle is needed....
+		//if skew will be used
+		//rdf::BaseSkewEstimation bse;
+		//bse.setImages(imgCv);
+		//bse.setFixedThr(false);
+		//if (!bse.compute()) {
+		//	qWarning() << "could not compute skew";
+		//}
+		//double skewAngle = bse.getAngle();
+		//skewAngle = skewAngle / 180.0 * CV_PI; //check if minus angle is needed....
+		double skewAngle = 0.0f;
 		
 		rdf::BinarizationSuAdapted binarizeImg(imgCv, mask);
 		binarizeImg.compute();
