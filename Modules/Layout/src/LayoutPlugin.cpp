@@ -38,6 +38,8 @@ related links:
 #include "Algorithms.h"
 #include "Binarization.h"
 #include "SkewEstimation.h"
+#include "PageParser.h"
+#include "Elements.h"
 
 // nomacs
 #include "DkImageStorage.h"
@@ -193,13 +195,28 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(const QString &run
 		cv::Mat synLine = lt.generatedLineImage();
 		QVector<rdf::Line> hlines = lt.getHLines();
 		QVector<rdf::Line> vlines = lt.getVLines();
+		QVector<rdf::Line> alllines = lt.getLines();
 
 		//TODO
 		//save lines to xml
+		rdf::PageXmlParser parser;
+		QString xmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
+		parser.read(xmlPath);
+		auto pe = parser.page();
+
+		for (int i = 0; i < alllines.size(); i++) {
+			
+			QSharedPointer<rdf::SeparatorRegion> pSepR(new rdf::SeparatorRegion());
+			pSepR->setLine(alllines[0].line());
+
+			pe->rootRegion()->addChild(pSepR);
+		}
+
+		parser.write(xmlPath, pe);
 
 		//visualize
-		QImage img = nmc::DkImage::mat2QImage(synLine);
-		imgC->setImage(img, tr("Calculated lines"));
+		//QImage img = nmc::DkImage::mat2QImage(synLine);
+		//imgC->setImage(img, tr("Calculated lines"));
 
 	}
 

@@ -286,6 +286,10 @@ void SkewEstPlugin::preLoadPlugin() const {
 }
 
 void SkewEstPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo>>& batchInfo) const {
+	
+	if (batchInfo.empty())
+		return;
+	
 	int runIdx = mRunIDs.indexOf(batchInfo.first()->id());
 
 	QVector<QVector3D> angles;
@@ -296,6 +300,10 @@ void SkewEstPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 	double errCeCnt = 0;
 
 	for (auto bi : batchInfo) {
+
+		if (!bi)
+			continue;
+
 		qDebug() << bi->filePath() << "computed...";
 		SkewInfo* tInfo = dynamic_cast<SkewInfo*>(bi.data());
 
