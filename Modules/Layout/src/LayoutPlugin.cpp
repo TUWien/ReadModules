@@ -197,26 +197,31 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(const QString &run
 		QVector<rdf::Line> vlines = lt.getVLines();
 		QVector<rdf::Line> alllines = lt.getLines();
 
-		//TODO
 		//save lines to xml
+		//TODO - check if it is working...
 		rdf::PageXmlParser parser;
 		QString xmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
 		parser.read(xmlPath);
 		auto pe = parser.page();
+		//pe->setCreator(QString("CVL"));
 
 		for (int i = 0; i < alllines.size(); i++) {
 			
 			QSharedPointer<rdf::SeparatorRegion> pSepR(new rdf::SeparatorRegion());
-			pSepR->setLine(alllines[0].line());
+			pSepR->setLine(alllines[i].line());
 
-			pe->rootRegion()->addChild(pSepR);
+			//pe->rootRegion()->addChild(pSepR);
+			pe->rootRegion()->addUniqueChild(pSepR);
 		}
 
 		parser.write(xmlPath, pe);
 
 		//visualize
-		//QImage img = nmc::DkImage::mat2QImage(synLine);
-		//imgC->setImage(img, tr("Calculated lines"));
+		if (synLine.channels() == 1) {
+			cv::cvtColor(synLine, synLine, CV_GRAY2BGRA);
+		}
+		QImage img = nmc::DkImage::mat2QImage(synLine);
+		imgC->setImage(img, tr("Calculated lines"));
 
 	}
 
