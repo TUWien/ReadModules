@@ -215,13 +215,12 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(const QString &run
 		}
 
 		parser.write(xmlPath, pe);
-
 		//visualize
-		if (synLine.channels() == 1) {
-			cv::cvtColor(synLine, synLine, CV_GRAY2BGRA);
-		}
-		QImage img = nmc::DkImage::mat2QImage(synLine);
-		imgC->setImage(img, tr("Calculated lines"));
+		//if (synLine.channels() == 1) {
+		//	cv::cvtColor(synLine, synLine, CV_GRAY2BGRA);
+		//}
+		//QImage img = nmc::DkImage::mat2QImage(synLine);
+		//imgC->setImage(img, tr("Calculated lines"));
 
 	}
 
