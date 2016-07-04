@@ -192,9 +192,9 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(const QString &run
 		lt.compute();
 
 		//cv::Mat lImg = lt.lineImage();
-		cv::Mat synLine = lt.generatedLineImage();
-		QVector<rdf::Line> hlines = lt.getHLines();
-		QVector<rdf::Line> vlines = lt.getVLines();
+		//cv::Mat synLine = lt.generatedLineImage();
+		//QVector<rdf::Line> hlines = lt.getHLines();
+		//QVector<rdf::Line> vlines = lt.getVLines();
 		QVector<rdf::Line> alllines = lt.getLines();
 
 		//save lines to xml
