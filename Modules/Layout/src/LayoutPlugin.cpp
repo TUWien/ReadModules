@@ -62,6 +62,7 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 	runIds[id_layout_draw] = "4cbb58ada14d4b64a17fe3285696446b";
 	runIds[id_layout_xml] = "b56790b60a904a32975621e4b54ab939";
 	runIds[id_lines] = "9af887d7003c44e999ba2db50d65ec85";
+	runIds[id_line_img] = "49a4d36689c9411bb848d93d0eb22f5c";
 	mRunIDs = runIds.toList();
 
 	// create menu actions
@@ -70,7 +71,8 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 
 	menuNames[id_layout_draw] = tr("Draw Layout");
 	menuNames[id_layout_xml] = tr("PAGE Xml");
-	menuNames[id_lines] = tr("Calculate Lines");
+	menuNames[id_lines] = tr("Calculate Lines (XML)");
+	menuNames[id_line_img] = tr("Calculate Line Image");
 	mMenuNames = menuNames.toList();
 
 	// create menu status tips
@@ -80,6 +82,7 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 	statusTips[id_layout_draw] = tr("Draws the current layout outputs to the image");
 	statusTips[id_layout_xml] = tr("Writes the layout analysis results to an XML");
 	statusTips[id_lines] = tr("Calculates the lines in the binarized image");
+	statusTips[id_line_img] = tr("Calculates the line image. XML is not written.");
 	mMenuStatusTips = statusTips.toList();
 }
 /**
@@ -192,32 +195,81 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(const QString &run
 		lt.compute();
 
 		//cv::Mat lImg = lt.lineImage();
-		cv::Mat synLine = lt.generatedLineImage();
-		QVector<rdf::Line> hlines = lt.getHLines();
-		QVector<rdf::Line> vlines = lt.getVLines();
+		//cv::Mat synLine = lt.generatedLineImage();
+		//QVector<rdf::Line> hlines = lt.getHLines();
+		//QVector<rdf::Line> vlines = lt.getVLines();
 		QVector<rdf::Line> alllines = lt.getLines();
 
-		//TODO
 		//save lines to xml
+		//TODO - check if it is working...
 		rdf::PageXmlParser parser;
 		QString xmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
 		parser.read(xmlPath);
 		auto pe = parser.page();
+		//pe->setCreator(QString("CVL"));
 
 		for (int i = 0; i < alllines.size(); i++) {
 			
 			QSharedPointer<rdf::SeparatorRegion> pSepR(new rdf::SeparatorRegion());
-			pSepR->setLine(alllines[0].line());
+			pSepR->setLine(alllines[i].line());
 
-			pe->rootRegion()->addChild(pSepR);
+			//pe->rootRegion()->addChild(pSepR);
+			pe->rootRegion()->addUniqueChild(pSepR);
 		}
 
 		parser.write(xmlPath, pe);
-
 		//visualize
+		//if (synLine.channels() == 1) {
+		//	cv::cvtColor(synLine, synLine, CV_GRAY2BGRA);
+		//}
 		//QImage img = nmc::DkImage::mat2QImage(synLine);
 		//imgC->setImage(img, tr("Calculated lines"));
 
+	}
+	else if (runID == mRunIDs[id_line_img]) {
+		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
+
+		if (imgCv.depth() != CV_8U) {
+			imgCv.convertTo(imgCv, CV_8U, 255);
+		}
+
+		if (imgCv.channels() != 1) {
+			cv::cvtColor(imgCv, imgCv, CV_RGB2GRAY);
+		}
+
+		//if mask will is estimated
+		//cv::Mat mask = rdf::Algorithms::instance().estimateMask(imgCv);
+		cv::Mat mask = cv::Mat();
+
+		//if skew will be used
+		//rdf::BaseSkewEstimation bse;
+		//bse.setImages(imgCv);
+		//bse.setFixedThr(false);
+		//if (!bse.compute()) {
+		//	qWarning() << "could not compute skew";
+		//}
+		//double skewAngle = bse.getAngle();
+		//skewAngle = skewAngle / 180.0 * CV_PI; //check if minus angle is needed....
+		double skewAngle = 0.0f;
+
+		rdf::BinarizationSuAdapted binarizeImg(imgCv, mask);
+		binarizeImg.compute();
+		cv::Mat bwImg = binarizeImg.binaryImage();
+
+		rdf::LineTrace lt(bwImg, mask);
+		lt.setAngle(skewAngle);
+
+		lt.compute();
+
+		//cv::Mat lImg = lt.lineImage();
+		cv::Mat synLine = lt.generatedLineImage();
+
+		//visualize
+		if (synLine.channels() == 1) {
+			cv::cvtColor(synLine, synLine, CV_GRAY2BGRA);
+		}
+		QImage img = nmc::DkImage::mat2QImage(synLine);
+		imgC->setImage(img, tr("Calculated lines"));
 	}
 
 	// wrong runID? - do nothing

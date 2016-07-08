@@ -62,6 +62,7 @@ public:
 		id_layout_draw,
 		id_layout_xml,
 		id_lines,
+		id_line_img,
 		// add actions here
 
 		id_end
