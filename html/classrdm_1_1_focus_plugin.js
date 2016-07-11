@@ -14,7 +14,7 @@ var classrdm_1_1_focus_plugin =
     [ "pluginActions", "classrdm_1_1_focus_plugin.html#ac468a1b7ebab454c90bd6531d9ea55e6", null ],
     [ "postLoadPlugin", "classrdm_1_1_focus_plugin.html#a6434af302fcd66eb265b7d2e9f4f4b55", null ],
     [ "preLoadPlugin", "classrdm_1_1_focus_plugin.html#afdc48ae4a0c5261f0cc429df8fac7aa8", null ],
-    [ "runPlugin", "classrdm_1_1_focus_plugin.html#ab59807fc78fcec372c8f99ae8119ab89", null ],
+    [ "runPlugin", "classrdm_1_1_focus_plugin.html#a88a6c77a116fcacd5a105b3cc549d7c8", null ],
     [ "mActions", "classrdm_1_1_focus_plugin.html#a7f1d876ca6e1523125c89955e289d20a", null ],
     [ "mMenuNames", "classrdm_1_1_focus_plugin.html#aa7202ec27a052ceec0b23ac66c6d7e76", null ],
     [ "mMenuStatusTips", "classrdm_1_1_focus_plugin.html#ad2c0e0cba38e8ed77ecff2be5f82c126", null ],

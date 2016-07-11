@@ -13,7 +13,7 @@ var classrdm_1_1_writer_identification_plugin =
     [ "pluginActions", "classrdm_1_1_writer_identification_plugin.html#abe355116e2dc01b9db7eca8f525f2ba7", null ],
     [ "postLoadPlugin", "classrdm_1_1_writer_identification_plugin.html#a6c3263d1d6aa37b071d76456b5665a0e", null ],
     [ "preLoadPlugin", "classrdm_1_1_writer_identification_plugin.html#a7636d0331d65dd441dd7ffe4b77e801d", null ],
-    [ "runPlugin", "classrdm_1_1_writer_identification_plugin.html#ace0f375b92f8d0e2af6cb1f7081b3346", null ],
+    [ "runPlugin", "classrdm_1_1_writer_identification_plugin.html#a9fa9f07f98aa89ecf091f03404b59942", null ],
     [ "mActions", "classrdm_1_1_writer_identification_plugin.html#a170f55f8de05d130b7ae43d37eff8bd6", null ],
     [ "mMenuNames", "classrdm_1_1_writer_identification_plugin.html#a1ad957370d0a28a177561a512ff08323", null ],
     [ "mMenuStatusTips", "classrdm_1_1_writer_identification_plugin.html#a03f044deb94eaa8720f969ac09892339", null ],

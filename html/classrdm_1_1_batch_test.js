@@ -11,7 +11,7 @@ var classrdm_1_1_batch_test =
     [ "pluginActions", "classrdm_1_1_batch_test.html#a95634d26c93f178cb550cefe269afb20", null ],
     [ "postLoadPlugin", "classrdm_1_1_batch_test.html#a2830ebdf2dc6b56332d23c36bcf90391", null ],
     [ "preLoadPlugin", "classrdm_1_1_batch_test.html#a6a9efc38aa38451e915e50342c588a2a", null ],
-    [ "runPlugin", "classrdm_1_1_batch_test.html#af95d4e28a3a51b2614a9d329e5794f85", null ],
+    [ "runPlugin", "classrdm_1_1_batch_test.html#a03d63136dc66428c1aade685e6e8a057", null ],
     [ "mActions", "classrdm_1_1_batch_test.html#a31c3e8e4d993cfe6de86962bcdcf0213", null ],
     [ "mMenuNames", "classrdm_1_1_batch_test.html#a6f197a68fcfeaedc09083698a294dfba", null ],
     [ "mMenuStatusTips", "classrdm_1_1_batch_test.html#ac96a09a869d357c07b7e512280747946", null ],

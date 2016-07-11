@@ -9,6 +9,7 @@ var hierarchy =
     [ "DkBatchPluginInterface", null, [
       [ "rdm::BatchTest", "classrdm_1_1_batch_test.html", null ],
       [ "rdm::FocusPlugin", "classrdm_1_1_focus_plugin.html", null ],
+      [ "rdm::LayoutPlugin", "classrdm_1_1_layout_plugin.html", null ],
       [ "rdm::SkewEstPlugin", "classrdm_1_1_skew_est_plugin.html", null ],
       [ "rdm::WriterIdentificationPlugin", "classrdm_1_1_writer_identification_plugin.html", null ]
     ] ],
@@ -16,8 +17,7 @@ var hierarchy =
       [ "rdm::PageDock", "classrdm_1_1_page_dock.html", null ]
     ] ],
     [ "DkPluginInterface", null, [
-      [ "rdm::BinarizationPlugin", "classrdm_1_1_binarization_plugin.html", null ],
-      [ "rdm::LayoutPlugin", "classrdm_1_1_layout_plugin.html", null ]
+      [ "rdm::BinarizationPlugin", "classrdm_1_1_binarization_plugin.html", null ]
     ] ],
     [ "DkPluginViewPort", null, [
       [ "rdm::PageViewport", "classrdm_1_1_page_viewport.html", null ]

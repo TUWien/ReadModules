@@ -151,9 +151,9 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a7e9bcf04046e06279e1f68449cc2376b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a95dbd075c4d1c94c765a50cb07f12320"><td class="memItemLeft" align="right" valign="top">QList&lt; QAction * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_skew_est_plugin.html#a95dbd075c4d1c94c765a50cb07f12320">pluginActions</a> () const override</td></tr>
 <tr class="separator:a95dbd075c4d1c94c765a50cb07f12320"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5ef032682a3fbad77a2b29a430090ac5"><td class="memItemLeft" align="right" valign="top">QSharedPointer<br class="typebreak"/>
-&lt; nmc::DkImageContainer &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_skew_est_plugin.html#a5ef032682a3fbad77a2b29a430090ac5">runPlugin</a> (const QString &amp;runID, QSharedPointer&lt; nmc::DkImageContainer &gt; imgC, QSharedPointer&lt; nmc::DkBatchInfo &gt; &amp;info) const override</td></tr>
-<tr class="separator:a5ef032682a3fbad77a2b29a430090ac5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a986b408af41b2cab9d49b0d8f22d256e"><td class="memItemLeft" align="right" valign="top">QSharedPointer<br class="typebreak"/>
+&lt; nmc::DkImageContainer &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_skew_est_plugin.html#a986b408af41b2cab9d49b0d8f22d256e">runPlugin</a> (const QString &amp;runID, QSharedPointer&lt; nmc::DkImageContainer &gt; imgC, const nmc::DkSaveInfo &amp;saveInfo, QSharedPointer&lt; nmc::DkBatchInfo &gt; &amp;info) const override</td></tr>
+<tr class="separator:a986b408af41b2cab9d49b0d8f22d256e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a24675f3294aba17535d4bf31107b5f8b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_skew_est_plugin.html#a24675f3294aba17535d4bf31107b5f8b">preLoadPlugin</a> () const override</td></tr>
 <tr class="separator:a24675f3294aba17535d4bf31107b5f8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a95af7ce2b930d61ef62725741759a251"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_skew_est_plugin.html#a95af7ce2b930d61ef62725741759a251">postLoadPlugin</a> (const QVector&lt; QSharedPointer&lt; nmc::DkBatchInfo &gt; &gt; &amp;batchInfo) const override</td></tr>
@@ -395,7 +395,7 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a5ef032682a3fbad77a2b29a430090ac5"></a>
+<a class="anchor" id="a986b408af41b2cab9d49b0d8f22d256e"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -413,6 +413,12 @@ Protected Attributes</h2></td></tr>
           <td></td>
           <td class="paramtype">QSharedPointer&lt; nmc::DkImageContainer &gt;&#160;</td>
           <td class="paramname"><em>imgC</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const nmc::DkSaveInfo &amp;&#160;</td>
+          <td class="paramname"><em>saveInfo</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>

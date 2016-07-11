@@ -5,6 +5,7 @@ var searchData=
   ['colorbutton',['ColorButton',['../classrdm_1_1_color_button.html',1,'rdm']]],
   ['colorbutton',['ColorButton',['../classrdm_1_1_color_button.html#a2cc04950dbe135849656a9ad3985a70e',1,'rdm::ColorButton']]],
   ['compute',['compute',['../classrdm_1_1_layout_plugin.html#a79c310f89b9e44874be7ef2ed61fde76',1,'rdm::LayoutPlugin']]],
+  ['computelines',['computeLines',['../classrdm_1_1_layout_plugin.html#acce0628f8e92b1d7c5fd5921200c7d54',1,'rdm::LayoutPlugin']]],
   ['config',['config',['../classrdm_1_1_page_data.html#a0d0b073ce0cf314e5a943b9ee751a04f',1,'rdm::PageData::config()'],['../classrdm_1_1_page_dock.html#a911a509a5045c862f46c17b150f02006',1,'rdm::PageDock::config()']]],
   ['configwidget',['ConfigWidget',['../classrdm_1_1_config_widget.html#ac475e40eed9ddbb93b6786d29098e98e',1,'rdm::ConfigWidget']]],
   ['configwidget',['ConfigWidget',['../classrdm_1_1_config_widget.html',1,'rdm']]],

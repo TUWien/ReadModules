@@ -157,14 +157,20 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a855a33d9645c608d17ea0ada30d852e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2823b962e93bb5cf7e2ee67ed5aaf975"><td class="memItemLeft" align="right" valign="top">QList&lt; QAction * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_layout_plugin.html#a2823b962e93bb5cf7e2ee67ed5aaf975">pluginActions</a> () const override</td></tr>
 <tr class="separator:a2823b962e93bb5cf7e2ee67ed5aaf975"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1517f9765b94086ff26c03b235132a1f"><td class="memItemLeft" align="right" valign="top">QSharedPointer<br class="typebreak"/>
-&lt; nmc::DkImageContainer &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_layout_plugin.html#a1517f9765b94086ff26c03b235132a1f">runPlugin</a> (const QString &amp;runID=QString(), QSharedPointer&lt; nmc::DkImageContainer &gt; imgC=QSharedPointer&lt; nmc::DkImageContainer &gt;()) const override</td></tr>
-<tr class="separator:a1517f9765b94086ff26c03b235132a1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a61b2f5b80150c6e3617cb743c0379e43"><td class="memItemLeft" align="right" valign="top">QSharedPointer<br class="typebreak"/>
+&lt; nmc::DkImageContainer &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_layout_plugin.html#a61b2f5b80150c6e3617cb743c0379e43">runPlugin</a> (const QString &amp;runID, QSharedPointer&lt; nmc::DkImageContainer &gt; imgC, const nmc::DkSaveInfo &amp;saveInfo, QSharedPointer&lt; nmc::DkBatchInfo &gt; &amp;batchInfo) const override</td></tr>
+<tr class="separator:a61b2f5b80150c6e3617cb743c0379e43"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4f4db2dc2da9620d30e34da2f06cc00c"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_layout_plugin.html#a4f4db2dc2da9620d30e34da2f06cc00c">preLoadPlugin</a> () const override</td></tr>
+<tr class="separator:a4f4db2dc2da9620d30e34da2f06cc00c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a07554fbe8ff81e97656322c119cdb945"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_layout_plugin.html#a07554fbe8ff81e97656322c119cdb945">postLoadPlugin</a> (const QVector&lt; QSharedPointer&lt; nmc::DkBatchInfo &gt; &gt; &amp;) const override</td></tr>
+<tr class="separator:a07554fbe8ff81e97656322c119cdb945"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
 <tr class="memitem:a79c310f89b9e44874be7ef2ed61fde76"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_layout_plugin.html#a79c310f89b9e44874be7ef2ed61fde76">compute</a> (const cv::Mat &amp;src) const </td></tr>
 <tr class="separator:a79c310f89b9e44874be7ef2ed61fde76"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acce0628f8e92b1d7c5fd5921200c7d54"><td class="memItemLeft" align="right" valign="top">rdf::LineTrace&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_layout_plugin.html#acce0628f8e92b1d7c5fd5921200c7d54">computeLines</a> (QSharedPointer&lt; nmc::DkImageContainer &gt; imgC) const </td></tr>
+<tr class="separator:acce0628f8e92b1d7c5fd5921200c7d54"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
@@ -249,6 +255,30 @@ Protected Attributes</h2></td></tr>
           <td>(</td>
           <td class="paramtype">const cv::Mat &amp;&#160;</td>
           <td class="paramname"><em>src</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="acce0628f8e92b1d7c5fd5921200c7d54"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">rdf::LineTrace rdm::LayoutPlugin::computeLines </td>
+          <td>(</td>
+          <td class="paramtype">QSharedPointer&lt; nmc::DkImageContainer &gt;&#160;</td>
+          <td class="paramname"><em>imgC</em></td><td>)</td>
           <td> const</td>
         </tr>
       </table>
@@ -362,7 +392,54 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a1517f9765b94086ff26c03b235132a1f"></a>
+<a class="anchor" id="a07554fbe8ff81e97656322c119cdb945"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void rdm::LayoutPlugin::postLoadPlugin </td>
+          <td>(</td>
+          <td class="paramtype">const QVector&lt; QSharedPointer&lt; nmc::DkBatchInfo &gt; &gt; &amp;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a4f4db2dc2da9620d30e34da2f06cc00c"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void rdm::LayoutPlugin::preLoadPlugin </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a61b2f5b80150c6e3617cb743c0379e43"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -373,13 +450,25 @@ Protected Attributes</h2></td></tr>
           <td class="memname">QSharedPointer&lt; nmc::DkImageContainer &gt; rdm::LayoutPlugin::runPlugin </td>
           <td>(</td>
           <td class="paramtype">const QString &amp;&#160;</td>
-          <td class="paramname"><em>runID</em> = <code>QString()</code>, </td>
+          <td class="paramname"><em>runID</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">QSharedPointer&lt; nmc::DkImageContainer &gt;&#160;</td>
-          <td class="paramname"><em>imgC</em> = <code>QSharedPointer&lt;nmc::DkImageContainer&gt;()</code>&#160;</td>
+          <td class="paramname"><em>imgC</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const nmc::DkSaveInfo &amp;&#160;</td>
+          <td class="paramname"><em>saveInfo</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">QSharedPointer&lt; nmc::DkBatchInfo &gt; &amp;&#160;</td>
+          <td class="paramname"><em>batchInfo</em>&#160;</td>
         </tr>
         <tr>
           <td></td>

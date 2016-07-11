@@ -12,7 +12,7 @@ var classrdm_1_1_skew_est_plugin =
     [ "pluginActions", "classrdm_1_1_skew_est_plugin.html#a95dbd075c4d1c94c765a50cb07f12320", null ],
     [ "postLoadPlugin", "classrdm_1_1_skew_est_plugin.html#a95af7ce2b930d61ef62725741759a251", null ],
     [ "preLoadPlugin", "classrdm_1_1_skew_est_plugin.html#a24675f3294aba17535d4bf31107b5f8b", null ],
-    [ "runPlugin", "classrdm_1_1_skew_est_plugin.html#a5ef032682a3fbad77a2b29a430090ac5", null ],
+    [ "runPlugin", "classrdm_1_1_skew_est_plugin.html#a986b408af41b2cab9d49b0d8f22d256e", null ],
     [ "setFilePath", "classrdm_1_1_skew_est_plugin.html#a10def0eb630b4fbd164ce730eb994157", null ],
     [ "mActions", "classrdm_1_1_skew_est_plugin.html#a65bc21efd5dcf68a401e41cfe58e5289", null ],
     [ "mFilePath", "classrdm_1_1_skew_est_plugin.html#a313774ce7c2d30444fefe63a9cfccb79", null ],
