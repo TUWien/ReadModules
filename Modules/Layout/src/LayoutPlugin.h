@@ -39,6 +39,10 @@ namespace cv {
 	class Mat;
 }
 
+namespace rdf {
+	class LineTrace;
+}
+
 namespace rdm {
 
 class LayoutPlugin : public QObject, nmc::DkBatchPluginInterface {
@@ -81,5 +85,7 @@ protected:
 	QStringList mMenuStatusTips;
 
 	cv::Mat compute(const cv::Mat& src) const;
+	rdf::LineTrace computeLines(QSharedPointer<nmc::DkImageContainer> imgC) const;
+
 };
 };
