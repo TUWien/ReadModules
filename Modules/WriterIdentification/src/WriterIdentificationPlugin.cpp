@@ -170,6 +170,8 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(cons
 		////cv::drawKeypoints(imgCv, wi.getKeyPoints().toStdVector(), imgCv, cv::Scalar::all(-1));
 		//
 		////QString fFilePath = featureFilePath(imgC->filePath(), true);
+
+
 		wi.saveFeatures(featureFilePath(imgC->filePath(), true));
 
 		//QImage img = nmc::DkImage::mat2QImage(imgCv);
