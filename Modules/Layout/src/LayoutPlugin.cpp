@@ -138,7 +138,11 @@ QList<QAction*> LayoutPlugin::pluginActions() const {
 * @param plugin ID
 * @param image to be processed
 **/
-QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(const QString &runID, QSharedPointer<nmc::DkImageContainer> imgC) const {
+QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
+	const QString &runID, 
+	QSharedPointer<nmc::DkImageContainer> imgC, 
+	const nmc::DkSaveInfo& saveInfo,
+	QSharedPointer<nmc::DkBatchInfo>& batchInfo) const {
 
 	if (!imgC)
 		return imgC;
@@ -163,7 +167,6 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(const QString &run
 
 		if (imgCv.depth() != CV_8U) {
 			imgCv.convertTo(imgCv, CV_8U, 255);
-			
 		}
 
 		if (imgCv.channels() != 1) {
@@ -185,6 +188,13 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(const QString &run
 		//skewAngle = skewAngle / 180.0 * CV_PI; //check if minus angle is needed....
 		double skewAngle = 0.0f;
 		
+		if (batchInfo) {
+			qDebug() << "batch info: " << batchInfo->filePath();
+		}
+		else
+			qDebug() << "batch info is NULL";
+
+
 		rdf::BinarizationSuAdapted binarizeImg(imgCv, mask);
 		binarizeImg.compute();
 		cv::Mat bwImg = binarizeImg.binaryImage();

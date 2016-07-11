@@ -141,7 +141,11 @@ QList<QAction*> SkewEstPlugin::pluginActions() const {
 * @param plugin ID
 * @param image to be processed
 **/
-QSharedPointer<nmc::DkImageContainer> SkewEstPlugin::runPlugin(const QString &runID, QSharedPointer<nmc::DkImageContainer> imgC, QSharedPointer<nmc::DkBatchInfo>& info) const {
+QSharedPointer<nmc::DkImageContainer> SkewEstPlugin::runPlugin(
+	const QString &runID, 
+	QSharedPointer<nmc::DkImageContainer> imgC, 
+	const nmc::DkSaveInfo& saveInfo,
+	QSharedPointer<nmc::DkBatchInfo>& info) const {
 
 	qDebug() << "running skew plugin...";
 

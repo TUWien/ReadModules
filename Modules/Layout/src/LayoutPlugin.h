@@ -39,12 +39,11 @@ namespace cv {
 	class Mat;
 }
 
-
 namespace rdm {
 
-class LayoutPlugin : public QObject, nmc::DkPluginInterface {
+class LayoutPlugin : public QObject, nmc::DkBatchPluginInterface {
 	Q_OBJECT
-		Q_INTERFACES(nmc::DkPluginInterface)
+		Q_INTERFACES(nmc::DkBatchPluginInterface)
 		Q_PLUGIN_METADATA(IID "com.nomacs.ImageLounge.LayoutPlugin/3.0" FILE "LayoutPlugin.json")
 
 public:
@@ -56,7 +55,14 @@ public:
 
 	QList<QAction*> createActions(QWidget* parent) override;
 	QList<QAction*> pluginActions() const override;
-	QSharedPointer<nmc::DkImageContainer> runPlugin(const QString &runID = QString(), QSharedPointer<nmc::DkImageContainer> imgC = QSharedPointer<nmc::DkImageContainer>()) const override;
+	QSharedPointer<nmc::DkImageContainer> runPlugin(
+		const QString &runID, 
+		QSharedPointer<nmc::DkImageContainer> imgC, 
+		const nmc::DkSaveInfo& saveInfo,
+		QSharedPointer<nmc::DkBatchInfo>& batchInfo) const override;
+
+	virtual void preLoadPlugin() const override {};
+	virtual void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> > &) const override {};
 
 	enum {
 		id_layout_draw,
