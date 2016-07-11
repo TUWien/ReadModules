@@ -174,6 +174,8 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 		////cv::drawKeypoints(imgCv, wi.getKeyPoints().toStdVector(), imgCv, cv::Scalar::all(-1));
 		//
 		////QString fFilePath = featureFilePath(imgC->filePath(), true);
+
+
 		wi.saveFeatures(featureFilePath(imgC->filePath(), true));
 
 		//QImage img = nmc::DkImage::mat2QImage(imgCv);
@@ -391,6 +393,14 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 				evalFile += "-wol2Mean";
 			if(mVocabulary.histL2Mean().empty())
 				evalFile += "-wol2hist";
+			if(QFileInfo(evalFile + ".txt").exists()) {
+				int i = 1;
+
+				while(QFileInfo(evalFile + "-" + QString::number(i) + ".txt").exists()) {
+					i++;
+				}
+				evalFile = evalFile + "-" + QString::number(i);
+			}
 			evalFile += ".txt";
 		}
 
