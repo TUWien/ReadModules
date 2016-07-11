@@ -50,6 +50,7 @@ related links:
 #include <QVector>
 #include <QVector2D>
 #include <QVector3D>
+#include <QXmlStreamReader>
 #pragma warning(pop)		// no warnings from includes - end
 
 namespace rdm {
@@ -63,6 +64,7 @@ namespace rdm {
 	QVector<QString> runIds;
 	runIds.resize(id_end);
 
+	runIds[id_gtPage] = "89dc114070e840d7bd0aca079dae657f";
 	runIds[id_fmGrad] = "43aa999c555d4142918fa65f6281b9c8";
 	runIds[id_fmRel] = "afa3dc198f8c4683ba34c189375ee509";
 	runIds[id_fmRelArea] = "63b8000b1e604cfba818e64b83c897f6";
@@ -73,6 +75,7 @@ namespace rdm {
 	QVector<QString> menuNames;
 	menuNames.resize(id_end);
 
+	menuNames[id_gtPage] = tr("Show Page GT");
 	menuNames[id_fmGrad] = tr("Gradient Based Focus");
 	menuNames[id_fmRel] = tr("Gradient Based Focus Normalized");
 	menuNames[id_fmRelArea] = tr("Gradient Based Focus Normalized- wrt Area");
@@ -83,6 +86,7 @@ namespace rdm {
 	QVector<QString> statusTips;
 	statusTips.resize(id_end);
 
+	statusTips[id_gtPage] = tr("Shows the Page GT");
 	statusTips[id_fmGrad] = tr("Estimates the Focus based on Gradients");
 	statusTips[id_fmRel] = tr("Estimates the Focus based on Gradients (Normalized)");
 	statusTips[id_fmRelArea] = tr("Estimates the Focus based on Gradients (Normalized and wrt to the area)");
@@ -147,7 +151,67 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(const QString &runI
 	if (!imgC)
 		return imgC;
 
-	if(runID == mRunIDs[id_fmGrad]) {
+	if (runID == mRunIDs[id_gtPage]) {
+		QFileInfo xmlFileI(imgC->fileInfo().absolutePath(), imgC->fileInfo().baseName() + ".xml");
+
+		QImage img = imgC->image();
+		QImage fmImg = img.copy();
+		
+		if (!xmlFileI.exists()) {
+			qWarning() << "no xml file found: " << xmlFileI.absoluteFilePath();
+		}
+		else {
+			QFile xmlFile(xmlFileI.absoluteFilePath());
+			if (xmlFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+				qDebug() << xmlFileI.absoluteFilePath() << " loaded...";
+			}
+			int x0, x1, x2, x3, y0, y1, y2, y3;
+
+			QXmlStreamReader xmlReader(&xmlFile);
+			while (!xmlReader.atEnd() && !xmlReader.hasError()) {
+
+				QString tag = xmlReader.qualifiedName().toString();
+
+				if (xmlReader.tokenType() == QXmlStreamReader::StartElement && tag == "dmrz") {
+					//qDebug() << xmlReader.name().toString();
+					x0 = xmlReader.attributes().value("x0").toInt();
+					y0 = xmlReader.attributes().value("y0").toInt();
+					x1 = xmlReader.attributes().value("x1").toInt();
+					y1 = xmlReader.attributes().value("y1").toInt();
+					x2 = xmlReader.attributes().value("x2").toInt();
+					y2 = xmlReader.attributes().value("y2").toInt();
+					x3 = xmlReader.attributes().value("x3").toInt();
+					y3 = xmlReader.attributes().value("y3").toInt();
+
+					QPolygon rect;
+					rect << QPoint(x0, y0) << QPoint(x1, y1) << QPoint(x2, y2) << QPoint(x3, y3);
+
+					//qDebug() << xmlReader.name().toString();
+					//QXmlStreamAttributes attributes = xmlReader.attributes();
+					//if (attributes.hasAttribute("x2")) {
+					//	qDebug() << attributes.value("x2").toString();
+					//}
+
+					QPainter p(&fmImg);
+
+					QPen myPen;
+					myPen.setWidth(5);
+
+					myPen.setColor(QColor(100, 100, 100));
+					p.setPen(myPen);
+					p.drawPolygon(rect);
+					p.end();
+
+				}
+				xmlReader.readNext();
+			}
+			
+		}
+
+		imgC->setImage(fmImg, "GT...");
+
+	}
+	else if(runID == mRunIDs[id_fmGrad]) {
 
 		QImage img = imgC->image();
 		
@@ -167,9 +231,9 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(const QString &runI
 		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::GRAS)) {
 		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::GRAT)) {
 		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::LAPE)) {  // <- test in future
-		if (!fe.compute(rdf::FocusEstimation::FocusMeasure::LAPV)) {
+		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::LAPV)) {
 		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::ROGR)) {
-		//if (!fe.compute()) {  // = BREN
+		if (!fe.compute()) {  // = BREN
 			qWarning() << "could not compute focus measures...";
 		}
 
@@ -233,7 +297,6 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(const QString &runI
 
 		QImage img = imgC->image();
 
-
 		cv::Mat inputImg = rdf::Image::instance().qImage2Mat(img);
 		rdf::FocusEstimation fe;
 
@@ -243,11 +306,13 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(const QString &runI
 		fe.setWindowSize(ws);
 		fe.setImg(inputImg);
 
+		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::LAPV)) {
 		if (!fe.compute()) {
 			qWarning() << "could not compute focus measures...";
 		}
 
 		std::vector<rdf::Patch> results = fe.fmPatches();
+		//fe.computeRefPatches(rdf::FocusEstimation::FocusMeasure::LAPV);
 		fe.computeRefPatches();
 		std::vector<rdf::Patch> refResults = fe.fmPatches();
 
@@ -423,6 +488,7 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(const QString &runI
 		if (!ce.compute(rdf::ContrastEstimation::ContrastMeasure::WEBER)) {
 			qWarning() << "could not compute focus measures...";
 		}
+
 
 		std::vector<rdf::Patch> results = ce.cPatches();
 
