@@ -85,14 +85,14 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 	statusTips[id_line_img] = tr("Calculates the line image. XML is not written.");
 	mMenuStatusTips = statusTips.toList();
 
-	mLTRConfig.loadSettings();
+	//mLTRConfig.loadSettings();
 }
 /**
 *	Destructor
 **/
 LayoutPlugin::~LayoutPlugin() {
 
-	mLTRConfig.saveSettings();
+	//mLTRConfig.saveSettings();
 	qDebug() << "destroying binarization plugin...";
 }
 
