@@ -17,6 +17,7 @@ var classrdm_1_1_layout_plugin =
     [ "preLoadPlugin", "classrdm_1_1_layout_plugin.html#a4f4db2dc2da9620d30e34da2f06cc00c", null ],
     [ "runPlugin", "classrdm_1_1_layout_plugin.html#a61b2f5b80150c6e3617cb743c0379e43", null ],
     [ "mActions", "classrdm_1_1_layout_plugin.html#a534ecdd7f9ebd5126af9b07688e2917b", null ],
+    [ "mLTRConfig", "classrdm_1_1_layout_plugin.html#a1889ff77f1d0f945f49298b951c6fd08", null ],
     [ "mMenuNames", "classrdm_1_1_layout_plugin.html#abb802b823b08aac7c26ff278b52252ea", null ],
     [ "mMenuStatusTips", "classrdm_1_1_layout_plugin.html#a830d524f34883f04b2e623dce0094db0", null ],
     [ "mRunIDs", "classrdm_1_1_layout_plugin.html#a01942dee3dcf0f15d82d3d3fd0bdaafe", null ]

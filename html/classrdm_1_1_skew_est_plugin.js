@@ -15,6 +15,7 @@ var classrdm_1_1_skew_est_plugin =
     [ "runPlugin", "classrdm_1_1_skew_est_plugin.html#a986b408af41b2cab9d49b0d8f22d256e", null ],
     [ "setFilePath", "classrdm_1_1_skew_est_plugin.html#a10def0eb630b4fbd164ce730eb994157", null ],
     [ "mActions", "classrdm_1_1_skew_est_plugin.html#a65bc21efd5dcf68a401e41cfe58e5289", null ],
+    [ "mBseConfig", "classrdm_1_1_skew_est_plugin.html#a015468700f4ba0a61183cf0273a7b019", null ],
     [ "mFilePath", "classrdm_1_1_skew_est_plugin.html#a313774ce7c2d30444fefe63a9cfccb79", null ],
     [ "mMenuNames", "classrdm_1_1_skew_est_plugin.html#a37bc325b96c7d50470e6d9d701e93b6e", null ],
     [ "mMenuStatusTips", "classrdm_1_1_skew_est_plugin.html#ab399d757e2bb334f936f6ce1dea334ef", null ],
