@@ -33,6 +33,7 @@ related links:
 #pragma once
 
 #include "DkPluginInterface.h"
+#include "LineTrace.h"
 
 // opencv defines
 namespace cv {
@@ -83,6 +84,8 @@ protected:
 	QStringList mRunIDs;
 	QStringList mMenuNames;
 	QStringList mMenuStatusTips;
+
+	rdf::LineTraceConfig mLTRConfig;
 
 	cv::Mat compute(const cv::Mat& src) const;
 	rdf::LineTrace computeLines(QSharedPointer<nmc::DkImageContainer> imgC) const;

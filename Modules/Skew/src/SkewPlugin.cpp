@@ -94,6 +94,7 @@ SkewEstPlugin::SkewEstPlugin(QObject* parent) : QObject(parent) {
 SkewEstPlugin::~SkewEstPlugin() {
 
 	qDebug() << "destroying skew plugin...";
+	mBseConfig.saveSettings();
 }
 
 
@@ -161,17 +162,25 @@ QSharedPointer<nmc::DkImageContainer> SkewEstPlugin::runPlugin(
 		//if (inputImg.channels() != 1) cv::cvtColor(inputImg, inputImg, CV_RGB2GRAY);
 
 		bse.setImages(inputImg);
+		QSharedPointer<rdf::BaseSkewEstimationConfig> cf = bse.config();
+		*cf = mBseConfig;
 
+		qDebug() << "cf delta: " << bse.config()->delta();
 
 		int w = qRound(inputImg.cols / 1430.0*49.0); //check  (nomacs plugin version)
-		bse.setW(w);
+		cf->setWidth(w);
+		//bse.setW(w);
 		int h = qRound(inputImg.rows / 700.0*12.0); //check (nomacs plugin version)
-		bse.setH(h);
+		cf->setHeight(h);
+		//bse.setH(h);
 		int delta = qRound(inputImg.cols / 1430.0*20.0); //check (nomacs plugin version)
-		bse.setDelta(delta);
+		cf->setDelta(delta);
+		//bse.setDelta(delta);
 		int minLL = qRound(inputImg.cols / 1430.0 * 20.0); //check
-		bse.setmMinLineLength(minLL);
-		bse.setThr(0.1);
+		cf->setMinLineLength(minLL);
+		cf->setThr(0.1);
+		//bse.setmMinLineLength(minLL);
+		//bse.setThr(0.1);
 		bse.setFixedThr(false);
 
 
@@ -227,9 +236,15 @@ QSharedPointer<nmc::DkImageContainer> SkewEstPlugin::runPlugin(
 
 		bse.setImages(inputImg);
 		bse.setFixedThr(false);
+
+		QSharedPointer<rdf::BaseSkewEstimationConfig> cf = bse.config();
+		*cf = mBseConfig;
 		
 		//use this settings for documents (best results based on disec evaluation):
 		//Attention: overrides settings file
+		//cf->setWidth(60);
+		//cf->setHeight(28);
+		//cf->setSigma(0.5);
 		//bse.setW(60);
 		//bse.setH(28);
 		//bse.setSigma(0.5);
@@ -391,6 +406,8 @@ QString SkewEstPlugin::filePath() const
 void SkewEstPlugin::init()
 {
 	loadSettings(nmc::Settings::instance().getSettings());
+
+	mBseConfig.loadSettings();
 
 	if (mFilePath.isEmpty()) {
 		mFilePath = "D:\\tmp\\evalSkew.txt";

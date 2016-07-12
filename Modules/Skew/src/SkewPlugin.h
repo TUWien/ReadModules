@@ -35,6 +35,9 @@ related links:
 #include "DkPluginInterface.h"
 #include "DkBatchInfo.h"
 
+// RDF includes
+#include "SkewEstimation.h"
+
 class QSettings;
 
 
@@ -42,7 +45,6 @@ class QSettings;
 namespace cv {
 	class Mat;
 }
-
 
 namespace rdm {
 
@@ -109,6 +111,7 @@ protected:
 	QStringList mMenuStatusTips;
 
 	QString mFilePath;
+	rdf::BaseSkewEstimationConfig mBseConfig;
 
 private:
 	void init();

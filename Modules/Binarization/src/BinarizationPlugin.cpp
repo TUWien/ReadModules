@@ -73,6 +73,8 @@ BinarizationPlugin::BinarizationPlugin(QObject* parent) : QObject(parent) {
 	statusTips[id_binarize_su] = tr("Thresholds a document with the Su method");
 	statusTips[id_binarize_su_mask] = tr("Thresholds a document with the Su method and estimates the mask");
 	mMenuStatusTips = statusTips.toList();
+
+	mBBSConfig.loadSettings();
 }
 /**
 *	Destructor
@@ -80,6 +82,7 @@ BinarizationPlugin::BinarizationPlugin(QObject* parent) : QObject(parent) {
 BinarizationPlugin::~BinarizationPlugin() {
 
 	qDebug() << "destroying binarization plugin...";
+	mBBSConfig.saveSettings();
 }
 
 
@@ -145,6 +148,11 @@ QSharedPointer<nmc::DkImageContainer> BinarizationPlugin::runPlugin(const QStrin
 		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
 		
 		rdf::BinarizationSuAdapted segSuM(imgCv);
+
+		//set settings
+		//QSharedPointer<rdf::BaseBinarizationSuConfig> cf = segSuM.config();
+		//*cf = mBBSConfig;
+
 		segSuM.compute();
 		imgCv = segSuM.binaryImage();
 
@@ -161,6 +169,11 @@ QSharedPointer<nmc::DkImageContainer> BinarizationPlugin::runPlugin(const QStrin
 
 		
 		rdf::BinarizationSuAdapted segSuM(imgCv, mask);
+
+		//set settings
+		//QSharedPointer<rdf::BaseBinarizationSuConfig> cf = segSuM.config();
+		//*cf = mBBSConfig;
+
 		segSuM.compute();
 		imgCv = segSuM.binaryImage();
 

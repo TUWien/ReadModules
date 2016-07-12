@@ -84,12 +84,15 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 	statusTips[id_lines] = tr("Calculates the lines in the binarized image");
 	statusTips[id_line_img] = tr("Calculates the line image. XML is not written.");
 	mMenuStatusTips = statusTips.toList();
+
+	mLTRConfig.loadSettings();
 }
 /**
 *	Destructor
 **/
 LayoutPlugin::~LayoutPlugin() {
 
+	mLTRConfig.saveSettings();
 	qDebug() << "destroying binarization plugin...";
 }
 
@@ -255,6 +258,11 @@ rdf::LineTrace LayoutPlugin::computeLines(QSharedPointer<nmc::DkImageContainer> 
 	cv::Mat bwImg = binarizeImg.binaryImage();
 
 	rdf::LineTrace lt(bwImg, mask);
+
+	//set settings
+	//QSharedPointer<rdf::LineTraceConfig> cf = lt.config();
+	//*cf = mLTRConfig;
+
 	lt.setAngle(skewAngle);
 
 	lt.compute();
