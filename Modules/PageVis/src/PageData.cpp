@@ -53,6 +53,7 @@ PageData::PageData(QObject* parent) : QObject(parent) {
 }
 
 PageData::~PageData() {
+	// TODO: check this line!
 	saveSettings(nmc::Settings::instance().getSettings());
 	qDebug() << "destroying PAGE viewport";
 }
