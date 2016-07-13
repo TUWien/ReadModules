@@ -7,6 +7,5 @@
 	"DateCreated" 	: "2016-03-01",
 	"DateModified"	: "2016-07-11",
 	"PluginId"		: "c28915f05d04417a86af374845d27831",
-	"Version"		: "0.1.0",
-	"Dependencies"	: "ReadFrameworkCore,ReadFrameworkModule"
+	"Version"		: "0.1.0"
 }

@@ -7,6 +7,5 @@
 	"DateCreated" 	: "2016-02-10",
 	"DateModified"	: "2016-07-11",
 	"PluginId"		: "8518f3eae3324287806eae042e172a4c",
-	"Version"		: "0.0.1",
-	"Dependencies"	: "opencv_ml310,opencv_xfeatures2d310"
+	"Version"		: "0.0.1"
 }
