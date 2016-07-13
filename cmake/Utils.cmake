@@ -23,35 +23,11 @@ macro(RDM_FIND_QT)
 endmacro(RDM_FIND_QT)
 
 # add OpenCV dependency
-macro(RDM_FIND_OPENCV)
-	set(ADDITIONAL_OPENCV_PACKAGES ${ARGN})
-		
-	list(LENGTH ADDITIONAL_OPENCV_PACKAGES NUM_ADDITONAL_PACKAGES) 
-	if( ${NUM_ADDITONAL_PACKAGES} EQUAL 0) 
-		message(STATUS "RDM_FIND_OPENCV called without arguments.... using ReadFramework dependecies")
-		set(PACKAGES ${RDF_REQUIRED_OPENCV_PACKAGES})
-	else()
-		message(STATUS "additional opencv dependency of ${PROJECT_NAME}: ${ADDITIONAL_OPENCV_PACKAGES}")
-		set(PACKAGES ${ADDITIONAL_OPENCV_PACKAGES})
-	endif()
+macro(RDM_FIND_OPENCV) 
+	find_package(OpenCV) 
 
-	# no longer unsetting opencv variables .... needed for opencv dependecies of plugins
-	# unset(OpenCV_LIB_DIR_DBG CACHE)
-	# unset(OpenCV_3RDPARTY_LIB_DIR_DBG CACHE)
-	# unset(OpenCV_3RDPARTY_LIB_DIR_OPT CACHE)
-	# unset(OpenCV_CONFIG_PATH CACHE)
-	# unset(OpenCV_LIB_DIR_DBG CACHE)
-	# unset(OpenCV_LIB_DIR_OPT CACHE)
-	# unset(OpenCV_LIBRARY_DIRS CACHE)
-	# unset(OpenCV_DIR)
- 
-	find_package(OpenCV REQUIRED ${PACKAGES}) 
-	if( ${NUM_ADDITONAL_PACKAGES} EQUAL 0) # look for the optional components when searching for the RDF packages
-		find_package(OpenCV QUIET OPTIONAL_COMPONENTS ${RDF_OPTIONAL_OPENCV_PACKAGES}) 
-	endif() 
-	
 	if(NOT OpenCV_FOUND)
-	 message(FATAL_ERROR "OpenCV not found.") 
+		message(FATAL_ERROR "OpenCV not found.") 
 	else()
 		add_definitions(-DWITH_OPENCV)
 	endif()
@@ -63,45 +39,7 @@ macro(RDM_FIND_OPENCV)
 	
 	# make RelWithDebInfo link against release instead of debug opencv dlls
 	set_target_properties(${OpenCV_LIBS} PROPERTIES MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
-
-	if(MSVC)
-		foreach(opencvlib ${PACKAGES})
-			if( ${NUM_ADDITONAL_PACKAGES} GREATER 0) # copy additional opencv dependecies of the plugin to the plugin folder
-				file(MAKE_DIRECTORY ${NOMACS_BUILD_DIRECTORY}/Release/plugins)
-				file(MAKE_DIRECTORY ${NOMACS_BUILD_DIRECTORY}/Debug/plugins)
-				file(MAKE_DIRECTORY ${NOMACS_BUILD_DIRECTORY}/RelWithDebInfo/plugins)
-				file(MAKE_DIRECTORY ${NOMACS_BUILD_DIRECTORY}/MinSizeRel/plugins)
-				file(GLOB dllpath ${OpenCV_DIR}/bin/Release/opencv_${opencvlib}*.dll)
-				file(GLOB dllpath ${OpenCV_DIR}/bin/RelWithDebInfo/opencv_${opencvlib}*.dll)
-				file(GLOB dllpath ${OpenCV_DIR}/bin/MinSizeRel/opencv_${opencvlib}*.dll)
-				file(COPY ${dllpath} DESTINATION ${NOMACS_BUILD_DIRECTORY}/Release/plugins)
-				file(COPY ${dllpath} DESTINATION ${NOMACS_BUILD_DIRECTORY}/RelWithDebInfo/plugins)
-				file(COPY ${dllpath} DESTINATION ${NOMACS_BUILD_DIRECTORY}/MinSizeRel/plugins)
-				
-				set(RDM_ADDITIONAL_OPENCV_BINARIES ${RDM_ADDITIONAL_OPENCV_BINARIES} ${dllpath})
-				set(ADDITIONAL_OPENCV_PACKAGES_PATHS ${ADDITIONAL_OPENCV_PACKAGES_PATHS} ${dllpath})
-
-				file(GLOB dllpath ${OpenCV_DIR}/bin/Debug/opencv_${opencvlib}*d.dll)
-				file(COPY ${dllpath} DESTINATION ${NOMACS_BUILD_DIRECTORY}/Debug/plugins)
-				
-				set(RDM_ADDITIONAL_OPENCV_BINARIES ${RDM_ADDITIONAL_OPENCV_BINARIES} ${dllpath})
-				message(STATUS "copying ${dllpath} to ${NOMACS_BUILD_DIRECTORY}/Debug/plugins")
-			else()
-				file(GLOB dllpath ${OpenCV_DIR}/bin/Release/opencv_${opencvlib}*.dll)
-				file(COPY ${dllpath} DESTINATION ${NOMACS_BUILD_DIRECTORY}/Release)
-				file(COPY ${dllpath} DESTINATION ${NOMACS_BUILD_DIRECTORY}/RelWithDebInfo)
-				file(COPY ${dllpath} DESTINATION ${NOMACS_BUILD_DIRECTORY}/MinSizeRel)
-				set(RDM_OPENCV_BINARIES ${RDM_OPENCV_BINARIES} ${dllpath})
-				
-				file(GLOB dllpath ${OpenCV_DIR}/bin/Debug/opencv_${opencvlib}*d.dll)
-				file(COPY ${dllpath} DESTINATION ${NOMACS_BUILD_DIRECTORY}/Debug)
-				
-				set(RDM_OPENCV_BINARIES ${RDM_OPENCV_BINARIES} ${dllpath})
-				message(STATUS "copying ${dllpath} to ${NOMACS_BUILD_DIRECTORY}/Debug")
-			endif()			
-			
-		endforeach(opencvlib)
-	endif(MSVC)
+	set_target_properties(${OpenCV_LIBS} PROPERTIES MAP_IMPORTED_CONFIG_MINSIZEREL RELEASE)
 endmacro(RDM_FIND_OPENCV)
 
 macro(RDM_PREPARE_PLUGIN)
@@ -165,59 +103,29 @@ endmacro(RDM_FIND_RDF)
 # you can use this NMC_CREATE_TARGETS("myAdditionalDll1.dll" "myAdditionalDll2.dll")
 macro(RDM_CREATE_TARGETS)
 	
-	set(ADDITIONAL_DLLS ${ARGN})
-		
-	list(LENGTH ADDITIONAL_DLLS NUM_ADDITONAL_DLLS) 
-	if( ${NUM_ADDITONAL_DLLS} GREATER 0) 
-		foreach(DLL ${ADDITIONAL_DLLS})
-			message(STATUS "extra_macro_args: ${DLL}")
-		endforeach()
-	endif()
-	
 	if(DEFINED GLOBAL_READ_BUILD)
 		message(STATUS "project name: ${NOMACS_PROJECT_NAME}")
 		add_dependencies(${PROJECT_NAME} ${NOMACS_PROJECT_NAME})
 	else()
 		# global build automatically puts the dll in the correct directory
 		if(MSVC) # copy files on Windows in the correct directory
-			# TODO copy all rdf opencv dlls to the nomacs target
-			
-			message(STATUS "opencv dlls: ${RDF_OPENCV_BINARIES}")
-			
-			set(BINS ${RDF_BINARIES} ${RDF_OPENCV_BINARIES} ${RDM_OPENCV_BINARIES})
-			foreach(CUR_BIN ${BINS})
-				string(REGEX MATCHALL ".*Debug.*" matches ${CUR_BIN})
-				if(matches)
-					add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND if 1==$<CONFIG:Debug> ${CMAKE_COMMAND} -E copy ${matches} ${NOMACS_BUILD_DIRECTORY}/Debug)
-				endif()
-				string(REGEX MATCHALL ".*Release.*" matches ${CUR_BIN})
-				if(matches)
-					add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND if 1==$<CONFIG:Release> ${CMAKE_COMMAND} -E copy ${matches} ${NOMACS_BUILD_DIRECTORY}/Release)
-					add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND if 1==$<CONFIG:RelWithDebInfo> ${CMAKE_COMMAND} -E copy ${matches} ${NOMACS_BUILD_DIRECTORY}/RelWithDebInfo)
-					add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND if 1==$<CONFIG:MinSizeRel> ${CMAKE_COMMAND} -E copy ${matches} ${NOMACS_BUILD_DIRECTORY}/MinSizeRel)
-				endif()
-			endforeach()
-			
-			message(STATUS "additional opencv dlls of ${PROJECT_NAME}: ${RDM_ADDITIONAL_OPENCV_BINARIES}")
-			if(RDM_ADDITIONAL_OPENCV_BINARIES) 
-				add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${NOMACS_BUILD_DIRECTORY}/$(CONFIGURATION)/plugins/)
+		
+			### DependencyCollector
+			set(DC_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/cmake/DependencyCollector.py)
+			set(DC_CONFIG ${CMAKE_BINARY_DIR}/DependencyCollector.ini)
+
+			GET_FILENAME_COMPONENT(VS_PATH ${CMAKE_LINKER} PATH)
+			if(CMAKE_CL_64)
+				SET(VS_PATH "${VS_PATH}/../../../Common7/IDE/Remote Debugger/x64")
+			else()
+				SET(VS_PATH "${VS_PATH}/../../Common7/IDE/Remote Debugger/x86")
 			endif()
-			foreach(CUR_BIN ${RDM_ADDITIONAL_OPENCV_BINARIES}) # copy additional plugins dependecies to plugins directory
-				string(REGEX MATCHALL ".*Debug.*" matches ${CUR_BIN})
-				if(matches)
-					add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND if 1==$<CONFIG:Debug> ${CMAKE_COMMAND} -E copy ${matches} ${NOMACS_BUILD_DIRECTORY}/Debug/plugins)
-				endif()
-				string(REGEX MATCHALL ".*Release.*" matches ${CUR_BIN})
-				if(matches)
-					add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND if 1==$<CONFIG:Release> ${CMAKE_COMMAND} -E copy ${matches} ${NOMACS_BUILD_DIRECTORY}/Release/plugins)
-					add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND if 1==$<CONFIG:RelWithDebInfo> ${CMAKE_COMMAND} -E copy ${matches} ${NOMACS_BUILD_DIRECTORY}/RelWithDebInfo/plugins)
-					add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND if 1==$<CONFIG:MinSizeRel> ${CMAKE_COMMAND} -E copy ${matches} ${NOMACS_BUILD_DIRECTORY}/MinSizeRel/plugins)
-				endif()
-			endforeach()
-		else()
-			foreach(CUR_BIN ${RDF_BINARIES})
-				add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${CUR_BIN} ${NOMACS_BUILD_DIRECTORY}/)
-			endforeach()
+			SET(DC_PATHS_RELEASE C:/Windows/System32 ${OpenCV_DIR}/bin/Release ${QT_QMAKE_PATH} ${VS_PATH})
+			SET(DC_PATHS_DEBUG C:/Windows/System32 ${OpenCV_DIR}/bin/Debug ${QT_QMAKE_PATH} ${VS_PATH})
+
+			configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/DependencyCollector.config.cmake.in ${DC_CONFIG})
+
+			add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${DC_SCRIPT} --infile $<TARGET_FILE:${PROJECT_NAME}> --configfile ${DC_CONFIG} --configuration $<CONFIGURATION>)
 		endif(MSVC)
 	
 	endif()
@@ -226,20 +134,6 @@ macro(RDM_CREATE_TARGETS)
 	if(MSVC)
 		file(GLOB RDM_AUTOMOC "${CMAKE_BINARY_DIR}/*_automoc.cpp")
 		source_group("Generated Files" FILES ${PLUGIN_RCC} ${RDM_QM} ${RDF_AUTOMOC})
-		
-		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${NOMACS_BUILD_DIRECTORY}/$(CONFIGURATION)/plugins/)
-		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND if 1==$<CONFIG:Debug> ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${NOMACS_BUILD_DIRECTORY}/Debug/plugins/)
-		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND if 1==$<CONFIG:Release> ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${NOMACS_BUILD_DIRECTORY}/Release/plugins/)
-		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND if 1==$<CONFIG:RelWithDebInfo> ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${NOMACS_BUILD_DIRECTORY}/RelWithDebInfo/plugins/)
-		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND if 1==$<CONFIG:MinSizeRel> ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${NOMACS_BUILD_DIRECTORY}/MinSizeRel/plugins/)
-		if(${NUM_ADDITONAL_DLLS} GREATER 0) 
-			foreach(DLL ${ADDITIONAL_DLLS})
-				add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND if 1==$<CONFIG:Debug> ${CMAKE_COMMAND} -E copy ${DLL} ${NOMACS_BUILD_DIRECTORY}/Debug/)
-				add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND if 1==$<CONFIG:Release> ${CMAKE_COMMAND} -E copy ${DLL} ${NOMACS_BUILD_DIRECTORY}/Release/)
-				add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND if 1==$<CONFIG:RelWithDebInfo> ${CMAKE_COMMAND} -E copy ${DLL} ${NOMACS_BUILD_DIRECTORY}/RelWithDebInfo/)
-				add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND if 1==$<CONFIG:MinSizeRel> ${CMAKE_COMMAND} -E copy ${DLL} ${NOMACS_BUILD_DIRECTORY}/MinSizeRel/)
-			endforeach()
-		endif()		
 		
 		message(STATUS "${PROJECT_NAME} \t will be installed to: ${NOMACS_INSTALL_DIRECTORY}")
 		
