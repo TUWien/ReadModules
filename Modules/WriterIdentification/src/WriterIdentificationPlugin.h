@@ -64,7 +64,11 @@ public:
 
 	QList<QAction*> createActions(QWidget* parent) override;
 	QList<QAction*> pluginActions() const override;
-	QSharedPointer<nmc::DkImageContainer> runPlugin(const QString &runID, QSharedPointer<nmc::DkImageContainer> imgC, QSharedPointer<nmc::DkBatchInfo>& info) const;
+	QSharedPointer<nmc::DkImageContainer> runPlugin(
+		const QString &runID, 
+		QSharedPointer<nmc::DkImageContainer> imgC, 
+		const nmc::DkSaveInfo& saveInfo,
+		QSharedPointer<nmc::DkBatchInfo>& info) const;
 	void preLoadPlugin() const override;
 	void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const override;
 	enum {

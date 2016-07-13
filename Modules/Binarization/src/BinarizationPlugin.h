@@ -33,6 +33,7 @@ related links:
 #pragma once
 
 #include "DkPluginInterface.h"
+#include "Binarization.h"
 
 namespace rdm {
 
@@ -66,6 +67,8 @@ protected:
 	QStringList mRunIDs;
 	QStringList mMenuNames;
 	QStringList mMenuStatusTips;
+
+	rdf::BaseBinarizationSuConfig mBBSConfig;
 };
 
 };

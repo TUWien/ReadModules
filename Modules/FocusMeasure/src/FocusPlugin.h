@@ -75,6 +75,7 @@ public:
 	QSharedPointer<nmc::DkImageContainer> runPlugin(
 		const QString &runID, 
 		QSharedPointer<nmc::DkImageContainer> imgC,
+		const nmc::DkSaveInfo& saveInfo,
 		QSharedPointer<nmc::DkBatchInfo>& info) const override;
 
 	void preLoadPlugin() const override;

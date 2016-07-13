@@ -146,7 +146,11 @@ QList<QAction*> FocusPlugin::pluginActions() const {
 * @param plugin ID
 * @param image to be processed
 **/
-QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(const QString &runID, QSharedPointer<nmc::DkImageContainer> imgC, QSharedPointer<nmc::DkBatchInfo>& info) const {
+QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(
+	const QString &runID, 
+	QSharedPointer<nmc::DkImageContainer> imgC, 
+	const nmc::DkSaveInfo& saveInfo,
+	QSharedPointer<nmc::DkBatchInfo>& info) const {
 
 	if (!imgC)
 		return imgC;

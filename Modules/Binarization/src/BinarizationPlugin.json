@@ -5,7 +5,7 @@
 	"AuthorName" 	: "Markus Diem",
 	"Company"		: "Computer Vision Lab",
 	"DateCreated" 	: "2016-01-11",
-	"DateModified"	: "2016-05-25",
+	"DateModified"	: "2016-07-11",
 	"PluginId"		: "35d2bc5433314136b421e19bda007fe6",
 	"Version"		: "0.1.1",
 	"Dependencies"	: "ReadFrameworkCore,ReadFrameworkModule"

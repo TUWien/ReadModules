@@ -84,12 +84,15 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 	statusTips[id_lines] = tr("Calculates the lines in the binarized image");
 	statusTips[id_line_img] = tr("Calculates the line image. XML is not written.");
 	mMenuStatusTips = statusTips.toList();
+
+	//mLTRConfig.loadSettings();
 }
 /**
 *	Destructor
 **/
 LayoutPlugin::~LayoutPlugin() {
 
+	//mLTRConfig.saveSettings();
 	qDebug() << "destroying binarization plugin...";
 }
 
@@ -138,7 +141,11 @@ QList<QAction*> LayoutPlugin::pluginActions() const {
 * @param plugin ID
 * @param image to be processed
 **/
-QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(const QString &runID, QSharedPointer<nmc::DkImageContainer> imgC) const {
+QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
+	const QString &runID, 
+	QSharedPointer<nmc::DkImageContainer> imgC, 
+	const nmc::DkSaveInfo& saveInfo,
+	QSharedPointer<nmc::DkBatchInfo>& batchInfo) const {
 
 	if (!imgC)
 		return imgC;
@@ -159,40 +166,7 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(const QString &run
 	}
 	else if (runID == mRunIDs[id_lines]) {
 
-		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
-
-		if (imgCv.depth() != CV_8U) {
-			imgCv.convertTo(imgCv, CV_8U, 255);
-			
-		}
-
-		if (imgCv.channels() != 1) {
-			cv::cvtColor(imgCv, imgCv, CV_RGB2GRAY);
-		}
-		
-		//if mask will is estimated
-		//cv::Mat mask = rdf::Algorithms::instance().estimateMask(imgCv);
-		cv::Mat mask = cv::Mat();
-
-		//if skew will be used
-		//rdf::BaseSkewEstimation bse;
-		//bse.setImages(imgCv);
-		//bse.setFixedThr(false);
-		//if (!bse.compute()) {
-		//	qWarning() << "could not compute skew";
-		//}
-		//double skewAngle = bse.getAngle();
-		//skewAngle = skewAngle / 180.0 * CV_PI; //check if minus angle is needed....
-		double skewAngle = 0.0f;
-		
-		rdf::BinarizationSuAdapted binarizeImg(imgCv, mask);
-		binarizeImg.compute();
-		cv::Mat bwImg = binarizeImg.binaryImage();
-
-		rdf::LineTrace lt(bwImg, mask);
-		lt.setAngle(skewAngle);
-
-		lt.compute();
+		rdf::LineTrace lt = computeLines(imgC);
 
 		//cv::Mat lImg = lt.lineImage();
 		//cv::Mat synLine = lt.generatedLineImage();
@@ -202,9 +176,11 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(const QString &run
 
 		//save lines to xml
 		//TODO - check if it is working...
+		QString loadXmlPath = rdf::PageXmlParser::imagePathToXmlPath(saveInfo.inputFilePath());
+		QString saveXmlPath = rdf::PageXmlParser::imagePathToXmlPath(saveInfo.outputFilePath());
+		
 		rdf::PageXmlParser parser;
-		QString xmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
-		parser.read(xmlPath);
+		parser.read(loadXmlPath);
 		auto pe = parser.page();
 		//pe->setCreator(QString("CVL"));
 
@@ -213,55 +189,14 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(const QString &run
 			QSharedPointer<rdf::SeparatorRegion> pSepR(new rdf::SeparatorRegion());
 			pSepR->setLine(alllines[i].line());
 
-			//pe->rootRegion()->addChild(pSepR);
 			pe->rootRegion()->addUniqueChild(pSepR);
 		}
 
-		parser.write(xmlPath, pe);
-		//visualize
-		//if (synLine.channels() == 1) {
-		//	cv::cvtColor(synLine, synLine, CV_GRAY2BGRA);
-		//}
-		//QImage img = nmc::DkImage::mat2QImage(synLine);
-		//imgC->setImage(img, tr("Calculated lines"));
-
+		parser.write(saveXmlPath, pe);
 	}
 	else if (runID == mRunIDs[id_line_img]) {
-		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
 
-		if (imgCv.depth() != CV_8U) {
-			imgCv.convertTo(imgCv, CV_8U, 255);
-		}
-
-		if (imgCv.channels() != 1) {
-			cv::cvtColor(imgCv, imgCv, CV_RGB2GRAY);
-		}
-
-		//if mask will is estimated
-		//cv::Mat mask = rdf::Algorithms::instance().estimateMask(imgCv);
-		cv::Mat mask = cv::Mat();
-
-		//if skew will be used
-		//rdf::BaseSkewEstimation bse;
-		//bse.setImages(imgCv);
-		//bse.setFixedThr(false);
-		//if (!bse.compute()) {
-		//	qWarning() << "could not compute skew";
-		//}
-		//double skewAngle = bse.getAngle();
-		//skewAngle = skewAngle / 180.0 * CV_PI; //check if minus angle is needed....
-		double skewAngle = 0.0f;
-
-		rdf::BinarizationSuAdapted binarizeImg(imgCv, mask);
-		binarizeImg.compute();
-		cv::Mat bwImg = binarizeImg.binaryImage();
-
-		rdf::LineTrace lt(bwImg, mask);
-		lt.setAngle(skewAngle);
-
-		lt.compute();
-
-		//cv::Mat lImg = lt.lineImage();
+		rdf::LineTrace lt = computeLines(imgC);
 		cv::Mat synLine = lt.generatedLineImage();
 
 		//visualize
@@ -289,6 +224,50 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src) const {
 
 	return sp.binaryImage();
 
+}
+
+rdf::LineTrace LayoutPlugin::computeLines(QSharedPointer<nmc::DkImageContainer> imgC) const {
+	
+	cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
+
+	if (imgCv.depth() != CV_8U) {
+		imgCv.convertTo(imgCv, CV_8U, 255);
+	}
+
+	if (imgCv.channels() != 1) {
+		cv::cvtColor(imgCv, imgCv, CV_RGB2GRAY);
+	}
+
+	//if mask is estimated
+	//cv::Mat mask = rdf::Algorithms::instance().estimateMask(imgCv);
+	cv::Mat mask = cv::Mat();
+
+	//if skew will be used
+	//rdf::BaseSkewEstimation bse;
+	//bse.setImages(imgCv);
+	//bse.setFixedThr(false);
+	//if (!bse.compute()) {
+	//	qWarning() << "could not compute skew";
+	//}
+	//double skewAngle = bse.getAngle();
+	//skewAngle = skewAngle / 180.0 * CV_PI; //check if minus angle is needed....
+	double skewAngle = 0.0f;
+
+	rdf::BinarizationSuAdapted binarizeImg(imgCv, mask);
+	binarizeImg.compute();
+	cv::Mat bwImg = binarizeImg.binaryImage();
+
+	rdf::LineTrace lt(bwImg, mask);
+
+	//set settings
+	//QSharedPointer<rdf::LineTraceConfig> cf = lt.config();
+	//*cf = mLTRConfig;
+
+	lt.setAngle(skewAngle);
+
+	lt.compute();
+	
+	return lt;
 }
 
 };

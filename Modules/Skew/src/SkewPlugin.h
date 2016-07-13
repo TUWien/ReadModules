@@ -35,6 +35,9 @@ related links:
 #include "DkPluginInterface.h"
 #include "DkBatchInfo.h"
 
+// RDF includes
+#include "SkewEstimation.h"
+
 class QSettings;
 
 
@@ -42,7 +45,6 @@ class QSettings;
 namespace cv {
 	class Mat;
 }
-
 
 namespace rdm {
 
@@ -85,6 +87,7 @@ public:
 	QSharedPointer<nmc::DkImageContainer> runPlugin(
 		const QString &runID, 
 		QSharedPointer<nmc::DkImageContainer> imgC,
+		const nmc::DkSaveInfo& saveInfo,
 		QSharedPointer<nmc::DkBatchInfo>& info) const override;
 
 	void preLoadPlugin() const override;
@@ -108,6 +111,7 @@ protected:
 	QStringList mMenuStatusTips;
 
 	QString mFilePath;
+	rdf::BaseSkewEstimationConfig mBseConfig;
 
 private:
 	void init();
