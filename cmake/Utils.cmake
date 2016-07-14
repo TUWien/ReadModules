@@ -100,7 +100,7 @@ macro(RDM_FIND_RDF)
 	endif()
 endmacro(RDM_FIND_RDF)
 
-# you can use this NMC_CREATE_TARGETS("myAdditionalDll1.dll" "myAdditionalDll2.dll")
+
 macro(RDM_CREATE_TARGETS)
 	
 	if(DEFINED GLOBAL_READ_BUILD)
