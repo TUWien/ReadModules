@@ -109,10 +109,14 @@ macro(RDM_CREATE_TARGETS)
 	else()
 		# global build automatically puts the dll in the correct directory
 		if(MSVC) # copy files on Windows in the correct directory
-		
+			set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${NOMACS_BUILD_DIRECTORY}/Debug/plugins/)
+			set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${NOMACS_BUILD_DIRECTORY}/Release/plugins/)
+			set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${NOMACS_BUILD_DIRECTORY}/RelWithDebInfo/plugins/)
+			set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${NOMACS_BUILD_DIRECTORY}/MinSizeRel/plugins/)
+			
 			### DependencyCollector
-			set(DC_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/cmake/DependencyCollector.py)
-			set(DC_CONFIG ${CMAKE_BINARY_DIR}/DependencyCollector.ini)
+			set(DC_SCRIPT ${CMAKE_SOURCE_DIR}/cmake/DependencyCollector.py)
+			set(DC_CONFIG ${CMAKE_CURRENT_BINARY_DIR}/DependencyCollector.ini)
 
 			GET_FILENAME_COMPONENT(VS_PATH ${CMAKE_LINKER} PATH)
 			if(CMAKE_CL_64)
@@ -120,10 +124,10 @@ macro(RDM_CREATE_TARGETS)
 			else()
 				SET(VS_PATH "${VS_PATH}/../../Common7/IDE/Remote Debugger/x86")
 			endif()
-			SET(DC_PATHS_RELEASE C:/Windows/System32 ${OpenCV_DIR}/bin/Release ${QT_QMAKE_PATH} ${VS_PATH})
-			SET(DC_PATHS_DEBUG C:/Windows/System32 ${OpenCV_DIR}/bin/Debug ${QT_QMAKE_PATH} ${VS_PATH})
+			SET(DC_PATHS_RELEASE C:/Windows/System32 ${OpenCV_DIR}/bin/Release ${QT_QMAKE_PATH} ${VS_PATH} ${ReadFramework_DIR}/Release)
+			SET(DC_PATHS_DEBUG C:/Windows/System32 ${OpenCV_DIR}/bin/Debug ${QT_QMAKE_PATH} ${VS_PATH} ${ReadFramework_DIR}/Debug)
 
-			configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/DependencyCollector.config.cmake.in ${DC_CONFIG})
+			configure_file(${CMAKE_SOURCE_DIR}/cmake/DependencyCollector.config.cmake.in ${DC_CONFIG})
 
 			add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${DC_SCRIPT} --infile $<TARGET_FILE:${PROJECT_NAME}> --configfile ${DC_CONFIG} --configuration $<CONFIGURATION>)
 		endif(MSVC)
