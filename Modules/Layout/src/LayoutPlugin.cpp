@@ -86,13 +86,14 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 	mMenuStatusTips = statusTips.toList();
 
 	//mLTRConfig.loadSettings();
+	//mLTRConfig.saveSettings();
+
 }
 /**
 *	Destructor
 **/
 LayoutPlugin::~LayoutPlugin() {
 
-	//mLTRConfig.saveSettings();
 	qDebug() << "destroying binarization plugin...";
 }
 

@@ -59,6 +59,7 @@ PageViewport::PageViewport(QWidget* parent) : DkPluginViewPort(parent) {
 
 PageViewport::~PageViewport() {
 
+	// TODO: check this line!
 	saveSettings(nmc::Settings::instance().getSettings());
 	qDebug() << "destroying PAGE viewport";
 }

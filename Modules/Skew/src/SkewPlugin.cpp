@@ -94,7 +94,6 @@ SkewEstPlugin::SkewEstPlugin(QObject* parent) : QObject(parent) {
 SkewEstPlugin::~SkewEstPlugin() {
 
 	qDebug() << "destroying skew plugin...";
-	mBseConfig.saveSettings();
 }
 
 
@@ -408,6 +407,7 @@ void SkewEstPlugin::init()
 	loadSettings(nmc::Settings::instance().getSettings());
 
 	mBseConfig.loadSettings();
+	mBseConfig.saveSettings();
 
 	if (mFilePath.isEmpty()) {
 		mFilePath = "D:\\tmp\\evalSkew.txt";

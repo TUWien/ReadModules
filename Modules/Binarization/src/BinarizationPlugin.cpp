@@ -75,6 +75,7 @@ BinarizationPlugin::BinarizationPlugin(QObject* parent) : QObject(parent) {
 	mMenuStatusTips = statusTips.toList();
 
 	mBBSConfig.loadSettings();
+	mBBSConfig.saveSettings();		// save settings (to write default settings)
 }
 /**
 *	Destructor
@@ -82,7 +83,7 @@ BinarizationPlugin::BinarizationPlugin(QObject* parent) : QObject(parent) {
 BinarizationPlugin::~BinarizationPlugin() {
 
 	qDebug() << "destroying binarization plugin...";
-	mBBSConfig.saveSettings();
+	//mBBSConfig.saveSettings();
 }
 
 
