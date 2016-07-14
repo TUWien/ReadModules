@@ -9,6 +9,7 @@ var dir_7b5e77599b31094c77117a75d9970abd =
       [ "ColorButton", "classrdm_1_1_color_button.html", "classrdm_1_1_color_button" ],
       [ "ConfigWidget", "classrdm_1_1_config_widget.html", "classrdm_1_1_config_widget" ],
       [ "XmlLabel", "classrdm_1_1_xml_label.html", "classrdm_1_1_xml_label" ],
+      [ "PageProfileWidget", "classrdm_1_1_page_profile_widget.html", "classrdm_1_1_page_profile_widget" ],
       [ "PageDock", "classrdm_1_1_page_dock.html", "classrdm_1_1_page_dock" ]
     ] ],
     [ "PageViewport.cpp", "_page_viewport_8cpp.html", null ],

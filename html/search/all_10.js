@@ -1,6 +1,9 @@
 var searchData=
 [
+  ['saveconfig',['saveConfig',['../classrdm_1_1_page_data.html#a8fac3e0121314956b1cc6c37941d89b5',1,'rdm::PageData::saveConfig()'],['../classrdm_1_1_config_widget.html#aaaa9ec0efc98d1f6a74c3005ed31b903',1,'rdm::ConfigWidget::saveConfig()']]],
   ['savefeatures',['saveFeatures',['../classrdm_1_1_writer_identification.html#a15f2376b2a5ddeaf5a7e8af1c4311989',1,'rdm::WriterIdentification']]],
+  ['savepageconfigsignal',['savePageConfigSignal',['../classrdm_1_1_page_profile_widget.html#a9ae967ea82ab2c0bed82d40b27b57c6b',1,'rdm::PageProfileWidget']]],
+  ['savesettings',['saveSettings',['../classrdm_1_1_page_profile_widget.html#a079e7b38886d3fe79097eb57a91a9a91',1,'rdm::PageProfileWidget']]],
   ['savevocabulary',['saveVocabulary',['../classrdm_1_1_w_i_vocabulary.html#a7f56c7e22c2c32937781d428322e3e5e',1,'rdm::WIVocabulary::saveVocabulary()'],['../classrdm_1_1_w_i_database.html#a88998b8af60401d4735eee3cb72495e1',1,'rdm::WIDatabase::saveVocabulary()']]],
   ['setcolor',['setColor',['../classrdm_1_1_color_button.html#aba129e4357ace2932f4d459cf261c05e',1,'rdm::ColorButton']]],
   ['setdescriptors',['setDescriptors',['../classrdm_1_1_writer_identification.html#a6bec81b8752358c9acbaa624ddd507d1',1,'rdm::WriterIdentification']]],

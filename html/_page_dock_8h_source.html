@@ -138,176 +138,205 @@ $(document).ready(function(){initNavTree('_page_dock_8h_source.html','');});
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="preprocessor">#pragma once</span></div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor">#include &quot;DkBaseWidgets.h&quot;</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="comment">// framework</span></div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor">#include &quot;Elements.h&quot;</span></div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="preprocessor">#pragma warning(push, 0)    // no warnings from includes</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#include &lt;QPushButton&gt;</span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor">#include &lt;QLineEdit&gt;</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="preprocessor">#pragma warning(pop)</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="comment">// Qt defines</span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="keyword">class </span>QPaintEvent;</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="keyword">class </span>QSettings;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="keyword">class </span>QCheckBox;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="keyword">class </span>QSpinBox;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="keyword">class </span>QMimeData;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="keyword">namespace </span>rdf {</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="keyword">class </span>RegionTypeConfig;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;}</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="keyword">namespace </span>rdm {</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="comment">// nomacs</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">#include &quot;DkBaseWidgets.h&quot;</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor">#include &quot;DkWidgets.h&quot;</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment">// framework</span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="preprocessor">#include &quot;Elements.h&quot;</span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor">#pragma warning(push, 0)    // no warnings from includes</span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#include &lt;QPushButton&gt;</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor">#include &lt;QLineEdit&gt;</span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor">#pragma warning(pop)</span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="comment">// Qt defines</span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="keyword">class </span>QPaintEvent;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="keyword">class </span>QSettings;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="keyword">class </span>QCheckBox;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="keyword">class </span>QSpinBox;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="keyword">class </span>QMimeData;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="keyword">namespace </span>rdf {</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keyword">class </span>RegionTypeConfig;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;}</div>
 <div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="comment">// read defines</span></div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="keyword">class </span>PageData;</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;</div>
-<div class="line"><a name="l00062"></a><span class="lineno"><a class="line" href="classrdm_1_1_color_button.html">   62</a></span>&#160;<span class="keyword">class </span><a class="code" href="classrdm_1_1_color_button.html">ColorButton</a> : <span class="keyword">public</span> QWidget {</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    Q_OBJECT</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <a class="code" href="classrdm_1_1_color_button.html#a2cc04950dbe135849656a9ad3985a70e">ColorButton</a>(<span class="keyword">const</span> QString&amp; text = QString(), QWidget* parent = 0);</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_color_button.html#aba129e4357ace2932f4d459cf261c05e">setColor</a>(<span class="keyword">const</span> QColor&amp; col);</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="keyword">namespace </span>rdm {</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="comment">// read defines</span></div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="keyword">class </span>PageData;</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;</div>
+<div class="line"><a name="l00064"></a><span class="lineno"><a class="line" href="classrdm_1_1_color_button.html">   64</a></span>&#160;<span class="keyword">class </span><a class="code" href="classrdm_1_1_color_button.html">ColorButton</a> : <span class="keyword">public</span> QWidget {</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    Q_OBJECT</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <a class="code" href="classrdm_1_1_color_button.html#a2cc04950dbe135849656a9ad3985a70e">ColorButton</a>(<span class="keyword">const</span> QString&amp; text = QString(), QWidget* parent = 0);</div>
 <div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="keyword">public</span> slots:</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_color_button.html#ab8e8e9cee59754d8ae4055208b26f4e9">on_colorButton_clicked</a>();</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;signals:</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_color_button.html#a717df239e892cfcb32f82e11087c07dc">newColor</a>(<span class="keyword">const</span> QColor&amp; col) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <span class="keywordtype">void</span> createLayout(<span class="keyword">const</span> QString&amp; title);</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    QColor mColor;</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;};</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;</div>
-<div class="line"><a name="l00083"></a><span class="lineno"><a class="line" href="classrdm_1_1_config_widget.html">   83</a></span>&#160;<span class="keyword">class </span><a class="code" href="classrdm_1_1_config_widget.html">ConfigWidget</a> : <span class="keyword">public</span> QWidget {</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    Q_OBJECT</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <a class="code" href="classrdm_1_1_config_widget.html#ac475e40eed9ddbb93b6786d29098e98e">ConfigWidget</a>(QWidget* parent = 0);</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_config_widget.html#a87626d610f156201c696e9bf70235529">setRegionConfig</a>(QSharedPointer&lt;rdf::RegionTypeConfig&gt; config);</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_color_button.html#aba129e4357ace2932f4d459cf261c05e">setColor</a>(<span class="keyword">const</span> QColor&amp; col);</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="keyword">public</span> slots:</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_color_button.html#ab8e8e9cee59754d8ae4055208b26f4e9">on_colorButton_clicked</a>();</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;signals:</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_color_button.html#a717df239e892cfcb32f82e11087c07dc">newColor</a>(<span class="keyword">const</span> QColor&amp; col) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <span class="keywordtype">void</span> createLayout(<span class="keyword">const</span> QString&amp; title);</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    QColor mColor;</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;};</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;</div>
+<div class="line"><a name="l00085"></a><span class="lineno"><a class="line" href="classrdm_1_1_config_widget.html">   85</a></span>&#160;<span class="keyword">class </span><a class="code" href="classrdm_1_1_config_widget.html">ConfigWidget</a> : <span class="keyword">public</span> QWidget {</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    Q_OBJECT</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <a class="code" href="classrdm_1_1_config_widget.html#ac475e40eed9ddbb93b6786d29098e98e">ConfigWidget</a>(QWidget* parent = 0);</div>
 <div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;<span class="keyword">public</span> slots:</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_config_widget.html#a33c31a3dba9b0e47d2f3e824164c811c">on_outlineButton_newColor</a>(<span class="keyword">const</span> QColor&amp; col);</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_config_widget.html#abb3527a88b12e8e88311976552f49516">on_brushButton_newColor</a>(<span class="keyword">const</span> QColor&amp; col);</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_config_widget.html#ae886fc588020f155c207928518c38496">on_strokeBox_valueChanged</a>(<span class="keywordtype">int</span> val);</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_config_widget.html#a8f7e7f31c489d75dbc7fbf514ab359c9">on_draw_clicked</a>(<span class="keywordtype">bool</span> toggled);</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_config_widget.html#ae5175a297fb233103d1cab9f85eb23c4">on_drawText_clicked</a>(<span class="keywordtype">bool</span> toggled);</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_config_widget.html#a6b043153f6dd13070026b77a135c10a8">on_drawPolygon_clicked</a>(<span class="keywordtype">bool</span> toggled);</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_config_widget.html#a781345a19e025519c8172c2e6f37ae13">on_drawBaseline_clicked</a>(<span class="keywordtype">bool</span> toggled);</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;signals:</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_config_widget.html#ab61b03f6b63926840e2175e2519cab9f">updated</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    <span class="keywordtype">void</span> createLayout();</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    <span class="keywordtype">void</span> updateElements();</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    <span class="keywordtype">void</span> paintEvent(QPaintEvent* event) <span class="keyword">override</span>;</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_config_widget.html#a87626d610f156201c696e9bf70235529">setRegionConfig</a>(QSharedPointer&lt;rdf::RegionTypeConfig&gt; config);</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;<span class="keyword">public</span> slots:</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_config_widget.html#a33c31a3dba9b0e47d2f3e824164c811c">on_outlineButton_newColor</a>(<span class="keyword">const</span> QColor&amp; col);</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_config_widget.html#abb3527a88b12e8e88311976552f49516">on_brushButton_newColor</a>(<span class="keyword">const</span> QColor&amp; col);</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_config_widget.html#ae886fc588020f155c207928518c38496">on_strokeBox_valueChanged</a>(<span class="keywordtype">int</span> val);</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_config_widget.html#a8f7e7f31c489d75dbc7fbf514ab359c9">on_draw_clicked</a>(<span class="keywordtype">bool</span> toggled);</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_config_widget.html#ae5175a297fb233103d1cab9f85eb23c4">on_drawText_clicked</a>(<span class="keywordtype">bool</span> toggled);</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_config_widget.html#a6b043153f6dd13070026b77a135c10a8">on_drawPolygon_clicked</a>(<span class="keywordtype">bool</span> toggled);</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_config_widget.html#a781345a19e025519c8172c2e6f37ae13">on_drawBaseline_clicked</a>(<span class="keywordtype">bool</span> toggled);</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_config_widget.html#a6bd69a23a2a0a9f63bf0be7f96149b42">loadConfig</a>(<span class="keyword">const</span> QString&amp; name);</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_config_widget.html#aaaa9ec0efc98d1f6a74c3005ed31b903">saveConfig</a>(<span class="keyword">const</span> QString&amp; name);</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;signals:</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_config_widget.html#ab61b03f6b63926840e2175e2519cab9f">updated</a>() <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    QSharedPointer&lt;rdf::RegionTypeConfig&gt; mConfig;</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    <a class="code" href="classrdm_1_1_color_button.html">ColorButton</a>* mOutlineButton = 0;</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    <a class="code" href="classrdm_1_1_color_button.html">ColorButton</a>* mBrushButton = 0;</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    QSpinBox* mStrokeBox = 0;</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    QCheckBox* mCbDraw = 0;</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    QCheckBox* mCbDrawPoly = 0;</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    QCheckBox* mCbDrawText = 0;</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;    QCheckBox* mCbDrawBaseline = 0;</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;};</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;</div>
-<div class="line"><a name="l00120"></a><span class="lineno"><a class="line" href="classrdm_1_1_xml_label.html">  120</a></span>&#160;<span class="keyword">class </span><a class="code" href="classrdm_1_1_xml_label.html">XmlLabel</a> : <span class="keyword">public</span> QLineEdit {</div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;    Q_OBJECT</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    <a class="code" href="classrdm_1_1_xml_label.html#a4f30b13c83104b041697dde03a544d4d">XmlLabel</a>(QWidget* parent = 0);</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;<span class="keyword">public</span> slots:</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_xml_label.html#a24797d4dd66b2a499d06a15743c71ca8">setPage</a>(QSharedPointer&lt;rdf::PageElement&gt; page);</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_xml_label.html#a7a0ba424221a7978f0c838ea5c77fa94">pathUpdated</a>(<span class="keyword">const</span> QString&amp; path) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    <span class="keywordtype">void</span> createLayout();</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    <span class="keywordtype">void</span> paintEvent(QPaintEvent* event) <span class="keyword">override</span>;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    <span class="keywordtype">void</span> updateElements();</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    QSharedPointer&lt;rdf::RegionTypeConfig&gt; mConfig;</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    <a class="code" href="classrdm_1_1_color_button.html">ColorButton</a>* mOutlineButton = 0;</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    <a class="code" href="classrdm_1_1_color_button.html">ColorButton</a>* mBrushButton = 0;</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;    QSpinBox* mStrokeBox = 0;</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;    QCheckBox* mCbDraw = 0;</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;    QCheckBox* mCbDrawPoly = 0;</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;    QCheckBox* mCbDrawText = 0;</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    QCheckBox* mCbDrawBaseline = 0;</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;};</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;</div>
+<div class="line"><a name="l00125"></a><span class="lineno"><a class="line" href="classrdm_1_1_xml_label.html">  125</a></span>&#160;<span class="keyword">class </span><a class="code" href="classrdm_1_1_xml_label.html">XmlLabel</a> : <span class="keyword">public</span> QLineEdit {</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;    Q_OBJECT</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;    <a class="code" href="classrdm_1_1_xml_label.html#a4f30b13c83104b041697dde03a544d4d">XmlLabel</a>(QWidget* parent = 0);</div>
 <div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;signals:</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_xml_label.html#ae1f33fa9200d94d5a35c8a6622e7bcb1">loadXml</a>(<span class="keyword">const</span> QString&amp; path) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;</div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;    <span class="keywordtype">void</span> dragEnterEvent(QDragEnterEvent* event) <span class="keyword">override</span>;</div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;    <span class="keywordtype">void</span> dropEvent(QDropEvent* event) <span class="keyword">override</span>;</div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;    <span class="keywordtype">void</span> paintEvent(QPaintEvent* event) <span class="keyword">override</span>;</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;    </div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;    QString xmlPathFromMime(<span class="keyword">const</span> QMimeData&amp; mime) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;    <span class="keywordtype">void</span> createLayout();</div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;};</div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;</div>
-<div class="line"><a name="l00143"></a><span class="lineno"><a class="line" href="classrdm_1_1_page_dock.html">  143</a></span>&#160;<span class="keyword">class </span><a class="code" href="classrdm_1_1_page_dock.html">PageDock</a> : <span class="keyword">public</span> nmc::DkDockWidget {</div>
-<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;    Q_OBJECT</div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;</div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;    <a class="code" href="classrdm_1_1_page_dock.html#a010cb79befcdb0b5bfe1022af259baeb">PageDock</a>(<a class="code" href="classrdm_1_1_page_data.html">PageData</a>* pageData, <span class="keyword">const</span> QString&amp; title, QWidget* parent = 0);</div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;    <a class="code" href="classrdm_1_1_page_dock.html#a81b9c704f5a3054bb04a919b99a944bb">~PageDock</a>();</div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;</div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classrdm_1_1_page_dock.html#a71c4ccc973c4937e1f834d180d369d1b">drawRegions</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;    QVector&lt;rdf::RegionTypeConfig&gt; <a class="code" href="classrdm_1_1_page_dock.html#a911a509a5045c862f46c17b150f02006">config</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;</div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;<span class="keyword">public</span> slots:</div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_page_dock.html#a126e14ae26a0355d7fdaa7b5ed1b5d5a">on_drawCheckbox_toggled</a>(<span class="keywordtype">bool</span> toggled) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_page_dock.html#a082fa4e048a4f6a5759755d093b39c8f">on_configCombo_currentIndexChanged</a>(<span class="keywordtype">int</span> index);</div>
-<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_page_dock.html#a30ab8d8e718478ab88370e6ab3501087">on_configWidget_updated</a>();</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;<span class="keyword">public</span> slots:</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_xml_label.html#a24797d4dd66b2a499d06a15743c71ca8">setPage</a>(QSharedPointer&lt;rdf::PageElement&gt; page);</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_xml_label.html#a7a0ba424221a7978f0c838ea5c77fa94">pathUpdated</a>(<span class="keyword">const</span> QString&amp; path) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;signals:</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_xml_label.html#ae1f33fa9200d94d5a35c8a6622e7bcb1">loadXml</a>(<span class="keyword">const</span> QString&amp; path) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;    <span class="keywordtype">void</span> dragEnterEvent(QDragEnterEvent* event) <span class="keyword">override</span>;</div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;    <span class="keywordtype">void</span> dropEvent(QDropEvent* event) <span class="keyword">override</span>;</div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;    <span class="keywordtype">void</span> paintEvent(QPaintEvent* event) <span class="keyword">override</span>;</div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;    </div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;    QString xmlPathFromMime(<span class="keyword">const</span> QMimeData&amp; mime) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;    <span class="keywordtype">void</span> createLayout();</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;};</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;</div>
+<div class="line"><a name="l00148"></a><span class="lineno"><a class="line" href="classrdm_1_1_page_profile_widget.html">  148</a></span>&#160;<span class="keyword">class </span><a class="code" href="classrdm_1_1_page_profile_widget.html">PageProfileWidget</a> : <span class="keyword">public</span> nmc::DkGenericProfileWidget {</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    Q_OBJECT</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;    <a class="code" href="classrdm_1_1_page_profile_widget.html#a972cb7ad6e73b0f0dcc0be03cbd6de48">PageProfileWidget</a>(QWidget* parent);</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;<span class="keyword">public</span> slots:</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_page_profile_widget.html#a079e7b38886d3fe79097eb57a91a9a91">saveSettings</a>(<span class="keyword">const</span> QString&amp; name) <span class="keyword">const override</span>;</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_page_profile_widget.html#aba33e86a41901581170d098582485621">loadSettings</a>(<span class="keyword">const</span> QString&amp; name) <span class="keyword">override</span>;</div>
 <div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;</div>
 <div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;signals:</div>
-<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_page_dock.html#ae9d2fcbba221540f0d2a2028c33b2776">updateSignal</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;</div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    <span class="keywordtype">void</span> createLayout();</div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;    <span class="keywordtype">void</span> setConfigWidget(QSharedPointer&lt;rdf::RegionTypeConfig&gt; config);</div>
-<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;</div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;    QCheckBox* mCbDraw = 0;</div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;    <a class="code" href="classrdm_1_1_config_widget.html">ConfigWidget</a>* mConfigWidget = 0;</div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;</div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    rdf::Region::Type mCurrentRegion = rdf::Region::type_text_region;</div>
-<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    </div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    <a class="code" href="classrdm_1_1_page_data.html">PageData</a>* mPageData = 0;</div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;};</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_page_profile_widget.html#a9ae967ea82ab2c0bed82d40b27b57c6b">savePageConfigSignal</a>(<span class="keyword">const</span> QString&amp; name) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_page_profile_widget.html#a4bf9c5b54580c4086bbfb3f4b229074e">loadPageConfigSignal</a>(<span class="keyword">const</span> QString&amp; name) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;};</div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;</div>
+<div class="line"><a name="l00164"></a><span class="lineno"><a class="line" href="classrdm_1_1_page_dock.html">  164</a></span>&#160;<span class="keyword">class </span><a class="code" href="classrdm_1_1_page_dock.html">PageDock</a> : <span class="keyword">public</span> nmc::DkDockWidget {</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;    Q_OBJECT</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    <a class="code" href="classrdm_1_1_page_dock.html#a010cb79befcdb0b5bfe1022af259baeb">PageDock</a>(<a class="code" href="classrdm_1_1_page_data.html">PageData</a>* pageData, <span class="keyword">const</span> QString&amp; title, QWidget* parent = 0);</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    <a class="code" href="classrdm_1_1_page_dock.html#a81b9c704f5a3054bb04a919b99a944bb">~PageDock</a>();</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;</div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classrdm_1_1_page_dock.html#a71c4ccc973c4937e1f834d180d369d1b">drawRegions</a>() <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;</div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;};</div>
-<div class="ttc" id="classrdm_1_1_page_dock_html_a911a509a5045c862f46c17b150f02006"><div class="ttname"><a href="classrdm_1_1_page_dock.html#a911a509a5045c862f46c17b150f02006">rdm::PageDock::config</a></div><div class="ttdeci">QVector&lt; rdf::RegionTypeConfig &gt; config() const </div></div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;<span class="keyword">public</span> slots:</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_page_dock.html#a126e14ae26a0355d7fdaa7b5ed1b5d5a">on_drawCheckbox_toggled</a>(<span class="keywordtype">bool</span> toggled) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_page_dock.html#a082fa4e048a4f6a5759755d093b39c8f">on_configCombo_currentIndexChanged</a>(<span class="keywordtype">int</span> index);</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_page_dock.html#a30ab8d8e718478ab88370e6ab3501087">on_configWidget_updated</a>();</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_page_dock.html#a5de6bb01474df093ecbaaa5c504a6c4d">updateConfig</a>();</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;</div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;signals:</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classrdm_1_1_page_dock.html#ae9d2fcbba221540f0d2a2028c33b2776">updateSignal</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;</div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;    <span class="keywordtype">void</span> createLayout();</div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;    <span class="keywordtype">void</span> setConfigWidget(QSharedPointer&lt;rdf::RegionTypeConfig&gt; config);</div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;</div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;    QCheckBox* mCbDraw = 0;</div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;    <a class="code" href="classrdm_1_1_config_widget.html">ConfigWidget</a>* mConfigWidget = 0;</div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;</div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;    rdf::Region::Type mCurrentRegion = rdf::Region::type_text_region;</div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;    </div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;    <a class="code" href="classrdm_1_1_page_data.html">PageData</a>* mPageData = 0;</div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;};</div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;</div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;};</div>
 <div class="ttc" id="classrdm_1_1_config_widget_html_a781345a19e025519c8172c2e6f37ae13"><div class="ttname"><a href="classrdm_1_1_config_widget.html#a781345a19e025519c8172c2e6f37ae13">rdm::ConfigWidget::on_drawBaseline_clicked</a></div><div class="ttdeci">void on_drawBaseline_clicked(bool toggled)</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:240</div></div>
 <div class="ttc" id="classrdm_1_1_config_widget_html_a33c31a3dba9b0e47d2f3e824164c811c"><div class="ttname"><a href="classrdm_1_1_config_widget.html#a33c31a3dba9b0e47d2f3e824164c811c">rdm::ConfigWidget::on_outlineButton_newColor</a></div><div class="ttdeci">void on_outlineButton_newColor(const QColor &amp;col)</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:180</div></div>
 <div class="ttc" id="classrdm_1_1_page_data_html"><div class="ttname"><a href="classrdm_1_1_page_data.html">rdm::PageData</a></div><div class="ttdef"><b>Definition:</b> PageData.h:46</div></div>
-<div class="ttc" id="classrdm_1_1_xml_label_html"><div class="ttname"><a href="classrdm_1_1_xml_label.html">rdm::XmlLabel</a></div><div class="ttdef"><b>Definition:</b> PageDock.h:120</div></div>
-<div class="ttc" id="classrdm_1_1_page_dock_html"><div class="ttname"><a href="classrdm_1_1_page_dock.html">rdm::PageDock</a></div><div class="ttdef"><b>Definition:</b> PageDock.h:143</div></div>
-<div class="ttc" id="classrdm_1_1_xml_label_html_a24797d4dd66b2a499d06a15743c71ca8"><div class="ttname"><a href="classrdm_1_1_xml_label.html#a24797d4dd66b2a499d06a15743c71ca8">rdm::XmlLabel::setPage</a></div><div class="ttdeci">void setPage(QSharedPointer&lt; rdf::PageElement &gt; page)</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:288</div></div>
-<div class="ttc" id="classrdm_1_1_page_dock_html_a082fa4e048a4f6a5759755d093b39c8f"><div class="ttname"><a href="classrdm_1_1_page_dock.html#a082fa4e048a4f6a5759755d093b39c8f">rdm::PageDock::on_configCombo_currentIndexChanged</a></div><div class="ttdeci">void on_configCombo_currentIndexChanged(int index)</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:456</div></div>
-<div class="ttc" id="classrdm_1_1_page_dock_html_a126e14ae26a0355d7fdaa7b5ed1b5d5a"><div class="ttname"><a href="classrdm_1_1_page_dock.html#a126e14ae26a0355d7fdaa7b5ed1b5d5a">rdm::PageDock::on_drawCheckbox_toggled</a></div><div class="ttdeci">void on_drawCheckbox_toggled(bool toggled) const </div><div class="ttdef"><b>Definition:</b> PageDock.cpp:447</div></div>
+<div class="ttc" id="classrdm_1_1_xml_label_html"><div class="ttname"><a href="classrdm_1_1_xml_label.html">rdm::XmlLabel</a></div><div class="ttdef"><b>Definition:</b> PageDock.h:125</div></div>
+<div class="ttc" id="classrdm_1_1_page_dock_html"><div class="ttname"><a href="classrdm_1_1_page_dock.html">rdm::PageDock</a></div><div class="ttdef"><b>Definition:</b> PageDock.h:164</div></div>
+<div class="ttc" id="classrdm_1_1_xml_label_html_a24797d4dd66b2a499d06a15743c71ca8"><div class="ttname"><a href="classrdm_1_1_xml_label.html#a24797d4dd66b2a499d06a15743c71ca8">rdm::XmlLabel::setPage</a></div><div class="ttdeci">void setPage(QSharedPointer&lt; rdf::PageElement &gt; page)</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:315</div></div>
+<div class="ttc" id="classrdm_1_1_page_dock_html_a082fa4e048a4f6a5759755d093b39c8f"><div class="ttname"><a href="classrdm_1_1_page_dock.html#a082fa4e048a4f6a5759755d093b39c8f">rdm::PageDock::on_configCombo_currentIndexChanged</a></div><div class="ttdeci">void on_configCombo_currentIndexChanged(int index)</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:524</div></div>
+<div class="ttc" id="classrdm_1_1_page_dock_html_a126e14ae26a0355d7fdaa7b5ed1b5d5a"><div class="ttname"><a href="classrdm_1_1_page_dock.html#a126e14ae26a0355d7fdaa7b5ed1b5d5a">rdm::PageDock::on_drawCheckbox_toggled</a></div><div class="ttdeci">void on_drawCheckbox_toggled(bool toggled) const </div><div class="ttdef"><b>Definition:</b> PageDock.cpp:509</div></div>
+<div class="ttc" id="classrdm_1_1_page_profile_widget_html_a4bf9c5b54580c4086bbfb3f4b229074e"><div class="ttname"><a href="classrdm_1_1_page_profile_widget.html#a4bf9c5b54580c4086bbfb3f4b229074e">rdm::PageProfileWidget::loadPageConfigSignal</a></div><div class="ttdeci">void loadPageConfigSignal(const QString &amp;name) const </div></div>
 <div class="ttc" id="classrdm_1_1_page_dock_html_ae9d2fcbba221540f0d2a2028c33b2776"><div class="ttname"><a href="classrdm_1_1_page_dock.html#ae9d2fcbba221540f0d2a2028c33b2776">rdm::PageDock::updateSignal</a></div><div class="ttdeci">void updateSignal() const </div></div>
 <div class="ttc" id="classrdm_1_1_xml_label_html_ae1f33fa9200d94d5a35c8a6622e7bcb1"><div class="ttname"><a href="classrdm_1_1_xml_label.html#ae1f33fa9200d94d5a35c8a6622e7bcb1">rdm::XmlLabel::loadXml</a></div><div class="ttdeci">void loadXml(const QString &amp;path) const </div></div>
 <div class="ttc" id="classrdm_1_1_config_widget_html_abb3527a88b12e8e88311976552f49516"><div class="ttname"><a href="classrdm_1_1_config_widget.html#abb3527a88b12e8e88311976552f49516">rdm::ConfigWidget::on_brushButton_newColor</a></div><div class="ttdeci">void on_brushButton_newColor(const QColor &amp;col)</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:200</div></div>
 <div class="ttc" id="classrdm_1_1_config_widget_html_ac475e40eed9ddbb93b6786d29098e98e"><div class="ttname"><a href="classrdm_1_1_config_widget.html#ac475e40eed9ddbb93b6786d29098e98e">rdm::ConfigWidget::ConfigWidget</a></div><div class="ttdeci">ConfigWidget(QWidget *parent=0)</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:106</div></div>
 <div class="ttc" id="classrdm_1_1_config_widget_html_a87626d610f156201c696e9bf70235529"><div class="ttname"><a href="classrdm_1_1_config_widget.html#a87626d610f156201c696e9bf70235529">rdm::ConfigWidget::setRegionConfig</a></div><div class="ttdeci">void setRegionConfig(QSharedPointer&lt; rdf::RegionTypeConfig &gt; config)</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:113</div></div>
-<div class="ttc" id="classrdm_1_1_page_dock_html_a30ab8d8e718478ab88370e6ab3501087"><div class="ttname"><a href="classrdm_1_1_page_dock.html#a30ab8d8e718478ab88370e6ab3501087">rdm::PageDock::on_configWidget_updated</a></div><div class="ttdeci">void on_configWidget_updated()</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:462</div></div>
-<div class="ttc" id="classrdm_1_1_page_dock_html_a010cb79befcdb0b5bfe1022af259baeb"><div class="ttname"><a href="classrdm_1_1_page_dock.html#a010cb79befcdb0b5bfe1022af259baeb">rdm::PageDock::PageDock</a></div><div class="ttdeci">PageDock(PageData *pageData, const QString &amp;title, QWidget *parent=0)</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:365</div></div>
+<div class="ttc" id="classrdm_1_1_page_dock_html_a30ab8d8e718478ab88370e6ab3501087"><div class="ttname"><a href="classrdm_1_1_page_dock.html#a30ab8d8e718478ab88370e6ab3501087">rdm::PageDock::on_configWidget_updated</a></div><div class="ttdeci">void on_configWidget_updated()</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:532</div></div>
+<div class="ttc" id="classrdm_1_1_page_dock_html_a010cb79befcdb0b5bfe1022af259baeb"><div class="ttname"><a href="classrdm_1_1_page_dock.html#a010cb79befcdb0b5bfe1022af259baeb">rdm::PageDock::PageDock</a></div><div class="ttdeci">PageDock(PageData *pageData, const QString &amp;title, QWidget *parent=0)</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:415</div></div>
 <div class="ttc" id="classrdm_1_1_config_widget_html_a8f7e7f31c489d75dbc7fbf514ab359c9"><div class="ttname"><a href="classrdm_1_1_config_widget.html#a8f7e7f31c489d75dbc7fbf514ab359c9">rdm::ConfigWidget::on_draw_clicked</a></div><div class="ttdeci">void on_draw_clicked(bool toggled)</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:222</div></div>
+<div class="ttc" id="classrdm_1_1_config_widget_html_aaaa9ec0efc98d1f6a74c3005ed31b903"><div class="ttname"><a href="classrdm_1_1_config_widget.html#aaaa9ec0efc98d1f6a74c3005ed31b903">rdm::ConfigWidget::saveConfig</a></div><div class="ttdeci">void saveConfig(const QString &amp;name)</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:262</div></div>
 <div class="ttc" id="classrdm_1_1_color_button_html_a717df239e892cfcb32f82e11087c07dc"><div class="ttname"><a href="classrdm_1_1_color_button.html#a717df239e892cfcb32f82e11087c07dc">rdm::ColorButton::newColor</a></div><div class="ttdeci">void newColor(const QColor &amp;col) const </div></div>
 <div class="ttc" id="classrdm_1_1_config_widget_html_ae886fc588020f155c207928518c38496"><div class="ttname"><a href="classrdm_1_1_config_widget.html#ae886fc588020f155c207928518c38496">rdm::ConfigWidget::on_strokeBox_valueChanged</a></div><div class="ttdeci">void on_strokeBox_valueChanged(int val)</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:210</div></div>
 <div class="ttc" id="classrdm_1_1_config_widget_html_a6b043153f6dd13070026b77a135c10a8"><div class="ttname"><a href="classrdm_1_1_config_widget.html#a6b043153f6dd13070026b77a135c10a8">rdm::ConfigWidget::on_drawPolygon_clicked</a></div><div class="ttdeci">void on_drawPolygon_clicked(bool toggled)</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:231</div></div>
-<div class="ttc" id="classrdm_1_1_page_dock_html_a81b9c704f5a3054bb04a919b99a944bb"><div class="ttname"><a href="classrdm_1_1_page_dock.html#a81b9c704f5a3054bb04a919b99a944bb">rdm::PageDock::~PageDock</a></div><div class="ttdeci">~PageDock()</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:374</div></div>
-<div class="ttc" id="classrdm_1_1_color_button_html"><div class="ttname"><a href="classrdm_1_1_color_button.html">rdm::ColorButton</a></div><div class="ttdef"><b>Definition:</b> PageDock.h:62</div></div>
+<div class="ttc" id="classrdm_1_1_config_widget_html_a6bd69a23a2a0a9f63bf0be7f96149b42"><div class="ttname"><a href="classrdm_1_1_config_widget.html#a6bd69a23a2a0a9f63bf0be7f96149b42">rdm::ConfigWidget::loadConfig</a></div><div class="ttdeci">void loadConfig(const QString &amp;name)</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:249</div></div>
+<div class="ttc" id="classrdm_1_1_page_dock_html_a81b9c704f5a3054bb04a919b99a944bb"><div class="ttname"><a href="classrdm_1_1_page_dock.html#a81b9c704f5a3054bb04a919b99a944bb">rdm::PageDock::~PageDock</a></div><div class="ttdeci">~PageDock()</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:424</div></div>
+<div class="ttc" id="classrdm_1_1_color_button_html"><div class="ttname"><a href="classrdm_1_1_color_button.html">rdm::ColorButton</a></div><div class="ttdef"><b>Definition:</b> PageDock.h:64</div></div>
 <div class="ttc" id="classrdm_1_1_color_button_html_aba129e4357ace2932f4d459cf261c05e"><div class="ttname"><a href="classrdm_1_1_color_button.html#aba129e4357ace2932f4d459cf261c05e">rdm::ColorButton::setColor</a></div><div class="ttdeci">void setColor(const QColor &amp;col)</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:98</div></div>
+<div class="ttc" id="classrdm_1_1_page_profile_widget_html_a079e7b38886d3fe79097eb57a91a9a91"><div class="ttname"><a href="classrdm_1_1_page_profile_widget.html#a079e7b38886d3fe79097eb57a91a9a91">rdm::PageProfileWidget::saveSettings</a></div><div class="ttdeci">void saveSettings(const QString &amp;name) const override</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:399</div></div>
 <div class="ttc" id="classrdm_1_1_config_widget_html_ab61b03f6b63926840e2175e2519cab9f"><div class="ttname"><a href="classrdm_1_1_config_widget.html#ab61b03f6b63926840e2175e2519cab9f">rdm::ConfigWidget::updated</a></div><div class="ttdeci">void updated() const </div></div>
-<div class="ttc" id="classrdm_1_1_config_widget_html"><div class="ttname"><a href="classrdm_1_1_config_widget.html">rdm::ConfigWidget</a></div><div class="ttdef"><b>Definition:</b> PageDock.h:83</div></div>
-<div class="ttc" id="classrdm_1_1_xml_label_html_a4f30b13c83104b041697dde03a544d4d"><div class="ttname"><a href="classrdm_1_1_xml_label.html#a4f30b13c83104b041697dde03a544d4d">rdm::XmlLabel::XmlLabel</a></div><div class="ttdeci">XmlLabel(QWidget *parent=0)</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:271</div></div>
-<div class="ttc" id="classrdm_1_1_xml_label_html_a7a0ba424221a7978f0c838ea5c77fa94"><div class="ttname"><a href="classrdm_1_1_xml_label.html#a7a0ba424221a7978f0c838ea5c77fa94">rdm::XmlLabel::pathUpdated</a></div><div class="ttdeci">void pathUpdated(const QString &amp;path) const </div><div class="ttdef"><b>Definition:</b> PageDock.cpp:296</div></div>
-<div class="ttc" id="classrdm_1_1_page_dock_html_a71c4ccc973c4937e1f834d180d369d1b"><div class="ttname"><a href="classrdm_1_1_page_dock.html#a71c4ccc973c4937e1f834d180d369d1b">rdm::PageDock::drawRegions</a></div><div class="ttdeci">bool drawRegions() const </div><div class="ttdef"><b>Definition:</b> PageDock.cpp:452</div></div>
+<div class="ttc" id="classrdm_1_1_config_widget_html"><div class="ttname"><a href="classrdm_1_1_config_widget.html">rdm::ConfigWidget</a></div><div class="ttdef"><b>Definition:</b> PageDock.h:85</div></div>
+<div class="ttc" id="classrdm_1_1_page_dock_html_a5de6bb01474df093ecbaaa5c504a6c4d"><div class="ttname"><a href="classrdm_1_1_page_dock.html#a5de6bb01474df093ecbaaa5c504a6c4d">rdm::PageDock::updateConfig</a></div><div class="ttdeci">void updateConfig()</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:518</div></div>
+<div class="ttc" id="classrdm_1_1_xml_label_html_a4f30b13c83104b041697dde03a544d4d"><div class="ttname"><a href="classrdm_1_1_xml_label.html#a4f30b13c83104b041697dde03a544d4d">rdm::XmlLabel::XmlLabel</a></div><div class="ttdeci">XmlLabel(QWidget *parent=0)</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:298</div></div>
+<div class="ttc" id="classrdm_1_1_page_profile_widget_html_a972cb7ad6e73b0f0dcc0be03cbd6de48"><div class="ttname"><a href="classrdm_1_1_page_profile_widget.html#a972cb7ad6e73b0f0dcc0be03cbd6de48">rdm::PageProfileWidget::PageProfileWidget</a></div><div class="ttdeci">PageProfileWidget(QWidget *parent)</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:391</div></div>
+<div class="ttc" id="classrdm_1_1_xml_label_html_a7a0ba424221a7978f0c838ea5c77fa94"><div class="ttname"><a href="classrdm_1_1_xml_label.html#a7a0ba424221a7978f0c838ea5c77fa94">rdm::XmlLabel::pathUpdated</a></div><div class="ttdeci">void pathUpdated(const QString &amp;path) const </div><div class="ttdef"><b>Definition:</b> PageDock.cpp:323</div></div>
+<div class="ttc" id="classrdm_1_1_page_dock_html_a71c4ccc973c4937e1f834d180d369d1b"><div class="ttname"><a href="classrdm_1_1_page_dock.html#a71c4ccc973c4937e1f834d180d369d1b">rdm::PageDock::drawRegions</a></div><div class="ttdeci">bool drawRegions() const </div><div class="ttdef"><b>Definition:</b> PageDock.cpp:514</div></div>
+<div class="ttc" id="classrdm_1_1_page_profile_widget_html"><div class="ttname"><a href="classrdm_1_1_page_profile_widget.html">rdm::PageProfileWidget</a></div><div class="ttdef"><b>Definition:</b> PageDock.h:148</div></div>
+<div class="ttc" id="classrdm_1_1_page_profile_widget_html_a9ae967ea82ab2c0bed82d40b27b57c6b"><div class="ttname"><a href="classrdm_1_1_page_profile_widget.html#a9ae967ea82ab2c0bed82d40b27b57c6b">rdm::PageProfileWidget::savePageConfigSignal</a></div><div class="ttdeci">void savePageConfigSignal(const QString &amp;name) const </div></div>
+<div class="ttc" id="classrdm_1_1_page_profile_widget_html_aba33e86a41901581170d098582485621"><div class="ttname"><a href="classrdm_1_1_page_profile_widget.html#aba33e86a41901581170d098582485621">rdm::PageProfileWidget::loadSettings</a></div><div class="ttdeci">void loadSettings(const QString &amp;name) override</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:407</div></div>
 <div class="ttc" id="classrdm_1_1_color_button_html_ab8e8e9cee59754d8ae4055208b26f4e9"><div class="ttname"><a href="classrdm_1_1_color_button.html#ab8e8e9cee59754d8ae4055208b26f4e9">rdm::ColorButton::on_colorButton_clicked</a></div><div class="ttdeci">void on_colorButton_clicked()</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:84</div></div>
 <div class="ttc" id="classrdm_1_1_color_button_html_a2cc04950dbe135849656a9ad3985a70e"><div class="ttname"><a href="classrdm_1_1_color_button.html#a2cc04950dbe135849656a9ad3985a70e">rdm::ColorButton::ColorButton</a></div><div class="ttdeci">ColorButton(const QString &amp;text=QString(), QWidget *parent=0)</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:61</div></div>
-<div class="ttc" id="classrdm_1_1_config_widget_html_ae5175a297fb233103d1cab9f85eb23c4"><div class="ttname"><a href="classrdm_1_1_config_widget.html#ae5175a297fb233103d1cab9f85eb23c4">rdm::ConfigWidget::on_drawText_clicked</a></div><div class="ttdeci">void on_drawText_clicked(bool toggled)</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:250</div></div>
+<div class="ttc" id="classrdm_1_1_config_widget_html_ae5175a297fb233103d1cab9f85eb23c4"><div class="ttname"><a href="classrdm_1_1_config_widget.html#ae5175a297fb233103d1cab9f85eb23c4">rdm::ConfigWidget::on_drawText_clicked</a></div><div class="ttdeci">void on_drawText_clicked(bool toggled)</div><div class="ttdef"><b>Definition:</b> PageDock.cpp:277</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

@@ -10,6 +10,7 @@ var namespacerdm =
     [ "ColorButton", "classrdm_1_1_color_button.html", "classrdm_1_1_color_button" ],
     [ "ConfigWidget", "classrdm_1_1_config_widget.html", "classrdm_1_1_config_widget" ],
     [ "XmlLabel", "classrdm_1_1_xml_label.html", "classrdm_1_1_xml_label" ],
+    [ "PageProfileWidget", "classrdm_1_1_page_profile_widget.html", "classrdm_1_1_page_profile_widget" ],
     [ "PageDock", "classrdm_1_1_page_dock.html", "classrdm_1_1_page_dock" ],
     [ "PageViewport", "classrdm_1_1_page_viewport.html", "classrdm_1_1_page_viewport" ],
     [ "PageVisPlugin", "classrdm_1_1_page_vis_plugin.html", "classrdm_1_1_page_vis_plugin" ],

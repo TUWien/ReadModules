@@ -16,6 +16,9 @@ var hierarchy =
     [ "DkDockWidget", null, [
       [ "rdm::PageDock", "classrdm_1_1_page_dock.html", null ]
     ] ],
+    [ "DkGenericProfileWidget", null, [
+      [ "rdm::PageProfileWidget", "classrdm_1_1_page_profile_widget.html", null ]
+    ] ],
     [ "DkPluginInterface", null, [
       [ "rdm::BinarizationPlugin", "classrdm_1_1_binarization_plugin.html", null ]
     ] ],

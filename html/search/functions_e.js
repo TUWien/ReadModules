@@ -3,6 +3,7 @@ var searchData=
   ['page',['page',['../classrdm_1_1_page_data.html#aa57335928333412e876abcd8cd16681b',1,'rdm::PageData']]],
   ['pagedata',['PageData',['../classrdm_1_1_page_data.html#a90b354a5ccf41c02a05029bd2da92db2',1,'rdm::PageData']]],
   ['pagedock',['PageDock',['../classrdm_1_1_page_dock.html#a010cb79befcdb0b5bfe1022af259baeb',1,'rdm::PageDock']]],
+  ['pageprofilewidget',['PageProfileWidget',['../classrdm_1_1_page_profile_widget.html#a972cb7ad6e73b0f0dcc0be03cbd6de48',1,'rdm::PageProfileWidget']]],
   ['pageviewport',['PageViewport',['../classrdm_1_1_page_viewport.html#aed3ff39e6c04a6291ffa332943153472',1,'rdm::PageViewport']]],
   ['pagevisplugin',['PageVisPlugin',['../classrdm_1_1_page_vis_plugin.html#a1b28db74df056bc5870b4540ce2be5b8',1,'rdm::PageVisPlugin']]],
   ['parse',['parse',['../classrdm_1_1_page_data.html#a8fc67ff630d6e8875bdb9cd2343a6db8',1,'rdm::PageData']]],
