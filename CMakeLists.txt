@@ -34,7 +34,7 @@ else()
 endif()
 
 
-set(BUILDING_MULTIPLE_PLUGINS true)	
+set(BUILDING_MULTIPLE_PLUGINS true)
 
 IF (ENABLE_BINARIZATION)
 	add_subdirectory(Modules/Binarization)
