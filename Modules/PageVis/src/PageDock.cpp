@@ -246,6 +246,33 @@ void ConfigWidget::on_drawBaseline_clicked(bool toggled) {
 	emit updated();
 }
 
+void ConfigWidget::loadConfig(const QString & name) {
+
+	// use nomacs settings here - for it's in the GUI
+	QSettings& settings = nmc::Settings::instance().getSettings();
+	settings.beginGroup(name);
+	auto config = QSharedPointer<rdf::RegionTypeConfig>::create();
+	config->load(settings);
+	settings.endGroup();
+
+	setRegionConfig(config);
+	emit updated();
+}
+
+void ConfigWidget::saveConfig(const QString & name) {
+
+	if (!mConfig) {
+		qWarning() << "Cannot save config - it's empty!";
+		return;
+	}
+
+	// use nomacs settings here - for it's in the GUI
+	QSettings& settings = nmc::Settings::instance().getSettings();
+	settings.beginGroup(name);
+	mConfig->save(settings);
+	settings.endGroup();
+}
+
 
 void ConfigWidget::on_drawText_clicked(bool toggled) {
 	
@@ -360,6 +387,29 @@ QString XmlLabel::xmlPathFromMime(const QMimeData & mime) const {
 	return QString();
 }
 
+// PageProfileWidget --------------------------------------------------------------------
+PageProfileWidget::PageProfileWidget(QWidget* parent) : nmc::DkGenericProfileWidget(tr("PageVis Profiles"), parent) {
+
+	// NOTE: hast to be the object name of PageData
+	mSettingsGroup = "PageDataProfiles";
+	init();
+	activate();
+}
+
+void PageProfileWidget::saveSettings(const QString& name) const {
+
+	emit savePageConfigSignal(name);
+
+	DkGenericProfileWidget::saveSettings(name);
+	setDefaultModel();
+}
+
+void PageProfileWidget::loadSettings(const QString& name) {
+
+	emit loadPageConfigSignal(name);
+	setDefaultModel();
+}
+
 
 // PageDock --------------------------------------------------------------------
 PageDock::PageDock(PageData* pageData, const QString& title, QWidget* parent) : nmc::DkDockWidget(title, parent) {
@@ -382,6 +432,9 @@ void PageDock::createLayout() {
 	mCbDraw = new QCheckBox(tr("Draw Elements"), this);
 	mCbDraw->setObjectName("drawCheckbox");
 	mCbDraw->setChecked(true);
+
+	// profiles
+	PageProfileWidget* profileWidget = new PageProfileWidget(this);
 
 	// config combo
 	QComboBox* configCombo = new QComboBox(this);
@@ -408,14 +461,13 @@ void PageDock::createLayout() {
 	// xml drop widget
 	XmlLabel* xmlWidget = new XmlLabel(this);
 	xmlWidget->setPage(mPageData->page());
-	connect(mPageData, SIGNAL(updatePage(QSharedPointer<rdf::PageElement>)), xmlWidget, SLOT(setPage(QSharedPointer<rdf::PageElement>)));
-	connect(xmlWidget, SIGNAL(loadXml(const QString&)), mPageData, SLOT(parse(const QString&)));
 
 	// create our widget
 	QWidget* base = new QWidget(this);
 	QVBoxLayout* baseLayout = new QVBoxLayout(base);
 	baseLayout->setAlignment(Qt::AlignTop);
 	baseLayout->addWidget(mCbDraw);
+	baseLayout->addWidget(profileWidget);
 	baseLayout->addWidget(configDummy);
 	baseLayout->addWidget(xmlWidget);
 
@@ -434,9 +486,19 @@ void PageDock::createLayout() {
 
 	setWidget(dummy);
 
+	// connects
+	connect(mPageData, SIGNAL(updatePage(QSharedPointer<rdf::PageElement>)), xmlWidget, SLOT(setPage(QSharedPointer<rdf::PageElement>)));
+	connect(xmlWidget, SIGNAL(loadXml(const QString&)), mPageData, SLOT(parse(const QString&)));
+	connect(profileWidget, SIGNAL(loadPageConfigSignal(const QString&)), mPageData, SLOT(loadConfig(const QString&)));
+	connect(profileWidget, SIGNAL(savePageConfigSignal(const QString&)), mPageData, SLOT(saveConfig(const QString&)));
+	connect(mPageData, SIGNAL(updateConfig()), this, SLOT(updateConfig()));
+
 	// update
 	configCombo->setCurrentIndex(mCurrentRegion);
 	setConfigWidget(mPageData->config()[mCurrentRegion]);
+
+	profileWidget->show();	// nasty: but it is derived from dk widget
+
 }
 
 void PageDock::setConfigWidget(QSharedPointer<rdf::RegionTypeConfig> config) {
@@ -453,10 +515,18 @@ bool PageDock::drawRegions() const {
 	return mCbDraw->isChecked();
 }
 
+void PageDock::updateConfig() {
+
+	setConfigWidget(mPageData->config()[mCurrentRegion]);
+	emit updateSignal();
+}
+
 void PageDock::on_configCombo_currentIndexChanged(int index) {
 	
 	setConfigWidget(mPageData->config()[index]);
 	mCurrentRegion = (rdf::Region::Type)index;
+
+	emit updateSignal();
 }
 
 void PageDock::on_configWidget_updated() {
