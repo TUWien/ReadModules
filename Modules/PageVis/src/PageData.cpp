@@ -48,22 +48,32 @@ namespace rdm {
 // PageData --------------------------------------------------------------------
 PageData::PageData(QObject* parent) : QObject(parent) {
 	
-	setObjectName("PageData");
-	loadSettings(nmc::Settings::instance().getSettings());
+	setObjectName("PageDataProfiles");
+	loadConfig("Recent Settings");
 }
 
 PageData::~PageData() {
-	// TODO: check this line!
-	saveSettings(nmc::Settings::instance().getSettings());
+
+	saveConfig("Recent Settings");
 	qDebug() << "destroying PAGE viewport";
 }
 
-QVector<QSharedPointer<rdf::RegionTypeConfig>> PageData::config() const {
+QVector<QSharedPointer<rdf::RegionTypeConfig> > PageData::config() const {
 	return mConfig;
 }
 
 QSharedPointer<rdf::PageElement> PageData::page() const {
 	return mPage;
+}
+
+void PageData::loadConfig(const QString & name) {
+	
+	loadSettings(nmc::Settings::instance().getSettings(), name);
+}
+
+void PageData::saveConfig(const QString & name) const {
+
+	saveSettings(nmc::Settings::instance().getSettings(), name);
 }
 
 void PageData::parse(const QString& xmlPath) {
@@ -79,9 +89,10 @@ void PageData::parse(const QString& xmlPath) {
 	emit updatePage(mPage);
 }
 
-void PageData::loadSettings(QSettings& settings) {
+void PageData::loadSettings(QSettings& settings, const QString& name) {
 
 	settings.beginGroup(objectName());
+	settings.beginGroup(name);
 
 	QVector<QSharedPointer<rdf::RegionTypeConfig> > configs = rdf::RegionManager::instance().regionTypeConfig();
 
@@ -93,13 +104,20 @@ void PageData::loadSettings(QSettings& settings) {
 	}
 
 	settings.endGroup();
+	settings.endGroup();
+
+	emit updateConfig();
 }
 
-void PageData::saveSettings(QSettings& settings) const {
+void PageData::saveSettings(QSettings& settings, const QString& name) const {
 
 	settings.beginGroup(objectName());
+	settings.beginGroup(name);
+
 	for (const QSharedPointer<rdf::RegionTypeConfig> c : mConfig)
 		c->save(settings);
+	
+	settings.endGroup();
 	settings.endGroup();
 }
 

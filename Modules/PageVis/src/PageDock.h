@@ -32,7 +32,9 @@
 
 #pragma once
 
+// nomacs
 #include "DkBaseWidgets.h"
+#include "DkWidgets.h"
 
 // framework
 #include "Elements.h"
@@ -97,13 +99,16 @@ public slots:
 	void on_drawPolygon_clicked(bool toggled);
 	void on_drawBaseline_clicked(bool toggled);
 
+	void loadConfig(const QString& name);
+	void saveConfig(const QString& name);
+
 signals:
 	void updated() const;
 
 private:
 	void createLayout();
-	void updateElements();
 	void paintEvent(QPaintEvent* event) override;
+	void updateElements();
 
 	QSharedPointer<rdf::RegionTypeConfig> mConfig;
 
@@ -140,6 +145,22 @@ private:
 	void createLayout();
 };
 
+class PageProfileWidget : public nmc::DkGenericProfileWidget {
+	Q_OBJECT
+
+public:
+	PageProfileWidget(QWidget* parent);
+
+public slots:
+	void saveSettings(const QString& name) const override;
+	void loadSettings(const QString& name) override;
+
+signals:
+	void savePageConfigSignal(const QString& name) const;
+	void loadPageConfigSignal(const QString& name) const;
+
+};
+
 class PageDock : public nmc::DkDockWidget {
 	Q_OBJECT
 
@@ -148,12 +169,12 @@ public:
 	~PageDock();
 
 	bool drawRegions() const;
-	QVector<rdf::RegionTypeConfig> config() const;
 
 public slots:
 	void on_drawCheckbox_toggled(bool toggled) const;
 	void on_configCombo_currentIndexChanged(int index);
 	void on_configWidget_updated();
+	void updateConfig();
 
 signals:
 	void updateSignal() const;
