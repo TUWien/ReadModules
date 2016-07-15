@@ -77,7 +77,6 @@ namespace rdm {
 		}
 
 		sift->compute(mImg, kp, mDescriptors);
-		//sift->detectAndCompute(mImg, cv::Mat(), kp, mDescriptors);
 
 		mKeyPoints = QVector<cv::KeyPoint>::fromStdVector(kp);
 		
