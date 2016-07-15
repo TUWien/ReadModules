@@ -506,6 +506,10 @@ void PageDock::setConfigWidget(QSharedPointer<rdf::RegionTypeConfig> config) {
 	mConfigWidget->setRegionConfig(config);
 }
 
+void PageDock::closeEvent(QCloseEvent * ev) {
+	emit closeSignal();
+}
+
 void PageDock::on_drawCheckbox_toggled(bool toggled) const {
 
 	emit updateSignal();

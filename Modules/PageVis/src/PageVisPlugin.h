@@ -39,6 +39,7 @@ public:
 
 	QString id() const override;
 	QImage image() const override;
+	bool hideHUD() const override { return false; };	// enable interaction with HUD
 
 	virtual bool closesOnImageChange() const override;
 

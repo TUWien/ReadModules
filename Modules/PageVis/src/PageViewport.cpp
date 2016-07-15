@@ -76,6 +76,7 @@ void PageViewport::init() {
 	
 	connect(mPageDock, SIGNAL(updateSignal()), this, SLOT(update()));
 	connect(mPageData, SIGNAL(updatePage(QSharedPointer<rdf::PageElement>)), this, SLOT(update()));
+	connect(mPageDock, SIGNAL(closeSignal()), this, SIGNAL(closePlugin()));
 }
 
 void PageViewport::saveSettings(QSettings& settings) const {
