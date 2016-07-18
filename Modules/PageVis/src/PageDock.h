@@ -178,10 +178,12 @@ public slots:
 
 signals:
 	void updateSignal() const;
+	void closeSignal() const;
 
 private:
 	void createLayout();
 	void setConfigWidget(QSharedPointer<rdf::RegionTypeConfig> config);
+	void closeEvent(QCloseEvent* ev) override;
 
 	QCheckBox* mCbDraw = 0;
 	ConfigWidget* mConfigWidget = 0;

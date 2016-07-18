@@ -76,6 +76,7 @@ void PageViewport::init() {
 	
 	connect(mPageDock, SIGNAL(updateSignal()), this, SLOT(update()));
 	connect(mPageData, SIGNAL(updatePage(QSharedPointer<rdf::PageElement>)), this, SLOT(update()));
+	connect(mPageDock, SIGNAL(closeSignal()), this, SIGNAL(closePlugin()));
 }
 
 void PageViewport::saveSettings(QSettings& settings) const {
@@ -94,11 +95,11 @@ void PageViewport::loadSettings(QSettings& settings) {
 
 void PageViewport::updateImageContainer(QSharedPointer<nmc::DkImageContainerT> imgC) {
 
+	mImg = imgC;
+
 	// something todo?
 	if (!imgC)
 		return;
-
-	mImg = imgC;
 
 	QString xmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
 	mPageData->parse(xmlPath);
@@ -112,13 +113,18 @@ PageDock * PageViewport::dock() const {
 
 void PageViewport::paintEvent(QPaintEvent* event) {
 
+	if (mImg.isNull()) {
+		DkPluginViewPort::paintEvent(event);
+		return;
+	}
+
 	if (mPageDock->drawRegions()) {
 		QPainter painter(this);
 
 		if (mWorldMatrix)
 			painter.setWorldTransform((*mImgMatrix) * (*mWorldMatrix));	// >DIR: using both matrices allows for correct resizing [16.10.2013 markus]
 
-		if (mPageData->page())
+		if (mPageData->page() && !mPageData->page()->isEmpty())
 			rdf::RegionManager::instance().drawRegion(painter, mPageData->page()->rootRegion(), mPageData->config());
 	}
 
