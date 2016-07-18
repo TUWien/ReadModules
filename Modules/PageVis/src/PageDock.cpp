@@ -58,8 +58,8 @@
 namespace rdm {
 
 	QString PageDock::widgetStyle = QString("QWidget#infoWidget{background-color: #fff; border: none;}") +
-		"QLabel#titleLabel{font-size: 10pt; margin-top: 10pt;}" +
-		"QLabel#infoLabel{font-size: 11pt; font-style: italic; color: #666;}";
+		"QLabel#titleLabel{font-size: 12pt; margin-top: 10pt;}" +
+		"QLabel#infoLabel{font-size: 10pt; color: #666;}";
 
 QString PageDock::largeComboStyle = QString("QComboBox{font-size: 14pt; min-height: 40px; color: #006699; font-weight: light; border: none; border-bottom: 1px solid #666;}") +
 		"QComboBox::drop-down {border:none;}";
@@ -418,6 +418,35 @@ void PageProfileWidget::loadSettings(const QString& name) {
 	setDefaultModel();
 }
 
+// TitledLabel --------------------------------------------------------------------
+TitledLabel::TitledLabel(const QString& title, QWidget* parent) : QWidget(parent) {
+	createLayout(title);
+}
+
+QString TitledLabel::text() const {
+	return mInfoLabel->text();
+}
+
+void TitledLabel::createLayout(const QString& title) {
+
+	QLabel* titleLabel = new QLabel(title, this);
+	titleLabel->setObjectName("titleLabel");
+
+	mInfoLabel = new QLabel("", this);
+	mInfoLabel->setObjectName("infoLabel");
+	mInfoLabel->setWordWrap(true);
+	mInfoLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
+	QVBoxLayout* layout = new QVBoxLayout(this);
+	layout->setContentsMargins(0, 0, 0, 0);
+	layout->addWidget(titleLabel);
+	layout->addWidget(mInfoLabel);
+}
+
+void TitledLabel::setText(const QString& msg) {
+	mInfoLabel->setText(msg);
+}
+
 // RegionWidget --------------------------------------------------------------------
 RegionWidget::RegionWidget(QWidget* parent) : QWidget(parent) {
 
@@ -430,23 +459,34 @@ void RegionWidget::createLayout() {
 
 	// Region Selection
 	mRegionCombo = new QComboBox(this);
-	mRegionCombo->setObjectName("configCombo");
-
+	mRegionCombo->setObjectName("regionCombo");
 	mRegionCombo->setStyleSheet(PageDock::largeComboStyle);
-
-	mNumChildren = new QLabel(this);
-	mNumChildren->setObjectName("infoLabel");
 
 	mId = new QLabel(this);
 	mId->setObjectName("infoLabel");
+	mId->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
+	mNumChildren = new QLabel(this);
+	mNumChildren->setObjectName("infoLabel");
+	mNumChildren->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
+	// text tag
+	mText = new TitledLabel(tr("Text"), this);
+
+	// custom tag
+	mCustom = new TitledLabel(tr("Custom"), this);
 
 	QVBoxLayout* layout = new QVBoxLayout(this);
 	layout->setContentsMargins(0, 0, 0, 0);
 	layout->addWidget(mRegionCombo);
-	layout->addWidget(mNumChildren);
 	layout->addWidget(mId);
+	layout->addWidget(mNumChildren);
+
+	layout->addWidget(mText);
+	layout->addWidget(mCustom);
 
 	setStyleSheet(PageDock::widgetStyle);
+	showInfo(false);
 }
 
 void RegionWidget::setRegions(const QVector<QSharedPointer<rdf::Region> >& regions, int idx) {
@@ -461,6 +501,10 @@ void RegionWidget::setRegions(const QVector<QSharedPointer<rdf::Region> >& regio
 		if (idx)
 			idx = mRegions.size() - 1;
 
+		// reset index if necessary
+		if (idx < 0 || idx > mRegions.size())
+			idx = 0;
+
 		mRegionCombo->setCurrentIndex(idx);
 	}
 }
@@ -470,31 +514,62 @@ void RegionWidget::setRegionTypes(const QVector<QSharedPointer<rdf::RegionTypeCo
 	updateWidgets(currentRegion());
 }
 
+void RegionWidget::on_regionCombo_currentIndexChanged(int idx) {
+	updateWidgets(currentRegion());
+}
+
 QSharedPointer<rdf::Region> RegionWidget::currentRegion() const {
 	
-	if (mRegions.isEmpty())
+	int idx = mRegionCombo->currentIndex();
+	if (mRegions.isEmpty() || idx < 0 || idx >= mRegions.size())
 		return QSharedPointer<rdf::Region>();
 
-	return mRegions[mRegionCombo->currentIndex()];
+	return mRegions[idx];
 }
 
 void RegionWidget::updateWidgets(QSharedPointer<rdf::Region> region) {
 
-	if (region.isNull())
+	if (region.isNull()) {
 		clear();
+		return;
+	}
 
+	mNumChildren->setText(tr("%1 children").arg(region->children().size()));
+	mId->setText(tr("ID: %1").arg(region->id()));
+	
+	if (auto tl = qSharedPointerDynamicCast<rdf::TextLine>(region)) {
+		mText->setText(tl->text());
+	}
 
+	mCustom->setText(region->custom());
 
+	showInfo(true);
+}
+
+void RegionWidget::showInfo(bool show) {
+
+	mNumChildren->setVisible(show);
+	mId->setVisible(show);
+
+	if (show) {
+		mText->setVisible(!mText->text().isEmpty());
+		mCustom->setVisible(!mCustom->text().isEmpty());
+	}
+	else {
+		mText->setVisible(show);
+		mCustom->setVisible(show);
+	}
 }
 
 void RegionWidget::clear() {
 	
 	mNumChildren->setText("");
-	mNumChildren->hide();
-
 	mId->setText("");
-	mId->hide();
 
+	mCustom->setText("");
+	mText->setText("");
+
+	showInfo(false);
 }
 
 void RegionWidget::paintEvent(QPaintEvent* event) {

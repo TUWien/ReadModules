@@ -161,6 +161,23 @@ signals:
 
 };
 
+class TitledLabel : public QWidget {
+	Q_OBJECT
+
+public:
+	TitledLabel(const QString& title = QString(), QWidget* parent = 0);
+
+	QString text() const;
+
+public slots:
+	void setText(const QString& text);
+
+protected:
+	void createLayout(const QString& title);
+
+	QLabel* mInfoLabel = 0;
+};
+
 class RegionWidget : public QWidget {
 	Q_OBJECT
 
@@ -172,11 +189,13 @@ public:
 public slots:
 	void setRegions(const QVector<QSharedPointer<rdf::Region> >& regions, int idx = -1);
 	void setRegionTypes(const QVector<QSharedPointer<rdf::RegionTypeConfig> >& configs);
+	void on_regionCombo_currentIndexChanged(int idx);
 
 protected:
 	void createLayout();
 	void updateWidgets(QSharedPointer<rdf::Region> region);
 	void clear();
+	void showInfo(bool show = true);
 	void paintEvent(QPaintEvent* event) override;
 
 	QVector<QSharedPointer<rdf::Region> > mRegions;
@@ -185,7 +204,9 @@ protected:
 	QLabel* mNumChildren;
 	QLabel* mId;
 	// TODO: poly label
-
+	QLabel* mTextTitle;
+	TitledLabel* mText;
+	TitledLabel* mCustom;
 };
 
 class PageDock : public nmc::DkDockWidget {
