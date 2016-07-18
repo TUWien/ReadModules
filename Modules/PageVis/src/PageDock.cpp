@@ -64,6 +64,9 @@ namespace rdm {
 QString PageDock::largeComboStyle = QString("QComboBox{font-size: 14pt; min-height: 40px; color: #006699; font-weight: light; border: none; border-bottom: 1px solid #666;}") +
 		"QComboBox::drop-down {border:none;}";
 
+QString PageDock::smallComboStyle = QString("QComboBox{font-size: 11pt; min-height: 25px; color: #666; font-weight: light; border: none; border-bottom: 1px solid #666;}") +
+"QComboBox::drop-down {border:none;}";
+
 // ColorButton --------------------------------------------------------------------
 ColorButton::ColorButton(const QString& text, QWidget* parent) : QWidget(parent) {
 	setObjectName("colorButton");
@@ -466,24 +469,29 @@ void RegionWidget::createLayout() {
 	mId->setObjectName("infoLabel");
 	mId->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
-	mNumChildren = new QLabel(this);
-	mNumChildren->setObjectName("infoLabel");
-	mNumChildren->setTextInteractionFlags(Qt::TextSelectableByMouse);
-
 	// text tag
 	mText = new TitledLabel(tr("Text"), this);
 
 	// custom tag
 	mCustom = new TitledLabel(tr("Custom"), this);
 
+	// children selection
+	mChildCombo = new QComboBox(this);
+	mChildCombo->setObjectName("childCombo");
+	mChildCombo->setStyleSheet(PageDock::smallComboStyle);
+
+	QWidget* infoWidget = new QWidget(this);
+	QVBoxLayout* infoLayout = new QVBoxLayout(infoWidget);
+	infoLayout->addWidget(mId);
+
+	infoLayout->addWidget(mText);
+	infoLayout->addWidget(mCustom);
+	infoLayout->addWidget(mChildCombo);
+
 	QVBoxLayout* layout = new QVBoxLayout(this);
 	layout->setContentsMargins(0, 0, 0, 0);
 	layout->addWidget(mRegionCombo);
-	layout->addWidget(mId);
-	layout->addWidget(mNumChildren);
-
-	layout->addWidget(mText);
-	layout->addWidget(mCustom);
+	layout->addWidget(infoWidget);
 
 	setStyleSheet(PageDock::widgetStyle);
 	showInfo(false);
@@ -518,6 +526,26 @@ void RegionWidget::on_regionCombo_currentIndexChanged(int idx) {
 	updateWidgets(currentRegion());
 }
 
+void RegionWidget::on_childCombo_currentIndexChanged(int idx) {
+
+	idx = idx - 1;	// first entry is <no child>
+
+	if (!currentRegion() || idx < 0 || idx >= currentRegion()->children().size()) {
+		qWarning() << "illegal child index" << idx;
+		return;
+	}
+
+	for (auto r : mRegions)
+		r->setSelected(false);
+
+	QVector<QSharedPointer<rdf::Region> > r;
+	r << currentRegion()->children()[idx];
+	rdf::RegionManager::instance().selectRegions(r);
+	setRegions(r);
+
+	emit updateSignal();
+}
+
 QSharedPointer<rdf::Region> RegionWidget::currentRegion() const {
 	
 	int idx = mRegionCombo->currentIndex();
@@ -534,13 +562,32 @@ void RegionWidget::updateWidgets(QSharedPointer<rdf::Region> region) {
 		return;
 	}
 
-	mNumChildren->setText(tr("%1 children").arg(region->children().size()));
 	mId->setText(tr("ID: %1").arg(region->id()));
-	
+
+	// child combo
+	QString nChildrenStr;
+	switch (region->children().size()) {
+	case 0: nChildrenStr = tr("no children");	break;
+	case 1: nChildrenStr = tr("1 child");		break;
+	default:
+		nChildrenStr = tr("%1 children").arg(region->children().size());
+	}
+
+	mChildCombo->blockSignals(true);
+	mChildCombo->clear();
+	mChildCombo->addItem(nChildrenStr);
+	for (QSharedPointer<rdf::Region> r : region->children()) {
+		mChildCombo->addItem(r->id());
+	}
+	mChildCombo->blockSignals(false);
+	mChildCombo->setEnabled(!region->children().empty());
+
+	// text
 	if (auto tl = qSharedPointerDynamicCast<rdf::TextLine>(region)) {
 		mText->setText(tl->text());
 	}
 
+	// custom tag
 	mCustom->setText(region->custom());
 
 	showInfo(true);
@@ -548,23 +595,26 @@ void RegionWidget::updateWidgets(QSharedPointer<rdf::Region> region) {
 
 void RegionWidget::showInfo(bool show) {
 
-	mNumChildren->setVisible(show);
 	mId->setVisible(show);
 
-	if (show) {
-		mText->setVisible(!mText->text().isEmpty());
-		mCustom->setVisible(!mCustom->text().isEmpty());
-	}
-	else {
+	//if (show) {
+	//	mText->setVisible(!mText->text().isEmpty());
+	//	mCustom->setVisible(!mCustom->text().isEmpty());
+	//	mChildCombo->setVisible(mChildCombo->count() > 1);
+	//}
+	//else {
 		mText->setVisible(show);
 		mCustom->setVisible(show);
-	}
+		mChildCombo->setVisible(show);
+	//}
 }
 
 void RegionWidget::clear() {
-	
-	mNumChildren->setText("");
+
 	mId->setText("");
+
+	mRegionCombo->clear();
+	mChildCombo->clear();
 
 	mCustom->setText("");
 	mText->setText("");
@@ -582,8 +632,6 @@ void RegionWidget::paintEvent(QPaintEvent* event) {
 
 	QWidget::paintEvent(event);
 }
-
-
 
 // PageDock --------------------------------------------------------------------
 PageDock::PageDock(PageData* pageData, const QString& title, QWidget* parent) : nmc::DkDockWidget(title, parent) {
@@ -719,6 +767,13 @@ void PageDock::on_infoWidget_updated() {
 	//// correctly udpate even if we changed the current region already
 	//rdf::RegionTypeConfig c = mConfigWidget->config();
 	//mConfig[c.type()] = c;
+	emit updateSignal();
+}
+
+// that's weird: we cannot connect two objects with the same names
+// so I just changed the signal name...
+void PageDock::on_infoWidget_updateSignal() {
+
 	emit updateSignal();
 }
 

@@ -190,6 +190,10 @@ public slots:
 	void setRegions(const QVector<QSharedPointer<rdf::Region> >& regions, int idx = -1);
 	void setRegionTypes(const QVector<QSharedPointer<rdf::RegionTypeConfig> >& configs);
 	void on_regionCombo_currentIndexChanged(int idx);
+	void on_childCombo_currentIndexChanged(int idx);
+
+signals:
+	void updateSignal() const;
 
 protected:
 	void createLayout();
@@ -201,7 +205,7 @@ protected:
 	QVector<QSharedPointer<rdf::Region> > mRegions;
 	QVector<QSharedPointer<rdf::RegionTypeConfig> > mRegionTypes;
 	QComboBox* mRegionCombo;
-	QLabel* mNumChildren;
+	QComboBox* mChildCombo;
 	QLabel* mId;
 	// TODO: poly label
 	QLabel* mTextTitle;
@@ -222,11 +226,13 @@ public:
 	// I don't really like this definition - but: it's hard to read an external stylesheet for these few widgets
 	static QString widgetStyle;
 	static QString largeComboStyle;
+	static QString smallComboStyle;
 
 public slots:
 	void on_drawCheckbox_toggled(bool toggled) const;
 	void on_configCombo_currentIndexChanged(int index);
 	void on_infoWidget_updated();
+	void on_infoWidget_updateSignal();
 	void updateConfig();
 
 signals:
