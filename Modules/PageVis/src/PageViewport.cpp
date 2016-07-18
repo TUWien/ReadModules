@@ -94,12 +94,17 @@ void PageViewport::mousePressEvent(QMouseEvent * event) {
 
 void PageViewport::mouseReleaseEvent(QMouseEvent * event) {
 
+	const rdf::RegionManager& rm = rdf::RegionManager::instance();
+
 	if (event->button() == Qt::LeftButton && mPageData->page()) {
 		QPointF p = mapToImage(event->pos());
 		QVector<QSharedPointer<rdf::Region> > sr = 
-			rdf::RegionManager::instance().regionsAt(mPageData->page()->rootRegion(), p.toPoint(), mPageData->config());
+			rm.regionsAt(mPageData->page()->rootRegion(), p.toPoint(), mPageData->config());
 		
+		rm.selectRegions(mPageData->page()->rootRegion(), sr);
+
 		emit selectRegionsSignal(sr);
+		update();
 		qDebug() << "#regions:" << sr.size() << "point:" << p;
 	}
 	

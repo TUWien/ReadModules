@@ -59,7 +59,7 @@ private:
 class BatchTest : public QObject, nmc::DkBatchPluginInterface {
 	Q_OBJECT
 		Q_INTERFACES(nmc::DkBatchPluginInterface)
-		Q_PLUGIN_METADATA(IID "com.nomacs.ImageLounge.BatchTest/3.1" FILE "BatchTest.json")
+		Q_PLUGIN_METADATA(IID "com.nomacs.ImageLounge.BatchTest/3.2" FILE "BatchTest.json")
 
 public:
 	BatchTest(QObject* parent = 0);

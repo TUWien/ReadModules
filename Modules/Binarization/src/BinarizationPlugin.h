@@ -40,11 +40,12 @@ namespace rdm {
 class BinarizationPlugin : public QObject, nmc::DkPluginInterface {
 	Q_OBJECT
 	Q_INTERFACES(nmc::DkPluginInterface)
-	Q_PLUGIN_METADATA(IID "com.nomacs.ImageLounge.BinarizationPlugin/3.0" FILE "BinarizationPlugin.json")
+	Q_PLUGIN_METADATA(IID "com.nomacs.ImageLounge.BinarizationPlugin/3.2" FILE "BinarizationPlugin.json")
 
 public:
 	BinarizationPlugin(QObject* parent = 0);
 	~BinarizationPlugin();
+
 
 	QString id() const override;
 	QImage image() const override;

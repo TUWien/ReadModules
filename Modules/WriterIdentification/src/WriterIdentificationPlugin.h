@@ -53,7 +53,7 @@ private:
 class WriterIdentificationPlugin : public QObject, nmc::DkBatchPluginInterface {
 	Q_OBJECT
 	Q_INTERFACES(nmc::DkBatchPluginInterface)
-	Q_PLUGIN_METADATA(IID "com.nomacs.ImageLounge.WriterIdentificationPlugin/5.1" FILE "WriterIdentificationPlugin.json")
+	Q_PLUGIN_METADATA(IID "com.nomacs.ImageLounge.WriterIdentificationPlugin/3.3" FILE "WriterIdentificationPlugin.json")
 
 public:
 	WriterIdentificationPlugin(QObject* parent = 0);
