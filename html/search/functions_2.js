@@ -1,6 +1,7 @@
 var searchData=
 [
   ['calculatefeatures',['calculateFeatures',['../classrdm_1_1_writer_identification.html#a73c7263f2a2d07669ff5fa440f585689',1,'rdm::WriterIdentification']]],
+  ['closesignal',['closeSignal',['../classrdm_1_1_page_dock.html#a80a320b211ce68202bb0a96087553293',1,'rdm::PageDock']]],
   ['closesonimagechange',['closesOnImageChange',['../classrdm_1_1_page_vis_plugin.html#a4a7f8f3b159b7722a424db2ba86a7a85',1,'rdm::PageVisPlugin']]],
   ['colorbutton',['ColorButton',['../classrdm_1_1_color_button.html#a2cc04950dbe135849656a9ad3985a70e',1,'rdm::ColorButton']]],
   ['compute',['compute',['../classrdm_1_1_layout_plugin.html#a79c310f89b9e44874be7ef2ed61fde76',1,'rdm::LayoutPlugin']]],

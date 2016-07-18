@@ -2,6 +2,7 @@ var classrdm_1_1_page_dock =
 [
     [ "PageDock", "classrdm_1_1_page_dock.html#a010cb79befcdb0b5bfe1022af259baeb", null ],
     [ "~PageDock", "classrdm_1_1_page_dock.html#a81b9c704f5a3054bb04a919b99a944bb", null ],
+    [ "closeSignal", "classrdm_1_1_page_dock.html#a80a320b211ce68202bb0a96087553293", null ],
     [ "drawRegions", "classrdm_1_1_page_dock.html#a71c4ccc973c4937e1f834d180d369d1b", null ],
     [ "on_configCombo_currentIndexChanged", "classrdm_1_1_page_dock.html#a082fa4e048a4f6a5759755d093b39c8f", null ],
     [ "on_configWidget_updated", "classrdm_1_1_page_dock.html#a30ab8d8e718478ab88370e6ab3501087", null ],
