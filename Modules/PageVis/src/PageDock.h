@@ -161,6 +161,33 @@ signals:
 
 };
 
+class RegionWidget : public QWidget {
+	Q_OBJECT
+
+public:
+	RegionWidget(QWidget* parent = 0);
+
+	QSharedPointer<rdf::Region> currentRegion() const;
+
+public slots:
+	void setRegions(const QVector<QSharedPointer<rdf::Region> >& regions, int idx = -1);
+	void setRegionTypes(const QVector<QSharedPointer<rdf::RegionTypeConfig> >& configs);
+
+protected:
+	void createLayout();
+	void updateWidgets(QSharedPointer<rdf::Region> region);
+	void clear();
+	void paintEvent(QPaintEvent* event) override;
+
+	QVector<QSharedPointer<rdf::Region> > mRegions;
+	QVector<QSharedPointer<rdf::RegionTypeConfig> > mRegionTypes;
+	QComboBox* mRegionCombo;
+	QLabel* mNumChildren;
+	QLabel* mId;
+	// TODO: poly label
+
+};
+
 class PageDock : public nmc::DkDockWidget {
 	Q_OBJECT
 
@@ -169,11 +196,16 @@ public:
 	~PageDock();
 
 	bool drawRegions() const;
+	RegionWidget* regionWidget();
+
+	// I don't really like this definition - but: it's hard to read an external stylesheet for these few widgets
+	static QString widgetStyle;
+	static QString largeComboStyle;
 
 public slots:
 	void on_drawCheckbox_toggled(bool toggled) const;
 	void on_configCombo_currentIndexChanged(int index);
-	void on_configWidget_updated();
+	void on_infoWidget_updated();
 	void updateConfig();
 
 signals:
@@ -187,6 +219,7 @@ private:
 
 	QCheckBox* mCbDraw = 0;
 	ConfigWidget* mConfigWidget = 0;
+	RegionWidget* mRegionWidget = 0;
 
 	rdf::Region::Type mCurrentRegion = rdf::Region::type_text_region;
 	

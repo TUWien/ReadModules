@@ -57,6 +57,13 @@
 
 namespace rdm {
 
+	QString PageDock::widgetStyle = QString("QWidget#infoWidget{background-color: #fff; border: none;}") +
+		"QLabel#titleLabel{font-size: 10pt; margin-top: 10pt;}" +
+		"QLabel#infoLabel{font-size: 11pt; font-style: italic; color: #666;}";
+
+QString PageDock::largeComboStyle = QString("QComboBox{font-size: 14pt; min-height: 40px; color: #006699; font-weight: light; border: none; border-bottom: 1px solid #666;}") +
+		"QComboBox::drop-down {border:none;}";
+
 // ColorButton --------------------------------------------------------------------
 ColorButton::ColorButton(const QString& text, QWidget* parent) : QWidget(parent) {
 	setObjectName("colorButton");
@@ -105,7 +112,7 @@ void ColorButton::setColor(const QColor& col) {
 // ConfigWidget --------------------------------------------------------------------
 ConfigWidget::ConfigWidget(QWidget* parent) : QWidget(parent) {
 	
-	setObjectName("configWigdet");
+	setObjectName("infoWidget");
 	createLayout();
 	QMetaObject::connectSlotsByName(this);
 }
@@ -159,7 +166,7 @@ void ConfigWidget::createLayout() {
 	layout->addWidget(mStrokeBox);
 	layout->addWidget(cbWidget);
 
-	setStyleSheet("QWidget#configWidget{background-color: #fff;} QLabel#titleLabel{font-size: 10pt; margin-top: 10pt;}");
+	setStyleSheet(PageDock::widgetStyle);
 }
 
 void ConfigWidget::updateElements() {
@@ -297,7 +304,7 @@ void ConfigWidget::paintEvent(QPaintEvent* event) {
 // XmlLabel --------------------------------------------------------------------
 XmlLabel::XmlLabel(QWidget* parent) : QLineEdit(parent) {
 
-	setObjectName("XmlLabel");
+	setObjectName("infoWidget");
 	createLayout();
 	setAcceptDrops(true);
 
@@ -309,7 +316,8 @@ void XmlLabel::createLayout() {
 	setMinimumHeight(100);
 	setAlignment(Qt::AlignTop);
 
-	setStyleSheet("QLineEdit#XmlLabel{background-color: #fff; border: none;}");
+	//"QLineEdit#XmlLabel{background-color: #fff; border: none;}"
+	setStyleSheet(PageDock::widgetStyle);
 }
 
 void XmlLabel::setPage(QSharedPointer<rdf::PageElement> page) {
@@ -410,6 +418,97 @@ void PageProfileWidget::loadSettings(const QString& name) {
 	setDefaultModel();
 }
 
+// RegionWidget --------------------------------------------------------------------
+RegionWidget::RegionWidget(QWidget* parent) : QWidget(parent) {
+
+	setObjectName("infoWidget");
+	createLayout();
+	QMetaObject::connectSlotsByName(this);
+}
+
+void RegionWidget::createLayout() {
+
+	// Region Selection
+	mRegionCombo = new QComboBox(this);
+	mRegionCombo->setObjectName("configCombo");
+
+	mRegionCombo->setStyleSheet(PageDock::largeComboStyle);
+
+	mNumChildren = new QLabel(this);
+	mNumChildren->setObjectName("infoLabel");
+
+	mId = new QLabel(this);
+	mId->setObjectName("infoLabel");
+
+	QVBoxLayout* layout = new QVBoxLayout(this);
+	layout->setContentsMargins(0, 0, 0, 0);
+	layout->addWidget(mRegionCombo);
+	layout->addWidget(mNumChildren);
+	layout->addWidget(mId);
+
+	setStyleSheet(PageDock::widgetStyle);
+}
+
+void RegionWidget::setRegions(const QVector<QSharedPointer<rdf::Region> >& regions, int idx) {
+	
+	mRegions = regions;
+	mRegionCombo->clear();
+	
+	for (const QSharedPointer<rdf::Region> r : regions)
+		mRegionCombo->addItem(rdf::RegionManager::instance().typeName(r->type()));
+
+	if (!mRegions.isEmpty()) {
+		if (idx)
+			idx = mRegions.size() - 1;
+
+		mRegionCombo->setCurrentIndex(idx);
+	}
+}
+
+void RegionWidget::setRegionTypes(const QVector<QSharedPointer<rdf::RegionTypeConfig> >& configs) {
+	mRegionTypes = configs;
+	updateWidgets(currentRegion());
+}
+
+QSharedPointer<rdf::Region> RegionWidget::currentRegion() const {
+	
+	if (mRegions.isEmpty())
+		return QSharedPointer<rdf::Region>();
+
+	return mRegions[mRegionCombo->currentIndex()];
+}
+
+void RegionWidget::updateWidgets(QSharedPointer<rdf::Region> region) {
+
+	if (region.isNull())
+		clear();
+
+
+
+}
+
+void RegionWidget::clear() {
+	
+	mNumChildren->setText("");
+	mNumChildren->hide();
+
+	mId->setText("");
+	mId->hide();
+
+}
+
+void RegionWidget::paintEvent(QPaintEvent* event) {
+
+	// fixes stylesheets which are not applied to custom widgets
+	QStyleOption opt;
+	opt.init(this);
+	QPainter p(this);
+	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+
+	QWidget::paintEvent(event);
+}
+
+
 
 // PageDock --------------------------------------------------------------------
 PageDock::PageDock(PageData* pageData, const QString& title, QWidget* parent) : nmc::DkDockWidget(title, parent) {
@@ -449,7 +548,6 @@ void PageDock::createLayout() {
 
 	// config widget
 	mConfigWidget = new ConfigWidget(this);
-	mConfigWidget->setObjectName("configWidget");
 
 	QWidget* configDummy = new QWidget(this);
 	QVBoxLayout* configLayout = new QVBoxLayout(configDummy);
@@ -462,6 +560,9 @@ void PageDock::createLayout() {
 	XmlLabel* xmlWidget = new XmlLabel(this);
 	xmlWidget->setPage(mPageData->page());
 
+	// region selction widget
+	mRegionWidget = new RegionWidget(this);
+
 	// create our widget
 	QWidget* base = new QWidget(this);
 	QVBoxLayout* baseLayout = new QVBoxLayout(base);
@@ -470,6 +571,7 @@ void PageDock::createLayout() {
 	baseLayout->addWidget(profileWidget);
 	baseLayout->addWidget(configDummy);
 	baseLayout->addWidget(xmlWidget);
+	baseLayout->addWidget(mRegionWidget);
 
 	// add a scroll bar
 	nmc::DkResizableScrollArea* scrollArea = new nmc::DkResizableScrollArea(this);
@@ -519,6 +621,10 @@ bool PageDock::drawRegions() const {
 	return mCbDraw->isChecked();
 }
 
+RegionWidget * PageDock::regionWidget() {
+	return mRegionWidget;
+}
+
 void PageDock::updateConfig() {
 
 	setConfigWidget(mPageData->config()[mCurrentRegion]);
@@ -533,7 +639,7 @@ void PageDock::on_configCombo_currentIndexChanged(int index) {
 	emit updateSignal();
 }
 
-void PageDock::on_configWidget_updated() {
+void PageDock::on_infoWidget_updated() {
 
 	//// correctly udpate even if we changed the current region already
 	//rdf::RegionTypeConfig c = mConfigWidget->config();

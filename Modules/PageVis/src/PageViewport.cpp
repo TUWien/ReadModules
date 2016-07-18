@@ -77,6 +77,7 @@ void PageViewport::init() {
 	connect(mPageDock, SIGNAL(updateSignal()), this, SLOT(update()));
 	connect(mPageData, SIGNAL(updatePage(QSharedPointer<rdf::PageElement>)), this, SLOT(update()));
 	connect(mPageDock, SIGNAL(closeSignal()), this, SIGNAL(closePlugin()));
+	connect(this, SIGNAL(selectRegionsSignal(const QVector<QSharedPointer<rdf::Region> >&)), mPageDock->regionWidget(), SLOT(setRegions(const QVector<QSharedPointer<rdf::Region> >&)));
 }
 
 void PageViewport::saveSettings(QSettings& settings) const {
@@ -84,6 +85,25 @@ void PageViewport::saveSettings(QSettings& settings) const {
 	settings.beginGroup(objectName());
 
 	settings.endGroup();
+}
+
+void PageViewport::mousePressEvent(QMouseEvent * event) {
+
+	nmc::DkPluginViewPort::mousePressEvent(event);
+}
+
+void PageViewport::mouseReleaseEvent(QMouseEvent * event) {
+
+	if (event->button() == Qt::LeftButton && mPageData->page()) {
+		QPointF p = mapToImage(event->pos());
+		QVector<QSharedPointer<rdf::Region> > sr = 
+			rdf::RegionManager::instance().regionsAt(mPageData->page()->rootRegion(), p.toPoint(), mPageData->config());
+		
+		emit selectRegionsSignal(sr);
+		qDebug() << "#regions:" << sr.size() << "point:" << p;
+	}
+	
+	nmc::DkPluginViewPort::mouseReleaseEvent(event);
 }
 
 void PageViewport::loadSettings(QSettings& settings) {
