@@ -124,7 +124,7 @@ def create_mode(infile, conf):
 # them into 'path'
 def search_for_used_dlls(infile, path, dll_list, conf):
     import re
-    dll_regexp = re.compile(b'.dll')
+    dll_regexp = re.compile(b'\.dll')
     logger.debug("analyzing: "+os.path.join(path, infile))
     ifile = open(os.path.join(path, infile), 'rb')
     for line in ifile:
