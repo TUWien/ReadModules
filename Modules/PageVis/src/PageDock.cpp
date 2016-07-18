@@ -450,6 +450,118 @@ void TitledLabel::setText(const QString& msg) {
 	mInfoLabel->setText(msg);
 }
 
+// PolygonWidget --------------------------------------------------------------------
+PolygonWidget::PolygonWidget(QWidget* parent) {
+}
+
+void PolygonWidget::setPolygon(const QPolygon & poly) {
+	
+	// norm polygon
+	QPolygonF pn;
+	QRect r = poly.boundingRect();
+	double scale = qMax(r.width(), r.height());
+
+	for (const QPoint& p : poly) {
+
+		QPointF pf(p);
+		pf.setX((pf.x()-r.left()) / scale);
+		pf.setY((pf.y()-r.top()) / scale);
+		pn << pf;
+	}
+
+	mPoly = pn;
+	update();
+}
+
+void PolygonWidget::setConfig(const QSharedPointer<rdf::RegionTypeConfig>& config) {
+	mConfig = config;
+}
+
+void PolygonWidget::paintEvent(QPaintEvent * ev) {
+
+	// transform
+	QRectF br = mPoly.boundingRect();
+	double s = qMin(width(), height());
+	int dx = qRound((1.0-br.width()) * s/2.0);
+	int dy = qRound((1.0-br.height()) * s/2.0);
+
+	QTransform wt;
+	wt = wt.translate(dx, dy);
+	wt = wt.scale(s, s);
+
+	// style
+	QPen pen;
+	if (mConfig)
+		pen = mConfig->pen();
+	pen.setWidthF(.01);
+
+	// draw
+	QPainter p(this);
+	p.setWorldTransform(wt);
+	p.setPen(pen);
+
+	// draw the polygon
+	QPainterPath path;
+	path.addPolygon(mPoly);
+	p.drawPath(path);
+
+	if (mPoly.isClosed() && mConfig)
+		p.fillPath(path, mConfig->brush());
+
+	QLabel::paintEvent(ev);
+}
+
+// PolygonInfoWidget --------------------------------------------------------------------
+PolygonInfoWidget::PolygonInfoWidget(QWidget* parent) : QWidget(parent) {
+	createLayout();
+	setMaximumHeight(50);
+}
+
+void PolygonInfoWidget::createLayout() {
+
+	mPolyWidget = new PolygonWidget(this);
+	mPolyWidget->setFixedSize(50, 50);
+
+	mPolyText = new QLabel(this);
+	mPolyText->setObjectName("infoLabel");
+	mPolyText->setTextInteractionFlags(Qt::TextSelectableByMouse);
+	mPolyText->setWordWrap(true);
+
+	QHBoxLayout* layout = new QHBoxLayout(this);
+	layout->setContentsMargins(0, 0, 0, 0);
+	layout->addWidget(mPolyWidget);
+	layout->addWidget(mPolyText);
+}
+
+void PolygonInfoWidget::setConfig(const QSharedPointer<rdf::RegionTypeConfig>& config) {
+	mPolyWidget->setConfig(config);
+}
+
+void PolygonInfoWidget::setPolygon(const QPolygon & poly) {
+	
+	mPoly = poly;
+	mPolyWidget->setPolygon(poly);
+
+	if (poly.empty()) {
+		mPolyText->setText("");
+		return;
+	}
+
+	QString pt = "[";
+	for (const QPoint& p : mPoly) {
+		pt += QString::number(p.x()) + " " + QString::number(p.y()) + ", ";
+	}
+
+	pt += "]";
+
+	mPolyText->setText(pt);
+}
+
+QPolygon PolygonInfoWidget::polygon() const {
+	return mPoly;
+}
+
+
 // RegionWidget --------------------------------------------------------------------
 RegionWidget::RegionWidget(QWidget* parent) : QWidget(parent) {
 
@@ -469,6 +581,11 @@ void RegionWidget::createLayout() {
 	mId->setObjectName("infoLabel");
 	mId->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
+	// polygons
+	mPolyWidget = new PolygonInfoWidget(this);
+
+	mBaselineWidget = new PolygonInfoWidget(this);
+
 	// text tag
 	mText = new TitledLabel(tr("Text"), this);
 
@@ -483,7 +600,8 @@ void RegionWidget::createLayout() {
 	QWidget* infoWidget = new QWidget(this);
 	QVBoxLayout* infoLayout = new QVBoxLayout(infoWidget);
 	infoLayout->addWidget(mId);
-
+	infoLayout->addWidget(mPolyWidget);
+	infoLayout->addWidget(mBaselineWidget);
 	infoLayout->addWidget(mText);
 	infoLayout->addWidget(mCustom);
 	infoLayout->addWidget(mChildCombo);
@@ -495,6 +613,7 @@ void RegionWidget::createLayout() {
 
 	setStyleSheet(PageDock::widgetStyle);
 	showInfo(false);
+	hide();
 }
 
 void RegionWidget::setRegions(const QVector<QSharedPointer<rdf::Region> >& regions, int idx) {
@@ -502,6 +621,8 @@ void RegionWidget::setRegions(const QVector<QSharedPointer<rdf::Region> >& regio
 	mRegions = regions;
 	mRegionCombo->clear();
 	
+	setVisible(!mRegions.empty());
+
 	for (const QSharedPointer<rdf::Region> r : regions)
 		mRegionCombo->addItem(rdf::RegionManager::instance().typeName(r->type()));
 
@@ -562,7 +683,13 @@ void RegionWidget::updateWidgets(QSharedPointer<rdf::Region> region) {
 		return;
 	}
 
+	QSharedPointer<rdf::RegionTypeConfig> config = rdf::RegionManager::instance().getConfig(region, mRegionTypes);
+	
 	mId->setText(tr("ID: %1").arg(region->id()));
+
+	// polygons
+	mPolyWidget->setPolygon(region->polygon().closedPolygon());
+	mPolyWidget->setConfig(config);
 
 	// child combo
 	QString nChildrenStr;
@@ -584,7 +711,13 @@ void RegionWidget::updateWidgets(QSharedPointer<rdf::Region> region) {
 
 	// text
 	if (auto tl = qSharedPointerDynamicCast<rdf::TextLine>(region)) {
+		mBaselineWidget->setPolygon(tl->baseLine().polygon());
+		mBaselineWidget->setConfig(config);
 		mText->setText(tl->text());
+	}
+	else {
+		mText->setText("");
+		mBaselineWidget->setPolygon(QPolygon());
 	}
 
 	// custom tag
@@ -596,6 +729,17 @@ void RegionWidget::updateWidgets(QSharedPointer<rdf::Region> region) {
 void RegionWidget::showInfo(bool show) {
 
 	mId->setVisible(show);
+
+	if (mPolyWidget->polygon().empty())
+		mPolyWidget->hide();
+	else
+		mPolyWidget->setVisible(show);
+
+	if (mBaselineWidget->polygon().empty())
+		mBaselineWidget->hide();
+	else
+		mBaselineWidget->setVisible(show);
+
 
 	//if (show) {
 	//	mText->setVisible(!mText->text().isEmpty());
@@ -615,6 +759,9 @@ void RegionWidget::clear() {
 
 	mRegionCombo->clear();
 	mChildCombo->clear();
+
+	mPolyWidget->setPolygon(QPolygon());
+	mBaselineWidget->setPolygon(QPolygon());
 
 	mCustom->setText("");
 	mText->setText("");
@@ -768,6 +915,7 @@ void PageDock::on_infoWidget_updated() {
 	//rdf::RegionTypeConfig c = mConfigWidget->config();
 	//mConfig[c.type()] = c;
 	emit updateSignal();
+	mRegionWidget->setRegionTypes(mPageData->config());
 }
 
 // that's weird: we cannot connect two objects with the same names

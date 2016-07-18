@@ -178,6 +178,42 @@ protected:
 	QLabel* mInfoLabel = 0;
 };
 
+class PolygonWidget : public QLabel {
+	Q_OBJECT
+
+public:
+	PolygonWidget(QWidget* parent = 0);
+
+	void setPolygon(const QPolygon & poly);
+	void setConfig(const QSharedPointer<rdf::RegionTypeConfig>& config);
+
+protected:
+	void paintEvent(QPaintEvent* ev) override;
+
+	QPolygonF mPoly;
+	QSharedPointer<rdf::RegionTypeConfig> mConfig;
+};
+
+class PolygonInfoWidget : public QWidget {
+	Q_OBJECT
+
+public:
+	PolygonInfoWidget(QWidget* parent = 0);
+
+	void setConfig(const QSharedPointer<rdf::RegionTypeConfig>& config);
+
+	void setPolygon(const QPolygon& poly);
+	QPolygon polygon() const;
+
+protected:
+	void createLayout();
+
+	QPolygon mPoly;
+
+	PolygonWidget* mPolyWidget = 0;
+	QLabel* mPolyText = 0;
+};
+
 class RegionWidget : public QWidget {
 	Q_OBJECT
 
@@ -207,7 +243,8 @@ protected:
 	QComboBox* mRegionCombo;
 	QComboBox* mChildCombo;
 	QLabel* mId;
-	// TODO: poly label
+	PolygonInfoWidget* mPolyWidget;
+	PolygonInfoWidget* mBaselineWidget;
 	QLabel* mTextTitle;
 	TitledLabel* mText;
 	TitledLabel* mCustom;
