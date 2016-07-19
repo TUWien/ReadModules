@@ -10,6 +10,10 @@ var dir_7b5e77599b31094c77117a75d9970abd =
       [ "ConfigWidget", "classrdm_1_1_config_widget.html", "classrdm_1_1_config_widget" ],
       [ "XmlLabel", "classrdm_1_1_xml_label.html", "classrdm_1_1_xml_label" ],
       [ "PageProfileWidget", "classrdm_1_1_page_profile_widget.html", "classrdm_1_1_page_profile_widget" ],
+      [ "TitledLabel", "classrdm_1_1_titled_label.html", "classrdm_1_1_titled_label" ],
+      [ "PolygonWidget", "classrdm_1_1_polygon_widget.html", "classrdm_1_1_polygon_widget" ],
+      [ "PolygonInfoWidget", "classrdm_1_1_polygon_info_widget.html", "classrdm_1_1_polygon_info_widget" ],
+      [ "RegionWidget", "classrdm_1_1_region_widget.html", "classrdm_1_1_region_widget" ],
       [ "PageDock", "classrdm_1_1_page_dock.html", "classrdm_1_1_page_dock" ]
     ] ],
     [ "PageViewport.cpp", "_page_viewport_8cpp.html", null ],

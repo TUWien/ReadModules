@@ -1,4 +1,7 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node2" href="$classrdm_1_1_color_button.html" title="rdm::ColorButton" alt="" coords="133,5,254,32"/>
-<area shape="rect" id="node3" href="$classrdm_1_1_config_widget.html" title="rdm::ConfigWidget" alt="" coords="128,56,259,83"/>
+<area shape="rect" id="node2" href="$classrdm_1_1_color_button.html" title="rdm::ColorButton" alt="" coords="149,5,270,32"/>
+<area shape="rect" id="node3" href="$classrdm_1_1_config_widget.html" title="rdm::ConfigWidget" alt="" coords="144,56,275,83"/>
+<area shape="rect" id="node4" href="$classrdm_1_1_polygon_info_widget.html" title="rdm::PolygonInfoWidget" alt="" coords="128,107,291,133"/>
+<area shape="rect" id="node5" href="$classrdm_1_1_region_widget.html" title="rdm::RegionWidget" alt="" coords="142,157,277,184"/>
+<area shape="rect" id="node6" href="$classrdm_1_1_titled_label.html" title="rdm::TitledLabel" alt="" coords="152,208,267,235"/>
 </map>

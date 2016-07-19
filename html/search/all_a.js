@@ -2,6 +2,7 @@ var searchData=
 [
   ['l2mean',['l2Mean',['../classrdm_1_1_w_i_vocabulary.html#ab23c4c73825398adafa80fe0b477a737',1,'rdm::WIVocabulary']]],
   ['l2sigma',['l2Sigma',['../classrdm_1_1_w_i_vocabulary.html#a8fb378bee3e969660979c899e340bf78',1,'rdm::WIVocabulary']]],
+  ['largecombostyle',['largeComboStyle',['../classrdm_1_1_page_dock.html#a2c61d8ab296ae36234f526fd73627cdb',1,'rdm::PageDock']]],
   ['layoutplugin',['LayoutPlugin',['../classrdm_1_1_layout_plugin.html',1,'rdm']]],
   ['layoutplugin',['LayoutPlugin',['../classrdm_1_1_layout_plugin.html#aef229f4628a1ec74710442897f7a4844',1,'rdm::LayoutPlugin']]],
   ['layoutplugin_2ecpp',['LayoutPlugin.cpp',['../_layout_plugin_8cpp.html',1,'']]],

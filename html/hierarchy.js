@@ -28,6 +28,9 @@ var hierarchy =
     [ "DkViewPortInterface", null, [
       [ "rdm::PageVisPlugin", "classrdm_1_1_page_vis_plugin.html", null ]
     ] ],
+    [ "QLabel", null, [
+      [ "rdm::PolygonWidget", "classrdm_1_1_polygon_widget.html", null ]
+    ] ],
     [ "QLineEdit", null, [
       [ "rdm::XmlLabel", "classrdm_1_1_xml_label.html", null ]
     ] ],
@@ -43,7 +46,10 @@ var hierarchy =
     ] ],
     [ "QWidget", null, [
       [ "rdm::ColorButton", "classrdm_1_1_color_button.html", null ],
-      [ "rdm::ConfigWidget", "classrdm_1_1_config_widget.html", null ]
+      [ "rdm::ConfigWidget", "classrdm_1_1_config_widget.html", null ],
+      [ "rdm::PolygonInfoWidget", "classrdm_1_1_polygon_info_widget.html", null ],
+      [ "rdm::RegionWidget", "classrdm_1_1_region_widget.html", null ],
+      [ "rdm::TitledLabel", "classrdm_1_1_titled_label.html", null ]
     ] ],
     [ "rdm::WIDatabase", "classrdm_1_1_w_i_database.html", null ],
     [ "rdm::WIVocabulary", "classrdm_1_1_w_i_vocabulary.html", null ],
