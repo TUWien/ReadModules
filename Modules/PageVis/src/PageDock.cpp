@@ -57,6 +57,16 @@
 
 namespace rdm {
 
+	QString PageDock::widgetStyle = QString("QWidget#infoWidget{background-color: #fff; border: none;}") +
+		"QLabel#titleLabel{font-size: 12pt; margin-top: 10pt;}" +
+		"QLabel#infoLabel{font-size: 10pt; color: #666;}";
+
+QString PageDock::largeComboStyle = QString("QComboBox{font-size: 14pt; min-height: 40px; color: #006699; font-weight: light; border: none; border-bottom: 1px solid #666;}") +
+		"QComboBox::drop-down {border:none;}";
+
+QString PageDock::smallComboStyle = QString("QComboBox{font-size: 11pt; min-height: 25px; color: #666; font-weight: light; border: none; border-bottom: 1px solid #666;}") +
+"QComboBox::drop-down {border:none;}";
+
 // ColorButton --------------------------------------------------------------------
 ColorButton::ColorButton(const QString& text, QWidget* parent) : QWidget(parent) {
 	setObjectName("colorButton");
@@ -105,7 +115,7 @@ void ColorButton::setColor(const QColor& col) {
 // ConfigWidget --------------------------------------------------------------------
 ConfigWidget::ConfigWidget(QWidget* parent) : QWidget(parent) {
 	
-	setObjectName("configWigdet");
+	setObjectName("infoWidget");
 	createLayout();
 	QMetaObject::connectSlotsByName(this);
 }
@@ -159,7 +169,7 @@ void ConfigWidget::createLayout() {
 	layout->addWidget(mStrokeBox);
 	layout->addWidget(cbWidget);
 
-	setStyleSheet("QWidget#configWidget{background-color: #fff;} QLabel#titleLabel{font-size: 10pt; margin-top: 10pt;}");
+	setStyleSheet(PageDock::widgetStyle);
 }
 
 void ConfigWidget::updateElements() {
@@ -297,7 +307,7 @@ void ConfigWidget::paintEvent(QPaintEvent* event) {
 // XmlLabel --------------------------------------------------------------------
 XmlLabel::XmlLabel(QWidget* parent) : QLineEdit(parent) {
 
-	setObjectName("XmlLabel");
+	setObjectName("infoWidget");
 	createLayout();
 	setAcceptDrops(true);
 
@@ -309,7 +319,8 @@ void XmlLabel::createLayout() {
 	setMinimumHeight(100);
 	setAlignment(Qt::AlignTop);
 
-	setStyleSheet("QLineEdit#XmlLabel{background-color: #fff; border: none;}");
+	//"QLineEdit#XmlLabel{background-color: #fff; border: none;}"
+	setStyleSheet(PageDock::widgetStyle);
 }
 
 void XmlLabel::setPage(QSharedPointer<rdf::PageElement> page) {
@@ -410,6 +421,364 @@ void PageProfileWidget::loadSettings(const QString& name) {
 	setDefaultModel();
 }
 
+// TitledLabel --------------------------------------------------------------------
+TitledLabel::TitledLabel(const QString& title, QWidget* parent) : QWidget(parent) {
+	createLayout(title);
+}
+
+QString TitledLabel::text() const {
+	return mInfoLabel->text();
+}
+
+void TitledLabel::createLayout(const QString& title) {
+
+	QLabel* titleLabel = new QLabel(title, this);
+	titleLabel->setObjectName("titleLabel");
+
+	mInfoLabel = new QLabel("", this);
+	mInfoLabel->setObjectName("infoLabel");
+	mInfoLabel->setWordWrap(true);
+	mInfoLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
+	QVBoxLayout* layout = new QVBoxLayout(this);
+	layout->setContentsMargins(0, 0, 0, 0);
+	layout->addWidget(titleLabel);
+	layout->addWidget(mInfoLabel);
+}
+
+void TitledLabel::setText(const QString& msg) {
+	mInfoLabel->setText(msg);
+}
+
+// PolygonWidget --------------------------------------------------------------------
+PolygonWidget::PolygonWidget(QWidget* parent) {
+}
+
+void PolygonWidget::setPolygon(const QPolygon & poly) {
+	
+	// norm polygon
+	QPolygonF pn;
+	QRect r = poly.boundingRect();
+	double scale = qMax(r.width(), r.height());
+
+	for (const QPoint& p : poly) {
+
+		QPointF pf(p);
+		pf.setX((pf.x()-r.left()) / scale);
+		pf.setY((pf.y()-r.top()) / scale);
+		pn << pf;
+	}
+
+	mPoly = pn;
+	update();
+}
+
+void PolygonWidget::setConfig(const QSharedPointer<rdf::RegionTypeConfig>& config) {
+	mConfig = config;
+}
+
+void PolygonWidget::paintEvent(QPaintEvent * ev) {
+
+	// transform
+	QRectF br = mPoly.boundingRect();
+	double s = qMin(width(), height());
+	int dx = qRound((1.0-br.width()) * s/2.0);
+	int dy = qRound((1.0-br.height()) * s/2.0);
+
+	QTransform wt;
+	wt = wt.translate(dx, dy);
+	wt = wt.scale(s, s);
+
+	// style
+	QPen pen;
+	if (mConfig)
+		pen = mConfig->pen();
+	pen.setWidthF(.01);
+
+	// draw
+	QPainter p(this);
+	p.setWorldTransform(wt);
+	p.setPen(pen);
+
+	// draw the polygon
+	QPainterPath path;
+	path.addPolygon(mPoly);
+	p.drawPath(path);
+
+	if (mPoly.isClosed() && mConfig)
+		p.fillPath(path, mConfig->brush());
+
+	QLabel::paintEvent(ev);
+}
+
+// PolygonInfoWidget --------------------------------------------------------------------
+PolygonInfoWidget::PolygonInfoWidget(QWidget* parent) : QWidget(parent) {
+	createLayout();
+	setMaximumHeight(50);
+}
+
+void PolygonInfoWidget::createLayout() {
+
+	mPolyWidget = new PolygonWidget(this);
+	mPolyWidget->setFixedSize(50, 50);
+
+	mPolyText = new QLabel(this);
+	mPolyText->setObjectName("infoLabel");
+	mPolyText->setTextInteractionFlags(Qt::TextSelectableByMouse);
+	mPolyText->setWordWrap(true);
+
+	QHBoxLayout* layout = new QHBoxLayout(this);
+	layout->setContentsMargins(0, 0, 0, 0);
+	layout->addWidget(mPolyWidget);
+	layout->addWidget(mPolyText);
+}
+
+void PolygonInfoWidget::setConfig(const QSharedPointer<rdf::RegionTypeConfig>& config) {
+	mPolyWidget->setConfig(config);
+}
+
+void PolygonInfoWidget::setPolygon(const QPolygon & poly) {
+	
+	mPoly = poly;
+	mPolyWidget->setPolygon(poly);
+
+	if (poly.empty()) {
+		mPolyText->setText("");
+		return;
+	}
+
+	QString pt = "[";
+	for (const QPoint& p : mPoly) {
+		pt += QString::number(p.x()) + " " + QString::number(p.y()) + ", ";
+	}
+
+	pt += "]";
+
+	mPolyText->setText(pt);
+}
+
+QPolygon PolygonInfoWidget::polygon() const {
+	return mPoly;
+}
+
+
+// RegionWidget --------------------------------------------------------------------
+RegionWidget::RegionWidget(QWidget* parent) : QWidget(parent) {
+
+	setObjectName("infoWidget");
+	createLayout();
+	QMetaObject::connectSlotsByName(this);
+}
+
+void RegionWidget::createLayout() {
+
+	// Region Selection
+	mRegionCombo = new QComboBox(this);
+	mRegionCombo->setObjectName("regionCombo");
+	mRegionCombo->setStyleSheet(PageDock::largeComboStyle);
+
+	mId = new QLabel(this);
+	mId->setObjectName("infoLabel");
+	mId->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
+	// polygons
+	mPolyWidget = new PolygonInfoWidget(this);
+
+	mBaselineWidget = new PolygonInfoWidget(this);
+
+	// text tag
+	mText = new TitledLabel(tr("Text"), this);
+
+	// custom tag
+	mCustom = new TitledLabel(tr("Custom"), this);
+
+	// children selection
+	mChildCombo = new QComboBox(this);
+	mChildCombo->setObjectName("childCombo");
+	mChildCombo->setStyleSheet(PageDock::smallComboStyle);
+
+	QWidget* infoWidget = new QWidget(this);
+	QVBoxLayout* infoLayout = new QVBoxLayout(infoWidget);
+	infoLayout->addWidget(mId);
+	infoLayout->addWidget(mPolyWidget);
+	infoLayout->addWidget(mBaselineWidget);
+	infoLayout->addWidget(mText);
+	infoLayout->addWidget(mCustom);
+	infoLayout->addWidget(mChildCombo);
+
+	QVBoxLayout* layout = new QVBoxLayout(this);
+	layout->setContentsMargins(0, 0, 0, 0);
+	layout->addWidget(mRegionCombo);
+	layout->addWidget(infoWidget);
+
+	setStyleSheet(PageDock::widgetStyle);
+	showInfo(false);
+	hide();
+}
+
+void RegionWidget::setRegions(const QVector<QSharedPointer<rdf::Region> >& regions, int idx) {
+	
+	mRegions = regions;
+	mRegionCombo->clear();
+	
+	setVisible(!mRegions.empty());
+
+	for (const QSharedPointer<rdf::Region> r : regions)
+		mRegionCombo->addItem(rdf::RegionManager::instance().typeName(r->type()));
+
+	if (!mRegions.isEmpty()) {
+		if (idx)
+			idx = mRegions.size() - 1;
+
+		// reset index if necessary
+		if (idx < 0 || idx > mRegions.size())
+			idx = 0;
+
+		mRegionCombo->setCurrentIndex(idx);
+	}
+}
+
+void RegionWidget::setRegionTypes(const QVector<QSharedPointer<rdf::RegionTypeConfig> >& configs) {
+	mRegionTypes = configs;
+	updateWidgets(currentRegion());
+}
+
+void RegionWidget::on_regionCombo_currentIndexChanged(int idx) {
+	updateWidgets(currentRegion());
+}
+
+void RegionWidget::on_childCombo_currentIndexChanged(int idx) {
+
+	idx = idx - 1;	// first entry is <no child>
+
+	if (!currentRegion() || idx < 0 || idx >= currentRegion()->children().size()) {
+		qWarning() << "illegal child index" << idx;
+		return;
+	}
+
+	for (auto r : mRegions)
+		r->setSelected(false);
+
+	QVector<QSharedPointer<rdf::Region> > r;
+	r << currentRegion()->children()[idx];
+	rdf::RegionManager::instance().selectRegions(r);
+	setRegions(r);
+
+	emit updateSignal();
+}
+
+QSharedPointer<rdf::Region> RegionWidget::currentRegion() const {
+	
+	int idx = mRegionCombo->currentIndex();
+	if (mRegions.isEmpty() || idx < 0 || idx >= mRegions.size())
+		return QSharedPointer<rdf::Region>();
+
+	return mRegions[idx];
+}
+
+void RegionWidget::updateWidgets(QSharedPointer<rdf::Region> region) {
+
+	if (region.isNull()) {
+		clear();
+		return;
+	}
+
+	QSharedPointer<rdf::RegionTypeConfig> config = rdf::RegionManager::instance().getConfig(region, mRegionTypes);
+	
+	mId->setText(tr("ID: %1").arg(region->id()));
+
+	// polygons
+	mPolyWidget->setPolygon(region->polygon().closedPolygon());
+	mPolyWidget->setConfig(config);
+
+	// child combo
+	QString nChildrenStr;
+	switch (region->children().size()) {
+	case 0: nChildrenStr = tr("no children");	break;
+	case 1: nChildrenStr = tr("1 child");		break;
+	default:
+		nChildrenStr = tr("%1 children").arg(region->children().size());
+	}
+
+	mChildCombo->blockSignals(true);
+	mChildCombo->clear();
+	mChildCombo->addItem(nChildrenStr);
+	for (QSharedPointer<rdf::Region> r : region->children()) {
+		mChildCombo->addItem(r->id());
+	}
+	mChildCombo->blockSignals(false);
+	mChildCombo->setEnabled(!region->children().empty());
+
+	// text
+	if (auto tl = qSharedPointerDynamicCast<rdf::TextLine>(region)) {
+		mBaselineWidget->setPolygon(tl->baseLine().polygon());
+		mBaselineWidget->setConfig(config);
+		mText->setText(tl->text());
+	}
+	else {
+		mText->setText("");
+		mBaselineWidget->setPolygon(QPolygon());
+	}
+
+	// custom tag
+	mCustom->setText(region->custom());
+
+	showInfo(true);
+}
+
+void RegionWidget::showInfo(bool show) {
+
+	mId->setVisible(show);
+
+	if (mPolyWidget->polygon().empty())
+		mPolyWidget->hide();
+	else
+		mPolyWidget->setVisible(show);
+
+	if (mBaselineWidget->polygon().empty())
+		mBaselineWidget->hide();
+	else
+		mBaselineWidget->setVisible(show);
+
+
+	//if (show) {
+	//	mText->setVisible(!mText->text().isEmpty());
+	//	mCustom->setVisible(!mCustom->text().isEmpty());
+	//	mChildCombo->setVisible(mChildCombo->count() > 1);
+	//}
+	//else {
+		mText->setVisible(show);
+		mCustom->setVisible(show);
+		mChildCombo->setVisible(show);
+	//}
+}
+
+void RegionWidget::clear() {
+
+	mId->setText("");
+
+	mRegionCombo->clear();
+	mChildCombo->clear();
+
+	mPolyWidget->setPolygon(QPolygon());
+	mBaselineWidget->setPolygon(QPolygon());
+
+	mCustom->setText("");
+	mText->setText("");
+
+	showInfo(false);
+}
+
+void RegionWidget::paintEvent(QPaintEvent* event) {
+
+	// fixes stylesheets which are not applied to custom widgets
+	QStyleOption opt;
+	opt.init(this);
+	QPainter p(this);
+	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+
+	QWidget::paintEvent(event);
+}
 
 // PageDock --------------------------------------------------------------------
 PageDock::PageDock(PageData* pageData, const QString& title, QWidget* parent) : nmc::DkDockWidget(title, parent) {
@@ -449,7 +818,6 @@ void PageDock::createLayout() {
 
 	// config widget
 	mConfigWidget = new ConfigWidget(this);
-	mConfigWidget->setObjectName("configWidget");
 
 	QWidget* configDummy = new QWidget(this);
 	QVBoxLayout* configLayout = new QVBoxLayout(configDummy);
@@ -462,6 +830,9 @@ void PageDock::createLayout() {
 	XmlLabel* xmlWidget = new XmlLabel(this);
 	xmlWidget->setPage(mPageData->page());
 
+	// region selction widget
+	mRegionWidget = new RegionWidget(this);
+
 	// create our widget
 	QWidget* base = new QWidget(this);
 	QVBoxLayout* baseLayout = new QVBoxLayout(base);
@@ -470,6 +841,7 @@ void PageDock::createLayout() {
 	baseLayout->addWidget(profileWidget);
 	baseLayout->addWidget(configDummy);
 	baseLayout->addWidget(xmlWidget);
+	baseLayout->addWidget(mRegionWidget);
 
 	// add a scroll bar
 	nmc::DkResizableScrollArea* scrollArea = new nmc::DkResizableScrollArea(this);
@@ -519,6 +891,10 @@ bool PageDock::drawRegions() const {
 	return mCbDraw->isChecked();
 }
 
+RegionWidget * PageDock::regionWidget() {
+	return mRegionWidget;
+}
+
 void PageDock::updateConfig() {
 
 	setConfigWidget(mPageData->config()[mCurrentRegion]);
@@ -533,11 +909,19 @@ void PageDock::on_configCombo_currentIndexChanged(int index) {
 	emit updateSignal();
 }
 
-void PageDock::on_configWidget_updated() {
+void PageDock::on_infoWidget_updated() {
 
 	//// correctly udpate even if we changed the current region already
 	//rdf::RegionTypeConfig c = mConfigWidget->config();
 	//mConfig[c.type()] = c;
+	emit updateSignal();
+	mRegionWidget->setRegionTypes(mPageData->config());
+}
+
+// that's weird: we cannot connect two objects with the same names
+// so I just changed the signal name...
+void PageDock::on_infoWidget_updateSignal() {
+
 	emit updateSignal();
 }
 

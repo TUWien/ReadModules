@@ -419,7 +419,6 @@ void SkewEstPlugin::loadSettings(QSettings & settings)
 	settings.beginGroup("SkewEstimation");
 
 	mFilePath = settings.value("skewEvalPath", mFilePath).toString();
-	qDebug() << "settings read: path: " << mFilePath;
 
 	settings.endGroup();
 }

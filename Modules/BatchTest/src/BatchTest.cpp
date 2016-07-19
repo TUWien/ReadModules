@@ -150,7 +150,7 @@ QSharedPointer<nmc::DkImageContainer> BatchTest::runPlugin(
 
 		QImage img = imgC->image();
 		img = img.convertToFormat(QImage::Format_Grayscale8);
-		imgC->setImage(img.mirrored(), "Grayscale");
+		imgC->setImage(img, "Grayscale");
 
 		QSharedPointer<DkTestInfo> testInfo(new DkTestInfo(runID, imgC->filePath()));
 		testInfo->setProperty("Grayscale");

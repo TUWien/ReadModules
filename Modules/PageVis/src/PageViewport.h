@@ -60,11 +60,16 @@ public:
 	void updateImageContainer(QSharedPointer<nmc::DkImageContainerT> imgC) override;
 	PageDock* dock() const;
 
+signals:
+	void selectRegionsSignal(const QVector<QSharedPointer<rdf::Region> >& regions) const;
+
 private:
 	void init();
 	void loadSettings(QSettings& settings);
 	void saveSettings(QSettings& settings) const;
 
+	void mousePressEvent(QMouseEvent* event) override;
+	void mouseReleaseEvent(QMouseEvent* event) override;
 	void paintEvent(QPaintEvent* event) override;
 
 	PageDock* mPageDock = 0;

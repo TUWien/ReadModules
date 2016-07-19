@@ -161,6 +161,95 @@ signals:
 
 };
 
+class TitledLabel : public QWidget {
+	Q_OBJECT
+
+public:
+	TitledLabel(const QString& title = QString(), QWidget* parent = 0);
+
+	QString text() const;
+
+public slots:
+	void setText(const QString& text);
+
+protected:
+	void createLayout(const QString& title);
+
+	QLabel* mInfoLabel = 0;
+};
+
+class PolygonWidget : public QLabel {
+	Q_OBJECT
+
+public:
+	PolygonWidget(QWidget* parent = 0);
+
+	void setPolygon(const QPolygon & poly);
+	void setConfig(const QSharedPointer<rdf::RegionTypeConfig>& config);
+
+protected:
+	void paintEvent(QPaintEvent* ev) override;
+
+	QPolygonF mPoly;
+	QSharedPointer<rdf::RegionTypeConfig> mConfig;
+};
+
+class PolygonInfoWidget : public QWidget {
+	Q_OBJECT
+
+public:
+	PolygonInfoWidget(QWidget* parent = 0);
+
+	void setConfig(const QSharedPointer<rdf::RegionTypeConfig>& config);
+
+	void setPolygon(const QPolygon& poly);
+	QPolygon polygon() const;
+
+protected:
+	void createLayout();
+
+	QPolygon mPoly;
+
+	PolygonWidget* mPolyWidget = 0;
+	QLabel* mPolyText = 0;
+};
+
+class RegionWidget : public QWidget {
+	Q_OBJECT
+
+public:
+	RegionWidget(QWidget* parent = 0);
+
+	QSharedPointer<rdf::Region> currentRegion() const;
+
+public slots:
+	void setRegions(const QVector<QSharedPointer<rdf::Region> >& regions, int idx = -1);
+	void setRegionTypes(const QVector<QSharedPointer<rdf::RegionTypeConfig> >& configs);
+	void on_regionCombo_currentIndexChanged(int idx);
+	void on_childCombo_currentIndexChanged(int idx);
+
+signals:
+	void updateSignal() const;
+
+protected:
+	void createLayout();
+	void updateWidgets(QSharedPointer<rdf::Region> region);
+	void clear();
+	void showInfo(bool show = true);
+	void paintEvent(QPaintEvent* event) override;
+
+	QVector<QSharedPointer<rdf::Region> > mRegions;
+	QVector<QSharedPointer<rdf::RegionTypeConfig> > mRegionTypes;
+	QComboBox* mRegionCombo;
+	QComboBox* mChildCombo;
+	QLabel* mId;
+	PolygonInfoWidget* mPolyWidget;
+	PolygonInfoWidget* mBaselineWidget;
+	QLabel* mTextTitle;
+	TitledLabel* mText;
+	TitledLabel* mCustom;
+};
+
 class PageDock : public nmc::DkDockWidget {
 	Q_OBJECT
 
@@ -169,11 +258,18 @@ public:
 	~PageDock();
 
 	bool drawRegions() const;
+	RegionWidget* regionWidget();
+
+	// I don't really like this definition - but: it's hard to read an external stylesheet for these few widgets
+	static QString widgetStyle;
+	static QString largeComboStyle;
+	static QString smallComboStyle;
 
 public slots:
 	void on_drawCheckbox_toggled(bool toggled) const;
 	void on_configCombo_currentIndexChanged(int index);
-	void on_configWidget_updated();
+	void on_infoWidget_updated();
+	void on_infoWidget_updateSignal();
 	void updateConfig();
 
 signals:
@@ -187,6 +283,7 @@ private:
 
 	QCheckBox* mCbDraw = 0;
 	ConfigWidget* mConfigWidget = 0;
+	RegionWidget* mRegionWidget = 0;
 
 	rdf::Region::Type mCurrentRegion = rdf::Region::type_text_region;
 	
