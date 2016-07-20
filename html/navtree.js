@@ -29,7 +29,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "_batch_test_8cpp.html",
-"classrdm_1_1_skew_info.html#aed2af68705b2b15949968c43b31d3fbd"
+"classrdm_1_1_skew_est_plugin.html#a0416f9750a5b12d06693c3f43ede46d8"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

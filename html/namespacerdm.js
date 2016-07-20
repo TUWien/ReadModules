@@ -5,6 +5,8 @@ var namespacerdm =
     [ "BinarizationPlugin", "classrdm_1_1_binarization_plugin.html", "classrdm_1_1_binarization_plugin" ],
     [ "FocusInfo", "classrdm_1_1_focus_info.html", "classrdm_1_1_focus_info" ],
     [ "FocusPlugin", "classrdm_1_1_focus_plugin.html", "classrdm_1_1_focus_plugin" ],
+    [ "FormsInfo", "classrdm_1_1_forms_info.html", "classrdm_1_1_forms_info" ],
+    [ "FormsAnalysis", "classrdm_1_1_forms_analysis.html", "classrdm_1_1_forms_analysis" ],
     [ "LayoutPlugin", "classrdm_1_1_layout_plugin.html", "classrdm_1_1_layout_plugin" ],
     [ "PageData", "classrdm_1_1_page_data.html", "classrdm_1_1_page_data" ],
     [ "ColorButton", "classrdm_1_1_color_button.html", "classrdm_1_1_color_button" ],

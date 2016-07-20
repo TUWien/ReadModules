@@ -30,7 +30,7 @@ var searchData=
   ['setpcamean',['setPcaMean',['../classrdm_1_1_w_i_vocabulary.html#a9b1ef160e8b1a702a098b055b4bdeb5d',1,'rdm::WIVocabulary']]],
   ['setpolygon',['setPolygon',['../classrdm_1_1_polygon_widget.html#aee691393b130dcfae837e229f2fe7c9a',1,'rdm::PolygonWidget::setPolygon()'],['../classrdm_1_1_polygon_info_widget.html#a001265802faa0ab6fbe990f5c667d97a',1,'rdm::PolygonInfoWidget::setPolygon()']]],
   ['setpowernormalization',['setPowerNormalization',['../classrdm_1_1_w_i_vocabulary.html#a6307c9a989cc9444a568586657264d5e',1,'rdm::WIVocabulary']]],
-  ['setproperty',['setProperty',['../classrdm_1_1_dk_test_info.html#a8aa5562b8cf829a163f88877b867f25d',1,'rdm::DkTestInfo::setProperty()'],['../classrdm_1_1_focus_info.html#acae102a2ae09313539942f9310a93862',1,'rdm::FocusInfo::setProperty()'],['../classrdm_1_1_skew_info.html#aed2af68705b2b15949968c43b31d3fbd',1,'rdm::SkewInfo::setProperty()']]],
+  ['setproperty',['setProperty',['../classrdm_1_1_dk_test_info.html#a8aa5562b8cf829a163f88877b867f25d',1,'rdm::DkTestInfo::setProperty()'],['../classrdm_1_1_focus_info.html#acae102a2ae09313539942f9310a93862',1,'rdm::FocusInfo::setProperty()'],['../classrdm_1_1_forms_info.html#a6c31bac0edd30d3e11ab7d1383175d85',1,'rdm::FormsInfo::setProperty()'],['../classrdm_1_1_skew_info.html#aed2af68705b2b15949968c43b31d3fbd',1,'rdm::SkewInfo::setProperty()']]],
   ['setregionconfig',['setRegionConfig',['../classrdm_1_1_config_widget.html#a87626d610f156201c696e9bf70235529',1,'rdm::ConfigWidget']]],
   ['setregions',['setRegions',['../classrdm_1_1_region_widget.html#a00dec513603797f802f324229c1061ac',1,'rdm::RegionWidget']]],
   ['setregiontypes',['setRegionTypes',['../classrdm_1_1_region_widget.html#afd9dfae5cba2fbd60cb345b6c0e8fc73',1,'rdm::RegionWidget']]],
