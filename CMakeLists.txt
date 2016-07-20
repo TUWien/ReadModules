@@ -14,6 +14,7 @@ OPTION (ENABLE_PAGE_VIS "Compile PAGE Visualization Plugin" ON)
 OPTION (ENABLE_BINARIZATION "Compile Page Extration Plugin" ON)
 OPTION (ENABLE_LAYOUT "Compile Layout Analysis Plugin" OFF)
 OPTION (ENABLE_SKEW "Skew Estimation Plugin" ON)
+OPTION (ENABLE_FORMS "Form Analysis Plugin" ON)
 OPTION (ENABLE_FOCUSMEASURE "Focus Measure Plugin" ON)
 OPTION (ENABLE_WRITERIDENTIFICATION "Compile Writer Identification plugin" OFF)
 OPTION (ENABLE_BATCH_TEST "Test plugin for new batch interface" OFF)
@@ -54,6 +55,10 @@ ENDIF()
 
 IF (ENABLE_SKEW)
 	add_subdirectory(Modules/Skew)
+ENDIF()
+
+IF (ENABLE_FORMS)
+	add_subdirectory(Modules/Forms)
 ENDIF()
 
 IF (ENABLE_FOCUSMEASURE)
