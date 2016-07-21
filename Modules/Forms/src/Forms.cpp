@@ -52,25 +52,28 @@ FormsAnalysis::FormsAnalysis(QObject* parent) : QObject(parent) {
 	// create run IDs
 	QVector<QString> runIds;
 	runIds.resize(id_end);
-
-	runIds[id_mirror] = "871fe4d1de79497388292ef534ff25d8";
-	runIds[id_grayscale] = "d3359f4a4ec943e3abd4860e68152769";
+	
+	runIds[id_train] = "871fe4d1de79497388292ef534ff25d8";
+	runIds[id_addtrain] = "d3359f4a4ec943e3abd4860e68152769";
+	runIds[id_classify] = "91fd4f094fc34085a7a8715142f2292d";
 	mRunIDs = runIds.toList();
 
 	// create menu actions
 	QVector<QString> menuNames;
 	menuNames.resize(id_end);
 
-	menuNames[id_mirror] = tr("Mirror");
-	menuNames[id_grayscale] = tr("Grayscale");
+	menuNames[id_train] = tr("Train forms");
+	menuNames[id_addtrain] = tr("Add training forms to existing ones");
+	menuNames[id_classify] = tr("Classify");
 	mMenuNames = menuNames.toList();
 
 	// create menu status tips
 	QVector<QString> statusTips;
 	statusTips.resize(id_end);
 
-	statusTips[id_mirror] = tr("Mirrors the image");
-	statusTips[id_grayscale] = tr("Converts image to grayscale");
+	statusTips[id_train] = tr("Train forms");
+	statusTips[id_addtrain] = tr("Add additional forms to existing ones");
+	statusTips[id_classify] = tr("Classify");
 	mMenuStatusTips = statusTips.toList();
 }
 /**
@@ -135,7 +138,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 	if (!imgC)
 		return imgC;
 
-	if(runID == mRunIDs[id_mirror]) {
+	if(runID == mRunIDs[id_train]) {
 
 		QImage img = imgC->image();
 		imgC->setImage(img.mirrored(), "Mirrored");
@@ -146,11 +149,21 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 		info = testInfo;
 	}
-	else if(runID == mRunIDs[id_grayscale]) {
+	else if(runID == mRunIDs[id_addtrain]) {
 
 		QImage img = imgC->image();
 		img = img.convertToFormat(QImage::Format_Grayscale8);
 		imgC->setImage(img, "Grayscale");
+
+		QSharedPointer<FormsInfo> testInfo(new FormsInfo(runID, imgC->filePath()));
+		testInfo->setProperty("Grayscale");
+		qDebug() << "grayscale...";
+
+		info = testInfo;
+	}
+	else if (runID == mRunIDs[id_classify]) {
+
+		qDebug() << "classify...";
 
 		QSharedPointer<FormsInfo> testInfo(new FormsInfo(runID, imgC->filePath()));
 		testInfo->setProperty("Grayscale");
@@ -180,10 +193,10 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 
 	}
 
-	if (runIdx == id_grayscale)
-		qDebug() << "[POST LOADING] grayscale";
+	if (runIdx == id_classify)
+		qDebug() << "[POST LOADING] classify";
 	else
-		qDebug() << "[POST LOADING] mirrored";
+		qDebug() << "[POST LOADING] train/add training";
 }
 
 // DkTestInfo --------------------------------------------------------------------

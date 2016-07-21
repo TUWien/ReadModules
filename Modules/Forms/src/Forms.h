@@ -80,8 +80,9 @@ public:
 	void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const override;
 
 	enum {
-		id_mirror,
-		id_grayscale,
+		id_train,
+		id_addtrain,
+		id_classify,
 		// add actions here
 
 		id_end
