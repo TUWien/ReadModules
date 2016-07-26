@@ -124,8 +124,8 @@ macro(RDM_CREATE_TARGETS)
 			else()
 				SET(VS_PATH "${VS_PATH}/../../Common7/IDE/Remote Debugger/x86")
 			endif()
-			SET(DC_PATHS_RELEASE C:/Windows/System32 ${OpenCV_DIR}/bin/Release ${QT_QMAKE_PATH} ${VS_PATH} ${ReadFramework_DIR}/Release)
-			SET(DC_PATHS_DEBUG C:/Windows/System32 ${OpenCV_DIR}/bin/Debug ${QT_QMAKE_PATH} ${VS_PATH} ${ReadFramework_DIR}/Debug)
+			SET(DC_PATHS_RELEASE ${OpenCV_DIR}/bin/Release ${QT_QMAKE_PATH} ${VS_PATH} ${ReadFramework_DIR}/Release)
+			SET(DC_PATHS_DEBUG ${OpenCV_DIR}/bin/Debug ${QT_QMAKE_PATH} ${VS_PATH} ${ReadFramework_DIR}/Debug)
 
 			configure_file(${CMAKE_SOURCE_DIR}/cmake/DependencyCollector.config.cmake.in ${DC_CONFIG})
 
