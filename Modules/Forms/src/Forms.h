@@ -35,6 +35,8 @@ related links:
 #include "DkPluginInterface.h"
 #include "DkBatchInfo.h"
 
+#include "Shapes.h"
+
 // opencv defines
 namespace cv {
 	class Mat;
@@ -48,11 +50,21 @@ class FormsInfo : public nmc::DkBatchInfo {
 public:
 	FormsInfo(const QString& id = QString(), const QString& filePath = QString());
 
-	void setProperty(const QString& p);
-	QString property() const;
+	void setTemplName(const QString& p);
+	QString templName() const;
+
+	void setTemplId(int id);
+	int iDForm() const;
+
+	void setLines(QVector<rdf::Line> hL, QVector<rdf::Line> vL);
+	QVector<rdf::Line> hLines();
+	QVector<rdf::Line> vLines();
 
 private:
-	QString mProp;
+	QString mProp; //template name
+	int mIdForm = 0;
+	QVector<rdf::Line> mVerLines;
+	QVector<rdf::Line> mHorLines;
 
 };
 
@@ -81,8 +93,9 @@ public:
 
 	enum {
 		id_train,
-		id_addtrain,
+		id_show,
 		id_classify,
+		id_classifyxml,
 		// add actions here
 
 		id_end
