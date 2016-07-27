@@ -198,12 +198,29 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		auto pe = parser.page();
 
 		//TODO read xml separators and store them to testinfo
+		//QSharedPointer<rdf::SeparatorRegion> pSepR(new rdf::SeparatorRegion());
+		//pSepR->setLine(alllines[i].line());
+		QVector<rdf::Line> hLines;
+		QVector<rdf::Line> vLines;
 
+		QVector<QSharedPointer<rdf::Region>> test = rdf::Region::allRegions(pe->rootRegion());// pe->rootRegion()->children();
+		for (auto i : test) {
+			if (i->type() == i->type_separator) {
+				rdf::SeparatorRegion* tSep = dynamic_cast<rdf::SeparatorRegion*>(i.data());
+				if (tSep)
+					if (tSep->line().isHorizontal(5.0))
+						hLines.push_back(tSep->line());
 
+				if (tSep->line().isVertical(5.0))
+					vLines.push_back(tSep->line());
+					
+			}
+		}
+		
+		testInfo->setTemplName(imgC->filePath());
+		testInfo->setLines(hLines, vLines);
 
-		//QSharedPointer<FormsInfo> testInfo(new FormsInfo(runID, imgC->filePath()));
-		testInfo->setTemplName("Grayscale");
-		qDebug() << "grayscale...";
+		qDebug() << "separators read from xml...";
 
 		info = testInfo;
 	}
@@ -261,13 +278,13 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 		}
 	}
 
-	if (runIdx == id_classify)
+	if (runIdx == id_classify) {
 		qDebug() << "[POST LOADING] classify";
 
 		//Read training xml data
-		
 
 
+	}
 	else
 		qDebug() << "[POST LOADING] train/add training";
 }
