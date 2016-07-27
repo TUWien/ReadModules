@@ -34,6 +34,7 @@ related links:
 
 // nomacs
 #include "DkImageStorage.h"
+#include "DkSettings.h"
 
 #include "Settings.h"
 #include "Image.h"
@@ -83,6 +84,8 @@ FormsAnalysis::FormsAnalysis(QObject* parent) : QObject(parent) {
 	statusTips[id_classify] = tr("Classify");
 	statusTips[id_classifyxml] = tr("Classify based on xml separators");
 	mMenuStatusTips = statusTips.toList();
+
+	loadSettings(nmc::Settings::instance().getSettings());
 }
 /**
 *	Destructor
@@ -90,6 +93,8 @@ FormsAnalysis::FormsAnalysis(QObject* parent) : QObject(parent) {
 FormsAnalysis::~FormsAnalysis() {
 
 	qDebug() << "destroying binarization plugin...";
+	//not tested....
+	saveSettings(nmc::Settings::instance().getSettings());
 }
 
 
@@ -197,9 +202,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		parser.read(loadXmlPath);
 		auto pe = parser.page();
 
-		//TODO read xml separators and store them to testinfo
-		//QSharedPointer<rdf::SeparatorRegion> pSepR(new rdf::SeparatorRegion());
-		//pSepR->setLine(alllines[i].line());
+		//read xml separators and store them to testinfo
 		QVector<rdf::Line> hLines;
 		QVector<rdf::Line> vLines;
 
@@ -207,12 +210,13 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		for (auto i : test) {
 			if (i->type() == i->type_separator) {
 				rdf::SeparatorRegion* tSep = dynamic_cast<rdf::SeparatorRegion*>(i.data());
-				if (tSep)
+				if (tSep) {
 					if (tSep->line().isHorizontal(5.0))
 						hLines.push_back(tSep->line());
 
-				if (tSep->line().isVertical(5.0))
-					vLines.push_back(tSep->line());
+					if (tSep->line().isVertical(5.0))
+						vLines.push_back(tSep->line());
+				}
 					
 			}
 		}
@@ -281,12 +285,26 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 	if (runIdx == id_classify) {
 		qDebug() << "[POST LOADING] classify";
 
+		
+
 		//Read training xml data
 
 
 	}
 	else
 		qDebug() << "[POST LOADING] train/add training";
+}
+
+void FormsAnalysis::loadSettings(QSettings & settings) {
+	settings.beginGroup("FormAnalysis");
+	mLineTemplPath = settings.value("lineTemplPath", mLineTemplPath).toString();
+	settings.endGroup();
+}
+
+void FormsAnalysis::saveSettings(QSettings & settings) const {
+	settings.beginGroup("FormAnalysis");
+	settings.setValue("lineTemplPath", mLineTemplPath);
+	settings.endGroup();
 }
 
 // DkTestInfo --------------------------------------------------------------------

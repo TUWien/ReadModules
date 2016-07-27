@@ -106,5 +106,10 @@ protected:
 	QStringList mRunIDs;
 	QStringList mMenuNames;
 	QStringList mMenuStatusTips;
+
+	//QVector<QSharedPointer<FormsInfo> > mTrainingForms;
+	QString mLineTemplPath;
+	void loadSettings(QSettings& settings);
+	void saveSettings(QSettings& settings) const;
 };
 };
