@@ -1,5 +1,15 @@
 var NAVTREEINDEX1 =
 {
+"classrdm_1_1_region_widget.html#a83d830413b794fb575a11850c548fd76":[1,0,2,16,3],
+"classrdm_1_1_region_widget.html#a923dae99ede2fbfbbbdea6319f7bcb1e":[1,0,2,16,0],
+"classrdm_1_1_region_widget.html#a9e8b6aa6abc9c5ab93be2a5294a364af":[1,0,2,16,14],
+"classrdm_1_1_region_widget.html#aa6de13aedbdbc071cb6d238d7decfc40":[1,0,2,16,4],
+"classrdm_1_1_region_widget.html#aaff41830c09fa6a0a475cf6ff3fdd4b2":[1,0,2,16,9],
+"classrdm_1_1_region_widget.html#aeced400afb6605b78c54562aadb4f712":[1,0,2,16,16],
+"classrdm_1_1_region_widget.html#af19645867aacfbe9d3005f658aaad291":[1,0,2,16,1],
+"classrdm_1_1_region_widget.html#afd9dfae5cba2fbd60cb345b6c0e8fc73":[1,0,2,16,8],
+"classrdm_1_1_skew_est_plugin.html":[1,0,2,21],
+"classrdm_1_1_skew_est_plugin.html#a015468700f4ba0a61183cf0273a7b019":[1,0,2,21,15],
 "classrdm_1_1_skew_est_plugin.html#a0416f9750a5b12d06693c3f43ede46d8":[1,0,2,21,19],
 "classrdm_1_1_skew_est_plugin.html#a10def0eb630b4fbd164ce730eb994157":[1,0,2,21,13],
 "classrdm_1_1_skew_est_plugin.html#a1d7642af4e46e55f7118150952dcf5fb":[1,0,2,21,7],
@@ -201,14 +211,14 @@ var NAVTREEINDEX1 =
 "functions_~.html":[1,3,0,22],
 "hierarchy.html":[1,2],
 "index.html":[],
-"namespacecv.html":[0,0,0],
 "namespacecv.html":[1,0,0],
+"namespacecv.html":[0,0,0],
 "namespacemembers.html":[0,1,0],
 "namespacemembers_func.html":[0,1,1],
-"namespacerdf.html":[1,0,1],
 "namespacerdf.html":[0,0,1],
-"namespacerdm.html":[1,0,2],
+"namespacerdf.html":[1,0,1],
 "namespacerdm.html":[0,0,2],
+"namespacerdm.html":[1,0,2],
 "namespaces.html":[0,0],
 "pages.html":[]
 };
