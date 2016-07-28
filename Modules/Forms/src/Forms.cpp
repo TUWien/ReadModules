@@ -248,6 +248,10 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 			qDebug() << bi->filePath() << "computed...";
 			FormsInfo* tInfo = dynamic_cast<FormsInfo*>(bi.data());
 
+			////TODO: how to save vector formTemplates for classification
+			//QVector<QSharedPointer<FormsInfo> > formTemplates;
+			//formTemplates.push_back(QSharedPointer<FormsInfo>(tInfo));
+
 			if (tInfo)
 				qDebug() << "form template: " << tInfo->iDForm();
 
@@ -282,12 +286,46 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 		}
 	}
 
-	if (runIdx == id_classify) {
+	if (runIdx == id_classify || runIdx == id_classifyxml) {
 		qDebug() << "[POST LOADING] classify";
 
-		
-
 		//Read training xml data
+		rdf::FormFeatures templateLoader;
+		templateLoader.loadTemplateDatabase(mLineTemplPath);
+		QVector<rdf::FormFeatures> templates;
+		templates = templateLoader.templatesDb();
+		double minErr = std::numeric_limits<double>::max();
+
+		for (auto bi : batchInfo) {
+			qDebug() << bi->filePath() << "computed...";
+			FormsInfo* tInfo = dynamic_cast<FormsInfo*>(bi.data());
+			bool match = false;
+			minErr = std::numeric_limits<double>::max();
+
+			if (tInfo)
+				qDebug() << "testing form template: " << tInfo->templName();
+
+			for (int jT = 0; jT <= templates.size(); jT++) {
+				rdf::FormFeatures currentForm;
+				currentForm.setHorLines(tInfo->hLines());
+				currentForm.setVerLines(tInfo->vLines());
+				currentForm.setFormName(tInfo->templName());
+				if (templates[jT].compareWithTemplate(currentForm)) {
+					if (templates[jT].error() < minErr) {
+						minErr = templates[jT].error();
+						qDebug() << "match with: " << templates[jT].formName() << " error is " << minErr;
+						tInfo->setId(templates[jT].formName());
+						match = true;
+					}
+				}
+				
+			}
+			if (!match)
+				qDebug() << "no match found for " << tInfo->templName();
+
+	
+		}
+		
 
 
 	}
