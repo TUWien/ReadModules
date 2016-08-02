@@ -93,8 +93,7 @@ FormsAnalysis::FormsAnalysis(QObject* parent) : QObject(parent) {
 FormsAnalysis::~FormsAnalysis() {
 
 	qDebug() << "destroying binarization plugin...";
-	//not tested....
-	saveSettings(nmc::Settings::instance().getSettings());
+
 }
 
 
@@ -161,14 +160,16 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		cv::Mat imgTempl = rdf::Image::instance().qImage2Mat(img);
 		cv::Mat imgTemplG;
 		if (imgTempl.channels() != 1) cv::cvtColor(imgTempl, imgTemplG, CV_RGB2GRAY);
-		cv::Mat maskTempl = rdf::Algorithms::instance().estimateMask(imgTemplG);
+		//cv::Mat maskTempl = rdf::Algorithms::instance().estimateMask(imgTemplG);
 		rdf::FormFeatures formTempl(imgTemplG);
 		
 		if (!formTempl.compute()) {
 			qWarning() << "could not compute form template " << imgC->filePath();
 		}
-
-		testInfo->setTemplName(imgC->filePath());
+		
+		
+		testInfo->setFormName(imgC->filePath());
+		testInfo->setFormSize(QSize(imgTemplG.cols, imgTemplG.rows));
 		testInfo->setLines(formTempl.horLines(), formTempl.verLines());
 				
 		qDebug() << "template calculated...";
@@ -184,8 +185,8 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		imgC->setImage(img, "Grayscale");
 
 		QSharedPointer<FormsInfo> testInfo(new FormsInfo(runID, imgC->filePath()));
-		testInfo->setTemplName("Grayscale");
-		qDebug() << "grayscale...";
+		testInfo->setFormName(imgC->filePath());
+		qDebug() << "id_show... (not implemented, shows only grayscale img)";
 
 		info = testInfo;
 	}
@@ -221,15 +222,18 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 			}
 		}
 		
-		testInfo->setTemplName(imgC->filePath());
+		testInfo->setFormName(imgC->filePath());
+		testInfo->setFormSize(pe->imageSize());
 		testInfo->setLines(hLines, vLines);
 
 		qDebug() << "separators read from xml...";
+
 
 		info = testInfo;
 	}
 
 	// wrong runID? - do nothing
+	//imgC->setImage(QImage(), "empty");
 	return imgC;
 }
 
@@ -261,6 +265,9 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 			rdf::PageXmlParser parser;
 			parser.read(loadXmlPath);
 			auto pe = parser.page();
+
+			pe->setImageSize(tInfo->formSize());
+			pe->setImageFileName(tInfo->formName());
 			//pe->setCreator(QString("CVL"));
 			//horizontal lines
 			QVector<rdf::Line> tmp = tInfo->hLines();
@@ -302,35 +309,62 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 			bool match = false;
 			minErr = std::numeric_limits<double>::max();
 
-			if (tInfo)
-				qDebug() << "testing form template: " << tInfo->templName();
+			if (tInfo) {
+				qDebug() << "testing form: " << tInfo->formName();
+				qDebug() << "-------------";
+			}
 
-			for (int jT = 0; jT <= templates.size(); jT++) {
+			for (int jT = 0; jT < templates.size(); jT++) {
+				qDebug() << "match against template: " << templates[jT].formName();
 				rdf::FormFeatures currentForm;
 				currentForm.setHorLines(tInfo->hLines());
 				currentForm.setVerLines(tInfo->vLines());
-				currentForm.setFormName(tInfo->templName());
+				currentForm.setSize(cv::Size(tInfo->formSize().width(), tInfo->formSize().height()));
+				currentForm.setFormName(tInfo->formName());
 				if (templates[jT].compareWithTemplate(currentForm)) {
 					if (templates[jT].error() < minErr) {
 						minErr = templates[jT].error();
 						qDebug() << "match with: " << templates[jT].formName() << " error is " << minErr;
-						tInfo->setId(templates[jT].formName());
+						tInfo->setMatchName(templates[jT].formName());
 						match = true;
 					}
 				}
 				
 			}
 			if (!match)
-				qDebug() << "no match found for " << tInfo->templName();
+				qDebug() << "no match found for " << tInfo->formName();
 
-	
 		}
-		
 
+		//QString outf;
+		QString outf = "D:\\tmp\\evalForms.txt";
+		//QString outf = "F:\\flo\\evalSkew.txt";
+		//outf = mFilePath;
+		QFile file(outf);
+		if (file.open(QIODevice::WriteOnly)) {
+
+			for (auto bi : batchInfo) {
+				FormsInfo* tInfo = dynamic_cast<FormsInfo*>(bi.data());
+				QString tmpStr = tInfo->filePath();
+				tmpStr += " matches with: ";
+				tmpStr += tInfo->matchName();
+				tmpStr += "\n";
+				QTextStream out(&file);
+				out << tmpStr;
+			}
+
+			file.close();
+		}
 
 	}
 	else
 		qDebug() << "[POST LOADING] train/add training";
+
+
+
+
+	//not tested....
+	saveSettings(nmc::Settings::instance().getSettings());
 }
 
 void FormsAnalysis::loadSettings(QSettings & settings) {
@@ -349,12 +383,28 @@ void FormsAnalysis::saveSettings(QSettings & settings) const {
 FormsInfo::FormsInfo(const QString& id, const QString & filePath) : nmc::DkBatchInfo(id, filePath) {
 }
 
-void FormsInfo::setTemplName(const QString & p) {
+void FormsInfo::setFormName(const QString & p) {
 	mProp = p;
 }
 
-QString FormsInfo::templName() const {
+QString FormsInfo::formName() const {
 	return mProp;
+}
+
+void FormsInfo::setMatchName(const QString & p){
+	mMatchName = p;
+}
+
+QString FormsInfo::matchName() const{
+	return mMatchName;
+}
+
+void FormsInfo::setFormSize(const QSize & s){
+	mS = s;
+}
+
+QSize FormsInfo::formSize() const{
+	return mS;
 }
 
 void FormsInfo::setTemplId(int id) {

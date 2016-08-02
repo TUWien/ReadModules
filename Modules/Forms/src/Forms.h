@@ -50,8 +50,14 @@ class FormsInfo : public nmc::DkBatchInfo {
 public:
 	FormsInfo(const QString& id = QString(), const QString& filePath = QString());
 
-	void setTemplName(const QString& p);
-	QString templName() const;
+	void setFormName(const QString& p);
+	QString formName() const;
+
+	void setMatchName(const QString& p);
+	QString matchName() const;
+
+	void setFormSize(const QSize& s);
+	QSize formSize() const;
 
 	void setTemplId(int id);
 	int iDForm() const;
@@ -61,8 +67,10 @@ public:
 	QVector<rdf::Line> vLines();
 
 private:
-	QString mProp; //template name
+	QString mProp; //form name
+	QString mMatchName;
 	int mIdForm = 0;
+	QSize mS;
 	QVector<rdf::Line> mVerLines;
 	QVector<rdf::Line> mHorLines;
 
