@@ -1,6 +1,7 @@
 var searchData=
 [
   ['mactions',['mActions',['../classrdm_1_1_batch_test.html#a31c3e8e4d993cfe6de86962bcdcf0213',1,'rdm::BatchTest::mActions()'],['../classrdm_1_1_binarization_plugin.html#a9c9ddb8ea99f944940c87599d084797b',1,'rdm::BinarizationPlugin::mActions()'],['../classrdm_1_1_focus_plugin.html#a7f1d876ca6e1523125c89955e289d20a',1,'rdm::FocusPlugin::mActions()'],['../classrdm_1_1_forms_analysis.html#a5cd7ae7444284fbb163cf4a3cf0143f7',1,'rdm::FormsAnalysis::mActions()'],['../classrdm_1_1_layout_plugin.html#a534ecdd7f9ebd5126af9b07688e2917b',1,'rdm::LayoutPlugin::mActions()'],['../classrdm_1_1_skew_est_plugin.html#a65bc21efd5dcf68a401e41cfe58e5289',1,'rdm::SkewEstPlugin::mActions()'],['../classrdm_1_1_writer_identification_plugin.html#a170f55f8de05d130b7ae43d37eff8bd6',1,'rdm::WriterIdentificationPlugin::mActions()']]],
+  ['matchname',['matchName',['../classrdm_1_1_forms_info.html#a24970332c6bf52b010d6a107b74a24b5',1,'rdm::FormsInfo']]],
   ['maximumsiftsize',['maximumSIFTSize',['../classrdm_1_1_w_i_vocabulary.html#a64cdafdf4d856bfb18dcb8721e29d2ac',1,'rdm::WIVocabulary']]],
   ['mbaselinewidget',['mBaselineWidget',['../classrdm_1_1_region_widget.html#a5c9aeccbb7b1ee7ddedf398cbd0b8c1e',1,'rdm::RegionWidget']]],
   ['mbbsconfig',['mBBSConfig',['../classrdm_1_1_binarization_plugin.html#ad55ccc46b0165d581beefc990e06869c',1,'rdm::BinarizationPlugin']]],
