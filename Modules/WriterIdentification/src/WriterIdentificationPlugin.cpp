@@ -35,6 +35,7 @@
 #include "Image.h"
 #include "Settings.h"
 
+#include "Utils.h"
 
 #pragma warning(push, 0)	// no warnings from includes - begin
 #include <QAction>
@@ -57,6 +58,7 @@ WriterIdentificationPlugin::WriterIdentificationPlugin(QObject* parent) : QObjec
 	runIds[id_generate_vocabulary] = "aa8cf182dc4348aa9917cd3c3fc95d8c";
 	runIds[id_identify_writer] = "b9fc66129483473fa901ddf627bd8b9a";
 	runIds[id_evaluate_database] = "e247a635ebb3449ba88204abf8d5f089";
+	runIds[id_extract_patches] = "64b27436f29d461c9148e98dd816f93e";
 	mRunIDs = runIds.toList();
 
 	// create menu actions
@@ -67,6 +69,7 @@ WriterIdentificationPlugin::WriterIdentificationPlugin(QObject* parent) : QObjec
 	menuNames[id_generate_vocabulary] = tr("Generate Vocabulary");
 	menuNames[id_identify_writer] = tr("Identify Writer");
 	menuNames[id_evaluate_database] = tr("Evaluate Database");
+	menuNames[id_extract_patches] = tr("Extract Patches");
 	mMenuNames = menuNames.toList();
 
 	// create menu status tips
@@ -77,6 +80,7 @@ WriterIdentificationPlugin::WriterIdentificationPlugin(QObject* parent) : QObjec
 	statusTips[id_generate_vocabulary] = tr("Generates a new vocabulary using the given pages");
 	statusTips[id_identify_writer] = tr("Identifies the writer of the given page");
 	statusTips[id_evaluate_database] = tr("Evaluates the selected files");
+	statusTips[id_extract_patches] = tr("Extract Patches at SIFT keypoints");
 	mMenuStatusTips = statusTips.toList();
 
 	init();
@@ -279,6 +283,25 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 		} else {
 			qDebug() << "no features files exists for image: " << imgC->filePath()  << "... skipping";
 		}
+	}
+	else if(runID == mRunIDs[id_extract_patches]) {
+		WriterIdentification wi = WriterIdentification();
+		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
+		wi.setImage(imgCv);
+		wi.calculateFeatures();
+		cv::cvtColor(imgCv, imgCv, CV_RGB2GRAY);
+		QVector<cv::KeyPoint> kp = wi.keyPoints();
+		QVector<QImage> patches;
+		for(int i = 0; i < kp.length(); i++) {
+			int rectSize = 30;
+			QPointF point = rdf::Converter::cvPointToQt(kp[i].pt);
+			point.setX(point.x() - rectSize / 2);
+			point.setY(point.y() - rectSize / 2);
+			QRect rect = QRect(point.toPoint(), QSize(rectSize, rectSize));
+			QImage img = imgC->image().copy(rect);
+			patches.push_back(img);
+		}
+		imgC->setImage(patches[0], tr("patch"));
 	}
 
 

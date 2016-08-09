@@ -74,6 +74,8 @@ namespace rdm {
 		for(int i = 0; i < kp.size(); i++) {
 			if(kp[i].angle > 180)
 				kp[i].angle -= 180;
+			//kp[i].angle = 0;
+			//kp[i].size = 10;
 		}
 
 		sift->compute(mImg, kp, mDescriptors);

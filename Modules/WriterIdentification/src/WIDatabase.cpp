@@ -923,6 +923,7 @@ namespace rdm {
 
 		cv::Mat tmp;
 		cv::pow(cv::abs(hist), powerNormalization(), tmp);
+		
 		for(int i = 0; i < hist.cols; i++) {
 			if(hist.at<float>(i) < 0)
 				tmp.at<float>(i) *= -1;

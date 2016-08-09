@@ -76,6 +76,7 @@ public:
 		id_generate_vocabulary,
 		id_identify_writer,
 		id_evaluate_database,
+		id_extract_patches,
 		// add actions here
 
 		id_end
