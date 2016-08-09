@@ -35,6 +35,8 @@ related links:
 #include "DkPluginInterface.h"
 #include "DkBatchInfo.h"
 
+#include "Shapes.h"
+
 // opencv defines
 namespace cv {
 	class Mat;
@@ -48,11 +50,29 @@ class FormsInfo : public nmc::DkBatchInfo {
 public:
 	FormsInfo(const QString& id = QString(), const QString& filePath = QString());
 
-	void setProperty(const QString& p);
-	QString property() const;
+	void setFormName(const QString& p);
+	QString formName() const;
+
+	void setMatchName(const QString& p);
+	QString matchName() const;
+
+	void setFormSize(const QSize& s);
+	QSize formSize() const;
+
+	void setTemplId(int id);
+	int iDForm() const;
+
+	void setLines(QVector<rdf::Line> hL, QVector<rdf::Line> vL);
+	QVector<rdf::Line> hLines();
+	QVector<rdf::Line> vLines();
 
 private:
-	QString mProp;
+	QString mProp; //form name
+	QString mMatchName;
+	int mIdForm = 0;
+	QSize mS;
+	QVector<rdf::Line> mVerLines;
+	QVector<rdf::Line> mHorLines;
 
 };
 
@@ -80,8 +100,10 @@ public:
 	void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const override;
 
 	enum {
-		id_mirror,
-		id_grayscale,
+		id_train,
+		id_show,
+		id_classify,
+		id_classifyxml,
 		// add actions here
 
 		id_end
@@ -92,5 +114,9 @@ protected:
 	QStringList mRunIDs;
 	QStringList mMenuNames;
 	QStringList mMenuStatusTips;
+
+	QString mLineTemplPath;
+	void loadSettings(QSettings& settings);
+	void saveSettings(QSettings& settings) const;
 };
 };
