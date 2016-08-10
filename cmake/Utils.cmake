@@ -1,9 +1,9 @@
 # Searches for Qt with the required components
 macro(RDM_FIND_QT)
-	
+
 	set(CMAKE_AUTOMOC ON)
 	set(CMAKE_AUTORCC OFF)
-	
+
 	set(CMAKE_INCLUDE_CURRENT_DIR ON)
 	if(NOT QT_QMAKE_EXECUTABLE)
 	 find_program(QT_QMAKE_EXECUTABLE NAMES "qmake" "qmake-qt5" "qmake.exe")
@@ -23,11 +23,11 @@ macro(RDM_FIND_QT)
 endmacro(RDM_FIND_QT)
 
 # add OpenCV dependency
-macro(RDM_FIND_OPENCV) 
-	find_package(OpenCV) 
+macro(RDM_FIND_OPENCV)
+	find_package(OpenCV)
 
 	if(NOT OpenCV_FOUND)
-		message(FATAL_ERROR "OpenCV not found.") 
+		message(FATAL_ERROR "OpenCV not found.")
 	else()
 		add_definitions(-DWITH_OPENCV)
 	endif()
@@ -36,18 +36,18 @@ macro(RDM_FIND_OPENCV)
 	get_property(the_include_dirs  DIRECTORY . PROPERTY INCLUDE_DIRECTORIES)
 	list(REMOVE_ITEM the_include_dirs ${OpenCV_INCLUDE_DIRS})
 	set_property(DIRECTORY . PROPERTY INCLUDE_DIRECTORIES ${the_include_dirs})
-	
+
 	# make RelWithDebInfo link against release instead of debug opencv dlls
 	set_target_properties(${OpenCV_LIBS} PROPERTIES MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
 	set_target_properties(${OpenCV_LIBS} PROPERTIES MAP_IMPORTED_CONFIG_MINSIZEREL RELEASE)
 endmacro(RDM_FIND_OPENCV)
 
 macro(RDM_PREPARE_PLUGIN)
-	
+
 	CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
-	
+
 	MARK_AS_ADVANCED(CMAKE_INSTALL_PREFIX)
-	
+
 	set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_BINARY_DIR})
 	find_package(nomacs)
 	if(NOT NOMACS_FOUND)
@@ -56,13 +56,13 @@ macro(RDM_PREPARE_PLUGIN)
 			message(FATAL_ERROR "You have to set the nomacs build directory")
 		endif()
 	endif()
-	
+
  	if(CMAKE_CL_64)
 		SET(PLUGIN_ARCHITECTURE "x64")
 	else()
 		SET(PLUGIN_ARCHITECTURE "x86")
 	endif()
- 
+
 	if (CMAKE_BUILD_TYPE STREQUAL "debug" OR CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "DEBUG")
 		message(STATUS "A debug build. -DDEBUG is defined")
 		add_definitions(-DDEBUG)
@@ -70,8 +70,9 @@ macro(RDM_PREPARE_PLUGIN)
 	elseif (NOT MSVC) # debug and release need qt debug outputs on windows
 		message(STATUS "A release build (non-debug). Debugging outputs are silently ignored.")
 		add_definitions(-DQT_NO_DEBUG_OUTPUT)
+		add_definitions(-DNDEBUG)
 	endif ()
- 
+
 	include(CheckCXXCompilerFlag)
 	CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
 	CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
@@ -82,16 +83,16 @@ macro(RDM_PREPARE_PLUGIN)
 	elseif(!MSVC)
 		message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 	endif()
- 
+
 	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas")
- 
+
 endmacro(RDM_PREPARE_PLUGIN)
 
 macro(RDM_FIND_RDF)
-	
+
 	set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_BINARY_DIR})
 	find_package(ReadFramework)
-	
+
 	if(NOT RDF_FOUND)
 		set(RDF_BUILD_DIRECTORY "NOT_SET" CACHE PATH "Path to the READ Framework build directory")
 		if(${RDF_BUILD_DIRECTORY} STREQUAL "NOT_SET")
@@ -102,7 +103,7 @@ endmacro(RDM_FIND_RDF)
 
 
 macro(RDM_CREATE_TARGETS)
-	
+
 	if(DEFINED GLOBAL_READ_BUILD)
 		message(STATUS "project name: ${NOMACS_PROJECT_NAME}")
 		add_dependencies(${PROJECT_NAME} ${NOMACS_PROJECT_NAME})
@@ -113,7 +114,7 @@ macro(RDM_CREATE_TARGETS)
 			set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${NOMACS_BUILD_DIRECTORY}/Release/plugins/)
 			set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${NOMACS_BUILD_DIRECTORY}/RelWithDebInfo/plugins/)
 			set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${NOMACS_BUILD_DIRECTORY}/MinSizeRel/plugins/)
-			
+
 			### DependencyCollector
 			set(DC_SCRIPT ${CMAKE_SOURCE_DIR}/cmake/DependencyCollector.py)
 			set(DC_CONFIG ${CMAKE_CURRENT_BINARY_DIR}/DependencyCollector.ini)
@@ -131,16 +132,16 @@ macro(RDM_CREATE_TARGETS)
 
 			add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${DC_SCRIPT} --infile $<TARGET_FILE:${PROJECT_NAME}> --configfile ${DC_CONFIG} --configuration $<CONFIGURATION>)
 		endif(MSVC)
-	
+
 	endif()
-	
-	
+
+
 	if(MSVC)
 		file(GLOB RDM_AUTOMOC "${CMAKE_BINARY_DIR}/*_automoc.cpp")
 		source_group("Generated Files" FILES ${PLUGIN_RCC} ${RDM_QM} ${RDF_AUTOMOC})
-		
+
 		message(STATUS "${PROJECT_NAME} \t will be installed to: ${NOMACS_INSTALL_DIRECTORY}")
-		
+
 		set(PACKAGE_DIR ${NOMACS_INSTALL_DIRECTORY}/packages/plugins.${PLUGIN_ARCHITECTURE}.${PROJECT_NAME})
 		set(PACKAGE_DATA_DIR ${PACKAGE_DIR}/data/nomacs-${PLUGIN_ARCHITECTURE}/plugins/)
 		install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${PACKAGE_DATA_DIR} CONFIGURATIONS Release)
@@ -173,7 +174,7 @@ macro(RDM_READ_PLUGIN_ID_AND_VERSION)
 	else()
 		message(FATAL_ERROR "${PROJECT_NAME}: Version missing in json file")
 	endif()
-	
+
 	if(ADDITIONAL_OPENCV_PACKAGES_PATHS)
 		file(STRINGS ${PLUGIN_JSON} line REGEX ".*\"Dependencies\".*:")
 		if(NOT line)
@@ -181,7 +182,7 @@ macro(RDM_READ_PLUGIN_ID_AND_VERSION)
 		endif()
 	endif()
 endmacro(RDM_READ_PLUGIN_ID_AND_VERSION)
-	
+
 macro(RDM_GENERATE_PACKAGE_XML)
 	set(JSON_FILE ${ARGN})
 
@@ -191,7 +192,7 @@ macro(RDM_GENERATE_PACKAGE_XML)
 	string(TIMESTAMP CURRENT_DATE "%Y-%m-%d")
 	string(REPLACE "${date_modified_line}" "\t\"DateModified\"\t: \"${CURRENT_DATE}\"," JSON_CONTENT ${JSON_CONTENT})
 	file(WRITE ${JSON_FILE} ${JSON_CONTENT})
-	
+
 	file(STRINGS ${JSON_FILE} line REGEX ".*\"PluginName\".*:")
 	string(REGEX REPLACE ".*:\ +\"" "" PLUGIN_NAME ${line})
 	string(REGEX REPLACE "\".*" "" PLUGIN_NAME ${PLUGIN_NAME})
@@ -201,18 +202,18 @@ macro(RDM_GENERATE_PACKAGE_XML)
 	string(REGEX REPLACE ".*:\ +\"" "" AUTHOR_NAME ${line})
 	string(REGEX REPLACE "\".*" "" AUTHOR_NAME ${AUTHOR_NAME})
 	# message(STATUS "AUTHOR_NAME: ${AUTHOR_NAME}")
-	
+
 	file(STRINGS ${JSON_FILE} line REGEX ".*\"Company\".*:")
 	string(REGEX REPLACE ".*:\ +\"" "" COMPANY_NAME ${line})
 	string(REGEX REPLACE "\".*" "" COMPANY_NAME ${COMPANY_NAME})
 	# message(STATUS "COMPANY_NAME: ${COMPANY_NAME}")
-	
+
 	file(STRINGS ${JSON_FILE} line REGEX ".*\"Tagline\".*:")
 	string(REGEX REPLACE ".*:\ +\"" "" TAGLINE ${line})
 	string(REGEX REPLACE "\".*" "" TAGLINE ${TAGLINE})
 	# message(STATUS "TAGLINE: ${TAGLINE}")
-	
-	
+
+
 	set(XML_CONTENT "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
 	set(XML_CONTENT "${XML_CONTENT}<Package>\n")
 	set(XML_CONTENT "${XML_CONTENT}\t<DisplayName>${PLUGIN_NAME}</DisplayName>\n")
@@ -221,9 +222,9 @@ macro(RDM_GENERATE_PACKAGE_XML)
 	set(XML_CONTENT "${XML_CONTENT}\t<ReleaseDate>${CURRENT_DATE}</ReleaseDate>\n")
 	set(XML_CONTENT "${XML_CONTENT}\t<Default>true</Default>\n")
 	set(XML_CONTENT "${XML_CONTENT}</Package>\n")
-	
+
 	file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/package.xml ${XML_CONTENT})
-	
+
 endmacro(RDM_GENERATE_PACKAGE_XML)
 
 macro(RDM_GENERATE_USER_FILE)
