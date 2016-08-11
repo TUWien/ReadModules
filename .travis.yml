@@ -2,7 +2,7 @@ language: c++
 
 os:
   - linux
-  - osx
+  # - osx
 
 compiler:
   - gcc
@@ -13,17 +13,17 @@ dist: trusty
 
 before_script:
   - if [ "$TRAVIS_OS_NAME" = "linux" ];then  MODULE_CMAKE_ARGS="-DENABLE_BINARIZATION=true -DENABLE_WRITERIDENTIFICATION=true -DENABLE_LAYOUT=true -DENABLE_PAGE_VIS=true -DENABLE_SKEW=true"; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then MODULE_CMAKE_ARGS="-DENABLE_BINARIZATION=true -DENABLE_WRITERIDENTIFICATION=true -DENABLE_LAYOUT=true -DENABLE_PAGE_VIS=true -DENABLE_SKEW=true"; fi
+  # - if [ "$TRAVIS_OS_NAME" = "osx" ]; then MODULE_CMAKE_ARGS="-DENABLE_BINARIZATION=true -DENABLE_WRITERIDENTIFICATION=true -DENABLE_LAYOUT=true -DENABLE_PAGE_VIS=true -DENABLE_SKEW=true"; fi
 
-  # OSX dependencies
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install qt5; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then CMAKE_ARGS="-DCMAKE_PREFIX_PATH=/usr/local/opt/qt5 -Dnomacs_DIR=/Users/travis/build/TUWien/ReadModules/build/nomacs-build -DReadFramework_DIR=/Users/travis/build/TUWien/ReadModules/build/readframework-build"; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install exiv2; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install libraw; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew tap homebrew/science; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install opencv3 --with-contrib --without-eigen --without-opencl --without-openexr --without-python --without-tests; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew ln opencv3 --force; fi
+  # # OSX dependencies
+  # - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; fi
+  # - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install qt5; fi
+  # - if [ "$TRAVIS_OS_NAME" = "osx" ]; then CMAKE_ARGS="-DCMAKE_PREFIX_PATH=/usr/local/opt/qt5 -Dnomacs_DIR=/Users/travis/build/TUWien/ReadModules/build/nomacs-build -DReadFramework_DIR=/Users/travis/build/TUWien/ReadModules/build/readframework-build"; fi
+  # - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install exiv2; fi
+  # - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install libraw; fi
+  # - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew tap homebrew/science; fi
+  # - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install opencv3 --with-contrib --without-eigen --without-opencl --without-openexr --without-python --without-tests; fi
+  # - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew ln opencv3 --force; fi
 
   # Linux dependencies
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-add-repository -y ppa:beineri/opt-qt551-trusty; fi
