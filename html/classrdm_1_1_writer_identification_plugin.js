@@ -4,6 +4,7 @@ var classrdm_1_1_writer_identification_plugin =
     [ "id_generate_vocabulary", "classrdm_1_1_writer_identification_plugin.html#ae034abfab9919ea3a5d919f9d8ef3da1a5af31cb40ec9ca4e1abc1e3a1188fe57", null ],
     [ "id_identify_writer", "classrdm_1_1_writer_identification_plugin.html#ae034abfab9919ea3a5d919f9d8ef3da1adb2305ffc67d482c950477ba3efb2938", null ],
     [ "id_evaluate_database", "classrdm_1_1_writer_identification_plugin.html#ae034abfab9919ea3a5d919f9d8ef3da1a28e91dfeed285fb3a9d7d3dd051f82b2", null ],
+    [ "id_extract_patches", "classrdm_1_1_writer_identification_plugin.html#ae034abfab9919ea3a5d919f9d8ef3da1a87264beb9a9fdd8111fc7ca3f2d0dd73", null ],
     [ "id_end", "classrdm_1_1_writer_identification_plugin.html#ae034abfab9919ea3a5d919f9d8ef3da1a1cf2064f9a21b3bb5486e5e78c90312a", null ],
     [ "WriterIdentificationPlugin", "classrdm_1_1_writer_identification_plugin.html#ae6d315a4cadd1d2106cf308f5d6aeaa6", null ],
     [ "~WriterIdentificationPlugin", "classrdm_1_1_writer_identification_plugin.html#a404fa3b2c682d248b642bbcb8c4ccb39", null ],
