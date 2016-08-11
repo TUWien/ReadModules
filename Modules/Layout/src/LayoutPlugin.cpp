@@ -225,7 +225,7 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src) const {
 	if (!superPixel.compute())
 		qWarning() << "could not compute super pixel!";
 
-	QVector<QSharedPointer<rdf::Pixel> >& sp = superPixel.getSuperPixels();
+	QVector<QSharedPointer<rdf::Pixel> > sp = superPixel.getSuperPixels();
 
 	rdf::LocalOrientation lo(sp);
 	if (!lo.compute())
