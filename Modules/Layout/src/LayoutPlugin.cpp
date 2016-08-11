@@ -40,6 +40,8 @@ related links:
 #include "SkewEstimation.h"
 #include "PageParser.h"
 #include "Elements.h"
+#include "Utils.h"
+#include "TextBlockSegmentation.h"
 
 // nomacs
 #include "DkImageStorage.h"
@@ -162,7 +164,6 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 	}
 	else if(runID == mRunIDs[id_layout_xml]) {
 
-
 		qDebug() << "not implemented yet - sorry";
 	}
 	else if (runID == mRunIDs[id_lines]) {
@@ -214,16 +215,37 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 
 cv::Mat LayoutPlugin::compute(const cv::Mat & src) const {
 	
-	//// TODO: add layout here...
+	rdf::Timer dt;
 
-	//return src;
+	cv::Mat img = src.clone();
+	//cv::resize(src, img, cv::Size(), 0.25, 0.25, CV_INTER_AREA);
 
-	rdf::SuperPixel sp(src);
-	sp.compute();
+	rdf::SuperPixel superPixel(img);
 
-	qDebug() << "seam carving applied";
+	if (!superPixel.compute())
+		qWarning() << "could not compute super pixel!";
 
-	return sp.binaryImage();
+	QVector<QSharedPointer<rdf::Pixel> >& sp = superPixel.getSuperPixels();
+
+	rdf::LocalOrientation lo(sp);
+	if (!lo.compute())
+		qWarning() << "could not compute local orientation";
+
+	rdf::TextBlockSegmentation textBlocks(img, sp);
+	if (!textBlocks.compute())
+		qWarning() << "could not compute text block segmentation!";
+
+	// drawing
+	//cv::Mat rImg(img.rows, img.cols, CV_8UC1, cv::Scalar::all(150));
+	cv::Mat rImg = img.clone();
+	//rImg = lo.draw(rImg, "507", 64);
+
+	//// save super pixel image
+	rImg = superPixel.drawSuperPixels(rImg);
+
+	qDebug() << "layout computed in" << dt;
+
+	return rImg;
 
 }
 
