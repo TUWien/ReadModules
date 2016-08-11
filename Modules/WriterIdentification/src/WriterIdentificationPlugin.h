@@ -77,6 +77,7 @@ public:
 		id_identify_writer,
 		id_evaluate_database,
 		id_extract_patches,
+		id_extract_patches_per_page,
 		// add actions here
 
 		id_end
@@ -94,6 +95,7 @@ private:
 	void loadSettings(QSettings& settings);
 	void saveSettings(QSettings& settings) const;
 	QString featureFilePath(QString imgPath, bool createDir=false) const;
+	QString extractWriterIDFromFilename(const QString fileName) const;
 
 	QString mSettingsVocPath = QString();
 	int mVocType = WIVocabulary::WI_UNDEFINED;

@@ -40,6 +40,7 @@
 #pragma warning(push, 0)	// no warnings from includes - begin
 #include <QAction>
 #include <QSettings>
+#include <QImageWriter>
 #include "opencv2/features2d/features2d.hpp"
 #pragma warning(pop)		// no warnings from includes - end
 
@@ -59,6 +60,7 @@ WriterIdentificationPlugin::WriterIdentificationPlugin(QObject* parent) : QObjec
 	runIds[id_identify_writer] = "b9fc66129483473fa901ddf627bd8b9a";
 	runIds[id_evaluate_database] = "e247a635ebb3449ba88204abf8d5f089";
 	runIds[id_extract_patches] = "64b27436f29d461c9148e98dd816f93e";
+	runIds[id_extract_patches_per_page] = "926c8d0e57ff4cb0a1dab586e04847e7";
 	mRunIDs = runIds.toList();
 
 	// create menu actions
@@ -70,6 +72,7 @@ WriterIdentificationPlugin::WriterIdentificationPlugin(QObject* parent) : QObjec
 	menuNames[id_identify_writer] = tr("Identify Writer");
 	menuNames[id_evaluate_database] = tr("Evaluate Database");
 	menuNames[id_extract_patches] = tr("Extract Patches");
+	menuNames[id_extract_patches_per_page] = tr("Extract Patches Per Page");
 	mMenuNames = menuNames.toList();
 
 	// create menu status tips
@@ -81,6 +84,7 @@ WriterIdentificationPlugin::WriterIdentificationPlugin(QObject* parent) : QObjec
 	statusTips[id_identify_writer] = tr("Identifies the writer of the given page");
 	statusTips[id_evaluate_database] = tr("Evaluates the selected files");
 	statusTips[id_extract_patches] = tr("Extract Patches at SIFT keypoints");
+	statusTips[id_extract_patches] = tr("Extract Patches at SIFT keypoints and stores it in a directory of the filename");
 	mMenuStatusTips = statusTips.toList();
 
 	init();
@@ -192,16 +196,7 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 
 		QString ffPath = featureFilePath(imgC->filePath());
 
-		int idxOfMinus = QFileInfo(imgC->filePath()).baseName().indexOf("-");
-		int idxOfUScore = QFileInfo(imgC->filePath()).baseName().indexOf("_");
-		int idx = -1;
-		if(idxOfMinus == -1 && idxOfUScore > 0)
-			idx = idxOfUScore;
-		else if(idxOfUScore == -1 && idxOfMinus > 0)
-			idx = idxOfMinus;
-		else if(idxOfMinus > 0 && idxOfUScore > 0)
-			idx = idxOfMinus > idxOfUScore ? idxOfMinus : idxOfUScore;
-		QString label = QFileInfo(imgC->filePath()).baseName().left(idx);
+		QString label = extractWriterIDFromFilename(QFileInfo(imgC->filePath()).baseName());
 
 
 		QSharedPointer<WIInfo> wInfo(new WIInfo(runID, imgC->filePath()));
@@ -224,19 +219,7 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 		QString fFilePath = featureFilePath(imgC->filePath());
 
 		if(QFileInfo(fFilePath).exists()) {
-
-			int idxOfMinus = QFileInfo(imgC->filePath()).baseName().indexOf("-");
-			int idxOfUScore = QFileInfo(imgC->filePath()).baseName().indexOf("_");
-			int idx = -1;
-			if(idxOfMinus == -1 && idxOfUScore > 0)
-				idx = idxOfUScore;
-			else if(idxOfUScore == -1 && idxOfMinus > 0)
-				idx = idxOfMinus;
-			else if(idxOfMinus > 0 && idxOfUScore > 0)
-				idx = idxOfMinus < idxOfUScore ? idxOfMinus : idxOfUScore;
-			QString label = QFileInfo(imgC->filePath()).baseName().left(idx);
-			qDebug() << "label: " << label << "\t\tbaseName:" << QFileInfo(imgC->filePath()).baseName();
-
+			
 			cv::FileStorage fs(fFilePath.toStdString(), cv::FileStorage::READ);
 			if(!fs.isOpened()) {
 				qWarning() << " unable to read file " << fFilePath;
@@ -274,6 +257,8 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 			rdf::Image::instance().imageInfo(descriptors, "descriptors");
 			rdf::Image::instance().imageInfo(feature, "feature");
 
+			QString label = extractWriterIDFromFilename(QFileInfo(imgC->filePath()).baseName());
+
 			QSharedPointer<WIInfo> wInfo(new WIInfo(runID, imgC->filePath()));
 			wInfo->setWriter(label);
 			wInfo->setFeatureFilePath(fFilePath);
@@ -291,17 +276,158 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 		wi.calculateFeatures();
 		cv::cvtColor(imgCv, imgCv, CV_RGB2GRAY);
 		QVector<cv::KeyPoint> kp = wi.keyPoints();
-		QVector<QImage> patches;
+		QVector<QImage> trainPatches, testPatches;
+		QRect oldRect;
 		for(int i = 0; i < kp.length(); i++) {
-			int rectSize = 30;
-			QPointF point = rdf::Converter::cvPointToQt(kp[i].pt);
+			int rectSize = 64;
+			int threshBorder = 16;
+			int threshold = 20;
+
+			QPointF point = rdf::Converter::instance().cvPointToQt(kp[i].pt);
+			point.setX(point.x() - rectSize/2);
+			point.setY(point.y() - rectSize/2);
+			QRect rect = QRect(point.toPoint(), QSize(rectSize, rectSize));
+			QImage img = imgC->image().copy(rect);
+
+			QRect threshRect = QRect(QPoint(threshBorder, threshBorder), QPoint(rectSize-threshBorder, rectSize-threshBorder));
+			QImage tmpImg = img.copy(threshRect);
+			cv::Scalar sum = cv::sum(nmc::DkImage::qImage2Mat(tmpImg));
+			if(sum[0]/255.0f > tmpImg.width()*tmpImg.height()-20) {
+				qDebug() << "sum exceeds threshold";				
+				continue;
+			}
+
+			if(rect != oldRect) {
+				//qDebug() << "point y :" << point.y() << "  height/2:" << imgCv.rows / 2;
+				if(point.y() < imgCv.rows /2)
+					trainPatches.push_back(img);
+				else
+					testPatches.push_back(img);
+			}
+			oldRect = rect;
+			
+		}
+
+		QString dirName = "patches";
+		QFileInfo fImgPath(imgC->fileInfo());
+		QFileInfo patchesOutPath(fImgPath.absoluteDir().path() + "/" + dirName + "/");
+		if(!patchesOutPath.exists()) {
+			QDir directory(fImgPath.absoluteDir());
+			if(!directory.mkdir(dirName)) {
+				qDebug() << "unable to create subdirectory";
+			}
+		}
+		QFileInfo trainDir = QFileInfo(patchesOutPath.absolutePath() + "/train/");
+		if(!trainDir.exists()) {
+			QDir directory(patchesOutPath.absoluteDir());
+			if(!directory.mkdir("train")) {
+				qDebug() << "unable to create train subdirectory";
+			}
+		}
+		QFileInfo testDir = QFileInfo(patchesOutPath.absolutePath() + "/test/");
+		if(!testDir.exists()) {
+			QDir directory(patchesOutPath.absoluteDir());
+			if(!directory.mkdir("test")) {
+				qDebug() << "unable to create train subdirectory";
+			}
+		}
+
+		QString label = extractWriterIDFromFilename(imgC->fileName());
+
+		//QFileInfo writerPatchPath(patchesOutPath.absolutePath() + "/" + label + "/");
+		//if(!writerPatchPath.exists()) {
+		//	QDir dir = patchesOutPath.absoluteDir();
+		//	dir.mkdir(label);
+		//	writerPatchPath = QFileInfo(patchesOutPath.absolutePath() + "/" + label + "/");
+		//}
+		QFileInfo patchOutTrain = QFileInfo(trainDir.absolutePath() + "/" + label + "/");
+		if(!patchOutTrain.exists()) {
+			QDir directory(trainDir.absoluteDir());
+			if(!directory.mkdir(label)) {
+				qDebug() << "unable to create train-label subdirectory";
+			}
+		}
+
+		QFileInfo patchOutTest = QFileInfo(testDir.absolutePath() + "/" + label + "/");
+		if(!patchOutTest.exists()) {
+			QDir directory(testDir.absoluteDir());
+			if(!directory.mkdir(label)) {
+				qDebug() << "unable to create train subdirectory";
+			}
+		}
+
+
+
+		for(int i = 0; i < trainPatches.length(); i++) {
+ 			QImageWriter qw;
+			qw.setFormat("png");
+			QFileInfo fi = imgC->fileInfo();
+			qw.setFileName(patchOutTrain.absolutePath() + "/" + label + "_"+ fi.baseName() + "_" + QString::number(i) + ".png");
+			qw.write(trainPatches[i]);
+		}
+		for(int i = 0; i < testPatches.length(); i++) {
+			QImageWriter qw;
+			qw.setFormat("png");
+			QFileInfo fi = imgC->fileInfo();
+			qw.setFileName(patchOutTest.absolutePath() + "/" + label + "_" + fi.baseName() + "_" + QString::number(i) + ".png");
+			qw.write(testPatches[i]);
+		}
+
+	}
+	else if(runID == mRunIDs[id_extract_patches_per_page]) {
+		WriterIdentification wi = WriterIdentification();
+		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
+		wi.setImage(imgCv);
+		wi.calculateFeatures();
+		cv::cvtColor(imgCv, imgCv, CV_RGB2GRAY);
+		QVector<cv::KeyPoint> kp = wi.keyPoints();
+		QVector<QImage> patches;
+		QRect oldRect;
+		for(int i = 0; i < kp.length(); i++) {
+			int rectSize = 64;
+			int threshBorder = 16;
+			int threshold = 20;
+
+			QPointF point = rdf::Converter::instance().cvPointToQt(kp[i].pt);
 			point.setX(point.x() - rectSize / 2);
 			point.setY(point.y() - rectSize / 2);
 			QRect rect = QRect(point.toPoint(), QSize(rectSize, rectSize));
 			QImage img = imgC->image().copy(rect);
-			patches.push_back(img);
+
+			QRect threshRect = QRect(QPoint(threshBorder, threshBorder), QPoint(rectSize - threshBorder, rectSize - threshBorder));
+			QImage tmpImg = img.copy(threshRect);
+			cv::Scalar sum = cv::sum(nmc::DkImage::qImage2Mat(tmpImg));
+			if(sum[0] / 255.0f > tmpImg.width()*tmpImg.height() - 20) {
+				qDebug() << "sum exceeds threshold";
+				continue;
+			}
+
+			if(rect != oldRect) {
+				patches.push_back(img);
+			}
+			oldRect = rect;
 		}
-		imgC->setImage(patches[0], tr("patch"));
+		
+		QFileInfo imgFi = imgC->fileInfo();
+		QDir pageDir = imgFi.absoluteDir();
+		pageDir.mkdir("page-patches");
+		pageDir.cd("page-patches");
+
+		pageDir.mkdir(imgFi.baseName());
+
+		QDir patchDir = QDir(pageDir.absolutePath() + "/" + imgFi.baseName());
+		QString label = extractWriterIDFromFilename(imgC->fileName());
+		for(int i = 0; i < patches.length(); i++) {
+			QImageWriter qw;
+			qw.setFormat("png");
+			QFileInfo fi = imgC->fileInfo();
+			qw.setFileName(patchDir.absolutePath() + "/" + label + "_" + fi.baseName() + "_" + QString::number(i) + ".png");
+			qw.write(patches[i]);
+		}
+
+		
+
+
 	}
 
 
@@ -467,9 +593,11 @@ void WriterIdentificationPlugin::saveSettings(QSettings & settings) const {
 }
 
 QString WriterIdentificationPlugin::featureFilePath(QString imgPath, bool createDir) const {
+	QString extension = ".yml";
+
 	if(mFeatureDir.isEmpty()) {
 		QString featureFilePath = imgPath;
-		return featureFilePath.replace(featureFilePath.length() - 4, featureFilePath.length(), ".yml");
+		return featureFilePath.replace(featureFilePath.length() - 4, featureFilePath.length(), extension);
 	}
 	else {
 		QString ffPath;
@@ -481,17 +609,32 @@ QString WriterIdentificationPlugin::featureFilePath(QString imgPath, bool create
 		else {
 			QFileInfo combined(fImgPath.absoluteDir().path() + "/" + mFeatureDir + "/");
 			if(!combined.exists() && createDir) {
-				QDir dir(fImgPath.absoluteDir());
-				if(!dir.mkdir(mFeatureDir)) {
+				QDir directory(fImgPath.absoluteDir());
+				if(!directory.mkdir(mFeatureDir)) {
 					qDebug() << "unable to create subdirectory";
 				}
 			}
-			ffPath = combined.absoluteDir().path() + "/" + fImgPath.baseName() + ".yml";
+			ffPath = combined.absoluteDir().path() + "/" + fImgPath.baseName() + extension;
 		}
 		qDebug() << "fFPath.isAbsolute():" << fFeatPath.isAbsolute() << " fFPath.isRelative():" << fFeatPath.isRelative();
 
 		return ffPath;
 	}
+}
+
+QString WriterIdentificationPlugin::extractWriterIDFromFilename(const QString fileName) const {
+	int idxOfMinus = fileName.indexOf("-");
+	int idxOfUScore = fileName.indexOf("_");
+	int idx = -1;
+	if(idxOfMinus == -1 && idxOfUScore > 0)
+		idx = idxOfUScore;
+	else if(idxOfUScore == -1 && idxOfMinus > 0)
+		idx = idxOfMinus;
+	else if(idxOfMinus > 0 && idxOfUScore > 0)
+		idx = idxOfMinus < idxOfUScore ? idxOfMinus : idxOfUScore;
+	QString label = fileName.left(idx);
+	qDebug() << "label: " << label << "\t\tbaseName:" << fileName;
+	return label;
 }
 
 // WIInfo --------------------------------------------------------------------
