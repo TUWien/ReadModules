@@ -231,17 +231,24 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src) const {
 	if (!lo.compute())
 		qWarning() << "could not compute local orientation";
 
+	rdf::PixelSetOrientation pse(sp, rdf::Rect(rdf::Vector2D(), rdf::Vector2D(img.size())));
+
+	if (!pse.compute())
+		qWarning() << "could not compute set orientation";
+
 	rdf::TextBlockSegmentation textBlocks(img, sp);
 	if (!textBlocks.compute())
 		qWarning() << "could not compute text block segmentation!";
+
 
 	// drawing
 	//cv::Mat rImg(img.rows, img.cols, CV_8UC1, cv::Scalar::all(150));
 	cv::Mat rImg = img.clone();
 	//rImg = lo.draw(rImg, "507", 64);
 
-	//// save super pixel image
-	rImg = superPixel.drawSuperPixels(rImg);
+	// save super pixel image
+	//rImg = superPixel.drawSuperPixels(rImg);
+	rImg = textBlocks.draw(rImg);
 
 	qDebug() << "layout computed in" << dt;
 
