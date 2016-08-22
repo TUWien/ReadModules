@@ -177,7 +177,6 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 		QVector<rdf::Line> alllines = lt.getLines();
 
 		//save lines to xml
-		//TODO - check if it is working...
 		QString loadXmlPath = rdf::PageXmlParser::imagePathToXmlPath(saveInfo.inputFilePath());
 		QString saveXmlPath = rdf::PageXmlParser::imagePathToXmlPath(saveInfo.outputFilePath());
 		
