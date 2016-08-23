@@ -164,7 +164,8 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 	}
 	else if(runID == mRunIDs[id_layout_xml]) {
 
-		qDebug() << "not implemented yet - sorry";
+
+		qWarning() << "not implemented yet - sorry";
 	}
 	else if (runID == mRunIDs[id_lines]) {
 
