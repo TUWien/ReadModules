@@ -42,6 +42,7 @@ related links:
 #include "Elements.h"
 #include "Utils.h"
 #include "TextBlockSegmentation.h"
+#include "TextLineSegmentation.h"
 
 // nomacs
 #include "DkImageStorage.h"
@@ -231,25 +232,44 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src) const {
 	if (!lo.compute())
 		qWarning() << "could not compute local orientation";
 
-	rdf::PixelSetOrientation pse(sp, rdf::Rect(rdf::Vector2D(), rdf::Vector2D(img.size())));
+	rdf::GraphCutOrientation pse(sp, rdf::Rect(rdf::Vector2D(), rdf::Vector2D(img.size())));
 
 	if (!pse.compute())
 		qWarning() << "could not compute set orientation";
+
+	// filter according to orientation
+	QVector<QSharedPointer<rdf::Pixel> > spf;
+	for (auto pixel : sp) {
+		if (pixel->stats()->orientation() == 0 || 
+			pixel->stats()->orientation() == CV_PI*0.5)
+			spf << pixel;
+	}
+	sp = spf;
 
 	rdf::TextBlockSegmentation textBlocks(img, sp);
 	if (!textBlocks.compute())
 		qWarning() << "could not compute text block segmentation!";
 
+	rdf::TextLineSegmentation textLines(rdf::Rect(img), sp);
+	if (!textLines.compute())
+		qWarning() << "could not compute text block segmentation!";
+
+	qInfo() << "algorithm computation time" << dt;
 
 	// drawing
 	//cv::Mat rImg(img.rows, img.cols, CV_8UC1, cv::Scalar::all(150));
 	cv::Mat rImg = img.clone();
+
+	//// draw edges
+	//rImg = textBlocks.draw(rImg);
+	//rImg = lo.draw(rImg, "1012", 256);
+	//rImg = lo.draw(rImg, "507", 128);
 	//rImg = lo.draw(rImg, "507", 64);
 
-	// save super pixel image
+	//// save super pixel image
 	//rImg = superPixel.drawSuperPixels(rImg);
-	rImg = textBlocks.draw(rImg);
-
+	//rImg = textBlocks.draw(rImg);
+	rImg = textLines.draw(rImg);
 	qDebug() << "layout computed in" << dt;
 
 	return rImg;
