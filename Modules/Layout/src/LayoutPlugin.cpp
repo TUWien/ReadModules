@@ -40,6 +40,9 @@ related links:
 #include "SkewEstimation.h"
 #include "PageParser.h"
 #include "Elements.h"
+#include "Utils.h"
+#include "TextBlockSegmentation.h"
+#include "TextLineSegmentation.h"
 
 // nomacs
 #include "DkImageStorage.h"
@@ -163,7 +166,7 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 	else if(runID == mRunIDs[id_layout_xml]) {
 
 
-		qDebug() << "not implemented yet - sorry";
+		qWarning() << "not implemented yet - sorry";
 	}
 	else if (runID == mRunIDs[id_lines]) {
 
@@ -176,7 +179,6 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 		QVector<rdf::Line> alllines = lt.getLines();
 
 		//save lines to xml
-		//TODO - check if it is working...
 		QString loadXmlPath = rdf::PageXmlParser::imagePathToXmlPath(saveInfo.inputFilePath());
 		QString saveXmlPath = rdf::PageXmlParser::imagePathToXmlPath(saveInfo.outputFilePath());
 		
@@ -214,16 +216,63 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 
 cv::Mat LayoutPlugin::compute(const cv::Mat & src) const {
 	
-	//// TODO: add layout here...
+	rdf::Timer dt;
 
-	//return src;
+	cv::Mat img = src.clone();
+	//cv::resize(src, img, cv::Size(), 0.25, 0.25, CV_INTER_AREA);
 
-	rdf::SuperPixel sp(src);
-	sp.compute();
+	rdf::SuperPixel superPixel(img);
 
-	qDebug() << "seam carving applied";
+	if (!superPixel.compute())
+		qWarning() << "could not compute super pixel!";
 
-	return sp.binaryImage();
+	QVector<QSharedPointer<rdf::Pixel> > sp = superPixel.getSuperPixels();
+
+	rdf::LocalOrientation lo(sp);
+	if (!lo.compute())
+		qWarning() << "could not compute local orientation";
+
+	rdf::GraphCutOrientation pse(sp, rdf::Rect(rdf::Vector2D(), rdf::Vector2D(img.size())));
+
+	if (!pse.compute())
+		qWarning() << "could not compute set orientation";
+
+	// filter according to orientation
+	QVector<QSharedPointer<rdf::Pixel> > spf;
+	for (auto pixel : sp) {
+		if (pixel->stats()->orientation() == 0 || 
+			pixel->stats()->orientation() == CV_PI*0.5)
+			spf << pixel;
+	}
+	sp = spf;
+
+	rdf::TextBlockSegmentation textBlocks(img, sp);
+	if (!textBlocks.compute())
+		qWarning() << "could not compute text block segmentation!";
+
+	rdf::TextLineSegmentation textLines(rdf::Rect(img), sp);
+	if (!textLines.compute())
+		qWarning() << "could not compute text block segmentation!";
+
+	qInfo() << "algorithm computation time" << dt;
+
+	// drawing
+	//cv::Mat rImg(img.rows, img.cols, CV_8UC1, cv::Scalar::all(150));
+	cv::Mat rImg = img.clone();
+
+	//// draw edges
+	//rImg = textBlocks.draw(rImg);
+	//rImg = lo.draw(rImg, "1012", 256);
+	//rImg = lo.draw(rImg, "507", 128);
+	//rImg = lo.draw(rImg, "507", 64);
+
+	//// save super pixel image
+	//rImg = superPixel.drawSuperPixels(rImg);
+	//rImg = textBlocks.draw(rImg);
+	rImg = textLines.draw(rImg);
+	qDebug() << "layout computed in" << dt;
+
+	return rImg;
 
 }
 

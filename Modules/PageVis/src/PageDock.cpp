@@ -136,22 +136,22 @@ void ConfigWidget::createLayout() {
 	mCbDraw = new QCheckBox(tr("Draw"), this);
 	mCbDraw->setObjectName("draw");
 
+	mCbDrawText = new QCheckBox(tr("Draw Text"), this);
+	mCbDrawText->setObjectName("drawText");
+
 	mCbDrawPoly = new QCheckBox(tr("Draw Polygon"), this);
 	mCbDrawPoly->setObjectName("drawPolygon");
 
 	mCbDrawBaseline = new QCheckBox(tr("Draw Baseline"), this);
 	mCbDrawBaseline->setObjectName("drawBaseline");
 
-	mCbDrawText = new QCheckBox(tr("Draw Text"), this);
-	mCbDrawText->setObjectName("drawText");
-
 	QWidget* cbWidget = new QWidget(this);
 	QGridLayout* cbLayout = new QGridLayout(cbWidget);
 	cbLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 	cbLayout->setContentsMargins(0, 0, 0, 0);
 	cbLayout->addWidget(mCbDraw, 0, 0);
-	cbLayout->addWidget(mCbDrawPoly, 0, 1);
 	cbLayout->addWidget(mCbDrawText, 1, 0);
+	cbLayout->addWidget(mCbDrawPoly, 0, 1);
 	cbLayout->addWidget(mCbDrawBaseline, 1, 1);
 
 	// stroke
