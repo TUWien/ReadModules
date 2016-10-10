@@ -61,6 +61,7 @@ WriterIdentificationPlugin::WriterIdentificationPlugin(QObject* parent) : QObjec
 	runIds[id_evaluate_database] = "e247a635ebb3449ba88204abf8d5f089";
 	runIds[id_extract_patches] = "64b27436f29d461c9148e98dd816f93e";
 	runIds[id_extract_patches_per_page] = "926c8d0e57ff4cb0a1dab586e04847e7";
+	runIds[id_extract_random_patches] = "5553a82e4fbb4075bf36bdeec36b396b";
 	mRunIDs = runIds.toList();
 
 	// create menu actions
@@ -73,6 +74,7 @@ WriterIdentificationPlugin::WriterIdentificationPlugin(QObject* parent) : QObjec
 	menuNames[id_evaluate_database] = tr("Evaluate Database");
 	menuNames[id_extract_patches] = tr("Extract Patches");
 	menuNames[id_extract_patches_per_page] = tr("Extract Patches Per Page");
+	menuNames[id_extract_random_patches] = tr("Extract Random Patches");
 	mMenuNames = menuNames.toList();
 
 	// create menu status tips
@@ -85,6 +87,7 @@ WriterIdentificationPlugin::WriterIdentificationPlugin(QObject* parent) : QObjec
 	statusTips[id_evaluate_database] = tr("Evaluates the selected files");
 	statusTips[id_extract_patches] = tr("Extract Patches at SIFT keypoints");
 	statusTips[id_extract_patches] = tr("Extract Patches at SIFT keypoints and stores it in a directory of the filename");
+	statusTips[id_extract_random_patches] = ("Extract Patches on the page of random regions");
 	mMenuStatusTips = statusTips.toList();
 
 	init();
@@ -299,10 +302,10 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 
 			if(rect != oldRect) {
 				//qDebug() << "point y :" << point.y() << "  height/2:" << imgCv.rows / 2;
-				if(point.y() < imgCv.rows /2)
+				//if(point.y() < imgCv.rows /2)
 					trainPatches.push_back(img);
-				else
-					testPatches.push_back(img);
+				//else
+					//testPatches.push_back(img);
 			}
 			oldRect = rect;
 			
@@ -407,7 +410,7 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 			}
 			oldRect = rect;
 		}
-		
+
 		QFileInfo imgFi = imgC->fileInfo();
 		QDir pageDir = imgFi.absoluteDir();
 		pageDir.mkdir("page-patches");
@@ -425,11 +428,75 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 			qw.write(patches[i]);
 		}
 
-		
 
 
 	}
+	else if(runID == mRunIDs[id_extract_random_patches]) {
+		//int patchSize = 64;
+		//int patchNumber = 1000;
+		//double ratio = 0.85;
 
+		int patchSize = 200;
+		int patchNumber = 50;
+		double ratio = 0.95;
+		QString dirName = "random-patches-" + QString::number(patchNumber);
+
+		QString label = extractWriterIDFromFilename(imgC->fileName());
+
+		QFileInfo fImgPath(imgC->fileInfo());
+		
+		QFileInfo patchesOutPath(fImgPath.absoluteDir().path() + "/" + dirName + "/");
+		
+		if(!patchesOutPath.exists()) {
+			QDir directory(fImgPath.absoluteDir());
+			if(!directory.mkdir(dirName)) {
+				qDebug() << "unable to create subdirectory";
+			}
+		}
+
+
+		QFileInfo patchOut = QFileInfo(patchesOutPath.absolutePath() + "/" + label + "/");
+		qDebug() << "patchOut:" << patchOut.absoluteFilePath();
+		if(!patchOut.exists()) {
+			QDir directory(patchesOutPath.absoluteDir());
+			if(!directory.mkdir(label)) {
+				qDebug() << "unable to create train-label subdirectory";
+			}
+		}
+
+		int patchCounter = 0;
+		int sizeX = imgC->image().size().width()-patchSize;
+		int sizeY = imgC->image().size().height()-patchSize;
+		QPainter paint;
+		//QImage img = imgC->image();
+		//paint.begin(&img);
+		int maxCount = 10000000;
+		while(patchCounter < patchNumber || patchCounter > maxCount) {
+			
+			int randomX = qrand() % sizeX;
+			int randomY = qrand() % sizeY;
+			QRect rect(randomX, randomY, patchSize, patchSize);
+			//paint.drawRect(rect);
+			QImage cropped = imgC->image().copy(rect);
+
+			cv::Mat imgCropped = nmc::DkImage::qImage2Mat(cropped);
+			double sum = cv::sum(imgCropped)[0]/255; 
+			//qDebug() << sum / (patchSize*patchSize);
+			if(sum / (patchSize*patchSize) > ratio) // 0.8 für triplets
+				continue;
+
+			
+			QImageWriter qw;
+			qw.setFormat("png");
+			QFileInfo fi = imgC->fileInfo();
+			qw.setFileName(patchOut.absolutePath() + "/" + label + "_" + fi.baseName() + "_" + QString::number(patchCounter) + ".png");
+			qw.write(cropped);
+			patchCounter++;
+		}
+		//paint.end();
+		//imgC->setImage(img, tr("patches"));
+	}
+		
 
 	// wrong runID? - do nothing
 	return imgC;
