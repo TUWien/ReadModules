@@ -74,8 +74,9 @@ void PageViewport::init() {
 	mPageData = new PageData(this);
 	mPageDock = new PageDock(mPageData, tr("Page Visualization"), this);
 	
-	connect(mPageDock, SIGNAL(updateSignal()), this, SLOT(update()));
 	connect(mPageData, SIGNAL(updatePage(QSharedPointer<rdf::PageElement>)), this, SLOT(update()));
+	connect(mPageData, SIGNAL(updateXml()), this, SLOT(parseXml()));
+	connect(mPageDock, SIGNAL(updateSignal()), this, SLOT(update()));
 	connect(mPageDock, SIGNAL(closeSignal()), this, SIGNAL(closePlugin()));
 	connect(this, SIGNAL(selectRegionsSignal(const QVector<QSharedPointer<rdf::Region> >&)), mPageDock->regionWidget(), SLOT(setRegions(const QVector<QSharedPointer<rdf::Region> >&)));
 }
@@ -127,10 +128,30 @@ void PageViewport::updateImageContainer(QSharedPointer<nmc::DkImageContainerT> i
 	if (!imgC)
 		return;
 
-	QString xmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
-	mPageData->parse(xmlPath);
+	parseXml();
 
 	qDebug() << "plugin receives new image: " << imgC->fileName();
+}
+
+void PageViewport::parseXml() {
+
+	if (!mImg)
+		return;
+
+	QString rawPath = mImg->filePath();
+
+	// prefer the specified folder if it is not empty
+	if (!mPageData->xmlPath().isEmpty())
+		rawPath = QFileInfo(mPageData->xmlPath(), mImg->fileName()).absoluteFilePath();
+
+	QString xmlPath = rdf::PageXmlParser::imagePathToXmlPath(rawPath);
+	mPageData->parse(xmlPath);
+
+	QFileInfo xmlImageInfo(mPageData->page()->imageFileName());
+	if (!mPageData->page()->isEmpty() && xmlImageInfo.baseName() != mImg->fileInfo().baseName()) {
+		emit showInfo(tr("PAGE file does not correspond with the image displayed..."));
+		qDebug() << "NOTE" << xmlImageInfo.baseName() << "!=" << mImg->fileInfo().baseName();
+	}
 }
 
 PageDock * PageViewport::dock() const {

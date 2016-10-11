@@ -58,7 +58,7 @@ PageVisPlugin::~PageVisPlugin() {
 QString PageVisPlugin::id() const {
 
 	return PLUGIN_ID;
-};
+}
 
 /**
 * Returns descriptive iamge for every ID
@@ -68,10 +68,11 @@ QImage PageVisPlugin::image() const {
 
 	return QImage(":/PageVisPlugin/img/read.png");
 }
+
 bool PageVisPlugin::closesOnImageChange() const {
 	return false;
 }
-;
+
 
 /**
 * Main function: runs plugin based on its ID
@@ -86,6 +87,7 @@ QSharedPointer<nmc::DkImageContainer> PageVisPlugin::runPlugin(const QString &ru
 	if(runID == PLUGIN_ID) {
 
 		// TODO: 
+		qDebug() << "NOTE: page rendering is not implemented yet...";
 	}
 
 	// wrong runID? - do nothing

@@ -53,6 +53,8 @@
 #include <QPainter>
 #include <QSpinBox>
 #include <QMimeData>
+#include <QCompleter>
+#include <QDirModel>
 #pragma warning(pop)
 
 namespace rdm {
@@ -129,6 +131,7 @@ void ConfigWidget::createLayout() {
 
 	mOutlineButton = new ColorButton(tr("Outline"), this);
 	mOutlineButton->setObjectName("outlineButton");
+
 
 	mBrushButton = new ColorButton(tr("Brush"), this);
 	mBrushButton->setObjectName("brushButton");
@@ -303,6 +306,74 @@ void ConfigWidget::paintEvent(QPaintEvent* event) {
 
 	QWidget::paintEvent(event);
 }
+
+// DirLabel --------------------------------------------------------------------
+DirLabel::DirLabel(QWidget* parent) : QLineEdit(parent) {
+
+	setObjectName("dirWidget");
+	createLayout();
+	setAcceptDrops(true);
+
+	connect(this, SIGNAL(textEdited(const QString&)), this, SIGNAL(xmlPathChanged(const QString&)));
+}
+
+void DirLabel::createLayout() {
+
+	setAlignment(Qt::AlignTop);
+
+	//"QLineEdit#XmlLabel{background-color: #fff; border: none;}"
+	setStyleSheet(PageDock::widgetStyle);
+	setPlaceholderText(tr("XML Directory"));
+
+	// this is a directory edit
+	QCompleter *completer = new QCompleter(this);
+	QDirModel* model = new QDirModel(completer);
+	model->setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
+	completer->setModel(model);
+	setCompleter(completer);
+}
+
+void DirLabel::dragEnterEvent(QDragEnterEvent* event) {
+
+	if (event->mimeData() && !dirPathFromMime(*event->mimeData()).isEmpty()) {
+		event->acceptProposedAction();
+		qDebug() << "event accepted...";
+	}
+
+	QWidget::dragEnterEvent(event);
+}
+
+void DirLabel::dropEvent(QDropEvent * event) {
+
+	if (event->mimeData()) {
+		QString path = dirPathFromMime(*event->mimeData());
+		setText(path);
+		emit xmlPathChanged(path);
+	}
+
+	//QLineEdit::dropEvent(event);
+}
+
+QString DirLabel::dirPathFromMime(const QMimeData & mime) const {
+
+	QString path;
+	if (mime.hasUrls()) {
+		path = mime.urls()[0].toLocalFile();
+	}
+	else if (mime.hasText()) {
+		path = mime.text();
+	}
+
+	QDir dir(path);
+
+	if (dir.exists())
+		return dir.absolutePath();
+	else
+		qDebug() << dir.absolutePath() << "is not valid - rejecting...";
+
+	return QString();
+}
+
 
 // XmlLabel --------------------------------------------------------------------
 XmlLabel::XmlLabel(QWidget* parent) : QLineEdit(parent) {
@@ -826,11 +897,14 @@ void PageDock::createLayout() {
 	configLayout->addWidget(configCombo);
 	configLayout->addWidget(mConfigWidget);
 
+	// dir drop widget
+	DirLabel* dirWidget = new DirLabel(this);
+
 	// xml drop widget
 	XmlLabel* xmlWidget = new XmlLabel(this);
 	xmlWidget->setPage(mPageData->page());
 
-	// region selction widget
+	// region selection widget
 	mRegionWidget = new RegionWidget(this);
 
 	// create our widget
@@ -840,6 +914,7 @@ void PageDock::createLayout() {
 	baseLayout->addWidget(mCbDraw);
 	baseLayout->addWidget(profileWidget);
 	baseLayout->addWidget(configDummy);
+	baseLayout->addWidget(dirWidget);
 	baseLayout->addWidget(xmlWidget);
 	baseLayout->addWidget(mRegionWidget);
 
@@ -861,6 +936,8 @@ void PageDock::createLayout() {
 	// connects
 	connect(mPageData, SIGNAL(updatePage(QSharedPointer<rdf::PageElement>)), xmlWidget, SLOT(setPage(QSharedPointer<rdf::PageElement>)));
 	connect(xmlWidget, SIGNAL(loadXml(const QString&)), mPageData, SLOT(parse(const QString&)));
+	connect(dirWidget, SIGNAL(xmlPathChanged(const QString&)), mPageData, SLOT(setXmlPath(const QString&)));
+	connect(dirWidget, SIGNAL(xmlPathChanged(const QString&)), this, SIGNAL(updateSignal()));
 	connect(profileWidget, SIGNAL(loadPageConfigSignal(const QString&)), mPageData, SLOT(loadConfig(const QString&)));
 	connect(profileWidget, SIGNAL(savePageConfigSignal(const QString&)), mPageData, SLOT(saveConfig(const QString&)));
 	connect(mPageData, SIGNAL(updateConfig()), this, SLOT(updateConfig()));

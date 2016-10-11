@@ -52,19 +52,23 @@ public:
 
 	QVector<QSharedPointer<rdf::RegionTypeConfig> > config() const;
 	QSharedPointer<rdf::PageElement> page() const;
+	QString xmlPath() const;
 
 public slots:
 	void parse(const QString& xmlPath);
 	void loadConfig(const QString& name);
 	void saveConfig(const QString& name) const;
+	void setXmlPath(const QString& path);
 
 signals:
 	void updatePage(QSharedPointer<rdf::PageElement> page) const;
 	void updateConfig() const;
+	void updateXml();
 
 private:
 	QVector<QSharedPointer<rdf::RegionTypeConfig> > mConfig;
 	QSharedPointer<rdf::PageElement> mPage;
+	QString mXmlPath;
 
 	void loadSettings(QSettings& settings, const QString& name);
 	void saveSettings(QSettings& settings, const QString& name) const;

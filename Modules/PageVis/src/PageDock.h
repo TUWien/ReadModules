@@ -122,6 +122,23 @@ private:
 	QCheckBox* mCbDrawBaseline = 0;
 };
 
+class DirLabel : public QLineEdit {
+	Q_OBJECT
+
+public:
+	DirLabel(QWidget* parent = 0);
+
+signals:
+	void xmlPathChanged(const QString& path) const;
+
+private:
+	void dragEnterEvent(QDragEnterEvent* event) override;
+	void dropEvent(QDropEvent* event) override;
+
+	QString dirPathFromMime(const QMimeData& mime) const;
+	void createLayout();
+};
+
 class XmlLabel : public QLineEdit {
 	Q_OBJECT
 

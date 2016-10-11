@@ -63,6 +63,9 @@ public:
 signals:
 	void selectRegionsSignal(const QVector<QSharedPointer<rdf::Region> >& regions) const;
 
+public slots:
+	void parseXml();
+
 private:
 	void init();
 	void loadSettings(QSettings& settings);
