@@ -38,6 +38,7 @@ related links:
 #include "FocusMeasure.h"
 #include "Algorithms.h"
 #include "Image.h"
+#include "Utils.h"
 
 #include "DkImageStorage.h"
 #include "DkSettings.h"
@@ -304,6 +305,15 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(
 		cv::Mat inputImg = rdf::Image::instance().qImage2Mat(img);
 		rdf::FocusEstimation fe;
 
+
+		//cv::Mat binImg;
+		//cv::cvtColor(inputImg, inputImg, CV_RGB2GRAY);
+		//inputImg.convertTo(binImg, CV_8U, 255);
+		//
+		//cv::threshold(binImg, binImg, 0, 255, CV_THRESH_BINARY_INV | CV_THRESH_OTSU);
+		//binImg.convertTo(binImg, CV_32F);
+
+
 		int w = inputImg.cols < inputImg.rows ? inputImg.cols : inputImg.rows;
 		int ws = (int)ceil((double)w / 5.0);
 		//int ws = 500;
@@ -315,10 +325,15 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(
 			qWarning() << "could not compute focus measures...";
 		}
 
+		rdf::Timer dt;
+
 		std::vector<rdf::Patch> results = fe.fmPatches();
 		//fe.computeRefPatches(rdf::FocusEstimation::FocusMeasure::LAPV);
 		fe.computeRefPatches();
 		std::vector<rdf::Patch> refResults = fe.fmPatches();
+		
+		qDebug() << " this fm version took me: " << dt;
+
 
 		QImage fmImg = img.copy();
 		QPainter p(&fmImg);
@@ -368,8 +383,12 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(
 		}
 		p.end();
 
-		imgC->setImage(fmImg, "Focus measures...");
 
+		imgC->setImage(fmImg, "Focus measures...");
+		
+		//QImage tmp = rdf::Image::instance().mat2QImage(binImg);
+		//tmp = tmp.convertToFormat(QImage::Format_ARGB32);
+		//imgC->setImage(tmp, "binImg...");
 
 
 		QSharedPointer<FocusInfo> testInfo(new FocusInfo(runID, imgC->filePath()));
@@ -399,13 +418,18 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(
 		fe.setWindowSize(ws);
 		fe.setImg(inputImg);
 
+
 		if (!fe.compute()) {
 			qWarning() << "could not compute focus measures...";
 		}
+		rdf::Timer dt;
 
 		std::vector<rdf::Patch> results = fe.fmPatches();
 		fe.computeRefPatches(rdf::FocusEstimation::FocusMeasure::BREN, true);
 		std::vector<rdf::Patch> refResults = fe.fmPatches();
+
+
+		qDebug() << "this fm version took me: " << dt;
 
 		QImage fmImg = img.copy();
 		QPainter p(&fmImg);
