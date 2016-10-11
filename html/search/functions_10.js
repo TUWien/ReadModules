@@ -45,6 +45,7 @@ var searchData=
   ['settype',['setType',['../classrdm_1_1_w_i_vocabulary.html#a9d594b74ccaad5a1ea5c438584872df1',1,'rdm::WIVocabulary']]],
   ['setvocabulary',['setVocabulary',['../classrdm_1_1_w_i_vocabulary.html#a09322aa563b00ebefe2d53192239178c',1,'rdm::WIVocabulary::setVocabulary()'],['../classrdm_1_1_w_i_database.html#a18dd6b9ac8ad423028656d69fec3705b',1,'rdm::WIDatabase::setVocabulary()']]],
   ['setwriter',['setWriter',['../classrdm_1_1_w_i_info.html#a8361dbb4010a0297587ddc3481f6c813',1,'rdm::WIInfo']]],
+  ['setxmlpath',['setXmlPath',['../classrdm_1_1_page_data.html#ae5842336f7e639b3ed6e1f896199f4c8',1,'rdm::PageData']]],
   ['showinfo',['showInfo',['../classrdm_1_1_region_widget.html#aaff41830c09fa6a0a475cf6ff3fdd4b2',1,'rdm::RegionWidget']]],
   ['skew',['skew',['../classrdm_1_1_skew_info.html#aedfd0344eaab089da0d91660730d7ef6',1,'rdm::SkewInfo']]],
   ['skewestplugin',['SkewEstPlugin',['../classrdm_1_1_skew_est_plugin.html#a9cbadc7356513f64ce539973b658b964',1,'rdm::SkewEstPlugin']]],

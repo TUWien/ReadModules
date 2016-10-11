@@ -131,12 +131,14 @@ Collaboration diagram for rdm::PageData:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-slots"></a>
 Public Slots</h2></td></tr>
-<tr class="memitem:a8fc67ff630d6e8875bdb9cd2343a6db8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_page_data.html#a8fc67ff630d6e8875bdb9cd2343a6db8">parse</a> (const QString &amp;xmlPath)</td></tr>
+<tr class="memitem:a8fc67ff630d6e8875bdb9cd2343a6db8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_page_data.html#a8fc67ff630d6e8875bdb9cd2343a6db8">parse</a> (const QString &amp;<a class="el" href="classrdm_1_1_page_data.html#a9cd3f5e93b4e808f468341acdc21fbdd">xmlPath</a>)</td></tr>
 <tr class="separator:a8fc67ff630d6e8875bdb9cd2343a6db8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9c676fbafd5e59b2e99c03309c2c2390"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_page_data.html#a9c676fbafd5e59b2e99c03309c2c2390">loadConfig</a> (const QString &amp;name)</td></tr>
 <tr class="separator:a9c676fbafd5e59b2e99c03309c2c2390"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8fac3e0121314956b1cc6c37941d89b5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_page_data.html#a8fac3e0121314956b1cc6c37941d89b5">saveConfig</a> (const QString &amp;name) const </td></tr>
 <tr class="separator:a8fac3e0121314956b1cc6c37941d89b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae5842336f7e639b3ed6e1f896199f4c8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_page_data.html#ae5842336f7e639b3ed6e1f896199f4c8">setXmlPath</a> (const QString &amp;path)</td></tr>
+<tr class="separator:ae5842336f7e639b3ed6e1f896199f4c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="signals"></a>
 Signals</h2></td></tr>
@@ -144,6 +146,8 @@ Signals</h2></td></tr>
 <tr class="separator:a6943bb26bad3e9a1059b87cc3281d2ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ade66fc73a0344ba3dc6d38b7a5cfdfdc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_page_data.html#ade66fc73a0344ba3dc6d38b7a5cfdfdc">updateConfig</a> () const </td></tr>
 <tr class="separator:ade66fc73a0344ba3dc6d38b7a5cfdfdc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a12b03ddf403f5995e08f2746e0f80996"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_page_data.html#a12b03ddf403f5995e08f2746e0f80996">updateXml</a> ()</td></tr>
+<tr class="separator:a12b03ddf403f5995e08f2746e0f80996"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -156,6 +160,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a0d0b073ce0cf314e5a943b9ee751a04f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa57335928333412e876abcd8cd16681b"><td class="memItemLeft" align="right" valign="top">QSharedPointer&lt; rdf::PageElement &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_page_data.html#aa57335928333412e876abcd8cd16681b">page</a> () const </td></tr>
 <tr class="separator:aa57335928333412e876abcd8cd16681b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9cd3f5e93b4e808f468341acdc21fbdd"><td class="memItemLeft" align="right" valign="top">QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_page_data.html#a9cd3f5e93b4e808f468341acdc21fbdd">xmlPath</a> () const </td></tr>
+<tr class="separator:a9cd3f5e93b4e808f468341acdc21fbdd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a90b354a5ccf41c02a05029bd2da92db2"></a>
@@ -292,6 +298,30 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="ae5842336f7e639b3ed6e1f896199f4c8"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void rdm::PageData::setXmlPath </td>
+          <td>(</td>
+          <td class="paramtype">const QString &amp;&#160;</td>
+          <td class="paramname"><em>path</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">slot</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="ade66fc73a0344ba3dc6d38b7a5cfdfdc"></a>
 <div class="memitem">
 <div class="memproto">
@@ -335,6 +365,44 @@ Public Member Functions</h2></td></tr>
 <span class="mlabels"><span class="mlabel">signal</span></span>  </td>
   </tr>
 </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a12b03ddf403f5995e08f2746e0f80996"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void rdm::PageData::updateXml </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">signal</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a9cd3f5e93b4e808f468341acdc21fbdd"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QString rdm::PageData::xmlPath </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
 </div><div class="memdoc">
 
 </div>

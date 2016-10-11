@@ -8,6 +8,7 @@ var dir_7b5e77599b31094c77117a75d9970abd =
     [ "PageDock.h", "_page_dock_8h.html", [
       [ "ColorButton", "classrdm_1_1_color_button.html", "classrdm_1_1_color_button" ],
       [ "ConfigWidget", "classrdm_1_1_config_widget.html", "classrdm_1_1_config_widget" ],
+      [ "DirLabel", "classrdm_1_1_dir_label.html", "classrdm_1_1_dir_label" ],
       [ "XmlLabel", "classrdm_1_1_xml_label.html", "classrdm_1_1_xml_label" ],
       [ "PageProfileWidget", "classrdm_1_1_page_profile_widget.html", "classrdm_1_1_page_profile_widget" ],
       [ "TitledLabel", "classrdm_1_1_titled_label.html", "classrdm_1_1_titled_label" ],

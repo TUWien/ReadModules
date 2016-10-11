@@ -1,7 +1,4 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node2" href="$classrdm_1_1_dk_test_info.html" title="rdm::DkTestInfo" alt="" coords="149,5,267,32"/>
-<area shape="rect" id="node3" href="$classrdm_1_1_focus_info.html" title="rdm::FocusInfo" alt="" coords="153,56,263,83"/>
-<area shape="rect" id="node4" href="$classrdm_1_1_forms_info.html" title="rdm::FormsInfo" alt="" coords="153,107,263,133"/>
-<area shape="rect" id="node5" href="$classrdm_1_1_skew_info.html" title="rdm::SkewInfo" alt="" coords="155,157,261,184"/>
-<area shape="rect" id="node6" href="$classrdm_1_1_w_i_info.html" title="rdm::WIInfo" alt="" coords="163,208,253,235"/>
+<area shape="rect" id="node2" href="$classrdm_1_1_dir_label.html" title="rdm::DirLabel" alt="" coords="137,5,237,32"/>
+<area shape="rect" id="node3" href="$classrdm_1_1_xml_label.html" title="rdm::XmlLabel" alt="" coords="133,56,240,83"/>
 </map>

@@ -34,6 +34,7 @@ var hierarchy =
       [ "rdm::PolygonWidget", "classrdm_1_1_polygon_widget.html", null ]
     ] ],
     [ "QLineEdit", null, [
+      [ "rdm::DirLabel", "classrdm_1_1_dir_label.html", null ],
       [ "rdm::XmlLabel", "classrdm_1_1_xml_label.html", null ]
     ] ],
     [ "QObject", null, [

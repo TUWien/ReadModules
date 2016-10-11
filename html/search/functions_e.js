@@ -8,6 +8,7 @@ var searchData=
   ['pagevisplugin',['PageVisPlugin',['../classrdm_1_1_page_vis_plugin.html#a1b28db74df056bc5870b4540ce2be5b8',1,'rdm::PageVisPlugin']]],
   ['paintevent',['paintEvent',['../classrdm_1_1_polygon_widget.html#af1f2805ababab33ef2ef0da3100580b4',1,'rdm::PolygonWidget::paintEvent()'],['../classrdm_1_1_region_widget.html#a1c95e4ef5f9849f3c4f6c1bd8b8c136d',1,'rdm::RegionWidget::paintEvent()']]],
   ['parse',['parse',['../classrdm_1_1_page_data.html#a8fc67ff630d6e8875bdb9cd2343a6db8',1,'rdm::PageData']]],
+  ['parsexml',['parseXml',['../classrdm_1_1_page_viewport.html#a6194d66986a5ab83b6af3e1c42f129a7',1,'rdm::PageViewport']]],
   ['pathupdated',['pathUpdated',['../classrdm_1_1_xml_label.html#a7a0ba424221a7978f0c838ea5c77fa94',1,'rdm::XmlLabel']]],
   ['pcaeigenvalues',['pcaEigenvalues',['../classrdm_1_1_w_i_vocabulary.html#a7560d87aedb342a3dad330810a86e3f0',1,'rdm::WIVocabulary']]],
   ['pcaeigenvectors',['pcaEigenvectors',['../classrdm_1_1_w_i_vocabulary.html#aa4d906e6352cce16918f0183e006bcc1',1,'rdm::WIVocabulary']]],
