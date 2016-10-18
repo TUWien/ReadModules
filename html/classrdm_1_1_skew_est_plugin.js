@@ -1,7 +1,8 @@
 var classrdm_1_1_skew_est_plugin =
 [
-    [ "id_skewnative", "classrdm_1_1_skew_est_plugin.html#abacea30f4dced8f00626d5ded7d66954a2578fc52655939124bece3ac3c5a83ad", null ],
-    [ "id_skewdoc", "classrdm_1_1_skew_est_plugin.html#abacea30f4dced8f00626d5ded7d66954ac2780eb6f0dde14839358bbaaa0728cb", null ],
+    [ "id_skew_native", "classrdm_1_1_skew_est_plugin.html#abacea30f4dced8f00626d5ded7d66954acea43275f3b28d60688614e61bfc64d5", null ],
+    [ "id_skew_doc", "classrdm_1_1_skew_est_plugin.html#abacea30f4dced8f00626d5ded7d66954a70485cb965fa82f71918bc6313937235", null ],
+    [ "id_skew_textline", "classrdm_1_1_skew_est_plugin.html#abacea30f4dced8f00626d5ded7d66954aa04fd9c37e7d6e1fb207ef853dbe0425", null ],
     [ "id_end", "classrdm_1_1_skew_est_plugin.html#abacea30f4dced8f00626d5ded7d66954af03da1f8da99be4c20eaf519a044ee0a", null ],
     [ "SkewEstPlugin", "classrdm_1_1_skew_est_plugin.html#a9cbadc7356513f64ce539973b658b964", null ],
     [ "~SkewEstPlugin", "classrdm_1_1_skew_est_plugin.html#a894378e9f24a6d2e80c74aadba21d79e", null ],

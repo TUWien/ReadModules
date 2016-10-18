@@ -23,7 +23,8 @@ var searchData=
   ['id_5flines',['id_lines',['../classrdm_1_1_layout_plugin.html#a140f76cfd83ded41d48cdbf87257379ca85cdda0be052b32c95a9bd4f560114d7',1,'rdm::LayoutPlugin']]],
   ['id_5fmirror',['id_mirror',['../classrdm_1_1_batch_test.html#a7fdf0afbbd2dfa1e5383085f66cdf28ba1173b10343cc4dc9edcdc9c47dfe2795',1,'rdm::BatchTest']]],
   ['id_5fshow',['id_show',['../classrdm_1_1_forms_analysis.html#ac5ea28673ec49852826ecc402e5c2b0fa1dcac3f79bd906179a3f489e0f120ff2',1,'rdm::FormsAnalysis']]],
-  ['id_5fskewdoc',['id_skewdoc',['../classrdm_1_1_skew_est_plugin.html#abacea30f4dced8f00626d5ded7d66954ac2780eb6f0dde14839358bbaaa0728cb',1,'rdm::SkewEstPlugin']]],
-  ['id_5fskewnative',['id_skewnative',['../classrdm_1_1_skew_est_plugin.html#abacea30f4dced8f00626d5ded7d66954a2578fc52655939124bece3ac3c5a83ad',1,'rdm::SkewEstPlugin']]],
+  ['id_5fskew_5fdoc',['id_skew_doc',['../classrdm_1_1_skew_est_plugin.html#abacea30f4dced8f00626d5ded7d66954a70485cb965fa82f71918bc6313937235',1,'rdm::SkewEstPlugin']]],
+  ['id_5fskew_5fnative',['id_skew_native',['../classrdm_1_1_skew_est_plugin.html#abacea30f4dced8f00626d5ded7d66954acea43275f3b28d60688614e61bfc64d5',1,'rdm::SkewEstPlugin']]],
+  ['id_5fskew_5ftextline',['id_skew_textline',['../classrdm_1_1_skew_est_plugin.html#abacea30f4dced8f00626d5ded7d66954aa04fd9c37e7d6e1fb207ef853dbe0425',1,'rdm::SkewEstPlugin']]],
   ['id_5ftrain',['id_train',['../classrdm_1_1_forms_analysis.html#ac5ea28673ec49852826ecc402e5c2b0fac0bff887bd37261c4fa39a46393bae33',1,'rdm::FormsAnalysis']]]
 ];
