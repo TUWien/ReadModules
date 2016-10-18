@@ -237,14 +237,15 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src) const {
 	if (!pse.compute())
 		qWarning() << "could not compute set orientation";
 
-	// filter according to orientation
-	QVector<QSharedPointer<rdf::Pixel> > spf;
-	for (auto pixel : sp) {
-		if (pixel->stats()->orientation() == 0 || 
-			pixel->stats()->orientation() == CV_PI*0.5)
-			spf << pixel;
-	}
-	sp = spf;
+	//// filter according to orientation
+	//QVector<QSharedPointer<rdf::Pixel> > spf;
+	//for (auto pixel : sp) {
+	//	if (pixel->stats()->orientation() == 0 || 
+	//		pixel->stats()->orientation() == CV_PI*0.5)
+	//		spf << pixel;
+	//}
+	//sp = spf;
+
 
 	rdf::TextBlockSegmentation textBlocks(img, sp);
 	if (!textBlocks.compute())
@@ -268,8 +269,8 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src) const {
 
 	//// save super pixel image
 	//rImg = superPixel.drawSuperPixels(rImg);
-	//rImg = textBlocks.draw(rImg);
-	rImg = textLines.draw(rImg);
+	rImg = textBlocks.draw(rImg);
+	//rImg = textLines.draw(rImg);
 	qDebug() << "layout computed in" << dt;
 
 	return rImg;
