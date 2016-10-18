@@ -759,7 +759,7 @@ void RegionWidget::updateWidgets(QSharedPointer<rdf::Region> region) {
 	mId->setText(tr("ID: %1").arg(region->id()));
 
 	// polygons
-	mPolyWidget->setPolygon(region->polygon().closedPolygon());
+	mPolyWidget->setPolygon(region->polygon().closedPolygon().toPolygon());
 	mPolyWidget->setConfig(config);
 
 	// child combo

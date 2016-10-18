@@ -391,7 +391,6 @@ void SkewEstPlugin::parseGT(const QString & fileName, double skewAngle, QSharedP
 		skewGt = skGTs.toDouble();
 	}
 
-	//testInfo->setProperty("Mirrored");
 	skewInfo->setSkew(-skewAngle / CV_PI*180.0);
 	skewInfo->setSkewGt(skewGt);
 	skewInfo->setProperty(fileName);
