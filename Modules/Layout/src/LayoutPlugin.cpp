@@ -247,9 +247,9 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src) const {
 	//sp = spf;
 
 
-	rdf::TextBlockSegmentation textBlocks(img, sp);
-	if (!textBlocks.compute())
-		qWarning() << "could not compute text block segmentation!";
+	//rdf::TextBlockSegmentation textBlocks(img, sp);
+	//if (!textBlocks.compute())
+	//	qWarning() << "could not compute text block segmentation!";
 
 	rdf::TextLineSegmentation textLines(rdf::Rect(img), sp);
 	if (!textLines.compute())
@@ -269,8 +269,8 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src) const {
 
 	//// save super pixel image
 	//rImg = superPixel.drawSuperPixels(rImg);
-	rImg = textBlocks.draw(rImg);
-	//rImg = textLines.draw(rImg);
+	//rImg = textBlocks.draw(rImg);
+	rImg = textLines.draw(rImg);
 	qDebug() << "layout computed in" << dt;
 
 	return rImg;
