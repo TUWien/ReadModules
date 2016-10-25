@@ -1,9 +1,12 @@
 var classrdm_1_1_skew_est_plugin =
 [
-    [ "id_skew_native", "classrdm_1_1_skew_est_plugin.html#abacea30f4dced8f00626d5ded7d66954acea43275f3b28d60688614e61bfc64d5", null ],
-    [ "id_skew_doc", "classrdm_1_1_skew_est_plugin.html#abacea30f4dced8f00626d5ded7d66954a70485cb965fa82f71918bc6313937235", null ],
-    [ "id_skew_textline", "classrdm_1_1_skew_est_plugin.html#abacea30f4dced8f00626d5ded7d66954aa04fd9c37e7d6e1fb207ef853dbe0425", null ],
-    [ "id_end", "classrdm_1_1_skew_est_plugin.html#abacea30f4dced8f00626d5ded7d66954af03da1f8da99be4c20eaf519a044ee0a", null ],
+    [ "RunID", "classrdm_1_1_skew_est_plugin.html#afedea41602499f7d826b646dbcc0d700", [
+      [ "id_skew_native", "classrdm_1_1_skew_est_plugin.html#afedea41602499f7d826b646dbcc0d700acea43275f3b28d60688614e61bfc64d5", null ],
+      [ "id_skew_doc", "classrdm_1_1_skew_est_plugin.html#afedea41602499f7d826b646dbcc0d700a70485cb965fa82f71918bc6313937235", null ],
+      [ "id_skew_textline", "classrdm_1_1_skew_est_plugin.html#afedea41602499f7d826b646dbcc0d700aa04fd9c37e7d6e1fb207ef853dbe0425", null ],
+      [ "id_skew_textline_draw", "classrdm_1_1_skew_est_plugin.html#afedea41602499f7d826b646dbcc0d700a3cf2d9894a03f3550ad1e0d7b52d4678", null ],
+      [ "id_end", "classrdm_1_1_skew_est_plugin.html#afedea41602499f7d826b646dbcc0d700af03da1f8da99be4c20eaf519a044ee0a", null ]
+    ] ],
     [ "SkewEstPlugin", "classrdm_1_1_skew_est_plugin.html#a9cbadc7356513f64ce539973b658b964", null ],
     [ "~SkewEstPlugin", "classrdm_1_1_skew_est_plugin.html#a894378e9f24a6d2e80c74aadba21d79e", null ],
     [ "createActions", "classrdm_1_1_skew_est_plugin.html#a7e9bcf04046e06279e1f68449cc2376b", null ],
@@ -18,7 +21,9 @@ var classrdm_1_1_skew_est_plugin =
     [ "mActions", "classrdm_1_1_skew_est_plugin.html#a65bc21efd5dcf68a401e41cfe58e5289", null ],
     [ "mBseConfig", "classrdm_1_1_skew_est_plugin.html#a015468700f4ba0a61183cf0273a7b019", null ],
     [ "mFilePath", "classrdm_1_1_skew_est_plugin.html#a313774ce7c2d30444fefe63a9cfccb79", null ],
+    [ "mMaxAngle", "classrdm_1_1_skew_est_plugin.html#af162ad52beeb991c22786fbfae641a58", null ],
     [ "mMenuNames", "classrdm_1_1_skew_est_plugin.html#a37bc325b96c7d50470e6d9d701e93b6e", null ],
     [ "mMenuStatusTips", "classrdm_1_1_skew_est_plugin.html#ab399d757e2bb334f936f6ce1dea334ef", null ],
+    [ "mMinAngle", "classrdm_1_1_skew_est_plugin.html#a88299907565d5f4b4d7b82c71c4d3080", null ],
     [ "mRunIDs", "classrdm_1_1_skew_est_plugin.html#a0416f9750a5b12d06693c3f43ede46d8", null ]
 ];

@@ -131,12 +131,16 @@ Collaboration diagram for rdm::SkewEstPlugin:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:abacea30f4dced8f00626d5ded7d66954"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="classrdm_1_1_skew_est_plugin.html#abacea30f4dced8f00626d5ded7d66954acea43275f3b28d60688614e61bfc64d5">id_skew_native</a>, 
-<a class="el" href="classrdm_1_1_skew_est_plugin.html#abacea30f4dced8f00626d5ded7d66954a70485cb965fa82f71918bc6313937235">id_skew_doc</a>, 
-<a class="el" href="classrdm_1_1_skew_est_plugin.html#abacea30f4dced8f00626d5ded7d66954aa04fd9c37e7d6e1fb207ef853dbe0425">id_skew_textline</a>, 
-<a class="el" href="classrdm_1_1_skew_est_plugin.html#abacea30f4dced8f00626d5ded7d66954af03da1f8da99be4c20eaf519a044ee0a">id_end</a>
+<tr class="memitem:afedea41602499f7d826b646dbcc0d700"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_skew_est_plugin.html#afedea41602499f7d826b646dbcc0d700">RunID</a> { <br/>
+&#160;&#160;<a class="el" href="classrdm_1_1_skew_est_plugin.html#afedea41602499f7d826b646dbcc0d700acea43275f3b28d60688614e61bfc64d5">id_skew_native</a>, 
+<a class="el" href="classrdm_1_1_skew_est_plugin.html#afedea41602499f7d826b646dbcc0d700a70485cb965fa82f71918bc6313937235">id_skew_doc</a>, 
+<a class="el" href="classrdm_1_1_skew_est_plugin.html#afedea41602499f7d826b646dbcc0d700aa04fd9c37e7d6e1fb207ef853dbe0425">id_skew_textline</a>, 
+<a class="el" href="classrdm_1_1_skew_est_plugin.html#afedea41602499f7d826b646dbcc0d700a3cf2d9894a03f3550ad1e0d7b52d4678">id_skew_textline_draw</a>, 
+<br/>
+&#160;&#160;<a class="el" href="classrdm_1_1_skew_est_plugin.html#afedea41602499f7d826b646dbcc0d700af03da1f8da99be4c20eaf519a044ee0a">id_end</a>
+<br/>
  }</td></tr>
-<tr class="separator:abacea30f4dced8f00626d5ded7d66954"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:afedea41602499f7d826b646dbcc0d700"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -178,25 +182,31 @@ Protected Attributes</h2></td></tr>
 <tr class="separator:a313774ce7c2d30444fefe63a9cfccb79"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a015468700f4ba0a61183cf0273a7b019"><td class="memItemLeft" align="right" valign="top">rdf::BaseSkewEstimationConfig&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_skew_est_plugin.html#a015468700f4ba0a61183cf0273a7b019">mBseConfig</a></td></tr>
 <tr class="separator:a015468700f4ba0a61183cf0273a7b019"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a88299907565d5f4b4d7b82c71c4d3080"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_skew_est_plugin.html#a88299907565d5f4b4d7b82c71c4d3080">mMinAngle</a> = -CV_PI/2.0</td></tr>
+<tr class="separator:a88299907565d5f4b4d7b82c71c4d3080"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af162ad52beeb991c22786fbfae641a58"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_skew_est_plugin.html#af162ad52beeb991c22786fbfae641a58">mMaxAngle</a> = CV_PI/2.0</td></tr>
+<tr class="separator:af162ad52beeb991c22786fbfae641a58"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Enumeration Documentation</h2>
-<a class="anchor" id="abacea30f4dced8f00626d5ded7d66954"></a>
+<a class="anchor" id="afedea41602499f7d826b646dbcc0d700"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">anonymous enum</td>
+          <td class="memname">enum <a class="el" href="classrdm_1_1_skew_est_plugin.html#afedea41602499f7d826b646dbcc0d700">rdm::SkewEstPlugin::RunID</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><em><a class="anchor" id="abacea30f4dced8f00626d5ded7d66954acea43275f3b28d60688614e61bfc64d5"></a>id_skew_native</em>&#160;</td><td class="fielddoc">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><em><a class="anchor" id="afedea41602499f7d826b646dbcc0d700acea43275f3b28d60688614e61bfc64d5"></a>id_skew_native</em>&#160;</td><td class="fielddoc">
 </td></tr>
-<tr><td class="fieldname"><em><a class="anchor" id="abacea30f4dced8f00626d5ded7d66954a70485cb965fa82f71918bc6313937235"></a>id_skew_doc</em>&#160;</td><td class="fielddoc">
+<tr><td class="fieldname"><em><a class="anchor" id="afedea41602499f7d826b646dbcc0d700a70485cb965fa82f71918bc6313937235"></a>id_skew_doc</em>&#160;</td><td class="fielddoc">
 </td></tr>
-<tr><td class="fieldname"><em><a class="anchor" id="abacea30f4dced8f00626d5ded7d66954aa04fd9c37e7d6e1fb207ef853dbe0425"></a>id_skew_textline</em>&#160;</td><td class="fielddoc">
+<tr><td class="fieldname"><em><a class="anchor" id="afedea41602499f7d826b646dbcc0d700aa04fd9c37e7d6e1fb207ef853dbe0425"></a>id_skew_textline</em>&#160;</td><td class="fielddoc">
 </td></tr>
-<tr><td class="fieldname"><em><a class="anchor" id="abacea30f4dced8f00626d5ded7d66954af03da1f8da99be4c20eaf519a044ee0a"></a>id_end</em>&#160;</td><td class="fielddoc">
+<tr><td class="fieldname"><em><a class="anchor" id="afedea41602499f7d826b646dbcc0d700a3cf2d9894a03f3550ad1e0d7b52d4678"></a>id_skew_textline_draw</em>&#160;</td><td class="fielddoc">
+</td></tr>
+<tr><td class="fieldname"><em><a class="anchor" id="afedea41602499f7d826b646dbcc0d700af03da1f8da99be4c20eaf519a044ee0a"></a>id_end</em>&#160;</td><td class="fielddoc">
 </td></tr>
 </table>
 
@@ -531,6 +541,26 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="af162ad52beeb991c22786fbfae641a58"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">double rdm::SkewEstPlugin::mMaxAngle = CV_PI/2.0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="a37bc325b96c7d50470e6d9d701e93b6e"></a>
 <div class="memitem">
 <div class="memproto">
@@ -560,6 +590,26 @@ Protected Attributes</h2></td></tr>
       <table class="memname">
         <tr>
           <td class="memname">QStringList rdm::SkewEstPlugin::mMenuStatusTips</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a88299907565d5f4b4d7b82c71c4d3080"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">double rdm::SkewEstPlugin::mMinAngle = -CV_PI/2.0</td>
         </tr>
       </table>
   </td>
