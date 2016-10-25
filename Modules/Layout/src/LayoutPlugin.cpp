@@ -41,7 +41,7 @@ related links:
 #include "PageParser.h"
 #include "Elements.h"
 #include "Utils.h"
-#include "TextBlockSegmentation.h"
+#include "TabStopAnalysis.h"
 #include "TextLineSegmentation.h"
 
 // nomacs
@@ -246,12 +246,12 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src) const {
 	//}
 	//sp = spf;
 
-
-	//rdf::TextBlockSegmentation textBlocks(img, sp);
-	//if (!textBlocks.compute())
-	//	qWarning() << "could not compute text block segmentation!";
+	rdf::TabStopAnalysis tabStops(sp);
+	if (!tabStops.compute())
+		qWarning() << "could not compute text block segmentation!";
 
 	rdf::TextLineSegmentation textLines(rdf::Rect(img), sp);
+	textLines.addLines(tabStops.tabStopLines(30));
 	if (!textLines.compute())
 		qWarning() << "could not compute text block segmentation!";
 
@@ -269,7 +269,7 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src) const {
 
 	//// save super pixel image
 	//rImg = superPixel.drawSuperPixels(rImg);
-	//rImg = textBlocks.draw(rImg);
+	rImg = tabStops.draw(rImg);
 	rImg = textLines.draw(rImg);
 	qDebug() << "layout computed in" << dt;
 

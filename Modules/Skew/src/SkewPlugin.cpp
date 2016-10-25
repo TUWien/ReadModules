@@ -382,7 +382,6 @@ void SkewEstPlugin::skewTextLine(QSharedPointer<nmc::DkImageContainer>& imgC, QS
 			qInfo() << "2nd guess rejected: " << tmpSkewAngle*DK_RAD2DEG;
 	}
 
-
 	QImage oImg = qImg.convertToFormat(QImage::Format_RGB888);
 	if (runId == mRunIDs[id_skew_textline]) {
 		// apply angle to image
