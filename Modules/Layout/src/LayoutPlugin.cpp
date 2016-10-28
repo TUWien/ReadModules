@@ -257,7 +257,7 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src, const rdf::PageXmlParser & pa
 		qWarning() << "could not compute local orientation";
 
 	// smooth estimation
-	rdf::GraphCutOrientation pse(sp, rdf::Rect(rdf::Vector2D(), rdf::Vector2D(img.size())));
+	rdf::GraphCutOrientation pse(sp);
 
 	if (!pse.compute())
 		qWarning() << "could not compute set orientation";
@@ -279,7 +279,7 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src, const rdf::PageXmlParser & pa
 	// write XML -----------------------------------
 
 	// start writing content
-	auto ps = rdf::PixelSet::fromEdges(rdf::PixelSet::connect(sp, rdf::Rect(0, 0, img.cols, img.rows)));
+	auto ps = rdf::PixelSet::fromEdges(rdf::PixelSet::connect(sp));
 
 	if (!ps.empty()) {
 		QSharedPointer<rdf::Region> textRegion = QSharedPointer<rdf::Region>(new rdf::Region());
