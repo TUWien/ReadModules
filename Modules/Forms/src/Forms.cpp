@@ -157,10 +157,10 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 		QSharedPointer<FormsInfo> testInfo(new FormsInfo(runID, imgC->filePath()));
 		
-		cv::Mat imgTempl = rdf::Image::instance().qImage2Mat(img);
+		cv::Mat imgTempl = rdf::Image::qImage2Mat(img);
 		cv::Mat imgTemplG;
 		if (imgTempl.channels() != 1) cv::cvtColor(imgTempl, imgTemplG, CV_RGB2GRAY);
-		//cv::Mat maskTempl = rdf::Algorithms::instance().estimateMask(imgTemplG);
+		//cv::Mat maskTempl = rdf::Algorithms::estimateMask(imgTemplG);
 		rdf::FormFeatures formTempl(imgTemplG);
 		
 		if (!formTempl.compute()) {

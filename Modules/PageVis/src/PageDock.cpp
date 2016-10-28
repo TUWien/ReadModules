@@ -782,7 +782,7 @@ void RegionWidget::updateWidgets(QSharedPointer<rdf::Region> region) {
 
 	// text
 	if (auto tl = qSharedPointerDynamicCast<rdf::TextLine>(region)) {
-		mBaselineWidget->setPolygon(tl->baseLine().polygon());
+		mBaselineWidget->setPolygon(tl->baseLine().toPolygon());
 		mBaselineWidget->setConfig(config);
 		mText->setText(tl->text());
 	}

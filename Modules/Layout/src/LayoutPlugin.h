@@ -42,6 +42,7 @@ namespace cv {
 
 namespace rdf {
 	class LineTrace;
+	class PageXmlParser;
 }
 
 namespace rdm {
@@ -87,7 +88,7 @@ protected:
 
 	rdf::LineTraceConfig mLTRConfig;
 
-	cv::Mat compute(const cv::Mat& src) const;
+	cv::Mat compute(const cv::Mat& src, const rdf::PageXmlParser& parser) const;
 	rdf::LineTrace computeLines(QSharedPointer<nmc::DkImageContainer> imgC) const;
 
 };
