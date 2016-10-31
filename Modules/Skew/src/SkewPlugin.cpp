@@ -348,7 +348,7 @@ void SkewEstPlugin::skewTextLine(QSharedPointer<nmc::DkImageContainer>& imgC, QS
 	if (!lo.compute())
 		qWarning() << "could not compute local orientation";
 
-	rdf::GraphCutOrientation pse(sp, rdf::Rect(rdf::Vector2D(), rdf::Vector2D(img.size())));
+	rdf::GraphCutOrientation pse(sp);
 
 	if (!pse.compute())
 		qWarning() << "could not compute set orientation";

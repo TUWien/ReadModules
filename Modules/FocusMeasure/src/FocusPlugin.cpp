@@ -320,7 +320,7 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(
 		fe.setWindowSize(ws);
 		fe.setImg(inputImg);
 
-		rdf::Image::instance().imageInfo(inputImg, "fe ");
+		rdf::Image::imageInfo(inputImg, "fe ");
 
 		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::LAPV)) {
 		if (!fe.compute()) {
