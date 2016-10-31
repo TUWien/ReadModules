@@ -234,6 +234,7 @@ void SkewEstPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 	//QString fp = "D:\\tmp\\evalSkew.txt";
 	//QString fp = "F:\\flo\\evalSkew.txt";
 	fp = mFilePath;
+	
 	QFile file(fp);
 	if (file.open(QIODevice::WriteOnly)) {
 
@@ -360,7 +361,10 @@ void SkewEstPlugin::skewTextLine(QSharedPointer<nmc::DkImageContainer>& imgC, QS
 		return;
 
 	// find the median angle
-	double skewAngle = -(rdf::Algorithms::instance().statMoment(angles, 0.5)-CV_PI*0.5);
+	double skewAngle = (rdf::Algorithms::instance().statMoment(angles, 0.5)-CV_PI*0.5);
+	skewAngle = -rdf::Algorithms::instance().normAngleRad(skewAngle, -CV_PI / 4.0, CV_PI/4.0);
+
+
 
 	// apply angle to image
 	cv::Mat rotatedImage = rdf::Algorithms::instance().rotateImage(img, skewAngle);
@@ -379,6 +383,8 @@ void SkewEstPlugin::parseGT(const QString & fileName, double skewAngle, QSharedP
 
 	//parse string
 	QRegExp rx("[+-]?[0-9]*[\\.?][0-9]*");
+	//eigentlich richtig
+	////QRegExp rx("\\[[+-]?[0-9]*[\\.]?[0-9]*\\]");
 	//QString test = "IMG(0006)_SA[-5.76].png";
 	int gtFound = rx.indexIn(fileName);
 	QStringList list = rx.capturedTexts();

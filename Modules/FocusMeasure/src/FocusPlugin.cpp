@@ -320,6 +320,8 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(
 		fe.setWindowSize(ws);
 		fe.setImg(inputImg);
 
+		rdf::Image::instance().imageInfo(inputImg, "fe ");
+
 		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::LAPV)) {
 		if (!fe.compute()) {
 			qWarning() << "could not compute focus measures...";
@@ -430,6 +432,7 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(
 
 
 		qDebug() << "this fm version took me: " << dt;
+
 
 		QImage fmImg = img.copy();
 		QPainter p(&fmImg);
