@@ -41,7 +41,7 @@ related links:
 #include "PageParser.h"
 #include "Elements.h"
 #include "Utils.h"
-#include "TextBlockSegmentation.h"
+#include "TabStopAnalysis.h"
 #include "TextLineSegmentation.h"
 
 // nomacs
@@ -154,19 +154,29 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 	if (!imgC)
 		return imgC;
 
+	QString loadXmlPath = rdf::PageXmlParser::imagePathToXmlPath(saveInfo.inputFilePath());
+	rdf::PageXmlParser parser;
+	parser.read(loadXmlPath);
+
 	if(runID == mRunIDs[id_layout_draw]) {
 
 		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
-		
-		imgCv = compute(imgCv);
+		imgCv = compute(imgCv, parser);
 
 		QImage img = nmc::DkImage::mat2QImage(imgCv);
 		imgC->setImage(img, tr("Layout Analysis Visualized"));
 	}
 	else if(runID == mRunIDs[id_layout_xml]) {
 
+		auto pe = parser.page();
+		pe->setCreator(QString("CVL"));
+		pe->setImageSize(QSize(imgC->image().size()));
+		pe->setImageFileName(imgC->fileName());
 
-		qWarning() << "not implemented yet - sorry";
+		compute(nmc::DkImage::qImage2Mat(imgC->image()), parser);
+
+		QString saveXmlPath = rdf::PageXmlParser::imagePathToXmlPath(saveInfo.outputFilePath());
+		parser.write(saveXmlPath, pe);
 	}
 	else if (runID == mRunIDs[id_lines]) {
 
@@ -214,13 +224,26 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 	return imgC;
 }
 
-cv::Mat LayoutPlugin::compute(const cv::Mat & src) const {
-	
-	rdf::Timer dt;
+cv::Mat LayoutPlugin::compute(const cv::Mat & src, const rdf::PageXmlParser & parser) const {
+
+	// if available, get informaton from existing xmls
+	auto pe = parser.page();
+	QVector<QSharedPointer<rdf::Region> > separators = rdf::Region::filter(pe->rootRegion(), rdf::Region::type_separator);
+	QVector<rdf::Line> separatingLines;
+	for (auto s : separators) {
+
+		auto sc = qSharedPointerCast<rdf::SeparatorRegion>(s);
+		if (sc)
+			separatingLines << sc->line();
+	}
+	qInfo() << "I found" << separatingLines.size() << "separators in the XML";
 
 	cv::Mat img = src.clone();
 	//cv::resize(src, img, cv::Size(), 0.25, 0.25, CV_INTER_AREA);
 
+	rdf::Timer dt;
+
+	// find super pixels
 	rdf::SuperPixel superPixel(img);
 
 	if (!superPixel.compute())
@@ -228,36 +251,49 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src) const {
 
 	QVector<QSharedPointer<rdf::Pixel> > sp = superPixel.getSuperPixels();
 
+	// find local orientation per pixel
 	rdf::LocalOrientation lo(sp);
 	if (!lo.compute())
 		qWarning() << "could not compute local orientation";
 
-	rdf::GraphCutOrientation pse(sp, rdf::Rect(rdf::Vector2D(), rdf::Vector2D(img.size())));
+	// smooth estimation
+	rdf::GraphCutOrientation pse(sp);
 
 	if (!pse.compute())
 		qWarning() << "could not compute set orientation";
 
-	//// filter according to orientation
-	//QVector<QSharedPointer<rdf::Pixel> > spf;
-	//for (auto pixel : sp) {
-	//	if (pixel->stats()->orientation() == 0 || 
-	//		pixel->stats()->orientation() == CV_PI*0.5)
-	//		spf << pixel;
-	//}
-	//sp = spf;
-
-
-	rdf::TextBlockSegmentation textBlocks(img, sp);
-	if (!textBlocks.compute())
+	// find tab stops
+	rdf::TabStopAnalysis tabStops(sp);
+	if (!tabStops.compute())
 		qWarning() << "could not compute text block segmentation!";
 
+	// find text lines
 	rdf::TextLineSegmentation textLines(rdf::Rect(img), sp);
+	textLines.addLines(tabStops.tabStopLines(30));	// TODO: fix parameter
+	textLines.addLines(separatingLines);
 	if (!textLines.compute())
 		qWarning() << "could not compute text block segmentation!";
 
 	qInfo() << "algorithm computation time" << dt;
 
-	// drawing
+	// write XML -----------------------------------
+
+	// start writing content
+	auto ps = rdf::PixelSet::fromEdges(rdf::PixelSet::connect(sp));
+
+	if (!ps.empty()) {
+		QSharedPointer<rdf::Region> textRegion = QSharedPointer<rdf::Region>(new rdf::Region());
+		textRegion->setType(rdf::Region::type_text_region);
+		textRegion->setPolygon(ps[0]->convexHull());
+
+		for (auto tl : textLines.textLines()) {
+			textRegion->addUniqueChild(tl);
+		}
+
+		pe->rootRegion()->addUniqueChild(textRegion);
+	}
+
+	// draw results -----------------------------------
 	//cv::Mat rImg(img.rows, img.cols, CV_8UC1, cv::Scalar::all(150));
 	cv::Mat rImg = img.clone();
 
@@ -269,12 +305,10 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src) const {
 
 	//// save super pixel image
 	//rImg = superPixel.drawSuperPixels(rImg);
-	rImg = textBlocks.draw(rImg);
-	//rImg = textLines.draw(rImg);
-	qDebug() << "layout computed in" << dt;
+	//rImg = tabStops.draw(rImg);
+	rImg = textLines.draw(rImg);
 
 	return rImg;
-
 }
 
 rdf::LineTrace LayoutPlugin::computeLines(QSharedPointer<nmc::DkImageContainer> imgC) const {
@@ -290,7 +324,7 @@ rdf::LineTrace LayoutPlugin::computeLines(QSharedPointer<nmc::DkImageContainer> 
 	}
 
 	//if mask is estimated
-	//cv::Mat mask = rdf::Algorithms::instance().estimateMask(imgCv);
+	//cv::Mat mask = rdf::Algorithms::estimateMask(imgCv);
 	cv::Mat mask = cv::Mat();
 
 	//if skew will be used

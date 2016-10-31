@@ -43,6 +43,7 @@ related links:
 
 // skew textline
 #include "SuperPixel.h"
+#include "Utils.h"
 
 #pragma warning(push, 0)	// no warnings from includes - begin
 #include <QAction>
@@ -72,6 +73,7 @@ SkewEstPlugin::SkewEstPlugin(QObject* parent) : QObject(parent) {
 	runIds[id_skew_native] = "47ac780be495490c90f772ed315fc64d";
 	runIds[id_skew_doc] = "b849c12a5c124520b1c0b0761e86db37";
 	runIds[id_skew_textline] = "bf0d046c895446069fd0433f92ab8a38";
+	runIds[id_skew_textline_draw] = "78de3e5eef6249fbb2921b0a59d6c716";
 	
 	mRunIDs = runIds.toList();
 
@@ -82,6 +84,7 @@ SkewEstPlugin::SkewEstPlugin(QObject* parent) : QObject(parent) {
 	menuNames[id_skew_native] = tr("Skew Native");
 	menuNames[id_skew_doc] = tr("Skew Document");
 	menuNames[id_skew_textline] = tr("Skew Textline");
+	menuNames[id_skew_textline_draw] = tr("Draw Skew Textline");
 	mMenuNames = menuNames.toList();
 
 	// create menu status tips
@@ -91,7 +94,12 @@ SkewEstPlugin::SkewEstPlugin(QObject* parent) : QObject(parent) {
 	statusTips[id_skew_native] = tr("Calculates the skew");
 	statusTips[id_skew_doc] = tr("Calculates the skew for documents");
 	statusTips[id_skew_textline] = tr("Calculates the skew for documents using textlines");
+	statusTips[id_skew_textline_draw] = tr("Shows a debugging graphics for texlineline skew");
 	mMenuStatusTips = statusTips.toList();
+
+	// TODO: this must be a setting! - now it's DISEC
+	mMinAngle = -15 * DK_DEG2RAD;
+	mMaxAngle = 15 * DK_DEG2RAD;
 
 	init();
 }
@@ -170,9 +178,9 @@ QSharedPointer<nmc::DkImageContainer> SkewEstPlugin::runPlugin(
 		skewDoc(imgC, skewInfo);
 		info = skewInfo;
 	}
-	else if (runID == mRunIDs[id_skew_textline]) {
+	else if (runID == mRunIDs[id_skew_textline] || runID == mRunIDs[id_skew_textline_draw]) {
 		QSharedPointer<SkewInfo> skewInfo(new SkewInfo(runID, imgC->filePath()));
-		skewTextLine(imgC, skewInfo);
+		skewTextLine(imgC, skewInfo, runID);
 		info = skewInfo;
 	}
 	else
@@ -266,15 +274,15 @@ void SkewEstPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 		top80 += angles[i].z();
 	}
 	top80 /= (float)m;
-	qDebug() << "Top80: " << top80;
+qDebug() << "Top80: " << top80;
 
-	saveSettings(nmc::Settings::instance().getSettings());
+saveSettings(nmc::Settings::instance().getSettings());
 
 
-	if (runIdx == id_skew_native)
-		qDebug() << "[POST LOADING] skew native";
-	else
-		qDebug() << "[POST LOADING] skew doc";
+if (runIdx == id_skew_native)
+qDebug() << "[POST LOADING] skew native";
+else
+qDebug() << "[POST LOADING] skew doc";
 }
 
 void SkewEstPlugin::setFilePath(QString fp)
@@ -315,14 +323,14 @@ void SkewEstPlugin::saveSettings(QSettings & settings) const
 	settings.endGroup();
 }
 
-void SkewEstPlugin::skewTextLine(QSharedPointer<nmc::DkImageContainer>& imgC, QSharedPointer<SkewInfo>& skewInfo) const
+void SkewEstPlugin::skewTextLine(QSharedPointer<nmc::DkImageContainer>& imgC, QSharedPointer<SkewInfo>& skewInfo, const QString& runId) const
 {
 
 	if (!imgC)
 		return;
 
 	QImage qImg = imgC->image();
-	cv::Mat img = rdf::Image::instance().qImage2Mat(qImg);
+	cv::Mat img = rdf::Image::qImage2Mat(qImg);
 
 	rdf::SuperPixel superPixel(img);
 
@@ -361,19 +369,45 @@ void SkewEstPlugin::skewTextLine(QSharedPointer<nmc::DkImageContainer>& imgC, QS
 		return;
 
 	// find the median angle
-	double skewAngle = (rdf::Algorithms::instance().statMoment(angles, 0.5)-CV_PI*0.5);
-	skewAngle = -rdf::Algorithms::instance().normAngleRad(skewAngle, -CV_PI / 4.0, CV_PI/4.0);
+	double skewAngle = -(rdf::Algorithms::statMoment(angles, 0.5) - CV_PI*0.5);
 
+	// if we have an illegal skew angle try the .75 quantile 
+	if (skewAngle < mMinAngle || skewAngle > mMaxAngle) {
 
-
-	// apply angle to image
-	cv::Mat rotatedImage = rdf::Algorithms::instance().rotateImage(img, skewAngle);
-	if (rotatedImage.channels() == 1) {
-		cv::cvtColor(rotatedImage, rotatedImage, CV_GRAY2BGRA);
+		double tmpSkewAngle = -(rdf::Algorithms::statMoment(angles, 0.75) - CV_PI*0.5);
+		if (tmpSkewAngle >= mMinAngle && tmpSkewAngle <= mMaxAngle) {
+			skewAngle = tmpSkewAngle;
+			qInfo() << "using 2nd guess for skew angle";
+		}
+		else
+			qInfo() << "2nd guess rejected: " << tmpSkewAngle*DK_RAD2DEG;
 	}
 
-	QImage result = rdf::Image::instance().mat2QImage(rotatedImage);
-	imgC->setImage(result, "Skew corrected");
+	QImage oImg = qImg.convertToFormat(QImage::Format_RGB888);
+	if (runId == mRunIDs[id_skew_textline]) {
+		// apply angle to image
+		cv::Mat oImgCv = rdf::Algorithms::rotateImage(img, skewAngle);
+		if (oImgCv.channels() == 1) {
+			cv::cvtColor(oImgCv, oImgCv, CV_GRAY2BGRA);
+		}
+		oImg = rdf::Image::mat2QImage(oImgCv);
+	}
+	else if(runId == mRunIDs[id_skew_textline_draw]) {
+
+		QPainter p(&oImg);
+		p.setPen(rdf::ColorManager::colors()[1]);
+
+		for (auto px : sp)
+			px->draw(p, 0.8, rdf::Pixel::draw_ellipse_stats);
+
+		QFont font = p.font();
+		font.setPointSize(16);
+		p.setFont(font);
+		p.drawText(QPoint(40, 40), tr("angle: %1%2").arg(skewAngle*DK_RAD2DEG).arg(QChar(0x00B0)));
+	}
+
+
+	imgC->setImage(oImg, "Skew corrected");
 
 	parseGT(imgC->fileName(), skewAngle, skewInfo);
 }
@@ -397,7 +431,6 @@ void SkewEstPlugin::parseGT(const QString & fileName, double skewAngle, QSharedP
 		skewGt = skGTs.toDouble();
 	}
 
-	//testInfo->setProperty("Mirrored");
 	skewInfo->setSkew(-skewAngle / CV_PI*180.0);
 	skewInfo->setSkewGt(skewGt);
 	skewInfo->setProperty(fileName);
@@ -410,7 +443,7 @@ void SkewEstPlugin::skewNative(QSharedPointer<nmc::DkImageContainer>& imgC, QSha
 	QImage img = imgC->image();
 
 	rdf::BaseSkewEstimation bse;
-	cv::Mat inputImg = rdf::Image::instance().qImage2Mat(img);
+	cv::Mat inputImg = rdf::Image::qImage2Mat(img);
 	//if (inputImg.channels() != 1) cv::cvtColor(inputImg, inputImg, CV_RGB2GRAY);
 
 	bse.setImages(inputImg);
@@ -444,12 +477,12 @@ void SkewEstPlugin::skewNative(QSharedPointer<nmc::DkImageContainer>& imgC, QSha
 	double skewAngle = bse.getAngle();
 	skewAngle = -skewAngle / 180.0 * CV_PI;
 
-	cv::Mat rotatedImage = rdf::Algorithms::instance().rotateImage(inputImg, skewAngle);
+	cv::Mat rotatedImage = rdf::Algorithms::rotateImage(inputImg, skewAngle);
 	if (rotatedImage.channels() == 1) {
 		cv::cvtColor(rotatedImage, rotatedImage, CV_GRAY2BGRA);
 	}
 
-	QImage result = rdf::Image::instance().mat2QImage(rotatedImage);
+	QImage result = rdf::Image::mat2QImage(rotatedImage);
 
 	imgC->setImage(result, "Skew corrected");
 
@@ -466,7 +499,7 @@ void SkewEstPlugin::skewDoc(QSharedPointer<nmc::DkImageContainer>& imgC, QShared
 	QImage img = imgC->image();
 
 	rdf::BaseSkewEstimation bse;
-	cv::Mat inputImg = rdf::Image::instance().qImage2Mat(img);
+	cv::Mat inputImg = rdf::Image::qImage2Mat(img);
 	//if (inputImg.channels() != 1) cv::cvtColor(inputImg, inputImg, CV_RGB2GRAY);
 
 	bse.setImages(inputImg);
@@ -493,12 +526,12 @@ void SkewEstPlugin::skewDoc(QSharedPointer<nmc::DkImageContainer>& imgC, QShared
 	double skewAngle = bse.getAngle();
 	skewAngle = -skewAngle / 180.0 * CV_PI;
 
-	cv::Mat rotatedImage = rdf::Algorithms::instance().rotateImage(inputImg, skewAngle);
+	cv::Mat rotatedImage = rdf::Algorithms::rotateImage(inputImg, skewAngle);
 	if (rotatedImage.channels() == 1) {
 		cv::cvtColor(rotatedImage, rotatedImage, CV_GRAY2BGRA);
 	}
 
-	QImage result = rdf::Image::instance().mat2QImage(rotatedImage);
+	QImage result = rdf::Image::mat2QImage(rotatedImage);
 
 	imgC->setImage(result, "Skew corrected");
 

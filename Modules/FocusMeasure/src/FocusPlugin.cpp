@@ -221,7 +221,7 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(
 		QImage img = imgC->image();
 		
 
-		cv::Mat inputImg = rdf::Image::instance().qImage2Mat(img);
+		cv::Mat inputImg = rdf::Image::qImage2Mat(img);
 		rdf::FocusEstimation fe;
 		int w = inputImg.cols < inputImg.rows ? inputImg.cols : inputImg.rows;
 		int ws = (int)ceil((double)w / 5.0);
@@ -302,7 +302,7 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(
 
 		QImage img = imgC->image();
 
-		cv::Mat inputImg = rdf::Image::instance().qImage2Mat(img);
+		cv::Mat inputImg = rdf::Image::qImage2Mat(img);
 		rdf::FocusEstimation fe;
 
 
@@ -388,7 +388,7 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(
 
 		imgC->setImage(fmImg, "Focus measures...");
 		
-		//QImage tmp = rdf::Image::instance().mat2QImage(binImg);
+		//QImage tmp = rdf::Image::mat2QImage(binImg);
 		//tmp = tmp.convertToFormat(QImage::Format_ARGB32);
 		//imgC->setImage(tmp, "binImg...");
 
@@ -405,7 +405,7 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(
 		QImage img = imgC->image();
 
 
-		cv::Mat inputImg = rdf::Image::instance().qImage2Mat(img);
+		cv::Mat inputImg = rdf::Image::qImage2Mat(img);
 		rdf::FocusEstimation fe;
 
 		//cv::Mat binImg;
@@ -503,7 +503,7 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(
 		QImage img = imgC->image();
 
 
-		cv::Mat inputImg = rdf::Image::instance().qImage2Mat(img);
+		cv::Mat inputImg = rdf::Image::qImage2Mat(img);
 		rdf::ContrastEstimation ce;
 		//int w = inputImg.cols < inputImg.rows ? inputImg.cols : inputImg.rows;
 		//int ws = (int)ceil((double)w / 5.0);

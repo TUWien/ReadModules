@@ -759,7 +759,7 @@ void RegionWidget::updateWidgets(QSharedPointer<rdf::Region> region) {
 	mId->setText(tr("ID: %1").arg(region->id()));
 
 	// polygons
-	mPolyWidget->setPolygon(region->polygon().closedPolygon());
+	mPolyWidget->setPolygon(region->polygon().closedPolygon().toPolygon());
 	mPolyWidget->setConfig(config);
 
 	// child combo
@@ -782,7 +782,7 @@ void RegionWidget::updateWidgets(QSharedPointer<rdf::Region> region) {
 
 	// text
 	if (auto tl = qSharedPointerDynamicCast<rdf::TextLine>(region)) {
-		mBaselineWidget->setPolygon(tl->baseLine().polygon());
+		mBaselineWidget->setPolygon(tl->baseLine().toPolygon());
 		mBaselineWidget->setConfig(config);
 		mText->setText(tl->text());
 	}
