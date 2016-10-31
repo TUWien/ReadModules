@@ -5,7 +5,7 @@ var searchData=
   ['closesignal',['closeSignal',['../classrdm_1_1_page_dock.html#a80a320b211ce68202bb0a96087553293',1,'rdm::PageDock']]],
   ['closesonimagechange',['closesOnImageChange',['../classrdm_1_1_page_vis_plugin.html#a4a7f8f3b159b7722a424db2ba86a7a85',1,'rdm::PageVisPlugin']]],
   ['colorbutton',['ColorButton',['../classrdm_1_1_color_button.html#a2cc04950dbe135849656a9ad3985a70e',1,'rdm::ColorButton']]],
-  ['compute',['compute',['../classrdm_1_1_layout_plugin.html#a79c310f89b9e44874be7ef2ed61fde76',1,'rdm::LayoutPlugin']]],
+  ['compute',['compute',['../classrdm_1_1_layout_plugin.html#ac7225d0442f10fb10e33287b707ae80c',1,'rdm::LayoutPlugin']]],
   ['computelines',['computeLines',['../classrdm_1_1_layout_plugin.html#acce0628f8e92b1d7c5fd5921200c7d54',1,'rdm::LayoutPlugin']]],
   ['config',['config',['../classrdm_1_1_page_data.html#a0d0b073ce0cf314e5a943b9ee751a04f',1,'rdm::PageData']]],
   ['configwidget',['ConfigWidget',['../classrdm_1_1_config_widget.html#ac475e40eed9ddbb93b6786d29098e98e',1,'rdm::ConfigWidget']]],

@@ -7,7 +7,7 @@ var classrdm_1_1_layout_plugin =
     [ "id_end", "classrdm_1_1_layout_plugin.html#a140f76cfd83ded41d48cdbf87257379ca41e7e3883025d3b712fbbd9592e53e42", null ],
     [ "LayoutPlugin", "classrdm_1_1_layout_plugin.html#aef229f4628a1ec74710442897f7a4844", null ],
     [ "~LayoutPlugin", "classrdm_1_1_layout_plugin.html#af46aed2a29c724f2b5f34e030607de67", null ],
-    [ "compute", "classrdm_1_1_layout_plugin.html#a79c310f89b9e44874be7ef2ed61fde76", null ],
+    [ "compute", "classrdm_1_1_layout_plugin.html#ac7225d0442f10fb10e33287b707ae80c", null ],
     [ "computeLines", "classrdm_1_1_layout_plugin.html#acce0628f8e92b1d7c5fd5921200c7d54", null ],
     [ "createActions", "classrdm_1_1_layout_plugin.html#a855a33d9645c608d17ea0ada30d852e9", null ],
     [ "id", "classrdm_1_1_layout_plugin.html#ab005035b46893cbf47e3e0f961c7c4fe", null ],
