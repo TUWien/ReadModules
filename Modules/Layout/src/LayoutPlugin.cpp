@@ -43,12 +43,17 @@ related links:
 #include "Utils.h"
 #include "TabStopAnalysis.h"
 #include "TextLineSegmentation.h"
+#include "SuperPixelTrainer.h"
+#include "SuperPixelClassification.h"
+#include "Settings.h"
 
 // nomacs
 #include "DkImageStorage.h"
+#include "DkSettings.h"
 
 #pragma warning(push, 0)	// no warnings from includes - begin
 #include <QAction>
+#include <QUuid>
 #pragma warning(pop)		// no warnings from includes - end
 
 namespace rdm {
@@ -62,44 +67,89 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 	QVector<QString> runIds;
 	runIds.resize(id_end);
 
-	runIds[id_layout_draw] = "4cbb58ada14d4b64a17fe3285696446b";
-	runIds[id_layout_xml] = "b56790b60a904a32975621e4b54ab939";
-	runIds[id_lines] = "9af887d7003c44e999ba2db50d65ec85";
-	runIds[id_line_img] = "49a4d36689c9411bb848d93d0eb22f5c";
-	mRunIDs = runIds.toList();
+	for (QString& rid : runIds)
+		rid = QUuid::createUuid().toString();
 
+	mRunIDs = runIds.toList();
+	
 	// create menu actions
 	QVector<QString> menuNames;
 	menuNames.resize(id_end);
 
-	menuNames[id_layout_draw] = tr("Draw Layout");
-	menuNames[id_layout_xml] = tr("PAGE Xml");
-	menuNames[id_lines] = tr("Calculate Lines (XML)");
-	menuNames[id_line_img] = tr("Calculate Line Image");
+	menuNames[id_layout_draw]		= tr("Draw Layout");
+	menuNames[id_layout_xml]		= tr("PAGE XML");
+	menuNames[id_text_block]		= tr("Page Segmentation");
+	menuNames[id_text_block_xml]	= tr("Page Segmentation to XML");
+	menuNames[id_lines]				= tr("Calculate Lines (XML)");
+	menuNames[id_line_img]			= tr("Calculate Line Image");
+	menuNames[id_layout_collect_features] = tr("Collect Features");
+	menuNames[id_layout_train]		= tr("Train Layout");
 	mMenuNames = menuNames.toList();
 
 	// create menu status tips
 	QVector<QString> statusTips;
 	statusTips.resize(id_end);
 
-	statusTips[id_layout_draw] = tr("Draws the current layout outputs to the image");
-	statusTips[id_layout_xml] = tr("Writes the layout analysis results to an XML");
-	statusTips[id_lines] = tr("Calculates the lines in the binarized image");
-	statusTips[id_line_img] = tr("Calculates the line image. XML is not written.");
+	statusTips[id_layout_draw]		= tr("Draws the current layout outputs to the image");
+	statusTips[id_layout_xml]		= tr("Writes the layout analysis results to an XML");
+	statusTips[id_text_block]		= tr("Draws the page segmentation outputs to the image");
+	statusTips[id_text_block_xml]	= tr("Writes the page segmentation to an XML");
+	statusTips[id_lines]			= tr("Calculates the lines in the binarized image");
+	statusTips[id_line_img]			= tr("Calculates the line image. XML is not written.");
+	statusTips[id_layout_collect_features] = tr("Collects layout features for later training.");
+	statusTips[id_layout_train]		= tr("Trains the layout analysis system.");
 	mMenuStatusTips = statusTips.toList();
 
 	//mLTRConfig.loadSettings();
 	//mLTRConfig.saveSettings();
 
+	init();
 }
 /**
 *	Destructor
 **/
 LayoutPlugin::~LayoutPlugin() {
 
-	qDebug() << "destroying binarization plugin...";
+	qDebug() << "destroying layout plugin...";
 }
 
+void LayoutPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const {
+
+	if (batchInfo.empty())
+		return;
+
+	if (batchInfo.first()->id() == mRunIDs[id_layout_collect_features]) {
+		
+		rdf::FeatureCollectionManager manager;
+
+		// collect all features
+		for (auto bi : batchInfo) {
+
+			auto li = qSharedPointerDynamicCast<rdm::LayoutInfo>(bi);
+
+			if (li) {
+				manager.merge(li->featureCollectionManager());
+				qInfo().noquote() << manager.toString();
+			}
+			else
+				qCritical() << "could not cast info to LayoutInfo";
+		}
+
+		manager.normalize(mSplConfig.minNumFeaturesPerClass(), mSplConfig.maxNumFeaturesPerClass());
+		manager.write(mSplConfig.featureFilePath());
+		qInfo() << "features written to" << mSplConfig.featureFilePath();
+	}
+}
+
+void LayoutPlugin::init() {
+
+	qDebug() << "RDF settings path:" << rdf::Config::instance().settingsFilePath();
+
+	mSplConfig.loadSettings();
+	mSplConfig.saveSettings();
+
+	qDebug() << "feature file" << mSplConfig.featureFilePath();
+}
 
 /**
 * Returns unique ID for the generated dll
@@ -178,6 +228,26 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 		QString saveXmlPath = rdf::PageXmlParser::imagePathToXmlPath(saveInfo.outputFilePath());
 		parser.write(saveXmlPath, pe);
 	}
+	else if(runID == mRunIDs[id_text_block]) {
+
+		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
+		imgCv = computePageSegmentation(imgCv, parser);
+
+		QImage img = nmc::DkImage::mat2QImage(imgCv);
+		imgC->setImage(img, tr("Page Segmentation"));
+	}
+	else if(runID == mRunIDs[id_text_block_xml]) {
+
+		auto pe = parser.page();
+		pe->setCreator(QString("CVL"));
+		pe->setImageSize(QSize(imgC->image().size()));
+		pe->setImageFileName(imgC->fileName());
+
+		computePageSegmentation(nmc::DkImage::qImage2Mat(imgC->image()), parser);
+
+		QString saveXmlPath = rdf::PageXmlParser::imagePathToXmlPath(saveInfo.outputFilePath());
+		parser.write(saveXmlPath, pe);
+	}
 	else if (runID == mRunIDs[id_lines]) {
 
 		rdf::LineTrace lt = computeLines(imgC);
@@ -218,6 +288,18 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 		}
 		QImage img = nmc::DkImage::mat2QImage(synLine);
 		imgC->setImage(img, tr("Calculated lines"));
+	}
+	else if (runID == mRunIDs[id_layout_collect_features]) {
+
+		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
+		
+		QSharedPointer<LayoutInfo> layoutInfo(new LayoutInfo(runID, imgC->filePath()));
+		collectFeatures(imgCv, parser, layoutInfo);
+		batchInfo = layoutInfo;
+
+	}
+	else if (runID == mRunIDs[id_layout_train]) {
+		qWarning() << "Layout training is not implemented yet";
 	}
 
 	// wrong runID? - do nothing
@@ -268,7 +350,7 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src, const rdf::PageXmlParser & pa
 		qWarning() << "could not compute text block segmentation!";
 
 	// find text lines
-	rdf::TextLineSegmentation textLines(rdf::Rect(img), sp);
+	rdf::TextLineSegmentation textLines(sp);
 	textLines.addLines(tabStops.tabStopLines(30));	// TODO: fix parameter
 	textLines.addLines(separatingLines);
 	if (!textLines.compute())
@@ -304,11 +386,122 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src, const rdf::PageXmlParser & pa
 	//rImg = lo.draw(rImg, "507", 64);
 
 	//// save super pixel image
-	//rImg = superPixel.drawSuperPixels(rImg);
+	rImg = superPixel.drawSuperPixels(rImg);
 	//rImg = tabStops.draw(rImg);
-	rImg = textLines.draw(rImg);
+	//rImg = textLines.draw(rImg);
 
 	return rImg;
+}
+
+cv::Mat LayoutPlugin::computePageSegmentation(const cv::Mat & src, const rdf::PageXmlParser & parser) const {
+	
+	// if available, get informaton from existing xmls
+	auto pe = parser.page();
+	QVector<QSharedPointer<rdf::Region> > separators = rdf::Region::filter(pe->rootRegion(), rdf::Region::type_separator);
+	QVector<rdf::Line> separatingLines;
+	for (auto s : separators) {
+
+		auto sc = qSharedPointerCast<rdf::SeparatorRegion>(s);
+		if (sc)
+			separatingLines << sc->line();
+	}
+	qInfo() << "I found" << separatingLines.size() << "separators in the XML";
+
+	cv::Mat img = src.clone();
+	//cv::resize(src, img, cv::Size(), 0.25, 0.25, CV_INTER_AREA);
+
+	rdf::Timer dt;
+
+	// find super pixels
+	rdf::SuperPixel superPixel(img);
+
+	if (!superPixel.compute())
+		qWarning() << "could not compute super pixel!";
+
+	QVector<QSharedPointer<rdf::Pixel> > sp = superPixel.getSuperPixels();
+
+	// find local orientation per pixel
+	rdf::LocalOrientation lo(sp);
+	if (!lo.compute())
+		qWarning() << "could not compute local orientation";
+
+	// smooth estimation
+	rdf::GraphCutOrientation pse(sp);
+
+	if (!pse.compute())
+		qWarning() << "could not compute set orientation";
+
+	qInfo() << "algorithm computation time" << dt;
+
+	// write XML -----------------------------------
+
+	// start writing content
+
+	// TODO
+	//auto ps = rdf::PixelSet::fromEdges(rdf::PixelSet::connect(sp));
+
+	//if (!ps.empty()) {
+	//	QSharedPointer<rdf::Region> textRegion = QSharedPointer<rdf::Region>(new rdf::Region());
+	//	textRegion->setType(rdf::Region::type_text_region);
+	//	textRegion->setPolygon(ps[0]->convexHull());
+
+	//	for (auto tl : textLines.textLines()) {
+	//		textRegion->addUniqueChild(tl);
+	//	}
+
+	//	pe->rootRegion()->addUniqueChild(textRegion);
+	//}
+
+	// draw results -----------------------------------
+	//cv::Mat rImg(img.rows, img.cols, CV_8UC1, cv::Scalar::all(150));
+	cv::Mat rImg = img.clone();
+
+	//// draw edges
+	//rImg = textBlocks.draw(rImg);
+	//rImg = lo.draw(rImg, "1012", 256);
+	//rImg = lo.draw(rImg, "507", 128);
+	//rImg = lo.draw(rImg, "507", 64);
+
+	//// save super pixel image
+	rImg = superPixel.drawSuperPixels(rImg);
+	//rImg = tabStops.draw(rImg);
+	//rImg = textLines.draw(rImg);
+
+	return rImg;
+}
+
+void LayoutPlugin::collectFeatures(const cv::Mat & src, const rdf::PageXmlParser & parser, QSharedPointer<LayoutInfo>& layoutInfo) const {
+
+	rdf::Timer dt;
+
+	// test loading of label lookup
+	rdf::LabelManager lm = rdf::LabelManager::read(mSplConfig.labelConfigFilePath());
+	qInfo().noquote() << lm.toString();
+
+	// compute super pixels
+	rdf::SuperPixel sp(src);
+
+	if (!sp.compute())
+		qCritical() << "could not compute super pixels!";
+
+	// feed the label lookup
+	rdf::SuperPixelLabeler spl(sp.getMserBlobs(), rdf::Rect(src));
+	spl.setLabelManager(lm);
+
+	// set the ground truth
+	if (parser.page())
+		spl.setRootRegion(parser.page()->rootRegion());
+
+	if (!spl.compute())
+		qCritical() << "could not compute SuperPixel labeling!";
+
+
+	rdf::SuperPixelFeature spf(src, spl.set());
+	if (!spf.compute())
+		qCritical() << "could not compute SuperPixel features!";
+
+	rdf::FeatureCollectionManager fcm(spf.features(), spf.set());
+	layoutInfo->setFeatureCollectionManager(fcm);
 }
 
 rdf::LineTrace LayoutPlugin::computeLines(QSharedPointer<nmc::DkImageContainer> imgC) const {
@@ -353,6 +546,18 @@ rdf::LineTrace LayoutPlugin::computeLines(QSharedPointer<nmc::DkImageContainer> 
 	lt.compute();
 	
 	return lt;
+}
+
+// LayoutInfo --------------------------------------------------------------------
+LayoutInfo::LayoutInfo(const QString & id, const QString & filePath) : nmc::DkBatchInfo(id, filePath) {
+}
+
+void LayoutInfo::setFeatureCollectionManager(const rdf::FeatureCollectionManager & manager) {
+	mManager = manager;
+}
+
+rdf::FeatureCollectionManager LayoutInfo::featureCollectionManager() const {
+	return mManager;
 }
 
 };

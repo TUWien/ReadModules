@@ -34,6 +34,7 @@ related links:
 
 #include "DkPluginInterface.h"
 #include "LineTrace.h"
+#include "SuperPixelTrainer.h"
 
 // opencv defines
 namespace cv {
@@ -46,6 +47,20 @@ namespace rdf {
 }
 
 namespace rdm {
+
+
+class LayoutInfo : public nmc::DkBatchInfo {
+
+public:
+	LayoutInfo(const QString& id = QString(), const QString& filePath = QString());
+
+	void setFeatureCollectionManager(const rdf::FeatureCollectionManager& manager);
+	rdf::FeatureCollectionManager featureCollectionManager() const;
+
+private:
+	rdf::FeatureCollectionManager mManager;
+};
+
 
 class LayoutPlugin : public QObject, nmc::DkBatchPluginInterface {
 	Q_OBJECT
@@ -68,13 +83,17 @@ public:
 		QSharedPointer<nmc::DkBatchInfo>& batchInfo) const override;
 
 	virtual void preLoadPlugin() const override {};
-	virtual void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> > &) const override {};
+	virtual void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> > &) const override;
 
 	enum {
 		id_layout_draw,
 		id_layout_xml,
+		id_text_block,
+		id_text_block_xml,
 		id_lines,
 		id_line_img,
+		id_layout_collect_features,
+		id_layout_train,
 		// add actions here
 
 		id_end
@@ -87,9 +106,14 @@ protected:
 	QStringList mMenuStatusTips;
 
 	rdf::LineTraceConfig mLTRConfig;
+	rdf::SuperPixelLabelerConfig mSplConfig;
 
+	void init();
+
+	// layout plugin functions
 	cv::Mat compute(const cv::Mat& src, const rdf::PageXmlParser& parser) const;
+	cv::Mat computePageSegmentation(const cv::Mat& src, const rdf::PageXmlParser& parser) const;
+	void collectFeatures(const cv::Mat& src, const rdf::PageXmlParser& parser, QSharedPointer<LayoutInfo>& layoutInfo) const;
 	rdf::LineTrace computeLines(QSharedPointer<nmc::DkImageContainer> imgC) const;
-
 };
 };
