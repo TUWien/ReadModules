@@ -135,8 +135,13 @@ Public Types</h2></td></tr>
 <tr class="memitem:a140f76cfd83ded41d48cdbf87257379c"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <br/>
 &#160;&#160;<a class="el" href="classrdm_1_1_layout_plugin.html#a140f76cfd83ded41d48cdbf87257379ca523f7f2abaf9c37975671c382a733f2c">id_layout_draw</a>, 
 <a class="el" href="classrdm_1_1_layout_plugin.html#a140f76cfd83ded41d48cdbf87257379ca1b357b1a40ee7524f99bd6a63870ae04">id_layout_xml</a>, 
-<a class="el" href="classrdm_1_1_layout_plugin.html#a140f76cfd83ded41d48cdbf87257379ca85cdda0be052b32c95a9bd4f560114d7">id_lines</a>, 
+<a class="el" href="classrdm_1_1_layout_plugin.html#a140f76cfd83ded41d48cdbf87257379cac0f3088b2238bdefb8f0f6b87e73dad9">id_text_block</a>, 
+<a class="el" href="classrdm_1_1_layout_plugin.html#a140f76cfd83ded41d48cdbf87257379ca848f43eb39a229dfd67d36531d6da419">id_text_block_xml</a>, 
+<br/>
+&#160;&#160;<a class="el" href="classrdm_1_1_layout_plugin.html#a140f76cfd83ded41d48cdbf87257379ca85cdda0be052b32c95a9bd4f560114d7">id_lines</a>, 
 <a class="el" href="classrdm_1_1_layout_plugin.html#a140f76cfd83ded41d48cdbf87257379cacc8081894d17d8215ca4b181d035d8ff">id_line_img</a>, 
+<a class="el" href="classrdm_1_1_layout_plugin.html#a140f76cfd83ded41d48cdbf87257379ca057f2553a9edb6c3505e89d55deee51e">id_layout_collect_features</a>, 
+<a class="el" href="classrdm_1_1_layout_plugin.html#a140f76cfd83ded41d48cdbf87257379ca3ce97297e71147b94ca1c2b8e1e947d6">id_layout_train</a>, 
 <br/>
 &#160;&#160;<a class="el" href="classrdm_1_1_layout_plugin.html#a140f76cfd83ded41d48cdbf87257379ca41e7e3883025d3b712fbbd9592e53e42">id_end</a>
 <br/>
@@ -162,13 +167,19 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a61b2f5b80150c6e3617cb743c0379e43"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4f4db2dc2da9620d30e34da2f06cc00c"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_layout_plugin.html#a4f4db2dc2da9620d30e34da2f06cc00c">preLoadPlugin</a> () const override</td></tr>
 <tr class="separator:a4f4db2dc2da9620d30e34da2f06cc00c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a07554fbe8ff81e97656322c119cdb945"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_layout_plugin.html#a07554fbe8ff81e97656322c119cdb945">postLoadPlugin</a> (const QVector&lt; QSharedPointer&lt; nmc::DkBatchInfo &gt; &gt; &amp;) const override</td></tr>
-<tr class="separator:a07554fbe8ff81e97656322c119cdb945"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add6d51e4bda73ea16bca0ae76e9909b5"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_layout_plugin.html#add6d51e4bda73ea16bca0ae76e9909b5">postLoadPlugin</a> (const QVector&lt; QSharedPointer&lt; nmc::DkBatchInfo &gt; &gt; &amp;) const override</td></tr>
+<tr class="separator:add6d51e4bda73ea16bca0ae76e9909b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
+<tr class="memitem:aa81625b15248fcc6eb88e1a8059387f8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_layout_plugin.html#aa81625b15248fcc6eb88e1a8059387f8">init</a> ()</td></tr>
+<tr class="separator:aa81625b15248fcc6eb88e1a8059387f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac7225d0442f10fb10e33287b707ae80c"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_layout_plugin.html#ac7225d0442f10fb10e33287b707ae80c">compute</a> (const cv::Mat &amp;src, const rdf::PageXmlParser &amp;parser) const </td></tr>
 <tr class="separator:ac7225d0442f10fb10e33287b707ae80c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a01af93863cee7d49663f03c4ab182bb8"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_layout_plugin.html#a01af93863cee7d49663f03c4ab182bb8">computePageSegmentation</a> (const cv::Mat &amp;src, const rdf::PageXmlParser &amp;parser) const </td></tr>
+<tr class="separator:a01af93863cee7d49663f03c4ab182bb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e79245351aa0f00d9cea8181497037f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_layout_plugin.html#a6e79245351aa0f00d9cea8181497037f">collectFeatures</a> (const cv::Mat &amp;src, const rdf::PageXmlParser &amp;parser, QSharedPointer&lt; <a class="el" href="classrdm_1_1_layout_info.html">LayoutInfo</a> &gt; &amp;layoutInfo) const </td></tr>
+<tr class="separator:a6e79245351aa0f00d9cea8181497037f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acce0628f8e92b1d7c5fd5921200c7d54"><td class="memItemLeft" align="right" valign="top">rdf::LineTrace&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_layout_plugin.html#acce0628f8e92b1d7c5fd5921200c7d54">computeLines</a> (QSharedPointer&lt; nmc::DkImageContainer &gt; imgC) const </td></tr>
 <tr class="separator:acce0628f8e92b1d7c5fd5921200c7d54"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -184,6 +195,8 @@ Protected Attributes</h2></td></tr>
 <tr class="separator:a830d524f34883f04b2e623dce0094db0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1889ff77f1d0f945f49298b951c6fd08"><td class="memItemLeft" align="right" valign="top">rdf::LineTraceConfig&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_layout_plugin.html#a1889ff77f1d0f945f49298b951c6fd08">mLTRConfig</a></td></tr>
 <tr class="separator:a1889ff77f1d0f945f49298b951c6fd08"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a315305c727fe6471efd8d901e1b099f1"><td class="memItemLeft" align="right" valign="top">rdf::SuperPixelLabelerConfig&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrdm_1_1_layout_plugin.html#a315305c727fe6471efd8d901e1b099f1">mSplConfig</a></td></tr>
+<tr class="separator:a315305c727fe6471efd8d901e1b099f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Enumeration Documentation</h2>
 <a class="anchor" id="a140f76cfd83ded41d48cdbf87257379c"></a>
@@ -200,9 +213,17 @@ Protected Attributes</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><em><a class="anchor" id="a140f76cfd83ded41d48cdbf87257379ca1b357b1a40ee7524f99bd6a63870ae04"></a>id_layout_xml</em>&#160;</td><td class="fielddoc">
 </td></tr>
+<tr><td class="fieldname"><em><a class="anchor" id="a140f76cfd83ded41d48cdbf87257379cac0f3088b2238bdefb8f0f6b87e73dad9"></a>id_text_block</em>&#160;</td><td class="fielddoc">
+</td></tr>
+<tr><td class="fieldname"><em><a class="anchor" id="a140f76cfd83ded41d48cdbf87257379ca848f43eb39a229dfd67d36531d6da419"></a>id_text_block_xml</em>&#160;</td><td class="fielddoc">
+</td></tr>
 <tr><td class="fieldname"><em><a class="anchor" id="a140f76cfd83ded41d48cdbf87257379ca85cdda0be052b32c95a9bd4f560114d7"></a>id_lines</em>&#160;</td><td class="fielddoc">
 </td></tr>
 <tr><td class="fieldname"><em><a class="anchor" id="a140f76cfd83ded41d48cdbf87257379cacc8081894d17d8215ca4b181d035d8ff"></a>id_line_img</em>&#160;</td><td class="fielddoc">
+</td></tr>
+<tr><td class="fieldname"><em><a class="anchor" id="a140f76cfd83ded41d48cdbf87257379ca057f2553a9edb6c3505e89d55deee51e"></a>id_layout_collect_features</em>&#160;</td><td class="fielddoc">
+</td></tr>
+<tr><td class="fieldname"><em><a class="anchor" id="a140f76cfd83ded41d48cdbf87257379ca3ce97297e71147b94ca1c2b8e1e947d6"></a>id_layout_train</em>&#160;</td><td class="fielddoc">
 </td></tr>
 <tr><td class="fieldname"><em><a class="anchor" id="a140f76cfd83ded41d48cdbf87257379ca41e7e3883025d3b712fbbd9592e53e42"></a>id_end</em>&#160;</td><td class="fielddoc">
 </td></tr>
@@ -245,6 +266,46 @@ Protected Attributes</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a6e79245351aa0f00d9cea8181497037f"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void rdm::LayoutPlugin::collectFeatures </td>
+          <td>(</td>
+          <td class="paramtype">const cv::Mat &amp;&#160;</td>
+          <td class="paramname"><em>src</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const rdf::PageXmlParser &amp;&#160;</td>
+          <td class="paramname"><em>parser</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">QSharedPointer&lt; <a class="el" href="classrdm_1_1_layout_info.html">LayoutInfo</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>layoutInfo</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="ac7225d0442f10fb10e33287b707ae80c"></a>
 <div class="memitem">
 <div class="memproto">
@@ -292,6 +353,40 @@ Protected Attributes</h2></td></tr>
           <td class="paramtype">QSharedPointer&lt; nmc::DkImageContainer &gt;&#160;</td>
           <td class="paramname"><em>imgC</em></td><td>)</td>
           <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a01af93863cee7d49663f03c4ab182bb8"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">cv::Mat rdm::LayoutPlugin::computePageSegmentation </td>
+          <td>(</td>
+          <td class="paramtype">const cv::Mat &amp;&#160;</td>
+          <td class="paramname"><em>src</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const rdf::PageXmlParser &amp;&#160;</td>
+          <td class="paramname"><em>parser</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
         </tr>
       </table>
   </td>
@@ -381,6 +476,29 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="aa81625b15248fcc6eb88e1a8059387f8"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void rdm::LayoutPlugin::init </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="a2823b962e93bb5cf7e2ee67ed5aaf975"></a>
 <div class="memitem">
 <div class="memproto">
@@ -404,7 +522,7 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a07554fbe8ff81e97656322c119cdb945"></a>
+<a class="anchor" id="add6d51e4bda73ea16bca0ae76e9909b5"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -412,16 +530,16 @@ Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void rdm::LayoutPlugin::postLoadPlugin </td>
+          <td class="memname">void rdm::LayoutPlugin::postLoadPlugin </td>
           <td>(</td>
           <td class="paramtype">const QVector&lt; QSharedPointer&lt; nmc::DkBatchInfo &gt; &gt; &amp;&#160;</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramname"><em>batchInfo</em></td><td>)</td>
           <td> const</td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -595,6 +713,26 @@ Protected Attributes</h2></td></tr>
       <table class="memname">
         <tr>
           <td class="memname">QStringList rdm::LayoutPlugin::mRunIDs</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a315305c727fe6471efd8d901e1b099f1"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">rdf::SuperPixelLabelerConfig rdm::LayoutPlugin::mSplConfig</td>
         </tr>
       </table>
   </td>

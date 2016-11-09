@@ -17,7 +17,9 @@ var searchData=
   ['id_5fgrayscale',['id_grayscale',['../classrdm_1_1_batch_test.html#a7fdf0afbbd2dfa1e5383085f66cdf28ba2a043b79f6cda7dad1a5c9d6567e1d6e',1,'rdm::BatchTest']]],
   ['id_5fgtpage',['id_gtPage',['../classrdm_1_1_focus_plugin.html#a60ae25f2d5d78fc6eb75550816dd36ada82daf9fb3fb26f9e359f3f1dd08ed84c',1,'rdm::FocusPlugin']]],
   ['id_5fidentify_5fwriter',['id_identify_writer',['../classrdm_1_1_writer_identification_plugin.html#aff98a44a8191e54a1e7155da19f58358adb2305ffc67d482c950477ba3efb2938',1,'rdm::WriterIdentificationPlugin']]],
+  ['id_5flayout_5fcollect_5ffeatures',['id_layout_collect_features',['../classrdm_1_1_layout_plugin.html#a140f76cfd83ded41d48cdbf87257379ca057f2553a9edb6c3505e89d55deee51e',1,'rdm::LayoutPlugin']]],
   ['id_5flayout_5fdraw',['id_layout_draw',['../classrdm_1_1_layout_plugin.html#a140f76cfd83ded41d48cdbf87257379ca523f7f2abaf9c37975671c382a733f2c',1,'rdm::LayoutPlugin']]],
+  ['id_5flayout_5ftrain',['id_layout_train',['../classrdm_1_1_layout_plugin.html#a140f76cfd83ded41d48cdbf87257379ca3ce97297e71147b94ca1c2b8e1e947d6',1,'rdm::LayoutPlugin']]],
   ['id_5flayout_5fxml',['id_layout_xml',['../classrdm_1_1_layout_plugin.html#a140f76cfd83ded41d48cdbf87257379ca1b357b1a40ee7524f99bd6a63870ae04',1,'rdm::LayoutPlugin']]],
   ['id_5fline_5fimg',['id_line_img',['../classrdm_1_1_layout_plugin.html#a140f76cfd83ded41d48cdbf87257379cacc8081894d17d8215ca4b181d035d8ff',1,'rdm::LayoutPlugin']]],
   ['id_5flines',['id_lines',['../classrdm_1_1_layout_plugin.html#a140f76cfd83ded41d48cdbf87257379ca85cdda0be052b32c95a9bd4f560114d7',1,'rdm::LayoutPlugin']]],
@@ -27,5 +29,7 @@ var searchData=
   ['id_5fskew_5fnative',['id_skew_native',['../classrdm_1_1_skew_est_plugin.html#afedea41602499f7d826b646dbcc0d700acea43275f3b28d60688614e61bfc64d5',1,'rdm::SkewEstPlugin']]],
   ['id_5fskew_5ftextline',['id_skew_textline',['../classrdm_1_1_skew_est_plugin.html#afedea41602499f7d826b646dbcc0d700aa04fd9c37e7d6e1fb207ef853dbe0425',1,'rdm::SkewEstPlugin']]],
   ['id_5fskew_5ftextline_5fdraw',['id_skew_textline_draw',['../classrdm_1_1_skew_est_plugin.html#afedea41602499f7d826b646dbcc0d700a3cf2d9894a03f3550ad1e0d7b52d4678',1,'rdm::SkewEstPlugin']]],
+  ['id_5ftext_5fblock',['id_text_block',['../classrdm_1_1_layout_plugin.html#a140f76cfd83ded41d48cdbf87257379cac0f3088b2238bdefb8f0f6b87e73dad9',1,'rdm::LayoutPlugin']]],
+  ['id_5ftext_5fblock_5fxml',['id_text_block_xml',['../classrdm_1_1_layout_plugin.html#a140f76cfd83ded41d48cdbf87257379ca848f43eb39a229dfd67d36531d6da419',1,'rdm::LayoutPlugin']]],
   ['id_5ftrain',['id_train',['../classrdm_1_1_forms_analysis.html#ac5ea28673ec49852826ecc402e5c2b0fac0bff887bd37261c4fa39a46393bae33',1,'rdm::FormsAnalysis']]]
 ];

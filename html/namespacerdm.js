@@ -7,6 +7,7 @@ var namespacerdm =
     [ "FocusPlugin", "classrdm_1_1_focus_plugin.html", "classrdm_1_1_focus_plugin" ],
     [ "FormsInfo", "classrdm_1_1_forms_info.html", "classrdm_1_1_forms_info" ],
     [ "FormsAnalysis", "classrdm_1_1_forms_analysis.html", "classrdm_1_1_forms_analysis" ],
+    [ "LayoutInfo", "classrdm_1_1_layout_info.html", "classrdm_1_1_layout_info" ],
     [ "LayoutPlugin", "classrdm_1_1_layout_plugin.html", "classrdm_1_1_layout_plugin" ],
     [ "PageData", "classrdm_1_1_page_data.html", "classrdm_1_1_page_data" ],
     [ "ColorButton", "classrdm_1_1_color_button.html", "classrdm_1_1_color_button" ],

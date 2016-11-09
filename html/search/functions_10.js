@@ -10,6 +10,7 @@ var searchData=
   ['setconfig',['setConfig',['../classrdm_1_1_polygon_widget.html#aa0a42dceaa9679c1d7e3e1ad17bbd855',1,'rdm::PolygonWidget::setConfig()'],['../classrdm_1_1_polygon_info_widget.html#a687c2b8440dc6b85409e4620b1fe7c0c',1,'rdm::PolygonInfoWidget::setConfig()']]],
   ['setdescriptors',['setDescriptors',['../classrdm_1_1_writer_identification.html#a6bec81b8752358c9acbaa624ddd507d1',1,'rdm::WriterIdentification']]],
   ['setem',['setEM',['../classrdm_1_1_w_i_vocabulary.html#af661b0107d7dc6448814d9a2189c9c93',1,'rdm::WIVocabulary']]],
+  ['setfeaturecollectionmanager',['setFeatureCollectionManager',['../classrdm_1_1_layout_info.html#a2014a47dc1c8aef0b319fa9b56d26d30',1,'rdm::LayoutInfo']]],
   ['setfeaturefilepath',['setFeatureFilePath',['../classrdm_1_1_w_i_info.html#a9cc030824849fbe112743fcc48504cba',1,'rdm::WIInfo']]],
   ['setfeaturevector',['setFeatureVector',['../classrdm_1_1_w_i_info.html#a5eb80500db80ed3174461bb9ac5a7b3f',1,'rdm::WIInfo']]],
   ['setfilepath',['setFilePath',['../classrdm_1_1_skew_est_plugin.html#a10def0eb630b4fbd164ce730eb994157',1,'rdm::SkewEstPlugin']]],

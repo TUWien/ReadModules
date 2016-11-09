@@ -4,6 +4,7 @@ var hierarchy =
       [ "rdm::DkTestInfo", "classrdm_1_1_dk_test_info.html", null ],
       [ "rdm::FocusInfo", "classrdm_1_1_focus_info.html", null ],
       [ "rdm::FormsInfo", "classrdm_1_1_forms_info.html", null ],
+      [ "rdm::LayoutInfo", "classrdm_1_1_layout_info.html", null ],
       [ "rdm::SkewInfo", "classrdm_1_1_skew_info.html", null ],
       [ "rdm::WIInfo", "classrdm_1_1_w_i_info.html", null ]
     ] ],
