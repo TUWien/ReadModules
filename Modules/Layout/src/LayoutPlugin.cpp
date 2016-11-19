@@ -144,10 +144,10 @@ void LayoutPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo>
 void LayoutPlugin::init() {
 
 	qDebug() << "RDF settings path:" << rdf::Config::instance().settingsFilePath();
-
 	mSplConfig.loadSettings();
 	mSplConfig.saveSettings();
-
+	mSpcConfig.loadSettings();
+	mSpcConfig.saveSettings();
 	qDebug() << "feature file" << mSplConfig.featureFilePath();
 }
 
@@ -346,8 +346,8 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src, const rdf::PageXmlParser & pa
 
 	// find tab stops
 	rdf::TabStopAnalysis tabStops(sp);
-	if (!tabStops.compute())
-		qWarning() << "could not compute text block segmentation!";
+	//if (!tabStops.compute())
+	//	qWarning() << "could not compute text block segmentation!";
 
 	// find text lines
 	rdf::TextLineSegmentation textLines(sp);
@@ -357,6 +357,15 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src, const rdf::PageXmlParser & pa
 		qWarning() << "could not compute text block segmentation!";
 
 	qInfo() << "algorithm computation time" << dt;
+
+	// pixel labeling
+	QSharedPointer<rdf::SuperPixelModel> model = rdf::SuperPixelModel::read(mSpcConfig.classifierPath());
+
+	rdf::SuperPixelClassifier spc(src, sp);
+	spc.setModel(model);
+
+	//if (!spc.compute())
+	//	qWarning() << "could not classify SuperPixels";
 
 	// write XML -----------------------------------
 
@@ -386,9 +395,10 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src, const rdf::PageXmlParser & pa
 	//rImg = lo.draw(rImg, "507", 64);
 
 	//// save super pixel image
-	rImg = superPixel.drawSuperPixels(rImg);
+	//rImg = superPixel.drawSuperPixels(rImg);
 	//rImg = tabStops.draw(rImg);
-	//rImg = textLines.draw(rImg);
+	rImg = textLines.draw(rImg);
+	//rImg = spc.draw(rImg);
 
 	return rImg;
 }

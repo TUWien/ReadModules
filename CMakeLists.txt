@@ -17,6 +17,7 @@ OPTION (ENABLE_SKEW "Skew Estimation Plugin" ON)
 OPTION (ENABLE_FORMS "Form Analysis Plugin" ON)
 OPTION (ENABLE_FOCUSMEASURE "Focus Measure Plugin" ON)
 OPTION (ENABLE_WRITERIDENTIFICATION "Compile Writer Identification plugin" OFF)
+OPTION (ENABLE_READ_CONFIG "Configuration Plugin" ON)
 OPTION (ENABLE_BATCH_TEST "Test plugin for new batch interface" OFF)
 
 RDM_PREPARE_PLUGIN()
@@ -71,6 +72,10 @@ ENDIF()
 
 IF (ENABLE_BATCH_TEST)
 	add_subdirectory(Modules/BatchTest)
+ENDIF()
+
+IF (ENABLE_READ_CONFIG)
+	add_subdirectory(Modules/ReadConfig)
 ENDIF()
 
 

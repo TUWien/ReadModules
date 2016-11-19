@@ -117,7 +117,7 @@ QString FocusPlugin::id() const {
 **/
 QImage FocusPlugin::image() const {
 
-	return QImage(":/BatchTest/img/read.png");
+	return QImage(":/ReadConfig/img/read.png");
 };
 
 QList<QAction*> FocusPlugin::createActions(QWidget* parent) {
