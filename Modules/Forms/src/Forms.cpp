@@ -112,7 +112,7 @@ QString FormsAnalysis::id() const {
 **/
 QImage FormsAnalysis::image() const {
 
-	return QImage(":/BatchTest/img/read.png");
+	return QImage(":/ReadConfig/img/read.png");
 };
 
 QList<QAction*> FormsAnalysis::createActions(QWidget* parent) {
