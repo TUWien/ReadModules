@@ -25,7 +25,6 @@
 #include "WriterIdentificationPlugin.h"
 
  // nomacs includes
-#include "DkSettings.h"
 #include "DkImageStorage.h"
 
 #include <fstream>
@@ -633,7 +632,7 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 }
 
 void WriterIdentificationPlugin::init() {
-	loadSettings(nmc::Settings::instance().getSettings());
+	loadSettings(rdf::Config::instance().settings());
 }
 
 void WriterIdentificationPlugin::loadSettings(QSettings & settings) {
