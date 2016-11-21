@@ -436,9 +436,15 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 		//int patchNumber = 1000;
 		//double ratio = 0.85;
 
-		int patchSize = 200;
-		int patchNumber = 50;
-		double ratio = 0.95;
+		//int patchSize = 200;
+		//int patchNumber = 50;
+		//double ratio = 0.95;
+
+		int patchSize = 64;
+		int patchNumber = 2067;
+		double ratio = 0.85;
+
+
 		QString dirName = "random-patches-" + QString::number(patchNumber);
 
 		QString label = extractWriterIDFromFilename(imgC->fileName());
