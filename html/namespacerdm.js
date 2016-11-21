@@ -22,6 +22,8 @@ var namespacerdm =
     [ "PageDock", "classrdm_1_1_page_dock.html", "classrdm_1_1_page_dock" ],
     [ "PageViewport", "classrdm_1_1_page_viewport.html", "classrdm_1_1_page_viewport" ],
     [ "PageVisPlugin", "classrdm_1_1_page_vis_plugin.html", "classrdm_1_1_page_vis_plugin" ],
+    [ "ReadConfig", "classrdm_1_1_read_config.html", "classrdm_1_1_read_config" ],
+    [ "SettingsDialog", "classrdm_1_1_settings_dialog.html", "classrdm_1_1_settings_dialog" ],
     [ "SkewInfo", "classrdm_1_1_skew_info.html", "classrdm_1_1_skew_info" ],
     [ "SkewEstPlugin", "classrdm_1_1_skew_est_plugin.html", "classrdm_1_1_skew_est_plugin" ],
     [ "WIVocabulary", "classrdm_1_1_w_i_vocabulary.html", "classrdm_1_1_w_i_vocabulary" ],

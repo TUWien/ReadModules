@@ -28,5 +28,6 @@ var classrdm_1_1_layout_plugin =
     [ "mMenuNames", "classrdm_1_1_layout_plugin.html#abb802b823b08aac7c26ff278b52252ea", null ],
     [ "mMenuStatusTips", "classrdm_1_1_layout_plugin.html#a830d524f34883f04b2e623dce0094db0", null ],
     [ "mRunIDs", "classrdm_1_1_layout_plugin.html#a01942dee3dcf0f15d82d3d3fd0bdaafe", null ],
+    [ "mSpcConfig", "classrdm_1_1_layout_plugin.html#af8a45b6abfefab463ca29f6531e1fa32", null ],
     [ "mSplConfig", "classrdm_1_1_layout_plugin.html#a315305c727fe6471efd8d901e1b099f1", null ]
 ];

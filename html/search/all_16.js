@@ -9,6 +9,7 @@ var searchData=
   ['_7epagedock',['~PageDock',['../classrdm_1_1_page_dock.html#a81b9c704f5a3054bb04a919b99a944bb',1,'rdm::PageDock']]],
   ['_7epageviewport',['~PageViewport',['../classrdm_1_1_page_viewport.html#a9e97ac40f5441cb00ab0484bac72f6b0',1,'rdm::PageViewport']]],
   ['_7epagevisplugin',['~PageVisPlugin',['../classrdm_1_1_page_vis_plugin.html#a0397917743b57d10d4ce5311df3031c8',1,'rdm::PageVisPlugin']]],
+  ['_7ereadconfig',['~ReadConfig',['../classrdm_1_1_read_config.html#a2d147e7ba6b669ee923d8dd516c80fd1',1,'rdm::ReadConfig']]],
   ['_7eskewestplugin',['~SkewEstPlugin',['../classrdm_1_1_skew_est_plugin.html#a894378e9f24a6d2e80c74aadba21d79e',1,'rdm::SkewEstPlugin']]],
   ['_7ewriteridentificationplugin',['~WriterIdentificationPlugin',['../classrdm_1_1_writer_identification_plugin.html#a404fa3b2c682d248b642bbcb8c4ccb39',1,'rdm::WriterIdentificationPlugin']]]
 ];

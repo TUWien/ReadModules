@@ -2,6 +2,7 @@ var hierarchy =
 [
     [ "DkBatchInfo", null, [
       [ "rdm::DkTestInfo", "classrdm_1_1_dk_test_info.html", null ],
+      [ "rdm::DkTestInfo", "classrdm_1_1_dk_test_info.html", null ],
       [ "rdm::FocusInfo", "classrdm_1_1_focus_info.html", null ],
       [ "rdm::FormsInfo", "classrdm_1_1_forms_info.html", null ],
       [ "rdm::LayoutInfo", "classrdm_1_1_layout_info.html", null ],
@@ -13,6 +14,7 @@ var hierarchy =
       [ "rdm::FocusPlugin", "classrdm_1_1_focus_plugin.html", null ],
       [ "rdm::FormsAnalysis", "classrdm_1_1_forms_analysis.html", null ],
       [ "rdm::LayoutPlugin", "classrdm_1_1_layout_plugin.html", null ],
+      [ "rdm::ReadConfig", "classrdm_1_1_read_config.html", null ],
       [ "rdm::SkewEstPlugin", "classrdm_1_1_skew_est_plugin.html", null ],
       [ "rdm::WriterIdentificationPlugin", "classrdm_1_1_writer_identification_plugin.html", null ]
     ] ],
@@ -31,6 +33,9 @@ var hierarchy =
     [ "DkViewPortInterface", null, [
       [ "rdm::PageVisPlugin", "classrdm_1_1_page_vis_plugin.html", null ]
     ] ],
+    [ "QDialog", null, [
+      [ "rdm::SettingsDialog", "classrdm_1_1_settings_dialog.html", null ]
+    ] ],
     [ "QLabel", null, [
       [ "rdm::PolygonWidget", "classrdm_1_1_polygon_widget.html", null ]
     ] ],
@@ -46,6 +51,7 @@ var hierarchy =
       [ "rdm::LayoutPlugin", "classrdm_1_1_layout_plugin.html", null ],
       [ "rdm::PageData", "classrdm_1_1_page_data.html", null ],
       [ "rdm::PageVisPlugin", "classrdm_1_1_page_vis_plugin.html", null ],
+      [ "rdm::ReadConfig", "classrdm_1_1_read_config.html", null ],
       [ "rdm::SkewEstPlugin", "classrdm_1_1_skew_est_plugin.html", null ],
       [ "rdm::WriterIdentificationPlugin", "classrdm_1_1_writer_identification_plugin.html", null ]
     ] ],
