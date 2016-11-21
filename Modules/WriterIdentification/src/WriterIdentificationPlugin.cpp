@@ -285,7 +285,7 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 			int threshBorder = 16;
 			int threshold = 20;
 
-			QPointF point = rdf::Converter::instance().cvPointToQt(kp[i].pt);
+			QPointF point = rdf::Converter::cvPointToQt(kp[i].pt);
 			point.setX(point.x() - rectSize/2);
 			point.setY(point.y() - rectSize/2);
 			QRect rect = QRect(point.toPoint(), QSize(rectSize, rectSize));
@@ -390,7 +390,7 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 			int threshBorder = 16;
 			int threshold = 20;
 
-			QPointF point = rdf::Converter::instance().cvPointToQt(kp[i].pt);
+			QPointF point = rdf::Converter::cvPointToQt(kp[i].pt);
 			point.setX(point.x() - rectSize / 2);
 			point.setY(point.y() - rectSize / 2);
 			QRect rect = QRect(point.toPoint(), QSize(rectSize, rectSize));
