@@ -59,8 +59,7 @@ PageViewport::PageViewport(QWidget* parent) : DkPluginViewPort(parent) {
 
 PageViewport::~PageViewport() {
 
-	// TODO: check this line!
-	saveSettings(nmc::Settings::instance().getSettings());
+	saveSettings(rdf::Config::instance().settings());
 	qDebug() << "destroying PAGE viewport";
 }
 
@@ -69,7 +68,7 @@ void PageViewport::init() {
 	//DkPluginViewPort::init();
 	setObjectName("PageViewport");
 	
-	loadSettings(nmc::Settings::instance().getSettings());
+	loadSettings(rdf::Config::instance().settings());
 
 	mPageData = new PageData(this);
 	mPageDock = new PageDock(mPageData, tr("Page Visualization"), this);
