@@ -25,7 +25,7 @@
 #pragma once
 
 #include "DkPluginInterface.h"
-#include "WIDatabase.h"
+#include "WriterDatabase.h"
 
 class QSettings;
 namespace rdm {
@@ -89,7 +89,7 @@ protected:
 	QStringList mRunIDs;
 	QStringList mMenuNames;
 	QStringList mMenuStatusTips;
-	WIDatabase mWIDatabase;
+	rdf::WriterDatabase mWIDatabase;
 
 private:
 	void init();
@@ -99,13 +99,13 @@ private:
 	QString extractWriterIDFromFilename(const QString fileName) const;
 
 	QString mSettingsVocPath = QString();
-	int mVocType = WIVocabulary::WI_UNDEFINED;
+	int mVocType = rdf::WriterVocabulary::WI_UNDEFINED;
 	int mVocNumberOfClusters = -1;
 	int mVocNumberOfPCA = -1;
 	int mVocMaxSIFTSize = -1;
 	int mVocMinSIFTSize = -1;
 	double mVocPowerNormalization;
-	WIVocabulary mVocabulary = WIVocabulary();
+	rdf::WriterVocabulary mVocabulary = rdf::WriterVocabulary();
 	QString mFeatureDir = QString();
 	QString mEvalFile = QString();
 };

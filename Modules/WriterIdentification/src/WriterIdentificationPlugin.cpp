@@ -29,8 +29,8 @@
 
 #include <fstream>
 
-#include "WriterIdentification.h"
-#include "WIDatabase.h"
+#include "WriterRetrieval.h"
+#include "WriterDatabase.h"
 #include "Image.h"
 #include "Settings.h"
 
@@ -155,7 +155,7 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 
 	if(runID == mRunIDs[id_calcuate_features]) {
 		qInfo() << "calculating features for writer identification";
-		WriterIdentification wi = WriterIdentification();
+		rdf::WriterRetrieval wi = rdf::WriterRetrieval();
 		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
 		wi.setImage(imgCv);
 		wi.calculateFeatures();
@@ -272,7 +272,7 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 		}
 	}
 	else if(runID == mRunIDs[id_extract_patches]) {
-		WriterIdentification wi = WriterIdentification();
+		rdf::WriterRetrieval wi = rdf::WriterRetrieval();
 		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
 		wi.setImage(imgCv);
 		wi.calculateFeatures();
@@ -377,7 +377,7 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 
 	}
 	else if(runID == mRunIDs[id_extract_patches_per_page]) {
-		WriterIdentification wi = WriterIdentification();
+		rdf::WriterRetrieval wi = rdf::WriterRetrieval();
 		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
 		wi.setImage(imgCv);
 		wi.calculateFeatures();
@@ -526,9 +526,9 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 	qDebug() << "[POST LOADING]" << mMenuNames[runIdx] << "--------------------------------------------";
 
 	if(runIdx == id_generate_vocabulary) {
-		WIDatabase wiDatabase = WIDatabase();
-		WIVocabulary voc = WIVocabulary();
-		if(mVocType != WIVocabulary::WI_UNDEFINED) {
+		rdf::WriterDatabase wiDatabase = rdf::WriterDatabase();
+		rdf::WriterVocabulary voc = rdf::WriterVocabulary();
+		if(mVocType != rdf::WriterVocabulary::WI_UNDEFINED) {
 			voc.setType(mVocType);
 			voc.setNumberOfCluster(mVocNumberOfClusters);
 			voc.setNumberOfPCA(mVocNumberOfPCA);
@@ -538,7 +538,7 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 		}
 		else {
 			qDebug() << "vocabulary in settings file undefined. Using default values";
-			voc.setType(WIVocabulary::WI_GMM);
+			voc.setType(rdf::WriterVocabulary::WI_GMM);
 			voc.setNumberOfCluster(40);
 			voc.setNumberOfPCA(64);
 
@@ -558,11 +558,11 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 		}
 
 		wiDatabase.generateVocabulary();
-		wiDatabase.saveVocabulary(voc.type() == WIVocabulary::WI_UNDEFINED ? "C://tmp//voc-woSettings.yml" : mSettingsVocPath);
+		wiDatabase.saveVocabulary(voc.type() == rdf::WriterVocabulary::WI_UNDEFINED ? "C://tmp//voc-woSettings.yml" : mSettingsVocPath);
 		wiDatabase.evaluateDatabase(classLabels, featurePaths);
 	}
 	else if(runIdx == id_evaluate_database) {
-		WIDatabase wiDatabase = WIDatabase(); 
+		rdf::WriterDatabase wiDatabase = rdf::WriterDatabase(); 
 		wiDatabase.setVocabulary(mVocabulary);
 		//WIVocabulary voc = WIVocabulary();
 		//if(mVocType == WIVocabulary::WI_UNDEFINED)
@@ -597,9 +597,9 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 				evalFile += "-" + dir.dirName();
 			}
 
-			if(mVocabulary.type() == WIVocabulary::WI_BOW)
+			if(mVocabulary.type() == rdf::WriterVocabulary::WI_BOW)
 				evalFile += "-BOW";
-			else if(mVocabulary.type() == WIVocabulary::WI_GMM) {
+			else if(mVocabulary.type() == rdf::WriterVocabulary::WI_GMM) {
 				evalFile += "-GMM";
 				evalFile += "-" + QString::number(mVocabulary.powerNormalization(),'f',2) + "pow";
 			} 
@@ -641,9 +641,9 @@ void WriterIdentificationPlugin::loadSettings(QSettings & settings) {
 	if(!mSettingsVocPath.isEmpty()) {
 		mVocabulary.loadVocabulary(mSettingsVocPath);
 	}
-	mVocType = settings.value("vocType", WIVocabulary::WI_UNDEFINED).toInt();
-	if(mVocType > WIVocabulary::WI_UNDEFINED)
-		mVocType = WIVocabulary::WI_UNDEFINED;
+	mVocType = settings.value("vocType", rdf::WriterVocabulary::WI_UNDEFINED).toInt();
+	if(mVocType > rdf::WriterVocabulary::WI_UNDEFINED)
+		mVocType = rdf::WriterVocabulary::WI_UNDEFINED;
 	mVocNumberOfClusters = settings.value("numberOfClusters", -1).toInt();
 	mVocNumberOfPCA = settings.value("numberOfPCA", -1).toInt();
 	mVocMaxSIFTSize = settings.value("maxSIFTSize", -1).toInt();
