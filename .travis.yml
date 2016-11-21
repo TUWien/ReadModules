@@ -54,6 +54,6 @@ before_install:
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then openssl aes-256-cbc -K $encrypted_d495a65dd077_key -iv $encrypted_d495a65dd077_iv -in config/travisci_rsa.enc -out config/travisci_rsa -d; fi
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then chmod 0600 config/travisci_rsa; fi
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then cp config/travisci_rsa ~/.ssh/id_rsa; fi
-after_success:
-- if [ "$TRAVIS_OS_NAME" = "linux" ]; then cd ..; fi
-- if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./config/publish-doxygen; fi
+#after_success:
+#- if [ "$TRAVIS_OS_NAME" = "linux" ]; then cd ..; fi
+#- if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./config/publish-doxygen; fi
