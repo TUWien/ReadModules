@@ -41,6 +41,10 @@ related links:
 #include "Image.h"
 #include "Algorithms.h"
 
+// skew textline
+#include "SuperPixel.h"
+#include "Utils.h"
+
 #pragma warning(push, 0)	// no warnings from includes - begin
 #include <QAction>
 #include <QSettings>
@@ -66,25 +70,36 @@ SkewEstPlugin::SkewEstPlugin(QObject* parent) : QObject(parent) {
 	QVector<QString> runIds;
 	runIds.resize(id_end);
 
-	runIds[id_skewnative] = "47ac780be495490c90f772ed315fc64d";
-	runIds[id_skewdoc] = "b849c12a5c124520b1c0b0761e86db37";
+	runIds[id_skew_native] = "47ac780be495490c90f772ed315fc64d";
+	runIds[id_skew_doc] = "b849c12a5c124520b1c0b0761e86db37";
+	runIds[id_skew_textline] = "bf0d046c895446069fd0433f92ab8a38";
+	runIds[id_skew_textline_draw] = "78de3e5eef6249fbb2921b0a59d6c716";
+	
 	mRunIDs = runIds.toList();
 
 	// create menu actions
 	QVector<QString> menuNames;
 	menuNames.resize(id_end);
 
-	menuNames[id_skewnative] = tr("Skew Native");
-	menuNames[id_skewdoc] = tr("Skew Document");
+	menuNames[id_skew_native] = tr("Skew Native");
+	menuNames[id_skew_doc] = tr("Skew Document");
+	menuNames[id_skew_textline] = tr("Skew Textline");
+	menuNames[id_skew_textline_draw] = tr("Draw Skew Textline");
 	mMenuNames = menuNames.toList();
 
 	// create menu status tips
 	QVector<QString> statusTips;
 	statusTips.resize(id_end);
 
-	statusTips[id_skewnative] = tr("Calculates the skew");
-	statusTips[id_skewdoc] = tr("Calculates the skew for documents");
+	statusTips[id_skew_native] = tr("Calculates the skew");
+	statusTips[id_skew_doc] = tr("Calculates the skew for documents");
+	statusTips[id_skew_textline] = tr("Calculates the skew for documents using textlines");
+	statusTips[id_skew_textline_draw] = tr("Shows a debugging graphics for texlineline skew");
 	mMenuStatusTips = statusTips.toList();
+
+	// TODO: this must be a setting! - now it's DISEC
+	mMinAngle = -15 * DK_DEG2RAD;
+	mMaxAngle = 15 * DK_DEG2RAD;
 
 	init();
 }
@@ -152,147 +167,24 @@ QSharedPointer<nmc::DkImageContainer> SkewEstPlugin::runPlugin(
 	if (!imgC)
 		return imgC;
 
-	if(runID == mRunIDs[id_skewnative]) {
-
-		QImage img = imgC->image();
-		
-		rdf::BaseSkewEstimation bse;
-		cv::Mat inputImg = rdf::Image::instance().qImage2Mat(img);
-		//if (inputImg.channels() != 1) cv::cvtColor(inputImg, inputImg, CV_RGB2GRAY);
-
-		bse.setImages(inputImg);
-		QSharedPointer<rdf::BaseSkewEstimationConfig> cf = bse.config();
-		*cf = mBseConfig;
-
-		qDebug() << "cf delta: " << bse.config()->delta();
-
-		int w = qRound(inputImg.cols / 1430.0*49.0); //check  (nomacs plugin version)
-		cf->setWidth(w);
-		//bse.setW(w);
-		int h = qRound(inputImg.rows / 700.0*12.0); //check (nomacs plugin version)
-		cf->setHeight(h);
-		//bse.setH(h);
-		int delta = qRound(inputImg.cols / 1430.0*20.0); //check (nomacs plugin version)
-		cf->setDelta(delta);
-		//bse.setDelta(delta);
-		int minLL = qRound(inputImg.cols / 1430.0 * 20.0); //check
-		cf->setMinLineLength(minLL);
-		cf->setThr(0.1);
-		//bse.setmMinLineLength(minLL);
-		//bse.setThr(0.1);
-		bse.setFixedThr(false);
-
-
-		bool skewComp = bse.compute();
-		if (!skewComp) {
-			qDebug() << "could not compute skew";
-		}
-
-		double skewAngle = bse.getAngle();
-		skewAngle = -skewAngle / 180.0 * CV_PI;
-		
-		cv::Mat rotatedImage = rdf::Algorithms::instance().rotateImage(inputImg, skewAngle);
-		if (rotatedImage.channels() == 1) {
-			cv::cvtColor(rotatedImage, rotatedImage, CV_GRAY2BGRA);
-		}
-
-		QImage result = rdf::Image::instance().mat2QImage(rotatedImage);
-		
-		imgC->setImage(result, "Skew corrected");
-
-		//parse string
-		QRegExp rx("[+-]?[0-9]*[\\.?][0-9]*");
-		//QString test = "IMG(0006)_SA[-5.76].png";
-		int gtFound = rx.indexIn(imgC->fileName());
-		QStringList list = rx.capturedTexts();
-		double skewGt = 0;
-		if (list.size() != 1) {
-			qWarning() << "no GT found";
-		}
-		else {
-			QString skGTs = list[0];
-			skewGt = skGTs.toDouble();
-		}
+	if (runID == mRunIDs[id_skew_native]) {
 
 		QSharedPointer<SkewInfo> skewInfo(new SkewInfo(runID, imgC->filePath()));
-		//testInfo->setProperty("Mirrored");
-		skewInfo->setSkew(-skewAngle/CV_PI*180.0);
-		skewInfo->setSkewGt(skewGt);
-		skewInfo->setProperty(imgC->fileName());
-		qDebug() << "skew calculated...";
-
-		//saveSettings(nmc::Settings::instance().getSettings());
-
-		info = skewInfo; 
-	}
-	else if(runID == mRunIDs[id_skewdoc]) {
-
-		QImage img = imgC->image();
-
-		rdf::BaseSkewEstimation bse;
-		cv::Mat inputImg = rdf::Image::instance().qImage2Mat(img);
-		//if (inputImg.channels() != 1) cv::cvtColor(inputImg, inputImg, CV_RGB2GRAY);
-
-		bse.setImages(inputImg);
-		bse.setFixedThr(false);
-
-		QSharedPointer<rdf::BaseSkewEstimationConfig> cf = bse.config();
-		*cf = mBseConfig;
-		
-		//use this settings for documents (best results based on disec evaluation):
-		//Attention: overrides settings file
-		//cf->setWidth(60);
-		//cf->setHeight(28);
-		//cf->setSigma(0.5);
-		//bse.setW(60);
-		//bse.setH(28);
-		//bse.setSigma(0.5);
-
-
-		bool skewComp = bse.compute();
-		if (!skewComp) {
-			qDebug() << "could not compute skew";
-		}
-
-		double skewAngle = bse.getAngle();
-		skewAngle = -skewAngle / 180.0 * CV_PI;
-
-		cv::Mat rotatedImage = rdf::Algorithms::instance().rotateImage(inputImg, skewAngle);
-		if (rotatedImage.channels() == 1) {
-			cv::cvtColor(rotatedImage, rotatedImage, CV_GRAY2BGRA);
-		}
-
-		QImage result = rdf::Image::instance().mat2QImage(rotatedImage);
-
-		imgC->setImage(result, "Skew corrected");
-
-		//parse string
-		QRegExp rx("[+-]?[0-9]*[\\.?][0-9]*");
-		//QString test = "IMG(0006)_SA[-5.76].png";
-		int gtFound = rx.indexIn(imgC->fileName());
-		QStringList list = rx.capturedTexts();
-		double skewGt = 0;
-		if (list.size() != 1) {
-			qWarning() << "no GT found";
-		}
-		else {
-			QString skGTs = list[0];
-			skewGt = skGTs.toDouble();
-		}
-
-		QSharedPointer<SkewInfo> skewInfo(new SkewInfo(runID, imgC->filePath()));
-		//testInfo->setProperty("Mirrored");
-		skewInfo->setSkew(-skewAngle / CV_PI*180.0);
-		skewInfo->setSkewGt(skewGt);
-		skewInfo->setProperty(imgC->fileName());
-		qDebug() << "skew calculated...";
-
-		//saveSettings(nmc::Settings::instance().getSettings());
-
+		skewNative(imgC, skewInfo);
 		info = skewInfo;
-
-
 	}
+	else if (runID == mRunIDs[id_skew_doc]) {
+		QSharedPointer<SkewInfo> skewInfo(new SkewInfo(runID, imgC->filePath()));
+		skewDoc(imgC, skewInfo);
+		info = skewInfo;
+	}
+	else if (runID == mRunIDs[id_skew_textline] || runID == mRunIDs[id_skew_textline_draw]) {
+		QSharedPointer<SkewInfo> skewInfo(new SkewInfo(runID, imgC->filePath()));
+		skewTextLine(imgC, skewInfo, runID);
+		info = skewInfo;
+	}
+	else
+		qWarning() << "unknown run ID: " << runID;
 
 	// wrong runID? - do nothing
 	return imgC;
@@ -350,6 +242,7 @@ void SkewEstPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 	//QString fp = "D:\\tmp\\evalSkew.txt";
 	//QString fp = "F:\\flo\\evalSkew.txt";
 	fp = mFilePath;
+	
 	QFile file(fp);
 	if (file.open(QIODevice::WriteOnly)) {
 
@@ -381,15 +274,15 @@ void SkewEstPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 		top80 += angles[i].z();
 	}
 	top80 /= (float)m;
-	qDebug() << "Top80: " << top80;
+qDebug() << "Top80: " << top80;
 
-	saveSettings(nmc::Settings::instance().getSettings());
+saveSettings(nmc::Settings::instance().getSettings());
 
 
-	if (runIdx == id_skewnative)
-		qDebug() << "[POST LOADING] skew native";
-	else
-		qDebug() << "[POST LOADING] skew doc";
+if (runIdx == id_skew_native)
+qDebug() << "[POST LOADING] skew native";
+else
+qDebug() << "[POST LOADING] skew doc";
 }
 
 void SkewEstPlugin::setFilePath(QString fp)
@@ -428,6 +321,226 @@ void SkewEstPlugin::saveSettings(QSettings & settings) const
 	settings.beginGroup("SkewEstimation");
 	settings.setValue("skewEvalPath", mFilePath);
 	settings.endGroup();
+}
+
+void SkewEstPlugin::skewTextLine(QSharedPointer<nmc::DkImageContainer>& imgC, QSharedPointer<SkewInfo>& skewInfo, const QString& runId) const
+{
+
+	if (!imgC)
+		return;
+
+	QImage qImg = imgC->image();
+	cv::Mat img = rdf::Image::qImage2Mat(qImg);
+
+	rdf::SuperPixel superPixel(img);
+
+	if (!superPixel.compute())
+		qWarning() << "could not compute super pixel!";
+
+	QVector<QSharedPointer<rdf::Pixel> > sp = superPixel.getSuperPixels();
+
+	// configure local orientation module
+	QSharedPointer<rdf::LocalOrientationConfig> loc(new rdf::LocalOrientationConfig());
+	loc->setNumOrientations(64);
+
+	rdf::LocalOrientation lo(sp);
+	lo.setConfig(loc);
+	if (!lo.compute())
+		qWarning() << "could not compute local orientation";
+
+	rdf::GraphCutOrientation pse(sp);
+
+	if (!pse.compute())
+		qWarning() << "could not compute set orientation";
+
+	QList<double> angles;
+
+	// get median angle
+	for (auto p : sp) {
+
+		if (!p->stats())
+			continue;
+
+		angles << p->stats()->orientation();
+	}
+
+	// no super pixels found?
+	if (angles.empty())
+		return;
+
+	// find the median angle
+	double skewAngle = -(rdf::Algorithms::statMoment(angles, 0.5) - CV_PI*0.5);
+
+	// if we have an illegal skew angle try the .75 quantile 
+	if (skewAngle < mMinAngle || skewAngle > mMaxAngle) {
+
+		double tmpSkewAngle = -(rdf::Algorithms::statMoment(angles, 0.75) - CV_PI*0.5);
+		if (tmpSkewAngle >= mMinAngle && tmpSkewAngle <= mMaxAngle) {
+			skewAngle = tmpSkewAngle;
+			qInfo() << "using 2nd guess for skew angle";
+		}
+		else
+			qInfo() << "2nd guess rejected: " << tmpSkewAngle*DK_RAD2DEG;
+	}
+
+	QImage oImg = qImg.convertToFormat(QImage::Format_RGB888);
+	if (runId == mRunIDs[id_skew_textline]) {
+		// apply angle to image
+		cv::Mat oImgCv = rdf::Algorithms::rotateImage(img, skewAngle);
+		if (oImgCv.channels() == 1) {
+			cv::cvtColor(oImgCv, oImgCv, CV_GRAY2BGRA);
+		}
+		oImg = rdf::Image::mat2QImage(oImgCv);
+	}
+	else if(runId == mRunIDs[id_skew_textline_draw]) {
+
+		QPainter p(&oImg);
+		p.setPen(rdf::ColorManager::colors()[1]);
+
+		for (auto px : sp)
+			px->draw(p, 0.8, rdf::Pixel::draw_ellipse_stats);
+
+		QFont font = p.font();
+		font.setPointSize(16);
+		p.setFont(font);
+		p.drawText(QPoint(40, 40), tr("angle: %1%2").arg(skewAngle*DK_RAD2DEG).arg(QChar(0x00B0)));
+	}
+
+
+	imgC->setImage(oImg, "Skew corrected");
+
+	parseGT(imgC->fileName(), skewAngle, skewInfo);
+}
+
+void SkewEstPlugin::parseGT(const QString & fileName, double skewAngle, QSharedPointer<SkewInfo>& skewInfo) const
+{
+
+	//parse string
+	QRegExp rx("[+-]?[0-9]*[\\.?][0-9]*");
+	//eigentlich richtig
+	////QRegExp rx("\\[[+-]?[0-9]*[\\.]?[0-9]*\\]");
+	//QString test = "IMG(0006)_SA[-5.76].png";
+	int gtFound = rx.indexIn(fileName);
+	QStringList list = rx.capturedTexts();
+	double skewGt = 0;
+	if (list.size() != 1) {
+		qWarning() << "no GT found";
+	}
+	else {
+		QString skGTs = list[0];
+		skewGt = skGTs.toDouble();
+	}
+
+	skewInfo->setSkew(-skewAngle / CV_PI*180.0);
+	skewInfo->setSkewGt(skewGt);
+	skewInfo->setProperty(fileName);
+
+}
+
+void SkewEstPlugin::skewNative(QSharedPointer<nmc::DkImageContainer>& imgC, QSharedPointer<SkewInfo>& skewInfo) const
+{
+
+	QImage img = imgC->image();
+
+	rdf::BaseSkewEstimation bse;
+	cv::Mat inputImg = rdf::Image::qImage2Mat(img);
+	//if (inputImg.channels() != 1) cv::cvtColor(inputImg, inputImg, CV_RGB2GRAY);
+
+	bse.setImages(inputImg);
+	QSharedPointer<rdf::BaseSkewEstimationConfig> cf = bse.config();
+	*cf = mBseConfig;
+
+	qDebug() << "cf delta: " << bse.config()->delta();
+
+	int w = qRound(inputImg.cols / 1430.0*49.0); //check  (nomacs plugin version)
+	cf->setWidth(w);
+	//bse.setW(w);
+	int h = qRound(inputImg.rows / 700.0*12.0); //check (nomacs plugin version)
+	cf->setHeight(h);
+	//bse.setH(h);
+	int delta = qRound(inputImg.cols / 1430.0*20.0); //check (nomacs plugin version)
+	cf->setDelta(delta);
+	//bse.setDelta(delta);
+	int minLL = qRound(inputImg.cols / 1430.0 * 20.0); //check
+	cf->setMinLineLength(minLL);
+	cf->setThr(0.1);
+	//bse.setmMinLineLength(minLL);
+	//bse.setThr(0.1);
+	bse.setFixedThr(false);
+
+
+	bool skewComp = bse.compute();
+	if (!skewComp) {
+		qDebug() << "could not compute skew";
+	}
+
+	double skewAngle = bse.getAngle();
+	skewAngle = -skewAngle / 180.0 * CV_PI;
+
+	cv::Mat rotatedImage = rdf::Algorithms::rotateImage(inputImg, skewAngle);
+	if (rotatedImage.channels() == 1) {
+		cv::cvtColor(rotatedImage, rotatedImage, CV_GRAY2BGRA);
+	}
+
+	QImage result = rdf::Image::mat2QImage(rotatedImage);
+
+	imgC->setImage(result, "Skew corrected");
+
+	//parse string
+	parseGT(imgC->fileName(), skewAngle, skewInfo);
+	qDebug() << "skew calculated...";
+
+	//saveSettings(nmc::Settings::instance().getSettings());
+
+}
+
+void SkewEstPlugin::skewDoc(QSharedPointer<nmc::DkImageContainer>& imgC, QSharedPointer<SkewInfo>& skewInfo) const
+{
+	QImage img = imgC->image();
+
+	rdf::BaseSkewEstimation bse;
+	cv::Mat inputImg = rdf::Image::qImage2Mat(img);
+	//if (inputImg.channels() != 1) cv::cvtColor(inputImg, inputImg, CV_RGB2GRAY);
+
+	bse.setImages(inputImg);
+	bse.setFixedThr(false);
+
+	QSharedPointer<rdf::BaseSkewEstimationConfig> cf = bse.config();
+	*cf = mBseConfig;
+
+	//use this settings for documents (best results based on disec evaluation):
+	//Attention: overrides settings file
+	//cf->setWidth(60);
+	//cf->setHeight(28);
+	//cf->setSigma(0.5);
+	//bse.setW(60);
+	//bse.setH(28);
+	//bse.setSigma(0.5);
+
+
+	bool skewComp = bse.compute();
+	if (!skewComp) {
+		qDebug() << "could not compute skew";
+	}
+
+	double skewAngle = bse.getAngle();
+	skewAngle = -skewAngle / 180.0 * CV_PI;
+
+	cv::Mat rotatedImage = rdf::Algorithms::rotateImage(inputImg, skewAngle);
+	if (rotatedImage.channels() == 1) {
+		cv::cvtColor(rotatedImage, rotatedImage, CV_GRAY2BGRA);
+	}
+
+	QImage result = rdf::Image::mat2QImage(rotatedImage);
+
+	imgC->setImage(result, "Skew corrected");
+
+	parseGT(imgC->fileName(), skewAngle, skewInfo);
+	qDebug() << "skew calculated...";
+
+	//saveSettings(nmc::Settings::instance().getSettings());
+
+
 }
 
 // DkTestInfo --------------------------------------------------------------------

@@ -139,7 +139,7 @@ QSharedPointer<nmc::DkImageContainer> BinarizationPlugin::runPlugin(const QStrin
 	if(runID == mRunIDs[id_binarize_otsu]) {
 	
 		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
-		imgCv = rdf::Algorithms::instance().threshOtsu(imgCv);
+		imgCv = rdf::Algorithms::threshOtsu(imgCv);
 		QImage img = nmc::DkImage::mat2QImage(imgCv);
 		img = img.convertToFormat(QImage::Format_ARGB32);
 		imgC->setImage(img, tr("Otsu Binarization"));
@@ -166,7 +166,7 @@ QSharedPointer<nmc::DkImageContainer> BinarizationPlugin::runPlugin(const QStrin
 	
 		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
 
-		cv::Mat mask = rdf::Algorithms::instance().estimateMask(imgCv);
+		cv::Mat mask = rdf::Algorithms::estimateMask(imgCv);
 
 		
 		rdf::BinarizationSuAdapted segSuM(imgCv, mask);

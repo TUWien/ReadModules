@@ -166,7 +166,7 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 		//cv::Mat desc = wi.descriptors();
 		//cv::Mat newDesc = cv::Mat(0, desc.cols, desc.type());
 		//int r = 0;
-		//rdf::Image::instance().imageInfo(desc, "desc");
+		//rdf::Image::imageInfo(desc, "desc");
 		//for(auto kpItr = kp.begin(); kpItr != kp.end(); r++) {
 		//	kpItr->size *= 1.5 * 4;
 		//	if(kpItr->size > 70) {
@@ -178,7 +178,7 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 		//		newDesc.push_back(desc.row(r).clone());
 		//	}
 		//}
-		//rdf::Image::instance().imageInfo(newDesc, "newDesc");
+		//rdf::Image::imageInfo(newDesc, "newDesc");
 		//wi.setDescriptors(newDesc);
 		//wi.setKeyPoints(kp);
 		cv::drawKeypoints(imgCv, kp.toStdVector(), imgCv, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
@@ -257,8 +257,8 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 
 			cv::Mat feature = mVocabulary.generateHist(descriptors);
 
-			rdf::Image::instance().imageInfo(descriptors, "descriptors");
-			rdf::Image::instance().imageInfo(feature, "feature");
+			rdf::Image::imageInfo(descriptors, "descriptors");
+			rdf::Image::imageInfo(feature, "feature");
 
 			QString label = extractWriterIDFromFilename(QFileInfo(imgC->filePath()).baseName());
 

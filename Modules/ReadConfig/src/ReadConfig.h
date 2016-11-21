@@ -33,44 +33,38 @@ related links:
 #pragma once
 
 #include "DkPluginInterface.h"
-#include "LineTrace.h"
-#include "SuperPixelTrainer.h"
-#include "SuperPixelClassification.h"
+#include "DkBatchInfo.h"
+#include "DkSettingsWidget.h"
 
-// opencv defines
-namespace cv {
-	class Mat;
-}
-
-namespace rdf {
-	class LineTrace;
-	class PageXmlParser;
-}
+#pragma warning(push, 0)	// no warnings from includes - begin
+#include <QDialog>
+#pragma warning(pop)		// no warnings from includes - end
 
 namespace rdm {
 
+class SettingsDialog;
 
-class LayoutInfo : public nmc::DkBatchInfo {
+class DkTestInfo : public nmc::DkBatchInfo {
 
 public:
-	LayoutInfo(const QString& id = QString(), const QString& filePath = QString());
+	DkTestInfo(const QString& id = QString(), const QString& filePath = QString());
 
-	void setFeatureCollectionManager(const rdf::FeatureCollectionManager& manager);
-	rdf::FeatureCollectionManager featureCollectionManager() const;
+	void setProperty(const QString& p);
+	QString property() const;
 
 private:
-	rdf::FeatureCollectionManager mManager;
+	QString mProp;
+
 };
 
-
-class LayoutPlugin : public QObject, nmc::DkBatchPluginInterface {
+class ReadConfig : public QObject, nmc::DkBatchPluginInterface {
 	Q_OBJECT
 		Q_INTERFACES(nmc::DkBatchPluginInterface)
-		Q_PLUGIN_METADATA(IID "com.nomacs.ImageLounge.LayoutPlugin/3.0" FILE "LayoutPlugin.json")
+		Q_PLUGIN_METADATA(IID "com.nomacs.ImageLounge.ReadConfig/3.2" FILE "ReadConfig.json")
 
 public:
-	LayoutPlugin(QObject* parent = 0);
-	~LayoutPlugin();
+	ReadConfig(QObject* parent = 0);
+	~ReadConfig();
 
 	QString id() const override;
 	QImage image() const override;
@@ -79,22 +73,15 @@ public:
 	QList<QAction*> pluginActions() const override;
 	QSharedPointer<nmc::DkImageContainer> runPlugin(
 		const QString &runID, 
-		QSharedPointer<nmc::DkImageContainer> imgC, 
+		QSharedPointer<nmc::DkImageContainer> imgC,
 		const nmc::DkSaveInfo& saveInfo,
-		QSharedPointer<nmc::DkBatchInfo>& batchInfo) const override;
+		QSharedPointer<nmc::DkBatchInfo>& info) const override;
 
-	virtual void preLoadPlugin() const override {};
-	virtual void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> > &) const override;
+	void preLoadPlugin() const override;
+	void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const override;
 
 	enum {
-		id_layout_draw,
-		id_layout_xml,
-		id_text_block,
-		id_text_block_xml,
-		id_lines,
-		id_line_img,
-		id_layout_collect_features,
-		id_layout_train,
+		id_settings,
 		// add actions here
 
 		id_end
@@ -105,17 +92,19 @@ protected:
 	QStringList mRunIDs;
 	QStringList mMenuNames;
 	QStringList mMenuStatusTips;
-
-	rdf::LineTraceConfig mLTRConfig;
-	rdf::SuperPixelLabelerConfig mSplConfig;
-	rdf::SuperPixelClassifierConfig mSpcConfig;
-
-	void init();
-
-	// layout plugin functions
-	cv::Mat compute(const cv::Mat& src, const rdf::PageXmlParser& parser) const;
-	cv::Mat computePageSegmentation(const cv::Mat& src, const rdf::PageXmlParser& parser) const;
-	void collectFeatures(const cv::Mat& src, const rdf::PageXmlParser& parser, QSharedPointer<LayoutInfo>& layoutInfo) const;
-	rdf::LineTrace computeLines(QSharedPointer<nmc::DkImageContainer> imgC) const;
 };
+
+class SettingsDialog : public QDialog {
+	Q_OBJECT
+
+public:
+	SettingsDialog(const QString& title = tr("READ Settings"), QWidget* parent = 0);
+
+	void setSettings(QSettings& settings);
+
+protected:
+	nmc::DkSettingsWidget* mSettingsWidget = 0;
+	void createLayout();
+};
+
 };

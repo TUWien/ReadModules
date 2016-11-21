@@ -66,6 +66,10 @@ QSharedPointer<rdf::PageElement> PageData::page() const {
 	return mPage;
 }
 
+QString PageData::xmlPath() const {
+	return mXmlPath;
+}
+
 void PageData::loadConfig(const QString & name) {
 	
 	loadSettings(nmc::Settings::instance().getSettings(), name);
@@ -74,6 +78,11 @@ void PageData::loadConfig(const QString & name) {
 void PageData::saveConfig(const QString & name) const {
 
 	saveSettings(nmc::Settings::instance().getSettings(), name);
+}
+
+void PageData::setXmlPath(const QString & path) {
+	mXmlPath = path;
+	emit updateXml();
 }
 
 void PageData::parse(const QString& xmlPath) {
@@ -85,6 +94,7 @@ void PageData::parse(const QString& xmlPath) {
 	parser.read(xmlPath);
 
 	mPage = parser.page();
+	qDebug() << "filename: " << mPage->imageFileName();
 
 	emit updatePage(mPage);
 }

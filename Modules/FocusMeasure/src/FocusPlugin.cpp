@@ -117,7 +117,7 @@ QString FocusPlugin::id() const {
 **/
 QImage FocusPlugin::image() const {
 
-	return QImage(":/BatchTest/img/read.png");
+	return QImage(":/ReadConfig/img/read.png");
 };
 
 QList<QAction*> FocusPlugin::createActions(QWidget* parent) {
@@ -221,7 +221,7 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(
 		QImage img = imgC->image();
 		
 
-		cv::Mat inputImg = rdf::Image::instance().qImage2Mat(img);
+		cv::Mat inputImg = rdf::Image::qImage2Mat(img);
 		rdf::FocusEstimation fe;
 		int w = inputImg.cols < inputImg.rows ? inputImg.cols : inputImg.rows;
 		int ws = (int)ceil((double)w / 5.0);
@@ -302,7 +302,7 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(
 
 		QImage img = imgC->image();
 
-		cv::Mat inputImg = rdf::Image::instance().qImage2Mat(img);
+		cv::Mat inputImg = rdf::Image::qImage2Mat(img);
 		rdf::FocusEstimation fe;
 
 
@@ -319,6 +319,8 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(
 		//int ws = 500;
 		fe.setWindowSize(ws);
 		fe.setImg(inputImg);
+
+		rdf::Image::imageInfo(inputImg, "fe ");
 
 		//if (!fe.compute(rdf::FocusEstimation::FocusMeasure::LAPV)) {
 		if (!fe.compute()) {
@@ -386,7 +388,7 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(
 
 		imgC->setImage(fmImg, "Focus measures...");
 		
-		//QImage tmp = rdf::Image::instance().mat2QImage(binImg);
+		//QImage tmp = rdf::Image::mat2QImage(binImg);
 		//tmp = tmp.convertToFormat(QImage::Format_ARGB32);
 		//imgC->setImage(tmp, "binImg...");
 
@@ -403,7 +405,7 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(
 		QImage img = imgC->image();
 
 
-		cv::Mat inputImg = rdf::Image::instance().qImage2Mat(img);
+		cv::Mat inputImg = rdf::Image::qImage2Mat(img);
 		rdf::FocusEstimation fe;
 
 		//cv::Mat binImg;
@@ -430,6 +432,7 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(
 
 
 		qDebug() << "this fm version took me: " << dt;
+
 
 		QImage fmImg = img.copy();
 		QPainter p(&fmImg);
@@ -500,7 +503,7 @@ QSharedPointer<nmc::DkImageContainer> FocusPlugin::runPlugin(
 		QImage img = imgC->image();
 
 
-		cv::Mat inputImg = rdf::Image::instance().qImage2Mat(img);
+		cv::Mat inputImg = rdf::Image::qImage2Mat(img);
 		rdf::ContrastEstimation ce;
 		//int w = inputImg.cols < inputImg.rows ? inputImg.cols : inputImg.rows;
 		//int ws = (int)ceil((double)w / 5.0);

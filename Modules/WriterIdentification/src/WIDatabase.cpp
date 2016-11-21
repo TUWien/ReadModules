@@ -85,14 +85,14 @@ namespace rdm {
 		}
 		qDebug() << "generating vocabulary:" << mVocabulary.toString();
 
-		rdf::Image::instance().imageInfo(mDescriptors[0], "mDescriptors[0]");
+		rdf::Image::imageInfo(mDescriptors[0], "mDescriptors[0]");
 		cv::Mat allDesc(0, 0, CV_32FC1);
 		for(int i = 0; i < mDescriptors.size(); i++) {
 			allDesc.push_back(mDescriptors[i]);
 		}
 
 		if(mVocabulary.numberOfPCA() > 0) { 
-			rdf::Image::instance().imageInfo(allDesc, "allDesc vor aufruf calculatePCA");
+			rdf::Image::imageInfo(allDesc, "allDesc vor aufruf calculatePCA");
 			allDesc = calculatePCA(allDesc); // TODO ... currently also making a L2 normalization
 		}		
 
@@ -348,17 +348,17 @@ namespace rdm {
 			mVocabulary.setL2Sigma(stddev);
 
 			// L2 normalization 
-			rdf::Image::instance().imageInfo(desc, "desc vor l2");
+			rdf::Image::imageInfo(desc, "desc vor l2");
 			descResult = (desc - cv::Mat::ones(desc.rows, 1, CV_32F) * means.t());
 
 			//cv::Mat descResult = desc.clone();
 			//qDebug() << "using modified L2";
 
-			rdf::Image::instance().imageInfo(descResult, "descResults vor l2 after subtracting means");
+			rdf::Image::imageInfo(descResult, "descResults vor l2 after subtracting means");
 			for(int i = 0; i < descResult.rows; i++) {
 				descResult.row(i) = descResult.row(i) / stddev.t();	// caution - don't clone this line unless you know what you do (without an operator / the assignment does nothing)
 			}
-			rdf::Image::instance().imageInfo(descResult, "descResults nach l2");
+			rdf::Image::imageInfo(descResult, "descResults nach l2");
 		}
 		else {
 			qDebug() << "normalization before L2 is turned off ... skipping";
@@ -372,7 +372,7 @@ namespace rdm {
 		
 
 		descResult = mVocabulary.applyPCA(descResult);
-		rdf::Image::instance().imageInfo(descResult, "descResults nach pca");
+		rdf::Image::imageInfo(descResult, "descResults nach pca");
 		return descResult;
 	}
 	/// <summary>
@@ -397,7 +397,7 @@ namespace rdm {
 		em->setTermCriteria(tc);
 
 		qDebug() << "start training GMM - number of features:" << desc.rows; 
-		rdf::Image::instance().imageInfo(desc, "all descriptors");
+		rdf::Image::imageInfo(desc, "all descriptors");
 		if(!em->trainEM(desc)) {
 			qWarning() << "unable to train GMM";
 			return;

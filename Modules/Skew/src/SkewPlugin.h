@@ -96,9 +96,11 @@ public:
 	void setFilePath(QString fp);
 	QString filePath() const;
 
-	enum {
-		id_skewnative,
-		id_skewdoc,
+	enum RunID {
+		id_skew_native,
+		id_skew_doc,
+		id_skew_textline,
+		id_skew_textline_draw,
 		// add actions here
 
 		id_end
@@ -113,10 +115,17 @@ protected:
 	QString mFilePath;
 	rdf::BaseSkewEstimationConfig mBseConfig;
 
+	double mMinAngle = -CV_PI/2.0;
+	double mMaxAngle = CV_PI/2.0;
+
 private:
 	void init();
 	void loadSettings(QSettings& settings);
 	void saveSettings(QSettings& settings) const;
 
+	void skewNative(QSharedPointer<nmc::DkImageContainer>& imgC, QSharedPointer<SkewInfo>& skewInfo) const;
+	void skewDoc(QSharedPointer<nmc::DkImageContainer>& imgC, QSharedPointer<SkewInfo>& skewInfo) const;
+	void skewTextLine(QSharedPointer<nmc::DkImageContainer>& imgC, QSharedPointer<SkewInfo>& skewInfo, const QString& runId) const;
+	void parseGT(const QString& fileName, double skewAngle, QSharedPointer<SkewInfo>& skewInfo) const;
 };
 };

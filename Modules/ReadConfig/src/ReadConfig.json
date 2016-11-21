@@ -1,0 +1,11 @@
+{
+    "PluginName" 	: "READ Config",
+	"Tagline" 		: "Configure your READ plugins.",
+	"Description"	: "This plugin allows you to configure paths, parameters etc. of your READ plugins.",
+	"AuthorName" 	: "Markus Diem",
+	"Company"		: "Computer Vision Lab",
+	"DateCreated" 	: "2016-10-19",
+	"DateModified"	: "2016-11-19",
+	"PluginId"		: "3d21d128c6e74b83ad66cfc82f7dc462",
+	"Version"		: "0.1.0"
+}
