@@ -274,15 +274,14 @@ void SkewEstPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 		top80 += angles[i].z();
 	}
 	top80 /= (float)m;
-qDebug() << "Top80: " << top80;
+	qDebug() << "Top80: " << top80;
 
-saveSettings(nmc::Settings::instance().getSettings());
+	saveSettings(rdf::Config::instance().settings());
 
-
-if (runIdx == id_skew_native)
-qDebug() << "[POST LOADING] skew native";
-else
-qDebug() << "[POST LOADING] skew doc";
+	if (runIdx == id_skew_native)
+		qDebug() << "[POST LOADING] skew native";
+	else
+		qDebug() << "[POST LOADING] skew doc";
 }
 
 void SkewEstPlugin::setFilePath(QString fp)
@@ -297,7 +296,7 @@ QString SkewEstPlugin::filePath() const
 
 void SkewEstPlugin::init()
 {
-	loadSettings(nmc::Settings::instance().getSettings());
+	loadSettings(rdf::Config::instance().settings());
 
 	mBseConfig.loadSettings();
 	mBseConfig.saveSettings();
@@ -490,7 +489,7 @@ void SkewEstPlugin::skewNative(QSharedPointer<nmc::DkImageContainer>& imgC, QSha
 	parseGT(imgC->fileName(), skewAngle, skewInfo);
 	qDebug() << "skew calculated...";
 
-	//saveSettings(nmc::Settings::instance().getSettings());
+	//saveSettings(rdf::Config::instance().settings());
 
 }
 
@@ -538,7 +537,7 @@ void SkewEstPlugin::skewDoc(QSharedPointer<nmc::DkImageContainer>& imgC, QShared
 	parseGT(imgC->fileName(), skewAngle, skewInfo);
 	qDebug() << "skew calculated...";
 
-	//saveSettings(nmc::Settings::instance().getSettings());
+	//saveSettings(rdf::Config::instance().settings());
 
 
 }

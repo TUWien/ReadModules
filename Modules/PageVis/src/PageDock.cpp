@@ -261,8 +261,7 @@ void ConfigWidget::on_drawBaseline_clicked(bool toggled) {
 
 void ConfigWidget::loadConfig(const QString & name) {
 
-	// use nomacs settings here - for it's in the GUI
-	QSettings& settings = nmc::Settings::instance().getSettings();
+	QSettings& settings = rdf::Config::instance().settings();
 	settings.beginGroup(name);
 	auto config = QSharedPointer<rdf::RegionTypeConfig>::create();
 	config->load(settings);
@@ -279,8 +278,7 @@ void ConfigWidget::saveConfig(const QString & name) {
 		return;
 	}
 
-	// use nomacs settings here - for it's in the GUI
-	QSettings& settings = nmc::Settings::instance().getSettings();
+	QSettings& settings = rdf::Config::instance().settings();
 	settings.beginGroup(name);
 	mConfig->save(settings);
 	settings.endGroup();

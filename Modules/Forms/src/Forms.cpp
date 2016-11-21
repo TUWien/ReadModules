@@ -85,7 +85,7 @@ FormsAnalysis::FormsAnalysis(QObject* parent) : QObject(parent) {
 	statusTips[id_classifyxml] = tr("Classify based on xml separators");
 	mMenuStatusTips = statusTips.toList();
 
-	loadSettings(nmc::Settings::instance().getSettings());
+	loadSettings(nmc::DkSettingsManager::instance().qSettings());
 }
 /**
 *	Destructor
@@ -360,11 +360,8 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 	else
 		qDebug() << "[POST LOADING] train/add training";
 
-
-
-
 	//not tested....
-	saveSettings(nmc::Settings::instance().getSettings());
+	saveSettings(rdf::Config::instance().settings());
 }
 
 void FormsAnalysis::loadSettings(QSettings & settings) {

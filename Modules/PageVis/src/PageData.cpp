@@ -34,12 +34,11 @@
 
 // framework
 #include "PageParser.h"
-
-// nomacs
-#include "DkSettings.h"
+#include "Settings.h"
 
 #pragma warning(push, 0)	// no warnings from includes
 #include <QDebug>
+#include <QSettings>
 #pragma warning(pop)
 
 namespace rdm {
@@ -72,12 +71,12 @@ QString PageData::xmlPath() const {
 
 void PageData::loadConfig(const QString & name) {
 	
-	loadSettings(nmc::Settings::instance().getSettings(), name);
+	loadSettings(rdf::Config::instance().settings(), name);
 }
 
 void PageData::saveConfig(const QString & name) const {
 
-	saveSettings(nmc::Settings::instance().getSettings(), name);
+	saveSettings(rdf::Config::instance().settings(), name);
 }
 
 void PageData::setXmlPath(const QString & path) {
