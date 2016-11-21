@@ -21,5 +21,5 @@ var classrdm_1_1_writer_identification_plugin =
     [ "mMenuNames", "classrdm_1_1_writer_identification_plugin.html#a1ad957370d0a28a177561a512ff08323", null ],
     [ "mMenuStatusTips", "classrdm_1_1_writer_identification_plugin.html#a03f044deb94eaa8720f969ac09892339", null ],
     [ "mRunIDs", "classrdm_1_1_writer_identification_plugin.html#af575a3818d3ee88137cf4a8aa71542d0", null ],
-    [ "mWIDatabase", "classrdm_1_1_writer_identification_plugin.html#a765fbb3b5091ca846f29c4f340ca23fe", null ]
+    [ "mWIDatabase", "classrdm_1_1_writer_identification_plugin.html#ab992cd3b4d06fb03892ba3ceaaf60ad1", null ]
 ];

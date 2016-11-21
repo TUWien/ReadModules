@@ -61,8 +61,5 @@ var hierarchy =
       [ "rdm::PolygonInfoWidget", "classrdm_1_1_polygon_info_widget.html", null ],
       [ "rdm::RegionWidget", "classrdm_1_1_region_widget.html", null ],
       [ "rdm::TitledLabel", "classrdm_1_1_titled_label.html", null ]
-    ] ],
-    [ "rdm::WIDatabase", "classrdm_1_1_w_i_database.html", null ],
-    [ "rdm::WIVocabulary", "classrdm_1_1_w_i_vocabulary.html", null ],
-    [ "rdm::WriterIdentification", "classrdm_1_1_writer_identification.html", null ]
+    ] ]
 ];

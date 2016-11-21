@@ -28,5 +28,5 @@ var searchData=
   ['msplconfig',['mSplConfig',['../classrdm_1_1_layout_plugin.html#a315305c727fe6471efd8d901e1b099f1',1,'rdm::LayoutPlugin']]],
   ['mtext',['mText',['../classrdm_1_1_region_widget.html#a20875ecef9b088e07b7bb885f85d408c',1,'rdm::RegionWidget']]],
   ['mtexttitle',['mTextTitle',['../classrdm_1_1_region_widget.html#a651dfa8308fe8afb22b8fdcc90133195',1,'rdm::RegionWidget']]],
-  ['mwidatabase',['mWIDatabase',['../classrdm_1_1_writer_identification_plugin.html#a765fbb3b5091ca846f29c4f340ca23fe',1,'rdm::WriterIdentificationPlugin']]]
+  ['mwidatabase',['mWIDatabase',['../classrdm_1_1_writer_identification_plugin.html#ab992cd3b4d06fb03892ba3ceaaf60ad1',1,'rdm::WriterIdentificationPlugin']]]
 ];

@@ -1,11 +1,21 @@
 var searchData=
 [
-  ['deleteviewport',['deleteViewPort',['../classrdm_1_1_page_vis_plugin.html#a8aaa84b8f46037cf86fc111cdc06fcb0',1,'rdm::PageVisPlugin']]],
-  ['descriptors',['descriptors',['../classrdm_1_1_writer_identification.html#af5d12d8d76f1b25f66a7e2defdd6a197',1,'rdm::WriterIdentification']]],
-  ['dirlabel',['DirLabel',['../classrdm_1_1_dir_label.html#a4420f80c03b78ef38a1f3f67de382d86',1,'rdm::DirLabel']]],
-  ['dirlabel',['DirLabel',['../classrdm_1_1_dir_label.html',1,'rdm']]],
-  ['dktestinfo',['DkTestInfo',['../classrdm_1_1_dk_test_info.html',1,'rdm']]],
-  ['dktestinfo',['DkTestInfo',['../classrdm_1_1_dk_test_info.html#ab7828febc8307c080c11397d3ee783ca',1,'rdm::DkTestInfo::DkTestInfo(const QString &amp;id=QString(), const QString &amp;filePath=QString())'],['../classrdm_1_1_dk_test_info.html#ab7828febc8307c080c11397d3ee783ca',1,'rdm::DkTestInfo::DkTestInfo(const QString &amp;id=QString(), const QString &amp;filePath=QString())']]],
-  ['dock',['dock',['../classrdm_1_1_page_viewport.html#aaa86d0dcd999e6a90cb0ecd8729a7088',1,'rdm::PageViewport']]],
-  ['drawregions',['drawRegions',['../classrdm_1_1_page_dock.html#a71c4ccc973c4937e1f834d180d369d1b',1,'rdm::PageDock']]]
+  ['featurecollectionmanager',['featureCollectionManager',['../classrdm_1_1_layout_info.html#affab5e16442da95cc8f054aa8bf27601',1,'rdm::LayoutInfo']]],
+  ['featurefilepath',['featureFilePath',['../classrdm_1_1_w_i_info.html#a84c1f0c9f10962ef98ed36ab64d21b2f',1,'rdm::WIInfo']]],
+  ['featurevector',['featureVector',['../classrdm_1_1_w_i_info.html#a5bd881ce166b4233453ec9ce679a9f53',1,'rdm::WIInfo']]],
+  ['filepath',['filePath',['../classrdm_1_1_skew_est_plugin.html#a848599e3d7a18039b4dbbb757835079f',1,'rdm::SkewEstPlugin']]],
+  ['focusinfo',['FocusInfo',['../classrdm_1_1_focus_info.html',1,'rdm']]],
+  ['focusinfo',['FocusInfo',['../classrdm_1_1_focus_info.html#a2379329a802e9075c064f7b3c196d427',1,'rdm::FocusInfo']]],
+  ['focusplugin',['FocusPlugin',['../classrdm_1_1_focus_plugin.html',1,'rdm']]],
+  ['focusplugin',['FocusPlugin',['../classrdm_1_1_focus_plugin.html#abce1828bdb2430b515c9e030b1248512',1,'rdm::FocusPlugin']]],
+  ['focusplugin_2ecpp',['FocusPlugin.cpp',['../_focus_plugin_8cpp.html',1,'']]],
+  ['focusplugin_2eh',['FocusPlugin.h',['../_focus_plugin_8h.html',1,'']]],
+  ['formname',['formName',['../classrdm_1_1_forms_info.html#aebe111e18031d158c4f90ba602e33a98',1,'rdm::FormsInfo']]],
+  ['forms_2ecpp',['Forms.cpp',['../_forms_8cpp.html',1,'']]],
+  ['forms_2eh',['Forms.h',['../_forms_8h.html',1,'']]],
+  ['formsanalysis',['FormsAnalysis',['../classrdm_1_1_forms_analysis.html#a1fc5135dc1f7c3738b94fb68df4c2fbc',1,'rdm::FormsAnalysis']]],
+  ['formsanalysis',['FormsAnalysis',['../classrdm_1_1_forms_analysis.html',1,'rdm']]],
+  ['formsinfo',['FormsInfo',['../classrdm_1_1_forms_info.html#afa51f5081cdd664e97fed3b5f751f817',1,'rdm::FormsInfo']]],
+  ['formsinfo',['FormsInfo',['../classrdm_1_1_forms_info.html',1,'rdm']]],
+  ['formsize',['formSize',['../classrdm_1_1_forms_info.html#a9d116d712f23177eeaa6f68a8304734b',1,'rdm::FormsInfo']]]
 ];
