@@ -39,6 +39,7 @@ related links:
 #include "Settings.h"
 #include "Image.h"
 #include "FormAnalysis.h"
+#include "LineTrace.h"
 #include "Algorithms.h"
 #include "PageParser.h"
 #include "Elements.h"
@@ -178,19 +179,65 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 	}
 	else if(runID == mRunIDs[id_show]) {
 
-		//only test version
-		//nit yet implemented
+		//test LSD here
 		QImage img = imgC->image();
-		img = img.convertToFormat(QImage::Format_Grayscale8);
-		imgC->setImage(img, "Grayscale");
+		cv::Mat imgIn = rdf::Image::qImage2Mat(img);
+		cv::Mat imgInG;
+		if (imgIn.channels() != 1) cv::cvtColor(imgIn, imgInG, CV_RGB2GRAY);
 
-		QSharedPointer<FormsInfo> testInfo(new FormsInfo(runID, imgC->filePath()));
-		testInfo->setFormName(imgC->filePath());
-		qDebug() << "id_show... (not implemented, shows only grayscale img)";
+		rdf::ReadLSD lsd(imgInG);
+		//ReadLSD(inputG, mask);
 
-		info = testInfo;
+		lsd.compute();
+		QVector<rdf::LineSegment> detLines = lsd.lines();
+
+		cv::Mat outImg = lsd.magImg();
+		outImg = lsd.radImg();
+		//cv::Mat outImg = imgIn.clone();
+		
+
+		if (outImg.channels() == 1) {
+			outImg.convertTo(outImg, CV_32F);
+			cv::normalize(outImg, outImg, 1, 0, cv::NORM_MINMAX);
+			rdf::Image::imageInfo(outImg, "outimg");
+			cv::cvtColor(outImg, outImg, CV_GRAY2BGRA);
+		}
+				
+				
+		QImage result = rdf::Image::mat2QImage(outImg);
+		
+		QPainter myPainter(&result);
+		myPainter.setPen(QPen(Qt::red, 1, Qt::SolidLine, Qt::RoundCap));
+		//myPainter.drawLine(QPoint(0,0), QPoint(500,500));
+
+		qDebug() << "LSD lines detected: " << detLines.size();;
+
+		for (int i = 0; i < detLines.size(); i++) {
+
+			rdf::LineSegment lineTmp = detLines[i];
+			myPainter.drawLine(lineTmp.line().p1().toQPoint(), lineTmp.line().p2().toQPoint());
+			//qDebug() << "Point 1: " << lineTmp.line().p1().toQPoint() << " Point 2: " << lineTmp.line().p2().toQPoint();
+		}
+		myPainter.end();
+
+
+		qDebug() << "LSD calculated...";
+		imgC->setImage(result, "LSD Image");
+
+		////only test version
+		////not yet implemented
+		//QImage img = imgC->image();
+		//img = img.convertToFormat(QImage::Format_Grayscale8);
+		//imgC->setImage(img, "Grayscale");
+
+		//QSharedPointer<FormsInfo> testInfo(new FormsInfo(runID, imgC->filePath()));
+		//testInfo->setFormName(imgC->filePath());
+		//qDebug() << "id_show... (not implemented, shows only grayscale img)";
+
+		//info = testInfo;
 	}
 	else if (runID == mRunIDs[id_classifyxml]) {
+
 
 		qDebug() << "classify based on xml separators...";
 		
