@@ -27,7 +27,7 @@ if (NOT BUILDING_MULTIPLE_PLUGINS)
 endif()
 
 # OpenCV additional package
-RDM_FIND_OPENCV("xfeatures2d" "ml")
+RDM_FIND_OPENCV()
 
 
 include_directories (
