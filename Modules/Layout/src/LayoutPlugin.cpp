@@ -506,7 +506,7 @@ cv::Mat LayoutPlugin::collectFeatures(const cv::Mat & src, const rdf::PageXmlPar
 	if (mConfig.drawResults()) {
 		cv::Mat rImg = src.clone();
 		rImg = spl.draw(rImg);
-		rImg = spf.draw(rImg);
+		//rImg = spf.draw(rImg);
 		return rImg;
 	}
 
