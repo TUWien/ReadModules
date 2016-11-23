@@ -81,7 +81,7 @@ ReadConfig::ReadConfig(QObject* parent) : QObject(parent) {
 **/
 ReadConfig::~ReadConfig() {
 
-	qDebug() << "destroying binarization plugin...";
+	qDebug() << "destroying config plugin...";
 }
 
 

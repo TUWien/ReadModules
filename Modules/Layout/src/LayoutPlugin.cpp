@@ -112,6 +112,8 @@ LayoutPlugin::~LayoutPlugin() {
 
 void LayoutPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const {
 
+	rdf::Config::instance().save();
+
 	if (batchInfo.empty())
 		return;
 

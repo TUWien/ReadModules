@@ -99,7 +99,7 @@ namespace rdm {
 **/
 	FocusPlugin::~FocusPlugin() {
 
-	qDebug() << "destroying binarization plugin...";
+	qDebug() << "destroying focus plugin...";
 }
 
 

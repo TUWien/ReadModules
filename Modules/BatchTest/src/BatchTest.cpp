@@ -78,7 +78,7 @@ BatchTest::BatchTest(QObject* parent) : QObject(parent) {
 **/
 BatchTest::~BatchTest() {
 
-	qDebug() << "destroying binarization plugin...";
+	qDebug() << "destroying batch test plugin...";
 }
 
 
