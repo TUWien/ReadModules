@@ -1,9 +1,9 @@
 # READ Modules
 READ Modules are document analysis modules developed at CVL/TU Wien for the EU project READ. The READ project  has  received  funding  from  the European  Union’s  Horizon  2020 research  and innovation programme under grant agreement No 674943.
- 
+
 [![Build Status](https://travis-ci.org/TUWien/ReadModules.svg?branch=master)](https://travis-ci.org/TUWien/ReadModules)
 
-Documentation can be found here: http://tuwien.github.io/ReadModules/html/
+Documentation can be found here: http://read-api.caa.tuwien.ac.at/ReadModules/
 
 ## Build on Windows
 
@@ -28,7 +28,7 @@ Go to the nomacs directory and run `cmake` to get the Makefiles:
 cd nomacs
 cmake ImageLounge/.
 ```
-Compile nomacs: 
+Compile nomacs:
 ``` console
 make
 ```
@@ -42,10 +42,10 @@ This will by default place the source into ./ReadFramework
 Go to the ReadFramework directory and run `cmake` to get the Makefiles:
 ``` console
 cd ReadFramework
-cmake . 
+cmake .
 ```
 
-Compile READ Framework: 
+Compile READ Framework:
 ``` console
 make
 ```
@@ -60,10 +60,10 @@ Go to the ReadModules directory and run `cmake` to get the Makefiles:
 you have to set the correct nomacs and ReadFramework build directories
 ``` console
 cd ReadModules
-cmake -Dnomacs_DIR=../nomacs/ -DReadFramework_DIR=../ReadFramework . 
+cmake -Dnomacs_DIR=../nomacs/ -DReadFramework_DIR=../ReadFramework .
 ```
 
-Compile READ Modules: 
+Compile READ Modules:
 ``` console
 make
 ```
@@ -88,4 +88,3 @@ Florian Kleber
 [3] https://github.com/TUWien/
 
 [4] http://nomacs.org
-
