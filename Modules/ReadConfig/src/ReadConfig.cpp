@@ -81,7 +81,7 @@ ReadConfig::ReadConfig(QObject* parent) : QObject(parent) {
 **/
 ReadConfig::~ReadConfig() {
 
-	qDebug() << "destroying binarization plugin...";
+	qDebug() << "destroying config plugin...";
 }
 
 
@@ -139,7 +139,7 @@ QSharedPointer<nmc::DkImageContainer> ReadConfig::runPlugin(
 
 	SettingsDialog* sd = new SettingsDialog(tr("READ Settings"), nmc::DkUtils::getMainWindow());
 	sd->setSettings(rdf::Config::instance().settings());
-	sd->setMinimumSize(300, 300);
+	sd->setMinimumSize(480, 600);
 	sd->exec();
 	qDebug() << "showing settings...";
 

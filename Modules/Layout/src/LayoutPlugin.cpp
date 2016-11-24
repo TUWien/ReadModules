@@ -76,32 +76,28 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 	QVector<QString> menuNames;
 	menuNames.resize(id_end);
 
-	menuNames[id_layout_draw]		= tr("Draw Layout");
-	menuNames[id_layout_xml]		= tr("PAGE XML");
+	menuNames[id_layout]			= tr("Layout Analysis");
 	menuNames[id_text_block]		= tr("Page Segmentation");
-	menuNames[id_text_block_xml]	= tr("Page Segmentation to XML");
-	menuNames[id_lines]				= tr("Calculate Lines (XML)");
-	menuNames[id_line_img]			= tr("Calculate Line Image");
+	menuNames[id_lines]				= tr("Detect Lines");
 	menuNames[id_layout_collect_features] = tr("Collect Features");
-	menuNames[id_layout_train]		= tr("Train Layout");
 	mMenuNames = menuNames.toList();
 
 	// create menu status tips
 	QVector<QString> statusTips;
 	statusTips.resize(id_end);
 
-	statusTips[id_layout_draw]		= tr("Draws the current layout outputs to the image");
-	statusTips[id_layout_xml]		= tr("Writes the layout analysis results to an XML");
-	statusTips[id_text_block]		= tr("Draws the page segmentation outputs to the image");
-	statusTips[id_text_block_xml]	= tr("Writes the page segmentation to an XML");
-	statusTips[id_lines]			= tr("Calculates the lines in the binarized image");
-	statusTips[id_line_img]			= tr("Calculates the line image. XML is not written.");
+	statusTips[id_layout]			= tr("Computes the Layout Analysis for a given image");
+	statusTips[id_text_block]		= tr("Computes the page segmentation");
+	statusTips[id_lines]			= tr("Detects lines using a binary image");
 	statusTips[id_layout_collect_features] = tr("Collects layout features for later training.");
-	statusTips[id_layout_train]		= tr("Trains the layout analysis system.");
 	mMenuStatusTips = statusTips.toList();
 
 	//mLTRConfig.loadSettings();
 	//mLTRConfig.saveSettings();
+
+	// update settings
+	mConfig.loadSettings();
+	mConfig.saveSettings();
 
 	init();
 }
@@ -110,10 +106,13 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 **/
 LayoutPlugin::~LayoutPlugin() {
 
+
 	qDebug() << "destroying layout plugin...";
 }
 
 void LayoutPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const {
+
+	rdf::Config::instance().save();
 
 	if (batchInfo.empty())
 		return;
@@ -204,102 +203,90 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 	if (!imgC)
 		return imgC;
 
+	// load suplemental XML
 	QString loadXmlPath = rdf::PageXmlParser::imagePathToXmlPath(saveInfo.inputFilePath());
 	rdf::PageXmlParser parser;
 	parser.read(loadXmlPath);
 
-	if(runID == mRunIDs[id_layout_draw]) {
+	// set our header info
+	auto xmlPage = parser.page();
+	xmlPage->setCreator(QString("CVL"));
+	xmlPage->setImageSize(QSize(imgC->image().size()));
+	xmlPage->setImageFileName(imgC->fileName());
+
+
+	if(runID == mRunIDs[id_layout]) {
 
 		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
 		imgCv = compute(imgCv, parser);
 
-		QImage img = nmc::DkImage::mat2QImage(imgCv);
-		imgC->setImage(img, tr("Layout Analysis Visualized"));
-	}
-	else if(runID == mRunIDs[id_layout_xml]) {
-
-		auto pe = parser.page();
-		pe->setCreator(QString("CVL"));
-		pe->setImageSize(QSize(imgC->image().size()));
-		pe->setImageFileName(imgC->fileName());
-
-		compute(nmc::DkImage::qImage2Mat(imgC->image()), parser);
-
-		QString saveXmlPath = rdf::PageXmlParser::imagePathToXmlPath(saveInfo.outputFilePath());
-		parser.write(saveXmlPath, pe);
+		if (mConfig.drawResults()) {
+			QImage img = nmc::DkImage::mat2QImage(imgCv);
+			imgC->setImage(img, tr("Layout Analysis Visualized"));
+		}
 	}
 	else if(runID == mRunIDs[id_text_block]) {
 
 		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
 		imgCv = computePageSegmentation(imgCv, parser);
 
-		QImage img = nmc::DkImage::mat2QImage(imgCv);
-		imgC->setImage(img, tr("Page Segmentation"));
-	}
-	else if(runID == mRunIDs[id_text_block_xml]) {
-
-		auto pe = parser.page();
-		pe->setCreator(QString("CVL"));
-		pe->setImageSize(QSize(imgC->image().size()));
-		pe->setImageFileName(imgC->fileName());
-
-		computePageSegmentation(nmc::DkImage::qImage2Mat(imgC->image()), parser);
-
-		QString saveXmlPath = rdf::PageXmlParser::imagePathToXmlPath(saveInfo.outputFilePath());
-		parser.write(saveXmlPath, pe);
+		if (mConfig.drawResults()) {
+			QImage img = nmc::DkImage::mat2QImage(imgCv);
+			imgC->setImage(img, tr("Page Segmentation"));
+		}
 	}
 	else if (runID == mRunIDs[id_lines]) {
 
 		rdf::LineTrace lt = computeLines(imgC);
 
-		//cv::Mat lImg = lt.lineImage();
-		//cv::Mat synLine = lt.generatedLineImage();
-		//QVector<rdf::Line> hlines = lt.getHLines();
-		//QVector<rdf::Line> vlines = lt.getVLines();
 		QVector<rdf::Line> alllines = lt.getLines();
 
 		//save lines to xml
-		QString loadXmlPath = rdf::PageXmlParser::imagePathToXmlPath(saveInfo.inputFilePath());
 		QString saveXmlPath = rdf::PageXmlParser::imagePathToXmlPath(saveInfo.outputFilePath());
 		
-		rdf::PageXmlParser parser;
-		parser.read(loadXmlPath);
-		auto pe = parser.page();
-		//pe->setCreator(QString("CVL"));
-
 		for (int i = 0; i < alllines.size(); i++) {
 			
 			QSharedPointer<rdf::SeparatorRegion> pSepR(new rdf::SeparatorRegion());
 			pSepR->setLine(alllines[i].line());
 
-			pe->rootRegion()->addUniqueChild(pSepR);
+			parser.page()->rootRegion()->addUniqueChild(pSepR);
 		}
 
-		parser.write(saveXmlPath, pe);
-	}
-	else if (runID == mRunIDs[id_line_img]) {
+		parser.write(saveXmlPath, parser.page());
 
-		rdf::LineTrace lt = computeLines(imgC);
-		cv::Mat synLine = lt.generatedLineImage();
+		// visualize
+		if (mConfig.drawResults()) {
+			cv::Mat synLine = lt.generatedLineImage();
 
-		//visualize
-		if (synLine.channels() == 1) {
-			cv::cvtColor(synLine, synLine, CV_GRAY2BGRA);
+			//visualize
+			if (mConfig.drawResults()) {
+				if (synLine.channels() == 1)
+					cv::cvtColor(synLine, synLine, CV_GRAY2BGRA);
+
+				QImage img = nmc::DkImage::mat2QImage(synLine);
+				imgC->setImage(img, tr("Lines Detected"));
+			}
 		}
-		QImage img = nmc::DkImage::mat2QImage(synLine);
-		imgC->setImage(img, tr("Calculated lines"));
 	}
 	else if (runID == mRunIDs[id_layout_collect_features]) {
 
 		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
 		
 		QSharedPointer<LayoutInfo> layoutInfo(new LayoutInfo(runID, imgC->filePath()));
-		collectFeatures(imgCv, parser, layoutInfo);
-		batchInfo = layoutInfo;
+		imgCv = collectFeatures(imgCv, parser, layoutInfo);
+		
+		if (mConfig.drawResults()) {
+			QImage img = nmc::DkImage::mat2QImage(imgCv);
+			imgC->setImage(img, tr("Groundtruth Features"));
+		}
 
+		batchInfo = layoutInfo;
 	}
-	else if (runID == mRunIDs[id_layout_train]) {
-		qWarning() << "Layout training is not implemented yet";
+
+	// save xml
+	if (mConfig.saveXml()) {
+		QString saveXmlPath = rdf::PageXmlParser::imagePathToXmlPath(saveInfo.outputFilePath());
+		parser.write(saveXmlPath, parser.page());
 	}
 
 	// wrong runID? - do nothing
@@ -385,22 +372,26 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src, const rdf::PageXmlParser & pa
 	}
 
 	// draw results -----------------------------------
-	//cv::Mat rImg(img.rows, img.cols, CV_8UC1, cv::Scalar::all(150));
-	cv::Mat rImg = img.clone();
+	if (mConfig.drawResults()) {
+		//cv::Mat rImg(img.rows, img.cols, CV_8UC1, cv::Scalar::all(150));
+		cv::Mat rImg = img.clone();
 
-	//// draw edges
-	//rImg = textBlocks.draw(rImg);
-	//rImg = lo.draw(rImg, "1012", 256);
-	//rImg = lo.draw(rImg, "507", 128);
-	//rImg = lo.draw(rImg, "507", 64);
+		//// draw edges
+		//rImg = textBlocks.draw(rImg);
+		//rImg = lo.draw(rImg, "1012", 256);
+		//rImg = lo.draw(rImg, "507", 128);
+		//rImg = lo.draw(rImg, "507", 64);
 
-	//// save super pixel image
-	//rImg = superPixel.drawSuperPixels(rImg);
-	//rImg = tabStops.draw(rImg);
-	rImg = textLines.draw(rImg);
-	//rImg = spc.draw(rImg);
+		//// save super pixel image
+		//rImg = superPixel.drawSuperPixels(rImg);
+		//rImg = tabStops.draw(rImg);
+		rImg = textLines.draw(rImg);
+		//rImg = spc.draw(rImg);
 
-	return rImg;
+		return rImg;
+	}
+
+	return src;
 }
 
 cv::Mat LayoutPlugin::computePageSegmentation(const cv::Mat & src, const rdf::PageXmlParser & parser) const {
@@ -480,7 +471,7 @@ cv::Mat LayoutPlugin::computePageSegmentation(const cv::Mat & src, const rdf::Pa
 	return rImg;
 }
 
-void LayoutPlugin::collectFeatures(const cv::Mat & src, const rdf::PageXmlParser & parser, QSharedPointer<LayoutInfo>& layoutInfo) const {
+cv::Mat LayoutPlugin::collectFeatures(const cv::Mat & src, const rdf::PageXmlParser & parser, QSharedPointer<LayoutInfo>& layoutInfo) const {
 
 	rdf::Timer dt;
 
@@ -505,13 +496,21 @@ void LayoutPlugin::collectFeatures(const cv::Mat & src, const rdf::PageXmlParser
 	if (!spl.compute())
 		qCritical() << "could not compute SuperPixel labeling!";
 
-
 	rdf::SuperPixelFeature spf(src, spl.set());
 	if (!spf.compute())
 		qCritical() << "could not compute SuperPixel features!";
 
 	rdf::FeatureCollectionManager fcm(spf.features(), spf.set());
 	layoutInfo->setFeatureCollectionManager(fcm);
+
+	if (mConfig.drawResults()) {
+		cv::Mat rImg = src.clone();
+		rImg = spl.draw(rImg);
+		//rImg = spf.draw(rImg);
+		return rImg;
+	}
+
+	return src;
 }
 
 rdf::LineTrace LayoutPlugin::computeLines(QSharedPointer<nmc::DkImageContainer> imgC) const {
@@ -568,6 +567,46 @@ void LayoutInfo::setFeatureCollectionManager(const rdf::FeatureCollectionManager
 
 rdf::FeatureCollectionManager LayoutInfo::featureCollectionManager() const {
 	return mManager;
+}
+
+// configurations that are specific for the plugin --------------------------------------------------------------------
+LayoutConfig::LayoutConfig() : ModuleConfig("Layout Plugin") {
+}
+
+QString LayoutConfig::toString() const {
+
+	QString msg = rdf::ModuleConfig::toString();
+	msg += drawResults() ? " drawing results\n" : " not drawing results\n";
+	msg += useTextRegions() ? " baselines are filtered with text regions\n" : " full image is computed\n";
+
+	return msg;
+}
+
+bool LayoutConfig::drawResults() const {
+	return mDrawResults;
+}
+
+bool LayoutConfig::saveXml() const {
+	return mSaveXml;
+}
+
+bool LayoutConfig::useTextRegions() const {
+	return mUseTextRegions;
+}
+
+void LayoutConfig::load(const QSettings & settings) {
+
+	mUseTextRegions = settings.value("useTextRegions", mUseTextRegions).toBool();
+	mDrawResults	= settings.value("drawResults", mDrawResults).toBool();
+	mSaveXml		= settings.value("saveXml", mSaveXml).toBool();
+
+}
+
+void LayoutConfig::save(QSettings & settings) const {
+
+	settings.setValue("useTextRegions", mUseTextRegions);
+	settings.setValue("drawResults", mDrawResults);
+	settings.setValue("saveXml", mSaveXml);
 }
 
 };

@@ -19,7 +19,7 @@
 
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+  
  The READ project  has  received  funding  from  the European  Union’s  Horizon  2020  
  research  and innovation programme under grant agreement No 674943
  
@@ -34,7 +34,9 @@
 
 // framework
 #include "PageParser.h"
-#include "Settings.h"
+
+// nomacs
+#include "DkSettings.h"
 
 #pragma warning(push, 0)	// no warnings from includes
 #include <QDebug>
@@ -71,12 +73,12 @@ QString PageData::xmlPath() const {
 
 void PageData::loadConfig(const QString & name) {
 	
-	loadSettings(rdf::Config::instance().settings(), name);
+	loadSettings(nmc::DkSettingsManager::instance().qSettings(), name);
 }
 
 void PageData::saveConfig(const QString & name) const {
 
-	saveSettings(rdf::Config::instance().settings(), name);
+	saveSettings(nmc::DkSettingsManager::instance().qSettings(), name);
 }
 
 void PageData::setXmlPath(const QString & path) {

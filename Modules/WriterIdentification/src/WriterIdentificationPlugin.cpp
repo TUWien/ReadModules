@@ -570,12 +570,12 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 		//voc.loadVocabulary(mVocType == WIVocabulary::WI_UNDEFINED ? "C://tmp//voc-woSettings.yml" : mSettingsVocPath);
 		//wiDatabase.setVocabulary(voc);
 		QStringList classLabels, featurePaths;
-		QVector<cv::Mat> hists;
+		cv::Mat hists;
 		for(auto bi : batchInfo) {
 			WIInfo * wInfo = dynamic_cast<WIInfo*>(bi.data());
 			featurePaths.append(wInfo->featureFilePath());
 			classLabels.append(wInfo->writer());
-			hists.append(wInfo->featureVector());
+			hists.push_back(wInfo->featureVector());
 		}
 		//wiDatabase.evaluateDatabase(classLabels, featurePaths/*, QString("c:\\tmp\\eval-2.txt")*/);
 		//wiDatabase.evaluateDatabase(hists, classLabels, featurePaths/*, QString("c:\\tmp\\eval-2.txt")*/);

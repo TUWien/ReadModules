@@ -34,7 +34,6 @@
 #include "PageData.h"
 
 // framework
-#include "Settings.h"
 #include "ElementsHelper.h"
 
 // nomacs 
@@ -261,7 +260,7 @@ void ConfigWidget::on_drawBaseline_clicked(bool toggled) {
 
 void ConfigWidget::loadConfig(const QString & name) {
 
-	QSettings& settings = rdf::Config::instance().settings();
+	QSettings& settings = nmc::DkSettingsManager::instance().qSettings();
 	settings.beginGroup(name);
 	auto config = QSharedPointer<rdf::RegionTypeConfig>::create();
 	config->load(settings);
@@ -278,7 +277,7 @@ void ConfigWidget::saveConfig(const QString & name) {
 		return;
 	}
 
-	QSettings& settings = rdf::Config::instance().settings();
+	QSettings& settings = nmc::DkSettingsManager::instance().qSettings();
 	settings.beginGroup(name);
 	mConfig->save(settings);
 	settings.endGroup();

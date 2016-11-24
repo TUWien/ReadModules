@@ -50,6 +50,28 @@ namespace rdf {
 namespace rdm {
 
 
+class LayoutConfig : public rdf::ModuleConfig {
+
+public:
+	LayoutConfig();
+	~LayoutConfig() {};
+
+	virtual QString toString() const override;
+
+	bool drawResults() const;
+	bool saveXml() const;
+	bool useTextRegions() const;
+
+protected:
+	
+	bool mDrawResults = false;
+	bool mUseTextRegions = false;
+	bool mSaveXml = true;
+
+	void load(const QSettings& settings) override;
+	void save(QSettings& settings) const override;
+};
+
 class LayoutInfo : public nmc::DkBatchInfo {
 
 public:
@@ -61,7 +83,6 @@ public:
 private:
 	rdf::FeatureCollectionManager mManager;
 };
-
 
 class LayoutPlugin : public QObject, nmc::DkBatchPluginInterface {
 	Q_OBJECT
@@ -87,14 +108,10 @@ public:
 	virtual void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> > &) const override;
 
 	enum {
-		id_layout_draw,
-		id_layout_xml,
+		id_layout,
 		id_text_block,
-		id_text_block_xml,
 		id_lines,
-		id_line_img,
 		id_layout_collect_features,
-		id_layout_train,
 		// add actions here
 
 		id_end
@@ -109,13 +126,14 @@ protected:
 	rdf::LineTraceConfig mLTRConfig;
 	rdf::SuperPixelLabelerConfig mSplConfig;
 	rdf::SuperPixelClassifierConfig mSpcConfig;
+	LayoutConfig mConfig;
 
 	void init();
 
 	// layout plugin functions
 	cv::Mat compute(const cv::Mat& src, const rdf::PageXmlParser& parser) const;
 	cv::Mat computePageSegmentation(const cv::Mat& src, const rdf::PageXmlParser& parser) const;
-	void collectFeatures(const cv::Mat& src, const rdf::PageXmlParser& parser, QSharedPointer<LayoutInfo>& layoutInfo) const;
+	cv::Mat collectFeatures(const cv::Mat& src, const rdf::PageXmlParser& parser, QSharedPointer<LayoutInfo>& layoutInfo) const;
 	rdf::LineTrace computeLines(QSharedPointer<nmc::DkImageContainer> imgC) const;
 };
 };

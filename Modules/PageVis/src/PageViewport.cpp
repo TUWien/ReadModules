@@ -38,7 +38,7 @@
 #include "DkSettings.h"
 
 // read includes
-#include "Settings.h"
+//#include "Settings.h"
 #include "ElementsHelper.h"
 #include "PageParser.h"
 
@@ -59,7 +59,7 @@ PageViewport::PageViewport(QWidget* parent) : DkPluginViewPort(parent) {
 
 PageViewport::~PageViewport() {
 
-	saveSettings(rdf::Config::instance().settings());
+	saveSettings(nmc::DkSettingsManager::instance().qSettings());
 	qDebug() << "destroying PAGE viewport";
 }
 
@@ -68,7 +68,7 @@ void PageViewport::init() {
 	//DkPluginViewPort::init();
 	setObjectName("PageViewport");
 	
-	loadSettings(rdf::Config::instance().settings());
+	loadSettings(nmc::DkSettingsManager::instance().qSettings());
 
 	mPageData = new PageData(this);
 	mPageDock = new PageDock(mPageData, tr("Page Visualization"), this);

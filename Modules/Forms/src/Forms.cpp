@@ -93,7 +93,7 @@ FormsAnalysis::FormsAnalysis(QObject* parent) : QObject(parent) {
 **/
 FormsAnalysis::~FormsAnalysis() {
 
-	qDebug() << "destroying binarization plugin...";
+	qDebug() << "destroying forms plugin...";
 
 }
 
