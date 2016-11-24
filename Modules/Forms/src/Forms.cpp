@@ -193,6 +193,8 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 		cv::Mat outImg = lsd.magImg();
 		outImg = lsd.radImg();
+		outImg = lsd.regImg();
+		//cv::normalize(outImg, outImg, 255, 0, cv::NORM_MINMAX);
 		//cv::Mat outImg = imgIn.clone();
 		
 
