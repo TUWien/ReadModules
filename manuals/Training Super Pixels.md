@@ -22,12 +22,7 @@ _23.10.2016_
     "alias": ["NoiseRegion", "SeparatorRegion", "TextRegion"],
     "color": "#009966"
   }}
-  ],
-  "SuperPixelTrainerConfig": {
-  "minNumFeatures" : 1e4,
-  "maxNumFeatures" : 5e8,
-  "maxNumFeaturesPerImage" : 3000
-  }
+  ]
 }
 ```
 

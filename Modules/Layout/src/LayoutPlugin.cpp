@@ -519,6 +519,7 @@ cv::Mat LayoutPlugin::collectFeatures(const cv::Mat & src, const rdf::PageXmlPar
 	// feed the label lookup
 	rdf::SuperPixelLabeler spl(sp.getMserBlobs(), rdf::Rect(src));
 	spl.setLabelManager(lm);
+	spl.setFilePath(layoutInfo->filePath());	// parse filepath for gt
 
 	// set the ground truth
 	if (parser.page())
