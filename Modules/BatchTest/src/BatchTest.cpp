@@ -186,6 +186,10 @@ void BatchTest::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo>>& 
 		qDebug() << "[POST LOADING] mirrored";
 }
 
+QString BatchTest::name() const {
+	return "Batch Test";
+}
+
 // DkTestInfo --------------------------------------------------------------------
 DkTestInfo::DkTestInfo(const QString& id, const QString & filePath) : nmc::DkBatchInfo(id, filePath) {
 }

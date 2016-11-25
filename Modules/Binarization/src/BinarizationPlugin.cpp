@@ -102,7 +102,7 @@ QString BinarizationPlugin::id() const {
 QImage BinarizationPlugin::image() const {
 
 	return QImage(":/BinarizationPlugin/img/read.png");
-};
+}
 
 QList<QAction*> BinarizationPlugin::createActions(QWidget* parent) {
 
@@ -119,8 +119,6 @@ QList<QAction*> BinarizationPlugin::createActions(QWidget* parent) {
 
 	return mActions;
 }
-
-
 
 QList<QAction*> BinarizationPlugin::pluginActions() const {
 	return mActions;

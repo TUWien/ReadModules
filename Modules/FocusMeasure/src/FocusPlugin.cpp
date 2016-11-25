@@ -598,6 +598,10 @@ void FocusPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo>>
 		qDebug() << "[POST LOADING] mirrored";
 }
 
+QString FocusPlugin::name() const {
+	return "Focus Plugin";
+}
+
 // DkTestInfo --------------------------------------------------------------------
 FocusInfo::FocusInfo(const QString& id, const QString & filePath) : nmc::DkBatchInfo(id, filePath) {
 }

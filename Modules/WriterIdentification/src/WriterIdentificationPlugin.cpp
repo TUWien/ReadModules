@@ -115,7 +115,11 @@ QString WriterIdentificationPlugin::id() const {
 QImage WriterIdentificationPlugin::image() const {
 
 	return QImage(":/WriterIdentificationPlugin/img/read.png");
-};
+}
+
+QString WriterIdentificationPlugin::name() const {
+	return "Writer Identification";
+}
 
 QList<QAction*> WriterIdentificationPlugin::createActions(QWidget* parent) {
 

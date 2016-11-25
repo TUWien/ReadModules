@@ -54,6 +54,7 @@ related links:
 #pragma warning(push, 0)	// no warnings from includes - begin
 #include <QAction>
 #include <QUuid>
+#include <opencv2/ml/ml.hpp>
 #pragma warning(pop)		// no warnings from includes - end
 
 namespace rdm {
@@ -79,7 +80,8 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 	menuNames[id_layout]			= tr("Layout Analysis");
 	menuNames[id_text_block]		= tr("Page Segmentation");
 	menuNames[id_lines]				= tr("Detect Lines");
-	menuNames[id_layout_collect_features] = tr("Collect Features");
+	menuNames[id_layout_collect_features] = tr("Collect Layout Features");
+	menuNames[id_layout_train]		= tr("Train Layout");
 	mMenuNames = menuNames.toList();
 
 	// create menu status tips
@@ -90,22 +92,25 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 	statusTips[id_text_block]		= tr("Computes the page segmentation");
 	statusTips[id_lines]			= tr("Detects lines using a binary image");
 	statusTips[id_layout_collect_features] = tr("Collects layout features for later training.");
+	statusTips[id_layout_train]		= tr("Train a new model for Layout Analysis.");
 	mMenuStatusTips = statusTips.toList();
 
 	//mLTRConfig.loadSettings();
 	//mLTRConfig.saveSettings();
 
-	// update settings
 	mConfig.loadSettings();
-	mConfig.saveSettings();
+	mSplConfig.loadSettings();
+	mSpcConfig.loadSettings();
+	mLTRConfig.loadSettings();
 
-	init();
+	// save default settings - needed for training
+	rdf::SuperPixelTrainerConfig spc;
+	spc.saveDefaultSettings();
 }
 /**
 *	Destructor
 **/
 LayoutPlugin::~LayoutPlugin() {
-
 
 	qDebug() << "destroying layout plugin...";
 }
@@ -140,14 +145,32 @@ void LayoutPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo>
 	}
 }
 
-void LayoutPlugin::init() {
+void LayoutPlugin::saveSettings(QSettings & settings) const {
 
-	qDebug() << "RDF settings path:" << rdf::Config::instance().settingsFilePath();
-	mSplConfig.loadSettings();
-	mSplConfig.saveSettings();
-	mSpcConfig.loadSettings();
-	mSpcConfig.saveSettings();
-	qDebug() << "feature file" << mSplConfig.featureFilePath();
+	// Schwalben an den Hals, damit jeder sieht wie frei wir sind...
+	settings.beginGroup(name());
+	mConfig.saveSettings(settings);
+	mSplConfig.saveSettings(settings);
+	mSpcConfig.saveSettings(settings);
+	mLTRConfig.saveSettings(settings);
+	settings.endGroup();
+	qDebug() << "settings saved...";
+}
+
+void LayoutPlugin::loadSettings(QSettings & settings) {
+
+	// update settings
+	settings.beginGroup(name());
+	mConfig.loadSettings(settings);
+	mSplConfig.loadSettings(settings);
+	mSpcConfig.loadSettings(settings);
+	mLTRConfig.loadSettings(settings);
+	settings.endGroup();
+	qDebug() << "settings loaded...";
+}
+
+QString LayoutPlugin::name() const {
+	return "LayoutPlugin";
 }
 
 /**
@@ -199,6 +222,14 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 	QSharedPointer<nmc::DkImageContainer> imgC, 
 	const nmc::DkSaveInfo& saveInfo,
 	QSharedPointer<nmc::DkBatchInfo>& batchInfo) const {
+
+	// train - it's also possible without any image loaded
+	if (runID == mRunIDs[id_layout_train]) {
+		if (train())
+
+		return imgC;
+	}
+
 
 	if (!imgC)
 		return imgC;
@@ -351,8 +382,8 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src, const rdf::PageXmlParser & pa
 	rdf::SuperPixelClassifier spc(src, sp);
 	spc.setModel(model);
 
-	//if (!spc.compute())
-	//	qWarning() << "could not classify SuperPixels";
+	if (!spc.compute())
+		qWarning() << "could not classify SuperPixels";
 
 	// write XML -----------------------------------
 
@@ -385,8 +416,8 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src, const rdf::PageXmlParser & pa
 		//// save super pixel image
 		//rImg = superPixel.drawSuperPixels(rImg);
 		//rImg = tabStops.draw(rImg);
-		rImg = textLines.draw(rImg);
-		//rImg = spc.draw(rImg);
+		//rImg = textLines.draw(rImg);
+		rImg = spc.draw(rImg);
 
 		return rImg;
 	}
@@ -555,6 +586,45 @@ rdf::LineTrace LayoutPlugin::computeLines(QSharedPointer<nmc::DkImageContainer> 
 	lt.compute();
 	
 	return lt;
+}
+
+bool LayoutPlugin::train() const {
+
+	rdf::SuperPixelTrainerConfig spc;
+	spc.loadSettings();
+	spc.saveDefaultSettings();
+
+	rdf::FeatureCollectionManager fcm;
+
+	for (const QString& fPath : spc.featureCachePaths()) {
+		rdf::FeatureCollectionManager cFc = rdf::FeatureCollectionManager::read(fPath);
+		fcm.merge(cFc);
+		qInfo() << fPath << "added...";
+	}
+
+
+	// train classifier
+	rdf::SuperPixelTrainer spt(fcm);
+
+	if (!spt.compute()) {
+		qCritical() << "could not train data...";
+		return false;
+	}
+
+	spt.write(spc.modelPath());
+
+	// test - read back the model
+	auto model = rdf::SuperPixelModel::read(spc.modelPath());
+
+	auto f = model->model();
+	if (f && f->isTrained()) {
+		qDebug() << "the classifier I loaded is trained...";
+		return true;
+	}
+
+	qCritical() << "could not save classifier to:" << spc.modelPath();
+
+	return false;
 }
 
 // LayoutInfo --------------------------------------------------------------------
