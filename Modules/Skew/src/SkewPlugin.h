@@ -81,6 +81,7 @@ public:
 
 	QString id() const override;
 	QImage image() const override;
+	QString name() const override;
 
 	QList<QAction*> createActions(QWidget* parent) override;
 	QList<QAction*> pluginActions() const override;

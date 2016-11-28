@@ -49,7 +49,6 @@ namespace rdf {
 
 namespace rdm {
 
-
 class LayoutConfig : public rdf::ModuleConfig {
 
 public:
@@ -106,12 +105,16 @@ public:
 
 	virtual void preLoadPlugin() const override {};
 	virtual void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> > &) const override;
+	virtual void saveSettings(QSettings& settings) const override;
+	virtual void loadSettings(QSettings& settings) override;
+	virtual QString name() const override;
 
 	enum {
 		id_layout,
 		id_text_block,
 		id_lines,
 		id_layout_collect_features,
+		id_layout_train,
 		// add actions here
 
 		id_end
@@ -128,12 +131,11 @@ protected:
 	rdf::SuperPixelClassifierConfig mSpcConfig;
 	LayoutConfig mConfig;
 
-	void init();
-
 	// layout plugin functions
 	cv::Mat compute(const cv::Mat& src, const rdf::PageXmlParser& parser) const;
 	cv::Mat computePageSegmentation(const cv::Mat& src, const rdf::PageXmlParser& parser) const;
 	cv::Mat collectFeatures(const cv::Mat& src, const rdf::PageXmlParser& parser, QSharedPointer<LayoutInfo>& layoutInfo) const;
 	rdf::LineTrace computeLines(QSharedPointer<nmc::DkImageContainer> imgC) const;
+	bool train() const;
 };
 };

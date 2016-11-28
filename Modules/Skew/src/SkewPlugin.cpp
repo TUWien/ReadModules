@@ -127,7 +127,11 @@ QString SkewEstPlugin::id() const {
 QImage SkewEstPlugin::image() const {
 
 	return QImage(":/SkewPlugin/img/read.png");
-};
+}
+
+QString SkewEstPlugin::name() const {
+	return "Skew Estimation";
+}
 
 QList<QAction*> SkewEstPlugin::createActions(QWidget* parent) {
 

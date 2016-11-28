@@ -61,6 +61,7 @@ public:
 
 	QString id() const override;
 	QImage image() const override;
+	QString name() const override;
 
 	QList<QAction*> createActions(QWidget* parent) override;
 	QList<QAction*> pluginActions() const override;
@@ -71,6 +72,7 @@ public:
 		QSharedPointer<nmc::DkBatchInfo>& info) const;
 	void preLoadPlugin() const override;
 	void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const override;
+
 	enum {
 		id_calcuate_features,
 		id_generate_vocabulary,

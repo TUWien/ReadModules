@@ -80,6 +80,7 @@ public:
 
 	void preLoadPlugin() const override;
 	void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const override;
+	QString name() const override;
 
 	enum {
 		id_gtPage,

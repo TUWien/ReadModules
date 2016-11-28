@@ -100,7 +100,10 @@ QString ReadConfig::id() const {
 QImage ReadConfig::image() const {
 
 	return QImage(":/ReadConfig/img/read.png");
-};
+}
+QString ReadConfig::name() const {
+	return "READ Config";
+}
 
 QList<QAction*> ReadConfig::createActions(QWidget* parent) {
 
