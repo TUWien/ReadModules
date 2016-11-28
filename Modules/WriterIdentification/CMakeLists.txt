@@ -26,10 +26,6 @@ if (NOT BUILDING_MULTIPLE_PLUGINS)
 	RDM_FIND_OPENCV()
 endif()
 
-# OpenCV additional package
-RDM_FIND_OPENCV()
-
-
 include_directories (
 	${QT_INCLUDES}
 	${OpenCV_INCLUDE_DIRS}
