@@ -81,6 +81,7 @@ public:
 		id_extract_patches,
 		id_extract_patches_per_page,
 		id_extract_random_patches,
+		id_evaluate_database_transkribus,
 		// add actions here
 
 		id_end

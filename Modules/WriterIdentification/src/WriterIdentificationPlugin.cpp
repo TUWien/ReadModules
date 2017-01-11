@@ -61,6 +61,7 @@ WriterIdentificationPlugin::WriterIdentificationPlugin(QObject* parent) : QObjec
 	runIds[id_extract_patches] = "64b27436f29d461c9148e98dd816f93e";
 	runIds[id_extract_patches_per_page] = "926c8d0e57ff4cb0a1dab586e04847e7";
 	runIds[id_extract_random_patches] = "5553a82e4fbb4075bf36bdeec36b396b";
+	runIds[id_evaluate_database_transkribus] = "c89784c2460b47b49d4edf20e6b093cb";
 	mRunIDs = runIds.toList();
 
 	// create menu actions
@@ -74,6 +75,7 @@ WriterIdentificationPlugin::WriterIdentificationPlugin(QObject* parent) : QObjec
 	menuNames[id_extract_patches] = tr("Extract Patches");
 	menuNames[id_extract_patches_per_page] = tr("Extract Patches Per Page");
 	menuNames[id_extract_random_patches] = tr("Extract Random Patches");
+	menuNames[id_evaluate_database_transkribus] = tr("Evaluate Database (Transkribus)");
 	mMenuNames = menuNames.toList();
 
 	// create menu status tips
@@ -87,6 +89,7 @@ WriterIdentificationPlugin::WriterIdentificationPlugin(QObject* parent) : QObjec
 	statusTips[id_extract_patches] = tr("Extract Patches at SIFT keypoints");
 	statusTips[id_extract_patches] = tr("Extract Patches at SIFT keypoints and stores it in a directory of the filename");
 	statusTips[id_extract_random_patches] = ("Extract Patches on the page of random regions");
+	statusTips[id_evaluate_database_transkribus] = tr("Evaluate Database using the same code as in the Transkribus plugin");
 	mMenuStatusTips = statusTips.toList();
 
 	init();
@@ -159,7 +162,7 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 
 	if(runID == mRunIDs[id_calcuate_features]) {
 		qInfo() << "calculating features for writer identification";
-		rdf::WriterRetrieval wi = rdf::WriterRetrieval();
+		rdf::WriterImage wi = rdf::WriterImage();
 		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
 		wi.setImage(imgCv);
 		wi.calculateFeatures();
@@ -275,8 +278,31 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 			qDebug() << "no features files exists for image: " << imgC->filePath()  << "... skipping";
 		}
 	}
+	else if(runID == mRunIDs[id_evaluate_database_transkribus]) {
+		if(mVocabulary.isEmpty()) {
+			qWarning() << "batchProcess: vocabulary is empty ... not evaluating";
+			return imgC;
+		}
+
+		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
+		rdf::WriterImage wi = rdf::WriterImage();
+		wi.setImage(imgCv);
+		wi.calculateFeatures();
+		wi.filterKeyPoints(mVocabulary.minimumSIFTSize(), mVocabulary.maximumSIFTSize());
+		cv::Mat feature = mVocabulary.generateHist(wi.descriptors());
+
+		QString label = extractWriterIDFromFilename(QFileInfo(imgC->filePath()).baseName());
+
+		QSharedPointer<WIInfo> wInfo(new WIInfo(runID, imgC->filePath()));
+		wInfo->setWriter(label);
+		wInfo->setFeatureFilePath("");
+		wInfo->setFeatureVector(feature);
+
+		info = wInfo;
+
+	}
 	else if(runID == mRunIDs[id_extract_patches]) {
-		rdf::WriterRetrieval wi = rdf::WriterRetrieval();
+		rdf::WriterImage wi = rdf::WriterImage();
 		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
 		wi.setImage(imgCv);
 		wi.calculateFeatures();
@@ -381,7 +407,7 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 
 	}
 	else if(runID == mRunIDs[id_extract_patches_per_page]) {
-		rdf::WriterRetrieval wi = rdf::WriterRetrieval();
+		rdf::WriterImage wi = rdf::WriterImage();
 		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
 		wi.setImage(imgCv);
 		wi.calculateFeatures();
@@ -565,7 +591,7 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 		wiDatabase.saveVocabulary(voc.type() == rdf::WriterVocabulary::WI_UNDEFINED ? "C://tmp//voc-woSettings.yml" : mSettingsVocPath);
 		wiDatabase.evaluateDatabase(classLabels, featurePaths);
 	}
-	else if(runIdx == id_evaluate_database) {
+	else if(runIdx == id_evaluate_database || runIdx == id_evaluate_database_transkribus) {
 		rdf::WriterDatabase wiDatabase = rdf::WriterDatabase(); 
 		wiDatabase.setVocabulary(mVocabulary);
 		//WIVocabulary voc = WIVocabulary();
