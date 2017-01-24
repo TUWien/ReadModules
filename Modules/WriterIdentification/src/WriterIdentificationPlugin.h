@@ -102,11 +102,12 @@ private:
 	QString extractWriterIDFromFilename(const QString fileName) const;
 
 	QString mSettingsVocPath = QString();
-	int mVocType = rdf::WriterVocabulary::WI_UNDEFINED;
-	int mVocNumberOfClusters = -1;
-	int mVocNumberOfPCA = -1;
-	int mVocMaxSIFTSize = -1;
-	int mVocMinSIFTSize = -1;
+	int mVocType;
+	int mVocNumberOfClusters;
+	int mVocNumberOfPCA;
+	int mVocMaxSIFTSize;
+	int mVocMinSIFTSize;
+	bool mL2Before;
 	double mVocPowerNormalization;
 	rdf::WriterVocabulary mVocabulary = rdf::WriterVocabulary();
 	QString mFeatureDir = QString();

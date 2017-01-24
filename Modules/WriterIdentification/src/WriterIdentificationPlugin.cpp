@@ -565,6 +565,7 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 			voc.setMaximumSIFTSize(mVocMaxSIFTSize);
 			voc.setMinimumSIFTSize(mVocMinSIFTSize);
 			voc.setPowerNormalization(mVocPowerNormalization);
+			voc.setL2Before(mL2Before);
 		}
 		else {
 			qDebug() << "vocabulary in settings file undefined. Using default values";
@@ -666,21 +667,22 @@ void WriterIdentificationPlugin::init() {
 }
 
 void WriterIdentificationPlugin::loadSettings(QSettings & settings) {
+	rdf::WriterVocabulary defaultVoc = rdf::WriterVocabulary();
 	settings.beginGroup("WriterIdentification");
 	mSettingsVocPath = settings.value("vocPath", QString()).toString();
 	if(!mSettingsVocPath.isEmpty()) {
 		mVocabulary.loadVocabulary(mSettingsVocPath);
 	}
-	mVocType = settings.value("vocType", rdf::WriterVocabulary::WI_UNDEFINED).toInt();
+	mVocType = settings.value("vocType", defaultVoc.type()).toInt();
 	if(mVocType > rdf::WriterVocabulary::WI_UNDEFINED)
 		mVocType = rdf::WriterVocabulary::WI_UNDEFINED;
-	mVocNumberOfClusters = settings.value("numberOfClusters", -1).toInt();
-	mVocNumberOfPCA = settings.value("numberOfPCA", -1).toInt();
-	mVocMaxSIFTSize = settings.value("maxSIFTSize", -1).toInt();
-	mVocMinSIFTSize = settings.value("minSIFTSize", -1).toInt();
-	mVocPowerNormalization = settings.value("powerNormalization", 1).toDouble();
+	mVocNumberOfClusters = settings.value("numberOfClusters", defaultVoc.numberOfCluster()).toInt();
+	mVocNumberOfPCA = settings.value("numberOfPCA", defaultVoc.numberOfPCA()).toInt();
+	mVocMaxSIFTSize = settings.value("maxSIFTSize", defaultVoc.maximumSIFTSize()).toInt();
+	mVocMinSIFTSize = settings.value("minSIFTSize", defaultVoc.minimumSIFTSize()).toInt();
+	mVocPowerNormalization = settings.value("powerNormalization", defaultVoc.powerNormalization()).toDouble();
 	mFeatureDir = settings.value("featureDir", QString()).toString();
-	
+	mL2Before = settings.value("L2before", defaultVoc.l2before()).toBool();
 	mEvalFile = settings.value("evalFile", QString()).toString();
 	
 	qDebug() << "settings read: path: " << mSettingsVocPath << " type:" << mVocType << " numberOfClusters:" << mVocNumberOfClusters << " numberOfPCA: " << mVocNumberOfPCA;
