@@ -182,52 +182,142 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 	}
 	else if(runID == mRunIDs[id_show]) {
 
-		//test LSD here
 		QImage img = imgC->image();
 		cv::Mat imgIn = rdf::Image::qImage2Mat(img);
 		cv::Mat imgInG;
 		if (imgIn.channels() != 1) cv::cvtColor(imgIn, imgInG, CV_RGB2GRAY);
 
-		rdf::ReadLSD lsd(imgInG);
-		//ReadLSD(inputG, mask);
-
-		lsd.compute();
-		QVector<rdf::LineSegment> detLines = lsd.lines();
-
-		cv::Mat outImg = lsd.magImg();
-		outImg = lsd.radImg();
-		outImg = lsd.regImg();
-		//cv::normalize(outImg, outImg, 255, 0, cv::NORM_MINMAX);
-		//cv::Mat outImg = imgIn.clone();
+		qDebug() << imgC->filePath() << "reading XML...";
 		
+		QString loadXmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
+		//QString saveXmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
 
-		if (outImg.channels() == 1) {
-			outImg.convertTo(outImg, CV_32F);
-			cv::normalize(outImg, outImg, 1, 0, cv::NORM_MINMAX);
-			rdf::Image::imageInfo(outImg, "outimg");
-			cv::cvtColor(outImg, outImg, CV_GRAY2BGRA);
+		rdf::PageXmlParser parser;
+		parser.read(loadXmlPath);
+		auto pe = parser.page();
+
+		//read xml separators and store them to testinfo
+		QVector<rdf::Line> hLines;
+		QVector<rdf::Line> vLines;
+
+
+		QVector<QSharedPointer<rdf::Region>> test = rdf::Region::allRegions(pe->rootRegion());// pe->rootRegion()->children();
+		//QVector<rdf::TableCell> cells;
+		QVector<QSharedPointer<rdf::TableCell>> cells;
+
+
+		for (auto i : test) {
+			if (i->type() == i->type_table_cell) {
+				//rdf::TableCell* tCell = dynamic_cast<rdf::TableCell*>(i.data());
+				QSharedPointer<rdf::TableCell> tCell = i.dynamicCast<rdf::TableCell>();
+				cells.push_back(tCell);
+
+				//check if tCell has a Textline as child, if yes, mark as table header;
+				if (!tCell->children().empty()) {
+					QVector<QSharedPointer<rdf::Region>> childs = tCell->children();
+					for (auto child : childs) {
+						if (child->type() == child->type_text_line) {
+							tCell->setHeader(true);
+							qDebug() << imgC->filePath() << "detected header...";
+						}
+					}
+				}
+
+
+				if (tCell) {
+					
+					if (tCell->topBorderVisible()) {
+						hLines.push_back(tCell->topBorder());
+					}
+					if (tCell->bottomBorderVisible()) {
+						hLines.push_back(tCell->bottomBorder());
+					}
+					if (tCell->leftBorderVisible()) {
+						vLines.push_back(tCell->leftBorder());
+					}
+					if (tCell->rightBorderVisible()) {
+						vLines.push_back(tCell->rightBorder());
+					}
+				}
+
+			}
 		}
-				
-				
-		QImage result = rdf::Image::mat2QImage(outImg);
-		
+
+		std::sort(cells.begin(), cells.end());
+
+		QImage result = rdf::Image::mat2QImage(imgIn);
+
 		QPainter myPainter(&result);
-		myPainter.setPen(QPen(Qt::red, 1, Qt::SolidLine, Qt::RoundCap));
+		myPainter.setPen(QPen(Qt::red, 3, Qt::SolidLine, Qt::RoundCap));
 		//myPainter.drawLine(QPoint(0,0), QPoint(500,500));
 
-		qDebug() << "LSD lines detected: " << detLines.size();;
-
-		for (int i = 0; i < detLines.size(); i++) {
-
-			rdf::LineSegment lineTmp = detLines[i];
-			myPainter.drawLine(lineTmp.line().p1().toQPoint(), lineTmp.line().p2().toQPoint());
+		for (int i = 0; i < hLines.size(); i++) {
+			rdf::Line lineTmp = hLines[i];
+			myPainter.drawLine(lineTmp.p1().toQPoint(), lineTmp.p2().toQPoint());
 			//qDebug() << "Point 1: " << lineTmp.line().p1().toQPoint() << " Point 2: " << lineTmp.line().p2().toQPoint();
 		}
+		myPainter.setPen(QPen(Qt::blue, 3, Qt::SolidLine, Qt::RoundCap));
+		for (int i = 0; i < vLines.size(); i++) {
+			rdf::Line lineTmp = vLines[i];
+			myPainter.drawLine(lineTmp.p1().toQPoint(), lineTmp.p2().toQPoint());
+			//qDebug() << "Point 1: " << lineTmp.line().p1().toQPoint() << " Point 2: " << lineTmp.line().p2().toQPoint();
+		}
+
+
 		myPainter.end();
+		
+		qDebug() << "Drawing form...";
+		imgC->setImage(result, "Form Image");
+
+		////test LSD here
+		//// -------------- LSD -------------------------------------------
+		//QImage img = imgC->image();
+		//cv::Mat imgIn = rdf::Image::qImage2Mat(img);
+		//cv::Mat imgInG;
+		//if (imgIn.channels() != 1) cv::cvtColor(imgIn, imgInG, CV_RGB2GRAY);
+
+		//rdf::ReadLSD lsd(imgInG);
+		////ReadLSD(inputG, mask);
+
+		//
+		//lsd.compute();
+		//QVector<rdf::LineSegment> detLines = lsd.lines();
+		//
+		//cv::Mat outImg = lsd.magImg();
+		////outImg = lsd.radImg();
+		//outImg = lsd.regImg();
+		////cv::normalize(outImg, outImg, 255, 0, cv::NORM_MINMAX);
+		////cv::Mat outImg = imgIn.clone();
 
 
-		qDebug() << "LSD calculated...";
-		imgC->setImage(result, "LSD Image");
+
+		//if (outImg.channels() == 1) {
+		//	outImg.convertTo(outImg, CV_32F);
+		//	cv::normalize(outImg, outImg, 1, 0, cv::NORM_MINMAX);
+		//	rdf::Image::imageInfo(outImg, "outimg");
+		//	cv::cvtColor(outImg, outImg, CV_GRAY2BGRA);
+		//}
+		//	
+		//QImage result = rdf::Image::mat2QImage(outImg);		
+
+		//QPainter myPainter(&result);
+		//myPainter.setPen(QPen(Qt::red, 1, Qt::SolidLine, Qt::RoundCap));
+		////myPainter.drawLine(QPoint(0,0), QPoint(500,500));
+
+		//qDebug() << "LSD lines detected: " << detLines.size();;	
+
+		//for (int i = 0; i < detLines.size(); i++) {
+
+		//	rdf::LineSegment lineTmp = detLines[i];
+		//	myPainter.drawLine(lineTmp.line().p1().toQPoint(), lineTmp.line().p2().toQPoint());
+		//	//qDebug() << "Point 1: " << lineTmp.line().p1().toQPoint() << " Point 2: " << lineTmp.line().p2().toQPoint();
+		//}
+		//myPainter.end();
+		//
+		//qDebug() << "LSD calculated...";
+		//imgC->setImage(result, "LSD Image");
+
+		//// -------------- LSD -------------------------------------------
 
 		////only test version
 		////not yet implemented
@@ -258,6 +348,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		//read xml separators and store them to testinfo
 		QVector<rdf::Line> hLines;
 		QVector<rdf::Line> vLines;
+
 
 		QVector<QSharedPointer<rdf::Region>> test = rdf::Region::allRegions(pe->rootRegion());// pe->rootRegion()->children();
 		for (auto i : test) {
