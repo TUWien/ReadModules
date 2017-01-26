@@ -272,6 +272,7 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 			wInfo->setWriter(label);
 			wInfo->setFeatureFilePath(fFilePath);
 			wInfo->setFeatureVector(feature);
+			wInfo->setImageName(QFileInfo(imgC->filePath()).baseName());
 
 			info = wInfo;
 		} else {
@@ -562,6 +563,7 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 			voc.setType(mVocType);
 			voc.setNumberOfCluster(mVocNumberOfClusters);
 			voc.setNumberOfPCA(mVocNumberOfPCA);
+			voc.setNumOfPCAWhiteComp(mVocNumverOfPCAWhite);
 			voc.setMaximumSIFTSize(mVocMaxSIFTSize);
 			voc.setMinimumSIFTSize(mVocMinSIFTSize);
 			voc.setPowerNormalization(mVocPowerNormalization);
@@ -595,21 +597,16 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 	else if(runIdx == id_evaluate_database || runIdx == id_evaluate_database_transkribus) {
 		rdf::WriterDatabase wiDatabase = rdf::WriterDatabase(); 
 		wiDatabase.setVocabulary(mVocabulary);
-		//WIVocabulary voc = WIVocabulary();
-		//if(mVocType == WIVocabulary::WI_UNDEFINED)
-		//	qDebug() << "vocabulary path not set in settings file. Using default path";
-		//voc.loadVocabulary(mVocType == WIVocabulary::WI_UNDEFINED ? "C://tmp//voc-woSettings.yml" : mSettingsVocPath);
-		//wiDatabase.setVocabulary(voc);
-		QStringList classLabels, featurePaths;
+		QStringList classLabels, featurePaths, imageNames;
 		cv::Mat hists;
 		for(auto bi : batchInfo) {
 			WIInfo * wInfo = dynamic_cast<WIInfo*>(bi.data());
 			featurePaths.append(wInfo->featureFilePath());
 			classLabels.append(wInfo->writer());
 			hists.push_back(wInfo->featureVector());
+			imageNames.push_back(wInfo->imageName());
 		}
-		//wiDatabase.evaluateDatabase(classLabels, featurePaths/*, QString("c:\\tmp\\eval-2.txt")*/);
-		//wiDatabase.evaluateDatabase(hists, classLabels, featurePaths/*, QString("c:\\tmp\\eval-2.txt")*/);
+
 		if(!mSettingsVocPath.isEmpty()) {
 			qDebug() << "vocabulary path:" << mSettingsVocPath;
 		}
@@ -657,6 +654,7 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 		}
 
 		wiDatabase.evaluateDatabase(hists, classLabels, featurePaths, evalFile);
+		wiDatabase.writeCompetitionEvaluationFile(hists, imageNames, "c:/tmp/comp.csv");
 		if(!mEvalFile.isEmpty())
 			qDebug() << "evaluation written to " << evalFile;
 	}
@@ -678,6 +676,7 @@ void WriterIdentificationPlugin::loadSettings(QSettings & settings) {
 		mVocType = rdf::WriterVocabulary::WI_UNDEFINED;
 	mVocNumberOfClusters = settings.value("numberOfClusters", defaultVoc.numberOfCluster()).toInt();
 	mVocNumberOfPCA = settings.value("numberOfPCA", defaultVoc.numberOfPCA()).toInt();
+	mVocNumverOfPCAWhite = settings.value("numberOfPCAWhitening", defaultVoc.numberOfPCAWhiteningComponents()).toInt();
 	mVocMaxSIFTSize = settings.value("maxSIFTSize", defaultVoc.maximumSIFTSize()).toInt();
 	mVocMinSIFTSize = settings.value("minSIFTSize", defaultVoc.minimumSIFTSize()).toInt();
 	mVocPowerNormalization = settings.value("powerNormalization", defaultVoc.powerNormalization()).toDouble();
@@ -767,6 +766,15 @@ void WIInfo::setFeatureVector(const cv::Mat featureVec) {
 
 cv::Mat WIInfo::featureVector() const {
 	return mFeatureVec;
+}
+
+void WIInfo::
+setImageName(const QString & p) {
+	mImageName = p;
+}
+
+QString WIInfo::imageName() const {
+	return mImageName;
 }
 
 };
