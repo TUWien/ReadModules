@@ -417,7 +417,8 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		testInfo->setFormName(imgC->filePath());
 		testInfo->setFormSize(img.size());
 		testInfo->setLines(formF.horLines(), formF.verLines());
-		testInfo->setLineImg(formF.binaryImage());
+		cv::Mat tmpBinImg = formF.binaryImage();
+		testInfo->setLineImg(tmpBinImg);
 
 		qDebug() << "Form img calculated...";
 
@@ -646,7 +647,7 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 			qDebug() << "match against template form";
 
 			cv::Mat lineImg = tInfo->lineImg();
-			lineImg = 255 - lineImg;
+			//lineImg = 255 - lineImg;
 			lineImg.convertTo(lineImg, CV_32FC1, 1.0 / 255.0);
 
 			cv::Point2d lU((int)region->leftUpper().x(), (int)region->leftUpper().y());
@@ -655,10 +656,10 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 			
 			cv::Size templSize = templateForm.sizeImg();
 			cv::Mat tmplImg(lineImg.size(), CV_32FC1);
-			tmplImg.setTo(1.0);
+			tmplImg.setTo(0.0);
 			
 
-			rdf::LineTrace::generateLineImage(templateForm.horLines(), templateForm.verLines(), tmplImg, cv::Scalar(0), cv::Scalar(0), lU);
+			rdf::LineTrace::generateLineImage(templateForm.horLines(), templateForm.verLines(), tmplImg, cv::Scalar(1.0), cv::Scalar(1.0), lU);
 
 			rdf::Image::save(tmplImg, "D:\\tmp\\templateImg.png");
 			rdf::Image::save(lineImg, "D:\\tmp\\lineImg.png");
