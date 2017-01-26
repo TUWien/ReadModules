@@ -36,6 +36,7 @@ related links:
 #include "DkBatchInfo.h"
 
 #include "Shapes.h"
+#include "Elements.h"
 
 // opencv defines
 namespace cv {
@@ -62,17 +63,35 @@ public:
 	void setTemplId(int id);
 	int iDForm() const;
 
+	void setXMLTemplate(QString t);
+	QString xmlTemplate() const;
+
+	void setLineImg(cv::Mat& img);
+	cv::Mat lineImg() const;
+
 	void setLines(QVector<rdf::Line> hL, QVector<rdf::Line> vL);
 	QVector<rdf::Line> hLines();
 	QVector<rdf::Line> vLines();
 
+	void addCell(QSharedPointer<rdf::TableCell> c);
+	void setCells(QVector<QSharedPointer<rdf::TableCell>> c);
+	QVector<QSharedPointer<rdf::TableCell>> cells() const;
+	
+	void setRegion(QSharedPointer<rdf::TableRegion> r);
+	QSharedPointer<rdf::TableRegion> region();
+
 private:
 	QString mProp; //form name
 	QString mMatchName;
+	QString mXMLTemplate;
 	int mIdForm = 0;
 	QSize mS;
 	QVector<rdf::Line> mVerLines;
 	QVector<rdf::Line> mHorLines;
+	cv::Mat mLineImg;
+
+	QSharedPointer<rdf::TableRegion> mRegion;
+	QVector<QSharedPointer<rdf::TableCell>> mCells;
 
 };
 
