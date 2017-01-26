@@ -43,9 +43,13 @@ public:
 
 	void setFeatureVector(const cv::Mat featureVec);
 	cv::Mat featureVector() const;
+
+	void setImageName(const QString& p);
+	QString imageName() const;
 private:
 	QString mWriter;
 	QString mFeatureFilePath;
+	QString mImageName;
 	cv::Mat mFeatureVec;
 
 };
@@ -112,6 +116,7 @@ private:
 	rdf::WriterVocabulary mVocabulary = rdf::WriterVocabulary();
 	QString mFeatureDir = QString();
 	QString mEvalFile = QString();
+	int mVocNumverOfPCAWhite;
 };
 
 };
