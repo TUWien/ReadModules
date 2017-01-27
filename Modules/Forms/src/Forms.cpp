@@ -592,7 +592,7 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 					}
 				}
 
-				float thickness = 4.0;
+				float thickness = 30.0;
 				//if (tCell && tCell->header()) {
 				if (tCell) {
 
@@ -650,21 +650,41 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 			//lineImg = 255 - lineImg;
 			lineImg.convertTo(lineImg, CV_32FC1, 1.0 / 255.0);
 
-			cv::Point2d lU((int)region->leftUpper().x(), (int)region->leftUpper().y());
+			QPointF sizeTemplate = region->rightDownCorner() - region->leftUpperCorner();
 			//use 10 pixel as offset
-			lU -= cv::Point2d(10, 10);
+			sizeTemplate += QPointF(60, 60);
+			cv::Point2d lU((int)region->leftUpperCorner().x(), (int)region->leftUpperCorner().y());
+			lU -= cv::Point2d(30, 30);
 			
-			cv::Size templSize = templateForm.sizeImg();
-			cv::Mat tmplImg(lineImg.size(), CV_32FC1);
+			//cv::Size templSize = templateForm.sizeImg();
+			cv::Size templSize = cv::Size((int)sizeTemplate.x(), (int)sizeTemplate.y());
+			cv::Mat tmplImg(templSize, CV_32FC1);
 			tmplImg.setTo(0.0);
 			
 
 			rdf::LineTrace::generateLineImage(templateForm.horLines(), templateForm.verLines(), tmplImg, cv::Scalar(1.0), cv::Scalar(1.0), lU);
 
+			//cv::Mat tmplRow, tmplCol;
+			//cv::Mat formRow, formCol;
+			//cv::reduce(tmplImg, tmplRow, 1, cv::REDUCE_SUM);
+			//cv::reduce(tmplImg, tmplCol, 0, cv::REDUCE_SUM);
+			//cv::reduce(tmplImg, formRow, 1, cv::REDUCE_SUM);
+			//cv::reduce(tmplImg, formCol, 0, cv::REDUCE_SUM);
+
 			rdf::Image::save(tmplImg, "D:\\tmp\\templateImg.png");
 			rdf::Image::save(lineImg, "D:\\tmp\\lineImg.png");
+			cv::Mat outTmp = lineImg.clone();
+			//cv::matchTemplate(lineImg, tmplImg, outTmp, cv::TM_SQDIFF);
+			cv::matchTemplate(lineImg, tmplImg, outTmp, cv::TM_CCOEFF);
+			//cv::Point alignment = cv::phaseCorrelate(tmplImg, lineImg);
+			double minV, maxV;
+			cv::Point minLoc, maxLoc;
+			cv::minMaxLoc(outTmp, &minV, &maxV, &minLoc, &maxLoc);
+			qDebug() << "Shift: " << minLoc.x << "  " << minLoc.y;
+			qDebug() << "Shift: " << maxLoc.x << "  " << maxLoc.y;
+			outTmp /= maxV;
+			rdf::Image::save(outTmp, "D:\\tmp\\corrImg.png");
 
-			cv::Point alignment = cv::phaseCorrelate(tmplImg, lineImg);
 			
 			//rdf::FormFeatures currentForm;
 			//currentForm.setHorLines(tInfo->hLines());
