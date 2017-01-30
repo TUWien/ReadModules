@@ -414,6 +414,9 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 			qWarning() << "could not compute form template " << imgC->filePath();
 		}
 
+
+
+		//set batchinfo for further processing
 		testInfo->setFormName(imgC->filePath());
 		testInfo->setFormSize(img.size());
 		testInfo->setLines(formF.horLines(), formF.verLines());
@@ -428,46 +431,243 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 	}
 	else if (runID == mRunIDs[id_classifyxml]) {
 
+		//use for debugging - apply template
+		QImage img = imgC->image();
+		//imgC->setImage(img.mirrored(), "Mirrored");
 
-		qDebug() << "classify based on xml separators...";
-		
 		QSharedPointer<FormsInfo> testInfo(new FormsInfo(runID, imgC->filePath()));
 
-		QString loadXmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
+		//QString loadXmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
 		//QString saveXmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
+
+		//rdf::PageXmlParser parser;
+		//parser.read(loadXmlPath);
+		//auto pe = parser.page();
+
+		cv::Mat imgForm = rdf::Image::qImage2Mat(img);
+		cv::Mat imgFormG;
+		if (imgForm.channels() != 1) cv::cvtColor(imgForm, imgFormG, CV_RGB2GRAY);
+		//cv::Mat maskTempl = rdf::Algorithms::estimateMask(imgTemplG);
+		rdf::FormFeatures formF(imgFormG);
+
+		if (!formF.compute()) {
+			qWarning() << "could not compute form template " << imgC->filePath();
+		}
+
+
+		rdf::FormFeatures templateForm;
+		QSharedPointer<FormsInfo> templateInfo(new FormsInfo());
+		templateInfo->setXMLTemplate(mLineTemplPath);
+		QString loadXmlPath = rdf::PageXmlParser::imagePathToXmlPath(mLineTemplPath);
 
 		rdf::PageXmlParser parser;
 		parser.read(loadXmlPath);
 		auto pe = parser.page();
 
+		templateInfo->setFormSize(pe->imageSize());
+
 		//read xml separators and store them to testinfo
 		QVector<rdf::Line> hLines;
 		QVector<rdf::Line> vLines;
 
-
 		QVector<QSharedPointer<rdf::Region>> test = rdf::Region::allRegions(pe->rootRegion());// pe->rootRegion()->children();
-		for (auto i : test) {
-			if (i->type() == i->type_separator) {
-				rdf::SeparatorRegion* tSep = dynamic_cast<rdf::SeparatorRegion*>(i.data());
-				if (tSep) {
-					if (tSep->line().isHorizontal(5.0))
-						hLines.push_back(tSep->line());
+																							  //QVector<rdf::TableCell> cells;
+		QVector<QSharedPointer<rdf::TableCell>> cells;
+		QSharedPointer<rdf::TableRegion> region;
 
-					if (tSep->line().isVertical(5.0))
-						vLines.push_back(tSep->line());
+
+		for (auto i : test) {
+
+			if (i->type() == i->type_table_region) {
+				region = i.dynamicCast<rdf::TableRegion>();
+
+			}
+			else if (i->type() == i->type_table_cell) {
+				//rdf::TableCell* tCell = dynamic_cast<rdf::TableCell*>(i.data());
+				QSharedPointer<rdf::TableCell> tCell = i.dynamicCast<rdf::TableCell>();
+				cells.push_back(tCell);
+
+				//check if tCell has a Textline as child, if yes, mark as table header;
+				if (!tCell->children().empty()) {
+					QVector<QSharedPointer<rdf::Region>> childs = tCell->children();
+					for (auto child : childs) {
+						if (child->type() == child->type_text_line) {
+							tCell->setHeader(true);
+							//qDebug() << imgC->filePath() << "detected header...";
+							qDebug() << "detected header...";
+							break;
+						}
+					}
 				}
-					
+
+				float thickness = 10.0; //30
+				//if (tCell && tCell->header()) {
+				if (tCell) {
+
+					if (tCell->topBorderVisible()) {
+						rdf::Line tmpL = tCell->topBorder();
+						tmpL.setThickness(thickness);
+						hLines.push_back(tmpL);
+					}
+					if (tCell->bottomBorderVisible()) {
+						rdf::Line tmpL = tCell->bottomBorder();
+						tmpL.setThickness(thickness);
+						hLines.push_back(tmpL);
+					}
+					if (tCell->leftBorderVisible()) {
+						rdf::Line tmpL = tCell->leftBorder();
+						tmpL.setThickness(thickness);
+						vLines.push_back(tmpL);
+					}
+					if (tCell->rightBorderVisible()) {
+						rdf::Line tmpL = tCell->rightBorder();
+						tmpL.setThickness(thickness);
+						vLines.push_back(tmpL);
+					}
+				}
+
 			}
 		}
-		
+
+		std::sort(cells.begin(), cells.end());
+		templateInfo->setLines(hLines, vLines);
+		templateInfo->setRegion(region);
+		templateInfo->setCells(cells);
+
+		templateForm.setFormName(mLineTemplPath);
+		//templateForm.setSize()
+		templateForm.setHorLines(hLines);
+		templateForm.setVerLines(vLines);
+		templateForm.setSize(cv::Size(templateInfo->formSize().width(), templateInfo->formSize().height()));
+
+		cv::Mat lineImg = formF.binaryImage().clone();
+		lineImg.convertTo(lineImg, CV_32FC1, 1.0 / 255.0);
+		//lineImg = 255 - lineImg;
+		//cv::Mat distLineImg;
+		//cv::distanceTransform(lineImg, distLineImg, CV_DIST_L1, CV_DIST_MASK_3, CV_32FC1); //cityblock
+
+		QPointF sizeTemplate = region->rightDownCorner() - region->leftUpperCorner();
+			//use 10 pixel as offset
+		QPointF offsetSize = QPointF(60, 60);
+		sizeTemplate += offsetSize;
+		cv::Point2d lU((int)region->leftUpperCorner().x(), (int)region->leftUpperCorner().y());
+		cv::Point2d offSetLines = cv::Point2d(offsetSize.x() / 2, offsetSize.y() / 2);
+		lU -= offSetLines;
+
+		//cv::Size templSize = templateForm.sizeImg();
+		cv::Size templSize = cv::Size((int)sizeTemplate.x(), (int)sizeTemplate.y());
+		cv::Mat tmplImg(templSize, CV_32FC1);
+		tmplImg.setTo(0.0);
+
+
+		rdf::LineTrace::generateLineImage(templateForm.horLines(), templateForm.verLines(), tmplImg, cv::Scalar(1.0), cv::Scalar(1.0), -lU);
+
+		//cv::Mat lineTempl(templSize, CV_8UC1);
+		//lineTempl = 0; 
+		//rdf::LineTrace::generateLineImage(templateForm.horLines(), templateForm.verLines(), tmplImg, cv::Scalar(255), cv::Scalar(255), -lU);
+		//lineTempl = 255 - lineTempl;
+		//cv::Mat distTmplImg;
+		//cv::distanceTransform(lineTempl, distTmplImg, CV_DIST_L1, CV_DIST_MASK_3, CV_32FC1); //cityblock
+
+
+		rdf::Image::save(tmplImg, "D:\\tmp\\templateImg.png");
+		rdf::Image::save(lineImg, "D:\\tmp\\lineImg.png");
+
+		cv::Mat tmplRowSum, tmplColSum;
+		cv::Mat formRowSum, formColSum;
+
+		//cv::resize(tmplImg, tmplImg, cv::Size(), 0.25, 0.25, cv::INTER_NEAREST);
+		//cv::resize(lineImg, lineImg, cv::Size(), 0.25, 0.25, cv::INTER_NEAREST);
+
+		cv::reduce(tmplImg, tmplRowSum, 1, cv::REDUCE_SUM);
+		cv::reduce(tmplImg, tmplColSum, 0, cv::REDUCE_SUM);
+		cv::reduce(lineImg, formRowSum, 1, cv::REDUCE_SUM);
+		cv::reduce(lineImg, formColSum, 0, cv::REDUCE_SUM);
+
+		cv::Mat outIndex;
+		cv::matchTemplate(formRowSum, tmplRowSum, outIndex, cv::TM_CCOEFF);
+		cv::Point2d shift;
+		double minV, maxV;
+		cv::Point minLoc, maxLoc;
+		cv::minMaxLoc(outIndex, &minV, &maxV, &minLoc, &maxLoc);
+		//maxLoc *= 4.0;
+		qDebug() << "Shift y: " << "  " << maxLoc.y;
+		shift.y = maxLoc.y;
+
+		cv::matchTemplate(formColSum, tmplColSum, outIndex, cv::TM_CCOEFF);
+		cv::minMaxLoc(outIndex, &minV, &maxV, &minLoc, &maxLoc);
+		//maxLoc *= 4.0;
+		qDebug() << "Shift x: " << maxLoc.x << "  ";
+		shift.x = maxLoc.x;
+
+
+
+		rdf::LineTrace::generateLineImage(templateForm.horLines(), templateForm.verLines(), imgForm, cv::Scalar(255,0,0), cv::Scalar(255,0,0), -lU+shift);
+
+		//qDebug() << rdf::Image::printImage(tmplRowSum, "tmpRow");
+		//qDebug() << rdf::Image::printImage(tmplColSum, "tmpCol");
+
+		//set batchinfo for further processing
 		testInfo->setFormName(imgC->filePath());
-		testInfo->setFormSize(pe->imageSize());
-		testInfo->setLines(hLines, vLines);
+		testInfo->setFormSize(img.size());
+		testInfo->setLines(formF.horLines(), formF.verLines());
+		cv::Mat tmpBinImg = formF.binaryImage();
+		testInfo->setLineImg(tmpBinImg);
 
-		qDebug() << "separators read from xml...";
-
+		qDebug() << "Form img calculated...";
 
 		info = testInfo;
+		
+		QImage result;
+		result = rdf::Image::mat2QImage(imgForm);
+
+		qDebug() << "Align form...";
+		imgC->setImage(result, "Form Image");
+
+
+
+
+		//----------------------------------------------------------------------------------------------------------------------------------------------------
+		//correct xml code:
+		//qDebug() << "classify based on xml separators...";
+		//
+		//QSharedPointer<FormsInfo> testInfo(new FormsInfo(runID, imgC->filePath()));
+
+		//QString loadXmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
+		////QString saveXmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
+
+		//rdf::PageXmlParser parser;
+		//parser.read(loadXmlPath);
+		//auto pe = parser.page();
+
+		////read xml separators and store them to testinfo
+		//QVector<rdf::Line> hLines;
+		//QVector<rdf::Line> vLines;
+
+
+		//QVector<QSharedPointer<rdf::Region>> test = rdf::Region::allRegions(pe->rootRegion());// pe->rootRegion()->children();
+		//for (auto i : test) {
+		//	if (i->type() == i->type_separator) {
+		//		rdf::SeparatorRegion* tSep = dynamic_cast<rdf::SeparatorRegion*>(i.data());
+		//		if (tSep) {
+		//			if (tSep->line().isHorizontal(5.0))
+		//				hLines.push_back(tSep->line());
+
+		//			if (tSep->line().isVertical(5.0))
+		//				vLines.push_back(tSep->line());
+		//		}
+		//			
+		//	}
+		//}
+		//
+		//testInfo->setFormName(imgC->filePath());
+		//testInfo->setFormSize(pe->imageSize());
+		//testInfo->setLines(hLines, vLines);
+
+		//qDebug() << "separators read from xml...";
+
+
+		//info = testInfo;
 	}
 
 	// wrong runID? - do nothing
@@ -652,9 +852,11 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 
 			QPointF sizeTemplate = region->rightDownCorner() - region->leftUpperCorner();
 			//use 10 pixel as offset
-			sizeTemplate += QPointF(60, 60);
+			QPointF offsetSize = QPointF(60, 60);
+			sizeTemplate += offsetSize;
 			cv::Point2d lU((int)region->leftUpperCorner().x(), (int)region->leftUpperCorner().y());
-			lU -= cv::Point2d(30, 30);
+			cv::Point2d offSetLines = cv::Point2d(offsetSize.x()/2, offsetSize.y()/2);
+			lU -= offSetLines;
 			
 			//cv::Size templSize = templateForm.sizeImg();
 			cv::Size templSize = cv::Size((int)sizeTemplate.x(), (int)sizeTemplate.y());
@@ -664,26 +866,50 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 
 			rdf::LineTrace::generateLineImage(templateForm.horLines(), templateForm.verLines(), tmplImg, cv::Scalar(1.0), cv::Scalar(1.0), lU);
 
-			//cv::Mat tmplRow, tmplCol;
-			//cv::Mat formRow, formCol;
-			//cv::reduce(tmplImg, tmplRow, 1, cv::REDUCE_SUM);
-			//cv::reduce(tmplImg, tmplCol, 0, cv::REDUCE_SUM);
-			//cv::reduce(tmplImg, formRow, 1, cv::REDUCE_SUM);
-			//cv::reduce(tmplImg, formCol, 0, cv::REDUCE_SUM);
-
 			rdf::Image::save(tmplImg, "D:\\tmp\\templateImg.png");
 			rdf::Image::save(lineImg, "D:\\tmp\\lineImg.png");
-			cv::Mat outTmp = lineImg.clone();
-			//cv::matchTemplate(lineImg, tmplImg, outTmp, cv::TM_SQDIFF);
-			cv::matchTemplate(lineImg, tmplImg, outTmp, cv::TM_CCOEFF);
-			//cv::Point alignment = cv::phaseCorrelate(tmplImg, lineImg);
+
+			//cv::Mat outTmp = lineImg.clone();
+			////cv::matchTemplate(lineImg, tmplImg, outTmp, cv::TM_SQDIFF);
+			//cv::matchTemplate(lineImg, tmplImg, outTmp, cv::TM_CCOEFF);
+			////cv::Point alignment = cv::phaseCorrelate(tmplImg, lineImg);
+			//double minV, maxV;
+			//cv::Point minLoc, maxLoc;
+			//cv::minMaxLoc(outTmp, &minV, &maxV, &minLoc, &maxLoc);
+			//qDebug() << "Shift: " << minLoc.x << "  " << minLoc.y;
+			//qDebug() << "Shift: " << maxLoc.x << "  " << maxLoc.y;
+			//outTmp /= maxV;
+			//rdf::Image::save(outTmp, "D:\\tmp\\corrImg.png");
+
+			cv::Mat tmplRowSum, tmplColSum;
+			cv::Mat formRowSum, formColSum;
+
+			//cv::resize(tmplImg, tmplImg, cv::Size(), 0.25, 0.25, cv::INTER_NEAREST);
+			//cv::resize(lineImg, lineImg, cv::Size(), 0.25, 0.25, cv::INTER_NEAREST);
+
+			cv::reduce(tmplImg, tmplRowSum, 1, cv::REDUCE_SUM);
+			cv::reduce(tmplImg, tmplColSum, 0, cv::REDUCE_SUM);
+			cv::reduce(lineImg, formRowSum, 1, cv::REDUCE_SUM);
+			cv::reduce(lineImg, formColSum, 0, cv::REDUCE_SUM);
+
+			cv::Mat outIndex;
+			cv::matchTemplate(formRowSum, tmplRowSum, outIndex, cv::TM_CCOEFF);
 			double minV, maxV;
 			cv::Point minLoc, maxLoc;
-			cv::minMaxLoc(outTmp, &minV, &maxV, &minLoc, &maxLoc);
-			qDebug() << "Shift: " << minLoc.x << "  " << minLoc.y;
-			qDebug() << "Shift: " << maxLoc.x << "  " << maxLoc.y;
-			outTmp /= maxV;
-			rdf::Image::save(outTmp, "D:\\tmp\\corrImg.png");
+			cv::minMaxLoc(outIndex, &minV, &maxV, &minLoc, &maxLoc);
+			//maxLoc *= 4.0;
+			qDebug() << "Shift y: "  << "  " << maxLoc.y;
+
+			cv::matchTemplate(formColSum, tmplColSum, outIndex, cv::TM_CCOEFF);
+			cv::minMaxLoc(outIndex, &minV, &maxV, &minLoc, &maxLoc);
+			//maxLoc *= 4.0;
+			qDebug() << "Shift x: " << maxLoc.x << "  ";
+
+			qDebug() << rdf::Image::printImage(tmplRowSum, "tmpRow");
+			qDebug() << rdf::Image::printImage(tmplColSum, "tmpCol");
+			qDebug() << rdf::Image::printImage(formRowSum, "formRow");
+			qDebug() << rdf::Image::printImage(formColSum, "formCol");
+			
 
 			
 			//rdf::FormFeatures currentForm;
