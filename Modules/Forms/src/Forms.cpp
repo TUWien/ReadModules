@@ -541,10 +541,11 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		templateForm.setSize(cv::Size(templateInfo->formSize().width(), templateInfo->formSize().height()));
 
 		cv::Mat lineImg = formF.binaryImage().clone();
-		lineImg.convertTo(lineImg, CV_32FC1, 1.0 / 255.0);
-		//lineImg = 255 - lineImg;
-		//cv::Mat distLineImg;
-		//cv::distanceTransform(lineImg, distLineImg, CV_DIST_L1, CV_DIST_MASK_3, CV_32FC1); //cityblock
+		//lineImg.convertTo(lineImg, CV_32FC1, 1.0 / 255.0);
+		rdf::Image::save(lineImg, "D:\\tmp\\lineImgOrig.png");
+		lineImg = 255 - lineImg;
+		cv::Mat distLineImg;
+		cv::distanceTransform(lineImg, distLineImg, CV_DIST_L1, CV_DIST_MASK_3, CV_32FC1); //cityblock
 
 		QPointF sizeTemplate = region->rightDownCorner() - region->leftUpperCorner();
 			//use 10 pixel as offset
@@ -560,18 +561,29 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		tmplImg.setTo(0.0);
 
 
-		rdf::LineTrace::generateLineImage(templateForm.horLines(), templateForm.verLines(), tmplImg, cv::Scalar(1.0), cv::Scalar(1.0), -lU);
+		//rdf::LineTrace::generateLineImage(templateForm.horLines(), templateForm.verLines(), tmplImg, cv::Scalar(1.0), cv::Scalar(1.0), -lU);
 
-		//cv::Mat lineTempl(templSize, CV_8UC1);
-		//lineTempl = 0; 
-		//rdf::LineTrace::generateLineImage(templateForm.horLines(), templateForm.verLines(), tmplImg, cv::Scalar(255), cv::Scalar(255), -lU);
-		//lineTempl = 255 - lineTempl;
-		//cv::Mat distTmplImg;
-		//cv::distanceTransform(lineTempl, distTmplImg, CV_DIST_L1, CV_DIST_MASK_3, CV_32FC1); //cityblock
+		cv::Mat lineTempl(templSize, CV_8UC1);
+		lineTempl = 0; 
+		rdf::LineTrace::generateLineImage(templateForm.horLines(), templateForm.verLines(), lineTempl, cv::Scalar(255), cv::Scalar(255), -lU);
+		lineTempl = 255 - lineTempl;
+		cv::Mat distTmplImg;
+		cv::distanceTransform(lineTempl, distTmplImg, CV_DIST_L1, CV_DIST_MASK_3, CV_32FC1); //cityblock
+		//lineTempl.convertTo(distTmplImg, CV_32FC1, 1.0 / 255.0);
+		double minVtest, maxVtest;
+		cv::minMaxLoc(distTmplImg, &minVtest, &maxVtest);
 
+		//cv::threshold(distLineImg, distLineImg, maxVtest, maxVtest, cv::THRESH_TOZERO_INV);
+		cv::threshold(distLineImg, distLineImg, maxVtest, maxVtest, cv::THRESH_TRUNC);
 
-		rdf::Image::save(tmplImg, "D:\\tmp\\templateImg.png");
-		rdf::Image::save(lineImg, "D:\\tmp\\lineImg.png");
+		cv::normalize(distTmplImg, distTmplImg, 0, 1.0, cv::NORM_MINMAX);
+		distTmplImg = 1.0 - distTmplImg;
+		rdf::Image::save(distTmplImg, "D:\\tmp\\templateImg.png");
+		cv::normalize(distLineImg, distLineImg, 0, 1.0, cv::NORM_MINMAX);
+		distLineImg = 1.0 - distLineImg;
+		rdf::Image::save(distLineImg, "D:\\tmp\\lineImg.png");
+		//rdf::Image::save(tmplImg, "D:\\tmp\\templateImg.png");
+		//rdf::Image::save(lineImg, "D:\\tmp\\lineImg.png");
 
 		cv::Mat tmplRowSum, tmplColSum;
 		cv::Mat formRowSum, formColSum;
@@ -579,13 +591,17 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		//cv::resize(tmplImg, tmplImg, cv::Size(), 0.25, 0.25, cv::INTER_NEAREST);
 		//cv::resize(lineImg, lineImg, cv::Size(), 0.25, 0.25, cv::INTER_NEAREST);
 
-		cv::reduce(tmplImg, tmplRowSum, 1, cv::REDUCE_SUM);
-		cv::reduce(tmplImg, tmplColSum, 0, cv::REDUCE_SUM);
-		cv::reduce(lineImg, formRowSum, 1, cv::REDUCE_SUM);
-		cv::reduce(lineImg, formColSum, 0, cv::REDUCE_SUM);
+		//cv::reduce(tmplImg, tmplRowSum, 1, cv::REDUCE_SUM);
+		//cv::reduce(tmplImg, tmplColSum, 0, cv::REDUCE_SUM);
+		//cv::reduce(lineImg, formRowSum, 1, cv::REDUCE_SUM);
+		//cv::reduce(lineImg, formColSum, 0, cv::REDUCE_SUM);
+		cv::reduce(distTmplImg, tmplRowSum, 1, cv::REDUCE_SUM);
+		cv::reduce(distTmplImg, tmplColSum, 0, cv::REDUCE_SUM);
+		cv::reduce(distLineImg, formRowSum, 1, cv::REDUCE_SUM);
+		cv::reduce(distLineImg, formColSum, 0, cv::REDUCE_SUM);
 
 		cv::Mat outIndex;
-		cv::matchTemplate(formRowSum, tmplRowSum, outIndex, cv::TM_CCOEFF);
+		cv::matchTemplate(formRowSum, tmplRowSum, outIndex, cv::TM_CCOEFF_NORMED);
 		cv::Point2d shift;
 		double minV, maxV;
 		cv::Point minLoc, maxLoc;
@@ -594,7 +610,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		qDebug() << "Shift y: " << "  " << maxLoc.y;
 		shift.y = maxLoc.y;
 
-		cv::matchTemplate(formColSum, tmplColSum, outIndex, cv::TM_CCOEFF);
+		cv::matchTemplate(formColSum, tmplColSum, outIndex, cv::TM_CCOEFF_NORMED);
 		cv::minMaxLoc(outIndex, &minV, &maxV, &minLoc, &maxLoc);
 		//maxLoc *= 4.0;
 		qDebug() << "Shift x: " << maxLoc.x << "  ";
@@ -604,8 +620,9 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 		rdf::LineTrace::generateLineImage(templateForm.horLines(), templateForm.verLines(), imgForm, cv::Scalar(255,0,0), cv::Scalar(255,0,0), -lU+shift);
 
-		//qDebug() << rdf::Image::printImage(tmplRowSum, "tmpRow");
-		//qDebug() << rdf::Image::printImage(tmplColSum, "tmpCol");
+		qDebug() << rdf::Image::printImage(tmplRowSum, "tmpRow");
+		qDebug() << rdf::Image::printImage(formRowSum, "tmpCol");
+		qDebug() << rdf::Image::printImage(outIndex, "outIndex");
 
 		//set batchinfo for further processing
 		testInfo->setFormName(imgC->filePath());
