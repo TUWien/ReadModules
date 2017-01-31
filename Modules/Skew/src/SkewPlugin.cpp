@@ -401,7 +401,7 @@ void SkewEstPlugin::skewTextLine(QSharedPointer<nmc::DkImageContainer>& imgC, QS
 		p.setPen(rdf::ColorManager::colors()[1]);
 
 		for (auto px : sp)
-			px->draw(p, 0.8, rdf::Pixel::draw_ellipse_stats);
+			px->draw(p, 0.8, (rdf::Pixel::DrawFlag)(rdf::Pixel::draw_ellipse | rdf::Pixel::draw_stats));
 
 		QFont font = p.font();
 		font.setPointSize(16);

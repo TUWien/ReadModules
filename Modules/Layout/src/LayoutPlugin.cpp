@@ -495,7 +495,7 @@ cv::Mat LayoutPlugin::computePageSegmentation(const cv::Mat & src, const rdf::Pa
 	//rImg = lo.draw(rImg, "507", 64);
 
 	//// save super pixel image
-	rImg = superPixel.drawSuperPixels(rImg);
+	rImg = superPixel.draw(rImg);
 	//rImg = tabStops.draw(rImg);
 	//rImg = textLines.draw(rImg);
 

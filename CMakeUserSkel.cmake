@@ -1,4 +1,4 @@
-# If you want to use prefix paths with cmake, copy and rename this file to CMakeUser.txt
+# If you want to use prefix paths with cmake, copy and rename this file to CMakeUser.cmake
 # Do not add this file to GIT!
 
 # set your preferred Qt Library path
