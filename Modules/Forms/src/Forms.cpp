@@ -541,8 +541,16 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		templateForm.setSize(cv::Size(templateInfo->formSize().width(), templateInfo->formSize().height()));
 
 		cv::Mat lineImg = formF.binaryImage().clone();
+		//use this part instead of binaryImage;
+		cv::Mat synLines = cv::Mat(formF.sizeImg(), CV_8UC1);
+		synLines = 0;
+		QVector<rdf::Line> hL = formF.horLines();
+		QVector<rdf::Line> vL = formF.verLines();
+		rdf::LineTrace::generateLineImage(hL, vL, synLines, cv::Scalar(255), cv::Scalar(255));
+		lineImg = synLines;
+
 		//lineImg.convertTo(lineImg, CV_32FC1, 1.0 / 255.0);
-		rdf::Image::save(lineImg, "D:\\tmp\\lineImgOrig.png");
+		//rdf::Image::save(lineImg, "D:\\tmp\\lineImgOrig.png");
 		lineImg = 255 - lineImg;
 		cv::Mat distLineImg;
 		cv::distanceTransform(lineImg, distLineImg, CV_DIST_L1, CV_DIST_MASK_3, CV_32FC1); //cityblock
@@ -578,10 +586,10 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 		cv::normalize(distTmplImg, distTmplImg, 0, 1.0, cv::NORM_MINMAX);
 		distTmplImg = 1.0 - distTmplImg;
-		rdf::Image::save(distTmplImg, "D:\\tmp\\templateImg.png");
+		//rdf::Image::save(distTmplImg, "D:\\tmp\\templateImg.png");
 		cv::normalize(distLineImg, distLineImg, 0, 1.0, cv::NORM_MINMAX);
 		distLineImg = 1.0 - distLineImg;
-		rdf::Image::save(distLineImg, "D:\\tmp\\lineImg.png");
+		//rdf::Image::save(distLineImg, "D:\\tmp\\lineImg.png");
 		//rdf::Image::save(tmplImg, "D:\\tmp\\templateImg.png");
 		//rdf::Image::save(lineImg, "D:\\tmp\\lineImg.png");
 
@@ -620,9 +628,9 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 		rdf::LineTrace::generateLineImage(templateForm.horLines(), templateForm.verLines(), imgForm, cv::Scalar(255,0,0), cv::Scalar(255,0,0), -lU+shift);
 
-		qDebug() << rdf::Image::printImage(tmplRowSum, "tmpRow");
-		qDebug() << rdf::Image::printImage(formRowSum, "tmpCol");
-		qDebug() << rdf::Image::printImage(outIndex, "outIndex");
+		//qDebug() << rdf::Image::printImage(tmplRowSum, "tmpRow");
+		//qDebug() << rdf::Image::printImage(formRowSum, "tmpCol");
+		//qDebug() << rdf::Image::printImage(outIndex, "outIndex");
 
 		//set batchinfo for further processing
 		testInfo->setFormName(imgC->filePath());
