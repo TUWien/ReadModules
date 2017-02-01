@@ -270,6 +270,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 	}
 	else if (runID == mRunIDs[id_classify]) {
+
 		QImage img = imgC->image();
 		//imgC->setImage(img.mirrored(), "Mirrored");
 
@@ -340,8 +341,10 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		formF.readTemplate(formTemplate);
 
 		formF.estimateRoughAlignment();
+		formF.matchTemplate();
 
-		cv::Mat resultImg = formF.drawAlignment(imgForm);
+		//cv::Mat resultImg = formF.drawAlignment(imgForm);
+		cv::Mat resultImg = formF.drawMatchedForm(imgForm);
 		//if (resultImg.channels() != 3)
 		//	cv::cvtColor(resultImg, resultImg, CV_GRAY2RGB);
 
