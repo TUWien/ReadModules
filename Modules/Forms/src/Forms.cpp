@@ -157,82 +157,11 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 	if(runID == mRunIDs[id_train]) {
 
 		QImage img = imgC->image();
-		////imgC->setImage(img.mirrored(), "Mirrored");
-
 
 		QSharedPointer<FormsInfo> testInfo(new FormsInfo(runID, imgC->filePath()));
-		//QString loadXmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
-		////QString saveXmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
-
-		////just save xml path of template to FormsInfo
-		//testInfo->setXMLTemplate(loadXmlPath);
-		////mLineTemplPath = loadXmlPath;
-
-		//rdf::PageXmlParser parser;
-		//parser.read(loadXmlPath);
-		//auto pe = parser.page();
-
-		////read xml separators and store them to testinfo
-		//QVector<rdf::Line> hLines;
-		//QVector<rdf::Line> vLines;
-
-		//QVector<QSharedPointer<rdf::Region>> test = rdf::Region::allRegions(pe->rootRegion());// pe->rootRegion()->children();
-		//																					  //QVector<rdf::TableCell> cells;
-		//QVector<QSharedPointer<rdf::TableCell>> cells;
-		//QSharedPointer<rdf::TableRegion> region;
-
-
-		//for (auto i : test) {
-
-		//	if (i->type() == i->type_table_region) {
-		//		region = i.dynamicCast<rdf::TableRegion>();
-
-		//	} else if (i->type() == i->type_table_cell) {
-		//		//rdf::TableCell* tCell = dynamic_cast<rdf::TableCell*>(i.data());
-		//		QSharedPointer<rdf::TableCell> tCell = i.dynamicCast<rdf::TableCell>();
-		//		cells.push_back(tCell);
-
-		//		//check if tCell has a Textline as child, if yes, mark as table header;
-		//		if (!tCell->children().empty()) {
-		//			QVector<QSharedPointer<rdf::Region>> childs = tCell->children();
-		//			for (auto child : childs) {
-		//				if (child->type() == child->type_text_line) {
-		//					tCell->setHeader(true);
-		//					//qDebug() << imgC->filePath() << "detected header...";
-		//					qDebug() << "detected header...";
-		//					break;
-		//				}
-		//			}
-		//		}
-
-
-		//		if (tCell && tCell->header()) {
-
-		//			if (tCell->topBorderVisible()) {
-		//				hLines.push_back(tCell->topBorder());
-		//			}
-		//			if (tCell->bottomBorderVisible()) {
-		//				hLines.push_back(tCell->bottomBorder());
-		//			}
-		//			if (tCell->leftBorderVisible()) {
-		//				vLines.push_back(tCell->leftBorder());
-		//			}
-		//			if (tCell->rightBorderVisible()) {
-		//				vLines.push_back(tCell->rightBorder());
-		//			}
-		//		}
-
-		//	}
-		//}
-
-		//std::sort(cells.begin(), cells.end());
-		
 		
 		testInfo->setFormName(imgC->filePath());
 		testInfo->setFormSize(img.size());
-		//testInfo->setLines(hLines, vLines);
-		//testInfo->setCells(cells);
-		//testInfo->setRegion(region);
 			
 		qDebug() << "template calculated...";
 
