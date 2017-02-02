@@ -312,6 +312,8 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 		//use for debugging - apply template
 		QImage img = imgC->image();
+
+		QImage result;
 		//imgC->setImage(img.mirrored(), "Mirrored");
 
 		QSharedPointer<FormsInfo> testInfo(new FormsInfo(runID, imgC->filePath()));
@@ -340,13 +342,42 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		QSharedPointer<rdf::FormFeatures> formTemplate(new rdf::FormFeatures());
 		formF.readTemplate(formTemplate);
 
+
 		formF.estimateRoughAlignment();
 		formF.matchTemplate();
 
-		//cv::Mat resultImg = formF.drawAlignment(imgForm);
-		cv::Mat resultImg = formF.drawMatchedForm(imgForm);
+		cv::cvtColor(imgForm, imgForm, CV_RGBA2BGR);
+		cv::Mat resultImg = formF.drawAlignment(imgForm);
+		resultImg = formF.drawMatchedForm(resultImg);
+		//cv::Mat resultImg = formF.drawMatchedForm(imgForm);
+		//result = rdf::Image::mat2QImage(resultImg);
+		//imgC->setImage(result, "MatchedForm");
+		resultImg = formF.drawLinesNotUsedForm(resultImg);
+		cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
+				
+		//cv::Mat resultImg = imgForm;
 		//if (resultImg.channels() != 3)
 		//	cv::cvtColor(resultImg, resultImg, CV_GRAY2RGB);
+		
+		//test - save output to xml...
+
+		QString loadXmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
+		QString saveXmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
+
+		rdf::PageXmlParser parser;
+		parser.read(loadXmlPath);
+		auto pe = parser.page();
+		
+
+		QSharedPointer<rdf::TableRegion> t = formF.tableRegion();
+		pe->rootRegion()->addUniqueChild(t);
+
+		formF.setSeparators(pe->rootRegion());
+
+		//save pageXml
+		parser.write(saveXmlPath, pe);
+
+
 
 		//set batchinfo for further processing
 		testInfo->setFormName(imgC->filePath());
@@ -356,7 +387,6 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 		info = testInfo;
 
-		QImage result;
 		result = rdf::Image::mat2QImage(resultImg);
 
 		qDebug() << "Align form...";
@@ -417,7 +447,7 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 		//		QSharedPointer<rdf::SeparatorRegion> pSepR(new rdf::SeparatorRegion());
 		//		pSepR->setLine(tmp[i].line());
 
-		//		pe->rootRegion()->addUniqueChild(pSepR);
+				//pe->rootRegion()->addUniqueChild(pSepR);
 		//	}
 		//	//save pageXml
 		//	parser.write(saveXmlPath, pe);
