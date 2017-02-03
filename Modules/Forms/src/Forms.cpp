@@ -312,7 +312,6 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 		//use for debugging - apply template
 		QImage img = imgC->image();
-
 		QImage result;
 		//imgC->setImage(img.mirrored(), "Mirrored");
 
@@ -320,7 +319,6 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 		//QString loadXmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
 		//QString saveXmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
-
 		//rdf::PageXmlParser parser;
 		//parser.read(loadXmlPath);
 		//auto pe = parser.page();
