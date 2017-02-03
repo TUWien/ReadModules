@@ -340,21 +340,35 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 		//rdf::FormFeatures formTemplate;
 		QSharedPointer<rdf::FormFeatures> formTemplate(new rdf::FormFeatures());
+		qDebug() << "Read template...";
 		formF.readTemplate(formTemplate);
 
+		qDebug() << "Compute rough alignment...";
 		formF.estimateRoughAlignment();
-		formF.matchTemplate();
-						
-		cv::cvtColor(imgForm, imgForm, CV_RGBA2BGR);
-		cv::Mat resultImg = imgForm;
-		resultImg = formF.drawAlignment(resultImg);
-		resultImg = formF.drawMatchedForm(resultImg);
 
-		//cv::Mat resultImg = formF.drawMatchedForm(imgForm);
-		//result = rdf::Image::mat2QImage(resultImg);
-		//imgC->setImage(result, "MatchedForm");
-		resultImg = formF.drawLinesNotUsedForm(resultImg);
+		cv::Mat drawImg = imgForm.clone();
+		cv::cvtColor(drawImg, drawImg, CV_RGBA2BGR);
+		cv::Mat resultImg;// = imgForm;
+
+		resultImg = formF.drawAlignment(drawImg);
 		cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
+		result = rdf::Image::mat2QImage(resultImg);
+		imgC->setImage(result, "Rough Alignment");
+		//rdf::Image::save(resultImg, "D:\\tmp\\alignedImg.png");
+
+		qDebug() << "Match template...";
+		formF.matchTemplate();
+				 
+		resultImg = formF.drawMatchedForm(drawImg);
+		cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
+		result = rdf::Image::mat2QImage(resultImg);
+		imgC->setImage(result, "Matched form");
+
+		resultImg = formF.drawLinesNotUsedForm(drawImg);
+		cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
+		result = rdf::Image::mat2QImage(resultImg);
+		imgC->setImage(result, "Lines not used");
+
 				
 		//cv::Mat resultImg = imgForm;
 		//if (resultImg.channels() != 3)
@@ -388,10 +402,10 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 		info = testInfo;
 
-		result = rdf::Image::mat2QImage(resultImg);
+		//result = rdf::Image::mat2QImage(resultImg);
 
-		qDebug() << "Align form...";
-		imgC->setImage(result, "Form Image");
+		//qDebug() << "Align form...";
+		//imgC->setImage(result, "Form Image");
 	}
 
 	// wrong runID? - do nothing
