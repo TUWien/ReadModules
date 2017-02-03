@@ -342,13 +342,14 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		QSharedPointer<rdf::FormFeatures> formTemplate(new rdf::FormFeatures());
 		formF.readTemplate(formTemplate);
 
-
 		formF.estimateRoughAlignment();
 		formF.matchTemplate();
-
+						
 		cv::cvtColor(imgForm, imgForm, CV_RGBA2BGR);
-		cv::Mat resultImg = formF.drawAlignment(imgForm);
+		cv::Mat resultImg = imgForm;
+		resultImg = formF.drawAlignment(resultImg);
 		resultImg = formF.drawMatchedForm(resultImg);
+
 		//cv::Mat resultImg = formF.drawMatchedForm(imgForm);
 		//result = rdf::Image::mat2QImage(resultImg);
 		//imgC->setImage(result, "MatchedForm");
