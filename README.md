@@ -74,6 +74,12 @@ The READ modules are nomacs plugins which will be automatically copied to the no
 ```
 The READ modules are now available in the Menu -> Plugins (you have to execute the PluginManager once from the menu)
 
+you can also use
+``` console
+sudo make install
+``` 
+and the plugins will be copied into /usr/local/lib/nomacs-plugins and should be found by the installed nomacs
+
 
 ### authors
 Markus Diem
