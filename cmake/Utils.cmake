@@ -131,8 +131,6 @@ macro(RDM_CREATE_TARGETS)
 			configure_file(${CMAKE_SOURCE_DIR}/cmake/DependencyCollector.config.cmake.in ${DC_CONFIG})
 
 			add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND python ${DC_SCRIPT} --infile $<TARGET_FILE:${PROJECT_NAME}> --configfile ${DC_CONFIG} --configuration $<CONFIGURATION>)
-		else()
-			install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION bin)
 		endif(MSVC)
 
 	endif()
