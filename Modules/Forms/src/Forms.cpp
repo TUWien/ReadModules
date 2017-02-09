@@ -358,15 +358,15 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		formF.matchTemplate();
 
 				 
-		resultImg = formF.drawMatchedForm(drawImg);
-		cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
-		result = rdf::Image::mat2QImage(resultImg);
-		imgC->setImage(result, "Matched form");
-
 		resultImg = formF.drawLinesNotUsedForm(drawImg);
 		cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
 		result = rdf::Image::mat2QImage(resultImg);
 		imgC->setImage(result, "Lines not used");
+
+		resultImg = formF.drawMatchedForm(drawImg);
+		cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
+		result = rdf::Image::mat2QImage(resultImg);
+		imgC->setImage(result, "Matched form");
 
 				
 		//cv::Mat resultImg = imgForm;
@@ -381,7 +381,6 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		rdf::PageXmlParser parser;
 		parser.read(loadXmlPath);
 		auto pe = parser.page();
-		
 
 		QSharedPointer<rdf::TableRegion> t = formF.tableRegion();
 		pe->rootRegion()->addUniqueChild(t);
@@ -390,7 +389,6 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 		//save pageXml
 		parser.write(saveXmlPath, pe);
-
 
 
 		//// ----------- use this one for batch processing-----------------------------------------
@@ -406,6 +404,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 		//qDebug() << "Align form...";
 		//imgC->setImage(result, "Form Image");
+		info = testInfo;
 	}
 
 	// wrong runID? - do nothing
