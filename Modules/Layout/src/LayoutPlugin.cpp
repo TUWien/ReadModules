@@ -80,7 +80,7 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 	menuNames.resize(id_end);
 
 	menuNames[id_layout]			= tr("Layout Analysis");
-	menuNames[id_text_block]		= tr("Page Segmentation");
+	//menuNames[id_text_block]		= tr("Page Segmentation");
 	menuNames[id_lines]				= tr("Detect Lines");
 	menuNames[id_layout_collect_features] = tr("Collect Layout Features");
 	menuNames[id_layout_train]		= tr("Train Layout");
@@ -91,7 +91,7 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 	statusTips.resize(id_end);
 
 	statusTips[id_layout]			= tr("Computes the Layout Analysis for a given image");
-	statusTips[id_text_block]		= tr("Computes the page segmentation");
+	//statusTips[id_text_block]		= tr("Computes the page segmentation");
 	statusTips[id_lines]			= tr("Detects lines using a binary image");
 	statusTips[id_layout_collect_features] = tr("Collects layout features for later training.");
 	statusTips[id_layout_train]		= tr("Train a new model for Layout Analysis.");
@@ -258,16 +258,16 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 			imgC->setImage(img, tr("Layout Analysis Visualized"));
 		}
 	}
-	else if(runID == mRunIDs[id_text_block]) {
+	//else if(runID == mRunIDs[id_text_block]) {
 
-		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
-		imgCv = computePageSegmentation(imgCv, parser);
+	//	cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
+	//	imgCv = computePageSegmentation(imgCv, parser);
 
-		if (mConfig.drawResults()) {
-			QImage img = nmc::DkImage::mat2QImage(imgCv);
-			imgC->setImage(img, tr("Page Segmentation"));
-		}
-	}
+	//	if (mConfig.drawResults()) {
+	//		QImage img = nmc::DkImage::mat2QImage(imgCv);
+	//		imgC->setImage(img, tr("Page Segmentation"));
+	//	}
+	//}
 	else if (runID == mRunIDs[id_lines]) {
 
 		rdf::LineTrace lt = computeLines(imgC);

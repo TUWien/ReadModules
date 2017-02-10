@@ -111,7 +111,7 @@ public:
 
 	enum {
 		id_layout,
-		id_text_block,
+		//id_text_block,
 		id_lines,
 		id_layout_collect_features,
 		id_layout_train,
