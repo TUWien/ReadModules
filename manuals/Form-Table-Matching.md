@@ -9,7 +9,7 @@ The table/form module can be used to align a template to a given document. Curre
 
 A table/form template must be defined using the table editor in Transkribus. The template must comprise all fixed lines (printed). If cells have e.g. a varying height, the lines should not be labelled in the template. The following picture shows a template for the collection READ GT (Table_Template_M_Freyung). Note that the horizontal lines are not marked.
 
-![TemplateImage](D:\projects\READ\formTest\form-gt\M_Aigen_am_Inn_003-01_0001-template.jpg)
+![TemplateImage](ftp://scruffy.caa.tuwien.ac.at/staff/read/manuals/form/M_Aigen_am_Inn_003-01_0001-template.jpg)
 
 ## Workflow in nomacs
 
@@ -17,7 +17,7 @@ A table/form template must be defined using the table editor in Transkribus. The
 
 *Open an image and select Pugins - Forms Analysis - Apply Template (Single). As an result you will see the aligned template. In the page xml also additional separators are stored. You can visualize the rough alignment, the matching and the additional line separators if you open Panels - Edit History. See the following image:
 
-![Result](D:\projects\READ\formTest\form-gt\result\screenshot.png)
+![Result](ftp://scruffy.caa.tuwien.ac.at/staff/read/manuals/form/nomacs-screenshot-form1.png)
 
 *Alternatively you can use Plugins - Page Visualization to visualize the result.
 
