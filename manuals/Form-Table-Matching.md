@@ -13,7 +13,7 @@ A table/form template must be defined using the table editor in Transkribus. The
 
 ## Workflow in nomacs
 
-*Open Nomacs Settings (Edit - Settings) and define the template for the table module using the editor. Choose FormAnalysis and set lineTemplPath to the template page xml
+*Open Nomacs Read Settings (Plugins - Read Config) and define the template for the table module using the editor. Choose FormAnalysis and set lineTemplPath to the template page xml
 
 *Open an image and select Pugins - Forms Analysis - Apply Template (Single). As an result you will see the aligned template. In the page xml also additional separators are stored. You can visualize the rough alignment, the matching and the additional line separators if you open Panels - Edit History. See the following image:
 
