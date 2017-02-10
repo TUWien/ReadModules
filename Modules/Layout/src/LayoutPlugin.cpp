@@ -47,6 +47,8 @@ related links:
 #include "SuperPixelClassification.h"
 #include "Settings.h"
 
+#include "LayoutAnalysis.h"
+
 // nomacs
 #include "DkImageStorage.h"
 #include "DkSettings.h"
@@ -326,98 +328,39 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 
 cv::Mat LayoutPlugin::compute(const cv::Mat & src, const rdf::PageXmlParser & parser) const {
 
-	// if available, get informaton from existing xmls
-	auto pe = parser.page();
-	QVector<QSharedPointer<rdf::Region> > separators = rdf::Region::filter(pe->rootRegion(), rdf::Region::type_separator);
-	QVector<rdf::Line> separatingLines;
-	for (auto s : separators) {
-
-		auto sc = qSharedPointerCast<rdf::SeparatorRegion>(s);
-		if (sc)
-			separatingLines << sc->line();
-	}
-	qInfo() << "I found" << separatingLines.size() << "separators in the XML";
-
-	cv::Mat img = src.clone();
-	//cv::resize(src, img, cv::Size(), 0.25, 0.25, CV_INTER_AREA);
-
 	rdf::Timer dt;
 
-	// find super pixels
-	rdf::SuperPixel superPixel(img);
+	cv::Mat img = src.clone();
+	auto pe = parser.page();
 
-	if (!superPixel.compute())
-		qWarning() << "could not compute super pixel!";
+	// compute layout analysis
+	rdf::LayoutAnalysis la(img);
+	la.setRootRegion(pe->rootRegion());
 
-	QVector<QSharedPointer<rdf::Pixel> > sp = superPixel.getSuperPixels();
+	if (!la.compute())
+		qWarning() << "could not compute layout analysis";
 
-	// find local orientation per pixel
-	rdf::LocalOrientation lo(sp);
-	if (!lo.compute())
-		qWarning() << "could not compute local orientation";
 
-	// smooth estimation
-	rdf::GraphCutOrientation pse(sp);
+	// write to XML --------------------------------------------------------------------
+	pe->setCreator(QString("CVL"));
+	pe->setImageSize(QSize(img.rows, img.cols));
 
-	if (!pse.compute())
-		qWarning() << "could not compute set orientation";
-
-	// find tab stops
-	rdf::TabStopAnalysis tabStops(sp);
-	//if (!tabStops.compute())
-	//	qWarning() << "could not compute text block segmentation!";
-
-	// find text lines
-	rdf::TextLineSegmentation textLines(sp);
-	textLines.addLines(tabStops.tabStopLines(30));	// TODO: fix parameter
-	textLines.addLines(separatingLines);
-	if (!textLines.compute())
-		qWarning() << "could not compute text block segmentation!";
-
-	qInfo() << "algorithm computation time" << dt;
-
-	// pixel labeling
-	QSharedPointer<rdf::SuperPixelModel> model = rdf::SuperPixelModel::read(mSpcConfig.classifierPath());
-
-	rdf::SuperPixelClassifier spc(src, sp);
-	spc.setModel(model);
-
-	if (!spc.compute())
-		qWarning() << "could not classify SuperPixels";
-
-	// write XML -----------------------------------
-
-	// start writing content
-	auto ps = rdf::PixelSet::fromEdges(rdf::PixelSet::connect(sp));
-
-	if (!ps.empty()) {
-		QSharedPointer<rdf::Region> textRegion = QSharedPointer<rdf::Region>(new rdf::Region());
-		textRegion->setType(rdf::Region::type_text_region);
-		textRegion->setPolygon(ps[0]->convexHull());
-
-		for (auto tl : textLines.textLines()) {
-			textRegion->addUniqueChild(tl);
-		}
-
-		pe->rootRegion()->addUniqueChild(textRegion);
+	//pe->setRootRegion(la.textBlockSet().toTextRegion());
+	
+	auto root = la.textBlockSet().toTextRegion();
+	for (const QSharedPointer<rdf::Region>& r : root->children()) {
+		pe->rootRegion()->addUniqueChild(r);
 	}
+
+	qInfo() << "layout analysis computed in" << dt;
 
 	// draw results -----------------------------------
 	if (mConfig.drawResults()) {
-		//cv::Mat rImg(img.rows, img.cols, CV_8UC1, cv::Scalar::all(150));
+
 		cv::Mat rImg = img.clone();
 
-		//// draw edges
-		//rImg = textBlocks.draw(rImg);
-		//rImg = lo.draw(rImg, "1012", 256);
-		//rImg = lo.draw(rImg, "507", 128);
-		//rImg = lo.draw(rImg, "507", 64);
-
-		//// save super pixel image
-		//rImg = superPixel.drawSuperPixels(rImg);
-		//rImg = tabStops.draw(rImg);
-		//rImg = textLines.draw(rImg);
-		rImg = spc.draw(rImg);
+		// draw whatever you like
+		rImg = la.draw(rImg);
 
 		return rImg;
 	}

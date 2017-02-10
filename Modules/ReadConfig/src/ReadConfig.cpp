@@ -44,6 +44,7 @@ related links:
 #include <QDialog>
 #include <QVBoxLayout>
 #include <QDialogButtonBox>
+#include <QLabel>
 #pragma warning(pop)		// no warnings from includes - end
 
 namespace rdm {
@@ -151,8 +152,6 @@ QSharedPointer<nmc::DkImageContainer> ReadConfig::runPlugin(
 }
 
 void ReadConfig::preLoadPlugin() const {
-
-	qDebug() << "[PRE LOADING] Batch Test";
 }
 
 void ReadConfig::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo>>& batchInfo) const {
@@ -184,12 +183,16 @@ void SettingsDialog::createLayout() {
 
 	mSettingsWidget = new nmc::DkSettingsWidget(this);
 
-	QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok, Qt::Horizontal, this);
+	QLabel* titleLabel = new QLabel(rdf::Config::instance().settingsFilePath(), this);
+	titleLabel->setStyleSheet("QLabel {color: #666; font-style: italic;}");
+	titleLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
+	QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok, Qt::Horizontal, this);
 	connect(buttons, SIGNAL(accepted()), this, SLOT(accept()));
 
 	QVBoxLayout* layout = new QVBoxLayout(this);
 	layout->addWidget(mSettingsWidget);
+	layout->addWidget(titleLabel);
 	layout->addWidget(buttons);
 
 }
