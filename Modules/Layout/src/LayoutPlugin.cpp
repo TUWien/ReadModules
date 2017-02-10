@@ -269,7 +269,7 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 	//	}
 	//}
 	else if (runID == mRunIDs[id_lines]) {
-
+		
 		rdf::LineTrace lt = computeLines(imgC);
 
 		QVector<rdf::Line> alllines = lt.getLines();

@@ -86,15 +86,15 @@ FormsAnalysis::FormsAnalysis(QObject* parent) : QObject(parent) {
 	statusTips[id_classifyxml] = tr("Apply Template (Single)");
 	mMenuStatusTips = statusTips.toList();
 
-	loadSettings(nmc::DkSettingsManager::instance().qSettings());
+	
+	loadSettings(rdf::Config::instance().settings());
+	saveSettings(rdf::Config::instance().settings());
 }
 /**
 *	Destructor
 **/
 FormsAnalysis::~FormsAnalysis() {
-
 	qDebug() << "destroying forms plugin...";
-
 }
 
 
@@ -325,8 +325,9 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		//auto pe = parser.page();
 
 		cv::Mat imgForm = rdf::Image::qImage2Mat(img);
-		cv::Mat imgFormG;
-		if (imgForm.channels() != 1) cv::cvtColor(imgForm, imgFormG, CV_RGB2GRAY);
+		cv::Mat imgFormG = imgForm;
+		if (imgForm.channels() != 1) 
+			cv::cvtColor(imgForm, imgFormG, CV_RGB2GRAY);
 		//cv::Mat maskTempl = rdf::Algorithms::estimateMask(imgTemplG);
 		rdf::FormFeatures formF(imgFormG);
 		formF.setFormName(imgC->fileName());
@@ -336,10 +337,15 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		if (!formF.compute()) {
 			qWarning() << "could not compute form template " << imgC->filePath();
 		}
+
 		//rdf::FormFeatures formTemplate;
 		QSharedPointer<rdf::FormFeatures> formTemplate(new rdf::FormFeatures());
-		qDebug() << "Read template...";
-		formF.readTemplate(formTemplate);
+		if (!formF.readTemplate(formTemplate)) {
+			qWarning() << "not template set - aborting";
+			qInfo() << "please provide a template Plugins > Read Config > Form Analysis > lineTemplPath";
+			info = testInfo;
+			return imgC;
+		}
 
 		qDebug() << "Compute rough alignment...";
 		formF.estimateRoughAlignment();
@@ -349,25 +355,27 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		cv::Mat resultImg;// = imgForm;
 
 		resultImg = formF.drawAlignment(drawImg);
-		cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
-		result = rdf::Image::mat2QImage(resultImg);
-		imgC->setImage(result, "Rough Alignment");
-		//rdf::Image::save(resultImg, "D:\\tmp\\alignedImg.png");
+		
+		if (!resultImg.empty()) {
+			cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
+			result = rdf::Image::mat2QImage(resultImg);
+			imgC->setImage(result, "Rough Alignment");
+			//rdf::Image::save(resultImg, "D:\\tmp\\alignedImg.png");
 
-		qDebug() << "Match template...";
-		formF.matchTemplate();
+			qDebug() << "Match template...";
+			formF.matchTemplate();
 
-				 
-		resultImg = formF.drawLinesNotUsedForm(drawImg);
-		cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
-		result = rdf::Image::mat2QImage(resultImg);
-		imgC->setImage(result, "Lines not used");
 
-		resultImg = formF.drawMatchedForm(drawImg);
-		cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
-		result = rdf::Image::mat2QImage(resultImg);
-		imgC->setImage(result, "Matched form");
-
+			resultImg = formF.drawLinesNotUsedForm(drawImg);
+			cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
+			result = rdf::Image::mat2QImage(resultImg);
+			imgC->setImage(result, "Lines not used");
+			 
+			resultImg = formF.drawMatchedForm(drawImg);
+			cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
+			result = rdf::Image::mat2QImage(resultImg);
+			imgC->setImage(result, "Matched form");
+		}
 				
 		//cv::Mat resultImg = imgForm;
 		//if (resultImg.channels() != 3)
