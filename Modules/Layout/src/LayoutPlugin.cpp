@@ -343,7 +343,7 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src, const rdf::PageXmlParser & pa
 
 	// write to XML --------------------------------------------------------------------
 	pe->setCreator(QString("CVL"));
-	pe->setImageSize(QSize(img.rows, img.cols));
+	pe->setImageSize(QSize(img.cols, img.rows));
 
 	//pe->setRootRegion(la.textBlockSet().toTextRegion());
 	
