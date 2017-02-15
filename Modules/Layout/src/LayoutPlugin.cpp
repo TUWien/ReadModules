@@ -97,17 +97,15 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 	statusTips[id_layout_train]		= tr("Train a new model for Layout Analysis.");
 	mMenuStatusTips = statusTips.toList();
 
-	//mLTRConfig.loadSettings();
-	//mLTRConfig.saveSettings();
 
-	mConfig.loadSettings();
-	mSplConfig.loadSettings();
-	mSpcConfig.loadSettings();
-	mLTRConfig.loadSettings();
+	// save settings
+	QSettings& s = settings();
+	s.beginGroup(name());
 
-	// save default settings - needed for training
+	mConfig.saveDefaultSettings(s);
 	rdf::SuperPixelTrainerConfig spc;
-	spc.saveDefaultSettings();
+	spc.saveDefaultSettings(s);
+	s.endGroup();
 }
 /**
 *	Destructor
@@ -145,6 +143,10 @@ void LayoutPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo>
 		manager.write(mSplConfig.featureFilePath());
 		qInfo() << "features written to" << mSplConfig.featureFilePath();
 	}
+}
+
+QSettings & LayoutPlugin::settings() const {
+	return rdf::Config::instance().settings();
 }
 
 void LayoutPlugin::saveSettings(QSettings & settings) const {
@@ -536,7 +538,6 @@ bool LayoutPlugin::train() const {
 
 	rdf::SuperPixelTrainerConfig spc;
 	spc.loadSettings();
-	spc.saveDefaultSettings();
 
 	rdf::FeatureCollectionManager fcm;
 
@@ -584,7 +585,7 @@ rdf::FeatureCollectionManager LayoutInfo::featureCollectionManager() const {
 }
 
 // configurations that are specific for the plugin --------------------------------------------------------------------
-LayoutConfig::LayoutConfig() : ModuleConfig("Layout Plugin") {
+LayoutConfig::LayoutConfig() : ModuleConfig("General") {
 }
 
 QString LayoutConfig::toString() const {
@@ -613,7 +614,6 @@ void LayoutConfig::load(const QSettings & settings) {
 	mUseTextRegions = settings.value("useTextRegions", mUseTextRegions).toBool();
 	mDrawResults	= settings.value("drawResults", mDrawResults).toBool();
 	mSaveXml		= settings.value("saveXml", mSaveXml).toBool();
-
 }
 
 void LayoutConfig::save(QSettings & settings) const {

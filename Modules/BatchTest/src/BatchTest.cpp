@@ -77,7 +77,10 @@ BatchTest::BatchTest(QObject* parent) : QObject(parent) {
 
 	// this line adds the settings to the config
 	// everything else is done by nomacs - so no worries
-	mConfig.saveDefaultSettings();
+	QSettings& s = settings();
+	s.beginGroup(name());
+	mConfig.saveDefaultSettings(s);
+	s.endGroup();
 }
 /**
 *	Destructor
@@ -206,13 +209,17 @@ QSettings & BatchTest::settings() const {
 void BatchTest::loadSettings(QSettings & settings) {
 
 	// update settings
+	settings.beginGroup(name());
 	mConfig.loadSettings(settings);
+	settings.endGroup();
 }
 
 void BatchTest::saveSettings(QSettings & settings) const {
 
 	// save settings (this is needed for batch profiles)
+	settings.beginGroup(name());
 	mConfig.saveSettings(settings);
+	settings.endGroup();
 }
 
 // DkTestInfo --------------------------------------------------------------------

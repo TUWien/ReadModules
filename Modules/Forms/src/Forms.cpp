@@ -92,9 +92,10 @@ FormsAnalysis::FormsAnalysis(QObject* parent) : QObject(parent) {
 	//saveSettings(rdf::Config::instance().settings());
 	//mFormConfig.loadSettings();
 
-	mFormConfig.saveDefaultSettings();
-
-
+	QSettings& s = settings();
+	s.beginGroup(name());
+	mFormConfig.saveDefaultSettings(s);
+	s.endGroup();
 }
 /**
 *	Destructor
@@ -719,20 +720,20 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 }
 
 void FormsAnalysis::loadSettings(QSettings & settings) {
-	//settings.beginGroup(name());
+	settings.beginGroup(name());
 	//mLineTemplPath = settings.value("lineTemplPath", mLineTemplPath).toString();
 	mFormConfig.loadSettings(settings);
-	//settings.endGroup();
+	settings.endGroup();
 	qDebug() << "settings loaded...";
 }
 
-//void FormsAnalysis::saveSettings(QSettings & settings) const {
-//	settings.beginGroup(name());
-//	mFormConfig.saveSettings(settings);
-//	//settings.setValue("lineTemplPath", mLineTemplPath);
-//	settings.endGroup();
-//	qDebug() << "settings saved...";
-//}
+void FormsAnalysis::saveSettings(QSettings & settings) const {
+	settings.beginGroup(name());
+	mFormConfig.saveSettings(settings);
+	//settings.setValue("lineTemplPath", mLineTemplPath);
+	settings.endGroup();
+	qDebug() << "settings saved...";
+}
 
 // DkTestInfo --------------------------------------------------------------------
 FormsInfo::FormsInfo(const QString& id, const QString & filePath) : nmc::DkBatchInfo(id, filePath) {

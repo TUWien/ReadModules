@@ -74,8 +74,8 @@ BinarizationPlugin::BinarizationPlugin(QObject* parent) : QObject(parent) {
 	statusTips[id_binarize_su_mask] = tr("Thresholds a document with the Su method and estimates the mask");
 	mMenuStatusTips = statusTips.toList();
 
+	// TODO: switch to new format with loadSettings()
 	mBBSConfig.loadSettings();
-	mBBSConfig.saveSettings();		// save settings (to write default settings)
 }
 /**
 *	Destructor

@@ -302,9 +302,6 @@ void SkewEstPlugin::init()
 {
 	loadSettings(rdf::Config::instance().settings());
 
-	mBseConfig.loadSettings();
-	mBseConfig.saveSettings();
-
 	if (mFilePath.isEmpty()) {
 		mFilePath = "D:\\tmp\\evalSkew.txt";
 	}
@@ -315,7 +312,7 @@ void SkewEstPlugin::loadSettings(QSettings & settings)
 	settings.beginGroup("SkewEstimation");
 
 	mFilePath = settings.value("skewEvalPath", mFilePath).toString();
-
+	//mBseConfig.loadSettings(settings);
 	settings.endGroup();
 }
 
@@ -323,6 +320,7 @@ void SkewEstPlugin::saveSettings(QSettings & settings) const
 {
 	settings.beginGroup("SkewEstimation");
 	settings.setValue("skewEvalPath", mFilePath);
+	//mBseConfig.saveSettings(settings);
 	settings.endGroup();
 }
 

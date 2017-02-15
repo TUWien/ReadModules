@@ -122,6 +122,9 @@ public:
 	void preLoadPlugin() const override;
 	void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const override;
 
+	void loadSettings(QSettings& settings) override;
+	void saveSettings(QSettings& settings) const override;
+
 	enum {
 		id_train,
 		id_show,
@@ -141,7 +144,5 @@ protected:
 	QString mLineTemplPath;
 	rdf::FormFeaturesConfig mFormConfig;
 
-	void loadSettings(QSettings& settings);
-	//void saveSettings(QSettings& settings) const;
 };
 };
