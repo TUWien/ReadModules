@@ -35,6 +35,9 @@ related links:
 #include "DkPluginInterface.h"
 #include "DkBatchInfo.h"
 
+// read includes
+#include "BaseModule.h"
+
 // opencv defines
 namespace cv {
 	class Mat;
@@ -42,6 +45,23 @@ namespace cv {
 
 
 namespace rdm {
+
+class TestConfig : public rdf::ModuleConfig {
+
+public:
+	TestConfig();
+
+	virtual QString toString() const override;
+	int param() const;
+
+protected:
+
+	int mParam = 2;
+
+	void load(const QSettings& settings) override;
+	void save(QSettings& settings) const override;
+};
+
 
 class DkTestInfo : public nmc::DkBatchInfo {
 
@@ -80,6 +100,10 @@ public:
 	void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const override;
 	QString name() const override;
 
+	QSettings& settings() const override;
+	void loadSettings(QSettings& settings) override;
+	void saveSettings(QSettings& settings) const override;
+
 	enum {
 		id_mirror,
 		id_grayscale,
@@ -93,5 +117,7 @@ protected:
 	QStringList mRunIDs;
 	QStringList mMenuNames;
 	QStringList mMenuStatusTips;
+
+	TestConfig mConfig;
 };
 };

@@ -40,6 +40,7 @@ related links:
 #pragma warning(push, 0)	// no warnings from includes - begin
 #include <QAction>
 #include <QSettings>
+#include <QUuid>
 #pragma warning(pop)		// no warnings from includes - end
 
 namespace rdm {
@@ -53,8 +54,9 @@ BatchTest::BatchTest(QObject* parent) : QObject(parent) {
 	QVector<QString> runIds;
 	runIds.resize(id_end);
 
-	runIds[id_mirror] = "49dd0f0ea75f4906bfdd5a4676e6341a";
-	runIds[id_grayscale] = "3e0a0bdf4ecf475d94498d0889ebe3b6";
+	// create run IDs
+	for (QString& rid : runIds)
+		rid = QUuid::createUuid().toString();
 	mRunIDs = runIds.toList();
 
 	// create menu actions
@@ -72,6 +74,10 @@ BatchTest::BatchTest(QObject* parent) : QObject(parent) {
 	statusTips[id_mirror] = tr("Mirrors the image");
 	statusTips[id_grayscale] = tr("Converts image to grayscale");
 	mMenuStatusTips = statusTips.toList();
+
+	// this line adds the settings to the config
+	// everything else is done by nomacs - so no worries
+	mConfig.saveDefaultSettings();
 }
 /**
 *	Destructor
@@ -135,6 +141,8 @@ QSharedPointer<nmc::DkImageContainer> BatchTest::runPlugin(
 	if (!imgC)
 		return imgC;
 
+	qDebug() << "the test parameter is" << mConfig.param();
+
 	if(runID == mRunIDs[id_mirror]) {
 
 		QImage img = imgC->image();
@@ -190,6 +198,23 @@ QString BatchTest::name() const {
 	return "Batch Test";
 }
 
+QSettings & BatchTest::settings() const {
+	// return the settings of your module here
+	return rdf::Config::instance().settings();
+}
+
+void BatchTest::loadSettings(QSettings & settings) {
+
+	// update settings
+	mConfig.loadSettings(settings);
+}
+
+void BatchTest::saveSettings(QSettings & settings) const {
+
+	// save settings (this is needed for batch profiles)
+	mConfig.saveSettings(settings);
+}
+
 // DkTestInfo --------------------------------------------------------------------
 DkTestInfo::DkTestInfo(const QString& id, const QString & filePath) : nmc::DkBatchInfo(id, filePath) {
 }
@@ -200,6 +225,33 @@ void DkTestInfo::setProperty(const QString & p) {
 
 QString DkTestInfo::property() const {
 	return mProp;
+}
+
+// our text config --------------------------------------------------------------------
+TestConfig::TestConfig() : ModuleConfig("TestPlugin") {
+
+}
+
+QString TestConfig::toString() const {
+
+	QString msg = rdf::ModuleConfig::toString();
+	msg += " param" + QString::number(param());
+
+	return msg;
+}
+
+int TestConfig::param() const {
+	return checkParam(mParam, 0, INT_MAX, "A Test Parameter");
+}
+
+void TestConfig::load(const QSettings & settings) {
+
+	mParam = settings.value("TestParameter", param()).toInt();
+}
+
+void TestConfig::save(QSettings & settings) const {
+
+	settings.setValue("TestParameter", param());
 }
 
 };
