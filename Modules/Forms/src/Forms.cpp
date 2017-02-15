@@ -87,8 +87,14 @@ FormsAnalysis::FormsAnalysis(QObject* parent) : QObject(parent) {
 	mMenuStatusTips = statusTips.toList();
 
 	
-	loadSettings(rdf::Config::instance().settings());
-	saveSettings(rdf::Config::instance().settings());
+	//old settings version
+	//loadSettings(rdf::Config::instance().settings());
+	//saveSettings(rdf::Config::instance().settings());
+	//mFormConfig.loadSettings();
+
+	mFormConfig.saveDefaultSettings();
+
+
 }
 /**
 *	Destructor
@@ -115,7 +121,7 @@ QImage FormsAnalysis::image() const {
 	return QImage(":/ReadConfig/img/read.png");
 }
 QString FormsAnalysis::name() const {
-	return "Form Analysis";
+	return "FormAnalysis";
 }
 
 QList<QAction*> FormsAnalysis::createActions(QWidget* parent) {
@@ -187,7 +193,6 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		QVector<rdf::Line> hLines;
 		QVector<rdf::Line> vLines;
 
-
 		QVector<QSharedPointer<rdf::Region>> test = rdf::Region::allRegions(pe->rootRegion());// pe->rootRegion()->children();
 		//QVector<rdf::TableCell> cells;
 		QVector<QSharedPointer<rdf::TableCell>> cells;
@@ -251,7 +256,6 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 			myPainter.drawLine(lineTmp.p1().toQPoint(), lineTmp.p2().toQPoint());
 			//qDebug() << "Point 1: " << lineTmp.line().p1().toQPoint() << " Point 2: " << lineTmp.line().p2().toQPoint();
 		}
-
 
 		myPainter.end();
 		
@@ -332,11 +336,9 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		rdf::FormFeatures formF(imgFormG);
 		formF.setFormName(imgC->fileName());
 		formF.setSize(imgFormG.size());
-		formF.setTemplateName(mLineTemplPath);
-
-		if (!formF.compute()) {
-			qWarning() << "could not compute form template " << imgC->filePath();
-		}
+		
+		//formF.setTemplateName(mLineTemplPath);
+		formF.setTemplateName(mFormConfig.templDatabase());
 
 		//rdf::FormFeatures formTemplate;
 		QSharedPointer<rdf::FormFeatures> formTemplate(new rdf::FormFeatures());
@@ -344,6 +346,12 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 			qWarning() << "not template set - aborting";
 			qInfo() << "please provide a template Plugins > Read Config > Form Analysis > lineTemplPath";
 			info = testInfo;
+			return imgC;
+		}
+
+		if (!formF.compute()) {
+			qWarning() << "could not compute form template " << imgC->filePath();
+			qInfo() << "could not compute form template";
 			return imgC;
 		}
 
@@ -419,6 +427,11 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 	//imgC->setImage(QImage(), "empty");
 
 	return imgC;
+}
+
+QSettings & FormsAnalysis::settings() const {
+
+	return rdf::Config::instance().settings();
 }
 
 void FormsAnalysis::preLoadPlugin() const {
@@ -706,16 +719,20 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 }
 
 void FormsAnalysis::loadSettings(QSettings & settings) {
-	settings.beginGroup("FormAnalysis");
-	mLineTemplPath = settings.value("lineTemplPath", mLineTemplPath).toString();
-	settings.endGroup();
+	//settings.beginGroup(name());
+	//mLineTemplPath = settings.value("lineTemplPath", mLineTemplPath).toString();
+	mFormConfig.loadSettings(settings);
+	//settings.endGroup();
+	qDebug() << "settings loaded...";
 }
 
-void FormsAnalysis::saveSettings(QSettings & settings) const {
-	settings.beginGroup("FormAnalysis");
-	settings.setValue("lineTemplPath", mLineTemplPath);
-	settings.endGroup();
-}
+//void FormsAnalysis::saveSettings(QSettings & settings) const {
+//	settings.beginGroup(name());
+//	mFormConfig.saveSettings(settings);
+//	//settings.setValue("lineTemplPath", mLineTemplPath);
+//	settings.endGroup();
+//	qDebug() << "settings saved...";
+//}
 
 // DkTestInfo --------------------------------------------------------------------
 FormsInfo::FormsInfo(const QString& id, const QString & filePath) : nmc::DkBatchInfo(id, filePath) {

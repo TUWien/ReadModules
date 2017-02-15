@@ -37,6 +37,7 @@ related links:
 
 #include "Shapes.h"
 #include "Elements.h"
+#include "FormAnalysis.h"
 
 // opencv defines
 namespace cv {
@@ -116,6 +117,8 @@ public:
 		const nmc::DkSaveInfo& saveInfo,
 		QSharedPointer<nmc::DkBatchInfo>& info) const override;
 
+	virtual QSettings& settings() const override;
+
 	void preLoadPlugin() const override;
 	void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const override;
 
@@ -136,7 +139,9 @@ protected:
 	QStringList mMenuStatusTips;
 
 	QString mLineTemplPath;
+	rdf::FormFeaturesConfig mFormConfig;
+
 	void loadSettings(QSettings& settings);
-	void saveSettings(QSettings& settings) const;
+	//void saveSettings(QSettings& settings) const;
 };
 };
