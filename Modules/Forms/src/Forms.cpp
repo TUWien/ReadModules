@@ -264,6 +264,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		imgC->setImage(result, "Form Image");
 
 		//// -------------- LSD -------------------------------------------
+
 		//QImage img = imgC->image();
 		//cv::Mat imgIn = rdf::Image::qImage2Mat(img);
 		//cv::Mat imgInG;
@@ -396,8 +397,16 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		QString saveXmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
 
 		rdf::PageXmlParser parser;
-		parser.read(loadXmlPath);
+		bool newXML = parser.read(loadXmlPath);
 		auto pe = parser.page();
+
+		if (!newXML) {
+			//xml is newly created
+			pe->setImageFileName(imgC->fileName());
+			pe->setImageSize(img.size());
+			pe->setCreator("CVL");
+			pe->setDateCreated(QDateTime::currentDateTime());
+		}
 
 		QSharedPointer<rdf::TableRegion> t = formF.tableRegion();
 		pe->rootRegion()->addUniqueChild(t);
