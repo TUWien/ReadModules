@@ -76,11 +76,7 @@ QSharedPointer<nmc::DkImageContainer> PageVisPlugin::runPlugin(const QString &ru
 	if (!imgC)
 		return imgC;
 
-	if(runID == PLUGIN_ID) {
-
-		// TODO: 
-		qDebug() << "NOTE: page rendering is not implemented yet...";
-	}
+	qDebug() << "NOTE: page rendering is not implemented yet...";
 
 	// wrong runID? - do nothing
 	return imgC;
