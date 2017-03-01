@@ -135,12 +135,11 @@ macro(RDM_CREATE_TARGETS)
 
 	endif()
 
-
 	if(MSVC)
 		file(GLOB RDM_AUTOMOC "${CMAKE_BINARY_DIR}/*_automoc.cpp")
 		source_group("Generated Files" FILES ${PLUGIN_RCC} ${RDM_QM} ${RDF_AUTOMOC})
 
-		message(STATUS "${PROJECT_NAME} v${PLUGIN_VERSION} will be installed to: ${NOMACS_INSTALL_DIRECTORY}")
+		message(STATUS "${PROJECT_NAME} \t v${PLUGIN_VERSION} \t will be installed to: ${NOMACS_INSTALL_DIRECTORY}")
 
 		set(PACKAGE_DIR ${NOMACS_INSTALL_DIRECTORY}/packages/plugins.${PLUGIN_ARCHITECTURE}.${PROJECT_NAME})
 		set(PACKAGE_DATA_DIR ${PACKAGE_DIR}/data/nomacs-${PLUGIN_ARCHITECTURE}/plugins/)
