@@ -102,15 +102,6 @@ WriterIdentificationPlugin::~WriterIdentificationPlugin() {
 	qDebug() << "destroying WriterIdentification plugin...";
 }
 
-
-/**
-* Returns unique ID for the generated dll
-**/
-QString WriterIdentificationPlugin::id() const {
-
-	return PLUGIN_ID;
-};
-
 /**
 * Returns descriptive iamge for every ID
 * @param plugin ID

@@ -104,15 +104,6 @@ FormsAnalysis::~FormsAnalysis() {
 	qDebug() << "destroying forms plugin...";
 }
 
-
-/**
-* Returns unique ID for the generated dll
-**/
-QString FormsAnalysis::id() const {
-
-	return PLUGIN_ID;
-};
-
 /**
 * Returns descriptive iamge for every ID
 * @param plugin ID

@@ -8,10 +8,6 @@ ENDIF()
 # include macros needed
 include("${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/Utils.cmake")
 
-add_definitions(-DPLUGIN_VERSION="${PLUGIN_VERSION}")
-add_definitions(-DPLUGIN_ID="${PLUGIN_ID}")
-
-
 if (NOT BUILDING_MULTIPLE_PLUGINS)
 	# prepare plugin
 	RDM_PREPARE_PLUGIN()
@@ -40,10 +36,15 @@ file(GLOB PLUGIN_JSON "src/*.json")
 
 RDM_READ_PLUGIN_ID_AND_VERSION()
 
+# uncomment if you want to add the plugin version or id
+# add_definitions(-DPLUGIN_VERSION="${PLUGIN_VERSION}")
+# add_definitions(-DPLUGIN_ID="${PLUGIN_ID}")
+
 set (PLUGIN_RESOURCES
 	binarizationPlugin.qrc
- )
-ADD_DEFINITIONS(${QT_DEFINITIONS})
+	)
+
+ ADD_DEFINITIONS(${QT_DEFINITIONS})
 ADD_DEFINITIONS(-DQT_PLUGIN)
 ADD_DEFINITIONS(-DQT_SHARED)
 ADD_DEFINITIONS(-DQT_DLL)

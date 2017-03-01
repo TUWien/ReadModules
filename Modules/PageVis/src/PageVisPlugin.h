@@ -37,7 +37,6 @@ public:
 	PageVisPlugin(QObject* parent = 0);
 	~PageVisPlugin();
 
-	QString id() const override;
 	QImage image() const override;
 	bool hideHUD() const override { return false; };	// enable interaction with HUD
 

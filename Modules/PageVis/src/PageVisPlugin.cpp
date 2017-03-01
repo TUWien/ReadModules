@@ -53,14 +53,6 @@ PageVisPlugin::~PageVisPlugin() {
 }
 
 /**
-* Returns unique ID for the generated dll
-**/
-QString PageVisPlugin::id() const {
-
-	return PLUGIN_ID;
-}
-
-/**
 * Returns descriptive iamge for every ID
 * @param plugin ID
 **/

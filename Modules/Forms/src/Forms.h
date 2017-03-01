@@ -105,7 +105,6 @@ public:
 	FormsAnalysis(QObject* parent = 0);
 	~FormsAnalysis();
 
-	QString id() const override;
 	QImage image() const override;
 	QString name() const override;
 

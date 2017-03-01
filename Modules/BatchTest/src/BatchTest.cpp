@@ -90,15 +90,6 @@ BatchTest::~BatchTest() {
 	qDebug() << "destroying batch test plugin...";
 }
 
-
-/**
-* Returns unique ID for the generated dll
-**/
-QString BatchTest::id() const {
-
-	return PLUGIN_ID;
-};
-
 /**
 * Returns descriptive iamge for every ID
 * @param plugin ID

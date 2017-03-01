@@ -178,14 +178,6 @@ QString LayoutPlugin::name() const {
 }
 
 /**
-* Returns unique ID for the generated dll
-**/
-QString LayoutPlugin::id() const {
-
-	return PLUGIN_ID;
-};
-
-/**
 * Returns descriptive iamge for every ID
 * @param plugin ID
 **/

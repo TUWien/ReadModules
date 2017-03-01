@@ -63,7 +63,6 @@ public:
 	WriterIdentificationPlugin(QObject* parent = 0);
 	~WriterIdentificationPlugin();
 
-	QString id() const override;
 	QImage image() const override;
 	QString name() const override;
 

@@ -67,7 +67,6 @@ public:
 	FocusPlugin(QObject* parent = 0);
 	~FocusPlugin();
 
-	QString id() const override;
 	QImage image() const override;
 
 	QList<QAction*> createActions(QWidget* parent) override;

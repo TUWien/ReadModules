@@ -52,6 +52,7 @@ related links:
 #include <QVector2D>
 #include <QVector3D>
 #include <QXmlStreamReader>
+#include <QUuid>
 #pragma warning(pop)		// no warnings from includes - end
 
 namespace rdm {
@@ -59,17 +60,15 @@ namespace rdm {
 /**
 *	Constructor
 **/
-	FocusPlugin::FocusPlugin(QObject* parent) : QObject(parent) {
+FocusPlugin::FocusPlugin(QObject* parent) : QObject(parent) {
 
 	// create run IDs
 	QVector<QString> runIds;
 	runIds.resize(id_end);
 
-	runIds[id_gtPage] = "89dc114070e840d7bd0aca079dae657f";
-	runIds[id_fmGrad] = "43aa999c555d4142918fa65f6281b9c8";
-	runIds[id_fmRel] = "afa3dc198f8c4683ba34c189375ee509";
-	runIds[id_fmRelArea] = "63b8000b1e604cfba818e64b83c897f6";
-	runIds[id_contMeasure] = "7620810cc8904dafa16a998fe9d5fe46";
+	for (QString& rid : runIds)
+		rid = QUuid::createUuid().toString();
+
 	mRunIDs = runIds.toList();
 
 	// create menu actions
@@ -101,15 +100,6 @@ namespace rdm {
 
 	qDebug() << "destroying focus plugin...";
 }
-
-
-/**
-* Returns unique ID for the generated dll
-**/
-QString FocusPlugin::id() const {
-
-	return PLUGIN_ID;
-};
 
 /**
 * Returns descriptive iamge for every ID

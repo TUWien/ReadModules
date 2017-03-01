@@ -92,7 +92,6 @@ public:
 	LayoutPlugin(QObject* parent = 0);
 	~LayoutPlugin();
 
-	QString id() const override;
 	QImage image() const override;
 
 	QList<QAction*> createActions(QWidget* parent) override;

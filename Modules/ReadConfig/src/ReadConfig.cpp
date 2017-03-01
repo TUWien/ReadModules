@@ -85,15 +85,6 @@ ReadConfig::~ReadConfig() {
 	qDebug() << "destroying config plugin...";
 }
 
-
-/**
-* Returns unique ID for the generated dll
-**/
-QString ReadConfig::id() const {
-
-	return PLUGIN_ID;
-};
-
 /**
 * Returns descriptive iamge for every ID
 * @param plugin ID
@@ -124,8 +115,6 @@ QList<QAction*> ReadConfig::createActions(QWidget* parent) {
 	return mActions;
 }
 
-
-
 QList<QAction*> ReadConfig::pluginActions() const {
 	return mActions;
 }
@@ -142,7 +131,6 @@ QSharedPointer<nmc::DkImageContainer> ReadConfig::runPlugin(
 	QSharedPointer<nmc::DkBatchInfo>& info) const {
 
 	SettingsDialog* sd = new SettingsDialog(tr("READ Settings"), nmc::DkUtils::getMainWindow());
-	sd->setSettings(rdf::Config::instance().settings());
 	sd->setMinimumSize(480, 600);
 	sd->exec();
 	qDebug() << "showing settings...";
@@ -173,10 +161,20 @@ QString DkTestInfo::property() const {
 SettingsDialog::SettingsDialog(const QString& title, QWidget* parent) : QDialog(parent) {
 	setWindowTitle(title);
 	createLayout();
+	nmc::DkSettingsGroup g = nmc::DkSettingsGroup::fromSettings(rdf::Config::instance().settings());
+	mSettingsWidget->addSettingsGroup(g);
 }
 
-void SettingsDialog::setSettings(QSettings & settings) {
-	mSettingsWidget->setSettings(settings);
+void SettingsDialog::changeSetting(const QString& key, const QVariant& value, const QStringList& groups) {
+
+	QSettings& s = rdf::Config::instance().settings();
+	nmc::DkSettingsWidget::changeSetting(s, key, value, groups);
+}
+
+void SettingsDialog::removeSetting(const QString & key, const QStringList & groups) {
+
+	QSettings& s = rdf::Config::instance().settings();
+	nmc::DkSettingsWidget::removeSetting(s, key, groups);
 }
 
 void SettingsDialog::createLayout() {
@@ -194,6 +192,11 @@ void SettingsDialog::createLayout() {
 	layout->addWidget(mSettingsWidget);
 	layout->addWidget(titleLabel);
 	layout->addWidget(buttons);
+
+	connect(mSettingsWidget, SIGNAL(changeSettingSignal(const QString&, const QVariant&, const QStringList&)), 
+		this, SLOT(changeSetting(const QString&, const QVariant&, const QStringList&)));
+	connect(mSettingsWidget, SIGNAL(removeSettingSignal(const QString&, const QStringList&)), 
+		this, SLOT(removeSetting(const QString&, const QStringList&)));
 
 }
 

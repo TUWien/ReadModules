@@ -66,7 +66,6 @@ public:
 	ReadConfig(QObject* parent = 0);
 	~ReadConfig();
 
-	QString id() const override;
 	QImage image() const override;
 	QString name() const override;
 
@@ -101,7 +100,9 @@ class SettingsDialog : public QDialog {
 public:
 	SettingsDialog(const QString& title = tr("READ Settings"), QWidget* parent = 0);
 
-	void setSettings(QSettings& settings);
+public slots:
+	void changeSetting(const QString& key, const QVariant& value, const QStringList& groups);
+	void removeSetting(const QString& key, const QStringList& groups);
 
 protected:
 	nmc::DkSettingsWidget* mSettingsWidget = 0;

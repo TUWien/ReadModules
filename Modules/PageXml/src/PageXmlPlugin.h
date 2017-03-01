@@ -33,9 +33,6 @@ related links:
 #pragma once
 
 #include "DkPluginInterface.h"
-#include "DkBatchInfo.h"
-
-// read includes
 #include "BaseModule.h"
 
 // opencv defines
@@ -43,47 +40,39 @@ namespace cv {
 	class Mat;
 }
 
+namespace rdf {
+	class PageXmlParser;
+	class PageElement;
+}
 
 namespace rdm {
 
-class TestConfig : public rdf::ModuleConfig {
+class PageXmlConfig : public rdf::ModuleConfig {
 
 public:
-	TestConfig();
+	PageXmlConfig();
+	~PageXmlConfig() {};
 
 	virtual QString toString() const override;
-	int param() const;
+
+	QString filterName() const;
 
 protected:
 
-	int mParam = 2;
+	QString mFilterName = "TextRegion";
 
 	void load(const QSettings& settings) override;
 	void save(QSettings& settings) const override;
 };
 
-
-class DkTestInfo : public nmc::DkBatchInfo {
-
-public:
-	DkTestInfo(const QString& id = QString(), const QString& filePath = QString());
-
-	void setProperty(const QString& p);
-	QString property() const;
-
-private:
-	QString mProp;
-
-};
-
-class BatchTest : public QObject, nmc::DkBatchPluginInterface {
+class PageXmlPlugin : public QObject, nmc::DkBatchPluginInterface {
 	Q_OBJECT
-		Q_INTERFACES(nmc::DkBatchPluginInterface)
-		Q_PLUGIN_METADATA(IID "com.nomacs.ImageLounge.BatchTest/3.2" FILE "BatchTest.json")
+	Q_INTERFACES(nmc::DkBatchPluginInterface)
+	Q_PLUGIN_METADATA(IID "com.nomacs.ImageLounge.PageXmlPlugin/3.0" FILE "PageXmlPlugin.json")
 
 public:
-	BatchTest(QObject* parent = 0);
-	~BatchTest();
+	PageXmlPlugin(QObject* parent = 0);
+	~PageXmlPlugin();
 
 	QImage image() const override;
 
@@ -91,21 +80,21 @@ public:
 	QList<QAction*> pluginActions() const override;
 	QSharedPointer<nmc::DkImageContainer> runPlugin(
 		const QString &runID, 
-		QSharedPointer<nmc::DkImageContainer> imgC,
+		QSharedPointer<nmc::DkImageContainer> imgC, 
 		const nmc::DkSaveInfo& saveInfo,
-		QSharedPointer<nmc::DkBatchInfo>& info) const override;
+		QSharedPointer<nmc::DkBatchInfo>& batchInfo) const override;
 
-	void preLoadPlugin() const override;
-	void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const override;
-	QString name() const override;
-
-	QSettings& settings() const override;
-	void loadSettings(QSettings& settings) override;
-	void saveSettings(QSettings& settings) const override;
+	virtual void preLoadPlugin() const override {};
+	virtual void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> > &) const override {};
+	
+	// settings
+	virtual QSettings& settings() const override;
+	virtual void saveSettings(QSettings& settings) const override;
+	virtual void loadSettings(QSettings& settings) override;
+	virtual QString name() const override;
 
 	enum {
-		id_mirror,
-		id_grayscale,
+		id_page_filter,
 		// add actions here
 
 		id_end
@@ -117,6 +106,9 @@ protected:
 	QStringList mMenuNames;
 	QStringList mMenuStatusTips;
 
-	TestConfig mConfig;
+	PageXmlConfig mConfig;
+
+	// layout plugin functions
+	void filterRegions(QSharedPointer<rdf::PageElement> & page) const;
 };
 };

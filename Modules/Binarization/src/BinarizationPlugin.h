@@ -46,8 +46,6 @@ public:
 	BinarizationPlugin(QObject* parent = 0);
 	~BinarizationPlugin();
 
-
-	QString id() const override;
 	QImage image() const override;
 
 	QList<QAction*> createActions(QWidget* parent) override;

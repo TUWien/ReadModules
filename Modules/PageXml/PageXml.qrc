@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/PageXmlPlugin">
+	<file>img/read.png</file>
+    </qresource>
+</RCC>

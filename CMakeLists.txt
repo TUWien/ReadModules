@@ -13,6 +13,7 @@ OPTION (ENABLE_PAGE_VIS "Compile PAGE Visualization Plugin" ON)
 # OPTION (ENABLE_PAGE_EXTRACTION "Compile Page Extration Plugin" OFF)
 OPTION (ENABLE_BINARIZATION "Compile Page Extration Plugin" ON)
 OPTION (ENABLE_LAYOUT "Compile Layout Analysis Plugin" ON)
+OPTION (ENABLE_PAGE_XML "PAGE XML Manipulator Plugin" ON)
 OPTION (ENABLE_SKEW "Skew Estimation Plugin" ON)
 OPTION (ENABLE_FORMS "Form Analysis Plugin" ON)
 OPTION (ENABLE_FOCUSMEASURE "Focus Measure Plugin" ON)
@@ -50,6 +51,10 @@ ENDIF()
 
 IF (ENABLE_PAGE_VIS)
 	add_subdirectory(Modules/PageVis)
+ENDIF()
+
+IF (ENABLE_PAGE_VIS)
+	add_subdirectory(Modules/PageXml)
 ENDIF()
 
 IF (ENABLE_LAYOUT)

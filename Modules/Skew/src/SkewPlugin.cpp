@@ -111,15 +111,6 @@ SkewEstPlugin::~SkewEstPlugin() {
 	qDebug() << "destroying skew plugin...";
 }
 
-
-/**
-* Returns unique ID for the generated dll
-**/
-QString SkewEstPlugin::id() const {
-
-	return PLUGIN_ID;
-};
-
 /**
 * Returns descriptive iamge for every ID
 * @param plugin ID
