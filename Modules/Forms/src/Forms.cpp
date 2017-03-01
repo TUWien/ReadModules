@@ -249,6 +249,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 			//qDebug() << "Point 1: " << lineTmp.line().p1().toQPoint() << " Point 2: " << lineTmp.line().p2().toQPoint();
 		}
 
+
 		myPainter.end();
 		
 		qDebug() << "Drawing form...";
@@ -341,6 +342,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 			info = testInfo;
 			return imgC;
 		}
+
 
 		if (!formF.compute()) {
 			qWarning() << "could not compute form template " << imgC->filePath();
@@ -716,7 +718,7 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 		qDebug() << "[POST LOADING] train/add training";
 
 	//not tested....
-	saveSettings(rdf::Config::instance().settings());
+	//saveSettings(rdf::Config::instance().settings());
 }
 
 void FormsAnalysis::loadSettings(QSettings & settings) {
