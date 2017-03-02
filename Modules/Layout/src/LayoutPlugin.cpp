@@ -156,7 +156,7 @@ void LayoutPlugin::saveSettings(QSettings & settings) const {
 	mConfig.saveSettings(settings);
 	mSplConfig.saveSettings(settings);
 	mSpcConfig.saveSettings(settings);
-	mLTRConfig.saveSettings(settings);
+	//mLTRConfig.saveSettings(settings);
 	settings.endGroup();
 	qDebug() << "settings saved...";
 }
@@ -168,7 +168,7 @@ void LayoutPlugin::loadSettings(QSettings & settings) {
 	mConfig.loadSettings(settings);
 	mSplConfig.loadSettings(settings);
 	mSpcConfig.loadSettings(settings);
-	mLTRConfig.loadSettings(settings);
+	//mLTRConfig.loadSettings(settings);
 	settings.endGroup();
 	qDebug() << "settings loaded...";
 }
@@ -320,7 +320,7 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 	return imgC;
 }
 
-cv::Mat LayoutPlugin::compute(const cv::Mat & src, const rdf::PageXmlParser & parser) const {
+cv::Mat LayoutPlugin::compute(const cv::Mat & src, rdf::PageXmlParser & parser) const {
 
 	rdf::Timer dt;
 
@@ -339,11 +339,9 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src, const rdf::PageXmlParser & pa
 	pe->setCreator(QString("CVL"));
 	pe->setImageSize(QSize(img.cols, img.rows));
 
-	//pe->setRootRegion(la.textBlockSet().toTextRegion());
-	
 	auto root = la.textBlockSet().toTextRegion();
 	for (const QSharedPointer<rdf::Region>& r : root->children()) {
-		pe->rootRegion()->addUniqueChild(r);
+		pe->rootRegion()->addUniqueChild(r, true);	// true -> update
 	}
 
 	qInfo() << "layout analysis computed in" << dt;
