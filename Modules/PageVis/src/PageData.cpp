@@ -34,6 +34,7 @@
 
 // framework
 #include "PageParser.h"
+#include "Settings.h"
 
 // nomacs
 #include "DkSettings.h"
@@ -73,12 +74,12 @@ QString PageData::xmlPath() const {
 
 void PageData::loadConfig(const QString & name) {
 	
-	loadSettings(nmc::DkSettingsManager::instance().qSettings(), name);
+	loadSettings(rdf::Config::instance().settings(), name);
 }
 
 void PageData::saveConfig(const QString & name) const {
 
-	saveSettings(nmc::DkSettingsManager::instance().qSettings(), name);
+	saveSettings(rdf::Config::instance().settings(), name);
 }
 
 void PageData::setXmlPath(const QString & path) {

@@ -43,6 +43,7 @@ namespace cv {
 namespace rdf {
 	class PageXmlParser;
 	class PageElement;
+	class RegionTypeConfig;
 }
 
 namespace rdm {
@@ -56,14 +57,17 @@ public:
 	virtual QString toString() const override;
 
 	QString filterName() const;
+	QVector<QSharedPointer<rdf::RegionTypeConfig> > xmlConfig() const;
 
 protected:
 
 	QString mFilterName = "TextRegion";
+	QVector<QSharedPointer<rdf::RegionTypeConfig> > mXmlConfig;
 
 	void load(const QSettings& settings) override;
 	void save(QSettings& settings) const override;
 };
+
 
 class PageXmlPlugin : public QObject, nmc::DkBatchPluginInterface {
 	Q_OBJECT
@@ -95,6 +99,7 @@ public:
 
 	enum {
 		id_page_filter,
+		id_page_drawer,
 		// add actions here
 
 		id_end

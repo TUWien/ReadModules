@@ -26,6 +26,7 @@
 
 #include "PageViewport.h"
 #include "PageDock.h"
+#include "PageData.h"
 
 #pragma warning(push, 0)	// no warnings from includes - begin
 #include <QAction>
@@ -76,7 +77,21 @@ QSharedPointer<nmc::DkImageContainer> PageVisPlugin::runPlugin(const QString &ru
 	if (!imgC)
 		return imgC;
 
-	qDebug() << "NOTE: page rendering is not implemented yet...";
+	PageViewport* vp = static_cast<PageViewport*>(mViewport);
+	if (!vp)
+		return imgC;
+
+	if (vp->dock()->drawRegions()) {
+		
+		QImage img = imgC->image();
+		QPainter painter(&img);
+
+		const auto pd = vp->pageData();
+		if (pd->page() && !pd->page()->isEmpty())
+			rdf::RegionManager::instance().drawRegion(painter, pd->page()->rootRegion(), pd->config());
+
+		imgC->setImage(img, tr("PAGE Attributes"));
+	}
 
 	// wrong runID? - do nothing
 	return imgC;

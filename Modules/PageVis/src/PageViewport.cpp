@@ -157,6 +157,10 @@ PageDock * PageViewport::dock() const {
 	return mPageDock;
 }
 
+PageData * PageViewport::pageData() const {
+	return mPageData;
+}
+
 void PageViewport::paintEvent(QPaintEvent* event) {
 
 	if (mImg.isNull()) {

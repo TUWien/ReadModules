@@ -66,6 +66,7 @@ PageXmlPlugin::PageXmlPlugin(QObject* parent) : QObject(parent) {
 	menuNames.resize(id_end);
 
 	menuNames[id_page_filter]		= tr("Filter Regions");
+	menuNames[id_page_drawer]		= tr("Draw Regions");
 	mMenuNames = menuNames.toList();
 
 	// create menu status tips
@@ -73,6 +74,7 @@ PageXmlPlugin::PageXmlPlugin(QObject* parent) : QObject(parent) {
 	statusTips.resize(id_end);
 
 	statusTips[id_page_filter]		= tr("Removes all PAGE elements except for the one specified in filterName");
+	statusTips[id_page_drawer]		= tr("Draws the PAGE XML regions to the image using your last settings");
 	mMenuStatusTips = statusTips.toList();
 
 	// save settings
@@ -163,20 +165,36 @@ QSharedPointer<nmc::DkImageContainer> PageXmlPlugin::runPlugin(
 	rdf::PageXmlParser parser;
 	parser.read(loadXmlPath);
 
-	// set our header info
-	auto xmlPage = parser.page();
-	xmlPage->setCreator(QString("CVL"));
-	xmlPage->setImageSize(QSize(imgC->image().size()));
-	xmlPage->setImageFileName(imgC->fileName());
-	
-	if(runID == mRunIDs[id_page_filter]) {
+	if (runID == mRunIDs[id_page_filter]) {
+		// set our header info
+		auto xmlPage = parser.page();
+		xmlPage->setCreator(QString("CVL"));
+		xmlPage->setImageSize(QSize(imgC->image().size()));
+		xmlPage->setImageFileName(imgC->fileName());
 
-		filterRegions(xmlPage);
+		if (runID == mRunIDs[id_page_filter]) {
+
+			filterRegions(xmlPage);
+		}
+
+		// save xml
+		QString saveXmlPath = rdf::PageXmlParser::imagePathToXmlPath(saveInfo.outputFilePath());
+		parser.write(saveXmlPath, parser.page());
 	}
+	else if (runID == mRunIDs[id_page_drawer]) {
 
-	// save xml
-	QString saveXmlPath = rdf::PageXmlParser::imagePathToXmlPath(saveInfo.outputFilePath());
-	parser.write(saveXmlPath, parser.page());
+		QImage img = imgC->image();
+		img = img.convertToFormat(QImage::Format_RGBA8888);
+
+		QPainter painter(&img);
+		painter.setRenderHints(QPainter::Antialiasing);
+
+		const auto pd = parser.page();
+		if (parser.page() && !parser.page()->isEmpty())
+			rdf::RegionManager::instance().drawRegion(painter, parser.page()->rootRegion(), mConfig.xmlConfig());
+
+		imgC->setImage(img, tr("PAGE Attributes"));
+	}
 
 	// wrong runID? - do nothing
 	return imgC;
@@ -222,9 +240,31 @@ QString PageXmlConfig::filterName() const {
 	return mFilterName;
 }
 
+QVector<QSharedPointer<rdf::RegionTypeConfig>> rdm::PageXmlConfig::xmlConfig() const {
+	return mXmlConfig;
+}
+
 void PageXmlConfig::load(const QSettings & settings) {
 
 	mFilterName = settings.value("filterName", mFilterName).toString();
+
+	// highjack the page vis plugin
+	QSettings& s = rdf::Config::instance().settings();
+	s.beginGroup("PageDataProfiles");
+
+	// load the user's default profile
+	s.beginGroup(s.value("DefaultProfileString", "Recent Settings").toString());
+
+	QVector<QSharedPointer<rdf::RegionTypeConfig> > configs = rdf::RegionManager::instance().regionTypeConfig();
+	for (QSharedPointer<rdf::RegionTypeConfig> c : configs) {
+
+		c->load(s);
+		mXmlConfig.append(c);
+	}
+
+	s.endGroup();
+	s.endGroup();
+
 }
 
 void PageXmlConfig::save(QSettings & settings) const {

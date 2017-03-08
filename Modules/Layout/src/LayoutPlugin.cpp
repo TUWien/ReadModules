@@ -105,6 +105,10 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 	mConfig.saveDefaultSettings(s);
 	rdf::SuperPixelTrainerConfig spc;
 	spc.saveDefaultSettings(s);
+
+	rdf::SuperPixelLabelerConfig splc;
+	splc.saveDefaultSettings(s);
+
 	s.endGroup();
 }
 /**

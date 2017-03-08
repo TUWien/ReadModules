@@ -59,6 +59,7 @@ public:
 
 	void updateImageContainer(QSharedPointer<nmc::DkImageContainerT> imgC) override;
 	PageDock* dock() const;
+	PageData* pageData() const;
 
 signals:
 	void selectRegionsSignal(const QVector<QSharedPointer<rdf::Region> >& regions) const;
