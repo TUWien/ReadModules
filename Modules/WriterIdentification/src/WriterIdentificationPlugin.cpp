@@ -675,7 +675,8 @@ void WriterIdentificationPlugin::loadSettings(QSettings & settings) {
 	mL2Before = settings.value("L2before", defaultVoc.l2before()).toBool();
 	mEvalFile = settings.value("evalFile", QString()).toString();
 	
-	qDebug() << "settings read: path: " << mSettingsVocPath << " type:" << mVocType << " numberOfClusters:" << mVocNumberOfClusters << " numberOfPCA: " << mVocNumberOfPCA;
+	if (!mSettingsVocPath.isEmpty())
+		qDebug() << "settings read: path: " << mSettingsVocPath << " type:" << mVocType << " numberOfClusters:" << mVocNumberOfClusters << " numberOfPCA: " << mVocNumberOfPCA;
 	settings.endGroup();
 
 }

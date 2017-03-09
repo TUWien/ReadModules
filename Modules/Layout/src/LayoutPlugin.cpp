@@ -97,8 +97,7 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 	statusTips[id_layout_train]		= tr("Train a new model for Layout Analysis.");
 	mMenuStatusTips = statusTips.toList();
 
-
-	// save settings
+	// saved default settings
 	QSettings& s = settings();
 	s.beginGroup(name());
 
@@ -107,7 +106,6 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 	spc.saveDefaultSettings(s);
 
 	rdf::SuperPixelLabelerConfig splc;
-	splc.saveDefaultSettings(s);
 
 	s.endGroup();
 }
@@ -162,7 +160,6 @@ void LayoutPlugin::saveSettings(QSettings & settings) const {
 	mSpcConfig.saveSettings(settings);
 	//mLTRConfig.saveSettings(settings);
 	settings.endGroup();
-	qDebug() << "settings saved...";
 }
 
 void LayoutPlugin::loadSettings(QSettings & settings) {
@@ -174,7 +171,6 @@ void LayoutPlugin::loadSettings(QSettings & settings) {
 	mSpcConfig.loadSettings(settings);
 	//mLTRConfig.loadSettings(settings);
 	settings.endGroup();
-	qDebug() << "settings loaded...";
 }
 
 QString LayoutPlugin::name() const {

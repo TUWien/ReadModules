@@ -726,7 +726,6 @@ void FormsAnalysis::loadSettings(QSettings & settings) {
 	//mLineTemplPath = settings.value("lineTemplPath", mLineTemplPath).toString();
 	mFormConfig.loadSettings(settings);
 	settings.endGroup();
-	qDebug() << "settings loaded...";
 }
 
 void FormsAnalysis::saveSettings(QSettings & settings) const {
@@ -734,7 +733,6 @@ void FormsAnalysis::saveSettings(QSettings & settings) const {
 	mFormConfig.saveSettings(settings);
 	//settings.setValue("lineTemplPath", mLineTemplPath);
 	settings.endGroup();
-	qDebug() << "settings saved...";
 }
 
 // DkTestInfo --------------------------------------------------------------------

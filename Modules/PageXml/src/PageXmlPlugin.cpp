@@ -109,7 +109,6 @@ void PageXmlPlugin::loadSettings(QSettings & settings) {
 	settings.beginGroup(name());
 	mConfig.loadSettings(settings);
 	settings.endGroup();
-	qDebug() << "settings loaded...";
 }
 
 QString PageXmlPlugin::name() const {
