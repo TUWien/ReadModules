@@ -57,7 +57,6 @@ PageData::PageData(QObject* parent) : QObject(parent) {
 PageData::~PageData() {
 
 	saveConfig("Recent Settings");
-	qDebug() << "destroying PAGE viewport";
 }
 
 QVector<QSharedPointer<rdf::RegionTypeConfig> > PageData::config() const {

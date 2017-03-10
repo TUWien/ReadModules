@@ -860,7 +860,7 @@ PageDock::PageDock(PageData* pageData, const QString& title, QWidget* parent) : 
 
 PageDock::~PageDock() {
 
-	qDebug() << "destroying PAGE viewport";
+	qDebug() << "destroying PAGE dock";
 }
 
 void PageDock::createLayout() {

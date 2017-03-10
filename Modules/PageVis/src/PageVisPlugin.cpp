@@ -115,10 +115,10 @@ nmc::DkPluginViewPort * PageVisPlugin::getViewPort() {
 
 void PageVisPlugin::deleteViewPort() {
 
-	if (mViewport) {
-		delete mViewport;
-		mViewport = 0;
-	}
+	//if (mViewport) {
+	//	delete mViewport;
+	//	mViewport = 0;
+	//}
 }
 
 };
