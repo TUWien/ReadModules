@@ -35,6 +35,7 @@
 
 // framework
 #include "ElementsHelper.h"
+#include "Settings.h"
 
 // nomacs 
 #include "DkUtils.h"
@@ -469,7 +470,7 @@ QString XmlLabel::xmlPathFromMime(const QMimeData & mime) const {
 // PageProfileWidget --------------------------------------------------------------------
 PageProfileWidget::PageProfileWidget(QWidget* parent) : nmc::DkGenericProfileWidget(tr("PageVis Profiles"), parent) {
 
-	// NOTE: hast to be the object name of PageData
+	// NOTE: has to be the object name of PageData
 	mSettingsGroup = "PageDataProfiles";
 	init();
 	activate();
@@ -487,6 +488,11 @@ void PageProfileWidget::loadSettings(const QString& name) {
 
 	emit loadPageConfigSignal(name);
 	setDefaultModel();
+}
+
+QSettings& PageProfileWidget::settings() const {
+
+	return rdf::Config::instance().settings();
 }
 
 // TitledLabel --------------------------------------------------------------------
