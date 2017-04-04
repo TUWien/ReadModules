@@ -887,6 +887,8 @@ void RegionEditWidget::createLayout() {
 	QVBoxLayout* layout = new QVBoxLayout(this);
 	layout->addWidget(mRegionCombo);
 	layout->addWidget(buttonWidget);
+
+	connect(deleteButton, SIGNAL(clicked()), this, SIGNAL(deleteSelectedSignal()));
 }
 
 void RegionEditWidget::setRegions(const QVector<QSharedPointer<rdf::Region>>& regions, int idx) {
@@ -910,10 +912,6 @@ void RegionEditWidget::setRegions(const QVector<QSharedPointer<rdf::Region>>& re
 
 void RegionEditWidget::on_addButton_clicked() {
 	qDebug() << "adding...";
-}
-
-void RegionEditWidget::on_deleteButton_clicked() {
-	qDebug() << "deleting...";
 }
 
 void RegionEditWidget::on_regionCombo_currentTextChanged(const QString & text) {

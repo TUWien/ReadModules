@@ -280,11 +280,11 @@ public slots:
 	void setRegionTypes(const QVector<QSharedPointer<rdf::RegionTypeConfig> >& configs);
 	void setRegions(const QVector<QSharedPointer<rdf::Region> >& regions, int idx = -1);
 	void on_addButton_clicked();
-	void on_deleteButton_clicked();
 	void on_regionCombo_currentTextChanged(const QString& text);
 
 signals:
 	void updateSignal() const;
+	void deleteSelectedSignal() const;
 
 protected:
 	void createLayout();

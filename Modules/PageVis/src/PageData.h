@@ -56,9 +56,11 @@ public:
 
 public slots:
 	void parse(const QString& xmlPath);
+	void save(const QString& xmlPath = "");
 	void loadConfig(const QString& name);
 	void saveConfig(const QString& name) const;
 	void setXmlPath(const QString& path);
+	void deleteSelected();
 
 signals:
 	void updatePage(QSharedPointer<rdf::PageElement> page) const;

@@ -81,6 +81,7 @@ void PageViewport::init() {
 	connect(mPageDock, SIGNAL(closeSignal()), this, SIGNAL(closePlugin()));
 	connect(this, SIGNAL(selectRegionsSignal(const QVector<QSharedPointer<rdf::Region> >&)), mPageDock->regionWidget(), SLOT(setRegions(const QVector<QSharedPointer<rdf::Region> >&)));
 	connect(this, SIGNAL(selectRegionsSignal(const QVector<QSharedPointer<rdf::Region> >&)), mPageDock->regionEditWidget(), SLOT(setRegions(const QVector<QSharedPointer<rdf::Region> >&)));
+	connect(mPageDock->regionEditWidget(), SIGNAL(deleteSelectedSignal()), mPageData, SLOT(deleteSelected()));
 }
 
 
@@ -138,6 +139,11 @@ void PageViewport::selectRegion(QMouseEvent * event) {
 }
 
 void PageViewport::updateImageContainer(QSharedPointer<nmc::DkImageContainerT> imgC) {
+
+	if (mPageData) {
+		// save current xml
+		mPageData->save();
+	}
 
 	mImg = imgC;
 

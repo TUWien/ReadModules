@@ -86,6 +86,18 @@ void PageData::setXmlPath(const QString & path) {
 	emit updateXml();
 }
 
+void PageData::deleteSelected() {
+
+	if (!mPage)
+		return;
+
+	auto r = mPage->rootRegion()->selectedRegions();
+
+	for (auto s : r) {
+		mPage->rootRegion()->removeChild(s);
+	}
+}
+
 void PageData::parse(const QString& xmlPath) {
 
 	if (mPage && xmlPath == mPage->xmlPath())
@@ -96,6 +108,24 @@ void PageData::parse(const QString& xmlPath) {
 
 	mPage = parser.page();
 	qDebug() << "filename: " << mPage->imageFileName();
+
+	emit updatePage(mPage);
+}
+
+void PageData::save(const QString& xmlPath) {
+
+	if (!mPage)
+		return;
+
+	QString xmlPathI = xmlPath;
+
+	if (xmlPathI.isEmpty())
+		xmlPathI = mPage->xmlPath();
+
+	rdf::PageXmlParser parser;
+	parser.write(xmlPathI, mPage);
+
+	qDebug() << "xml written to: " << xmlPathI;
 
 	emit updatePage(mPage);
 }
