@@ -40,6 +40,7 @@
 // nomacs 
 #include "DkUtils.h"
 #include "DkSettings.h"
+#include "DkImageStorage.h"
 
 #pragma warning(push, 0)	// no warnings from includes
 #include <QPaintEvent>
@@ -635,7 +636,6 @@ QPolygon PolygonInfoWidget::polygon() const {
 	return mPoly;
 }
 
-
 // RegionWidget --------------------------------------------------------------------
 RegionWidget::RegionWidget(QWidget* parent) : QWidget(parent) {
 
@@ -854,6 +854,93 @@ void RegionWidget::paintEvent(QPaintEvent* event) {
 	QWidget::paintEvent(event);
 }
 
+// RegionEditWidget --------------------------------------------------------------------
+RegionEditWidget::RegionEditWidget(QWidget* parent) : QWidget(parent) {
+
+	setObjectName("infoWidget");
+	createLayout();
+	QMetaObject::connectSlotsByName(this);
+}
+
+void RegionEditWidget::createLayout() {
+
+	mRegionCombo = new QComboBox(this);
+	mRegionCombo->setObjectName("regionCombo");
+
+	QIcon icon = nmc::DkImage::loadIcon(":/nomacs/img/plus.svg");
+	QPushButton* addButton = new QPushButton(icon, tr(""), this);
+	addButton->setObjectName("addButton");
+	addButton->setFlat(true);
+
+	icon = nmc::DkImage::loadIcon(":/nomacs/img/trash.svg");
+	QPushButton* deleteButton = new QPushButton(icon, tr(""), this);
+	deleteButton->setObjectName("deleteButton");
+	deleteButton->setFlat(true);
+
+	QWidget* buttonWidget = new QWidget(this);
+	QHBoxLayout* buttonLayout = new QHBoxLayout(buttonWidget);
+	buttonLayout->setContentsMargins(0, 0, 0, 0);
+	buttonLayout->addWidget(addButton);
+	buttonLayout->addWidget(deleteButton);
+	buttonLayout->addStretch();
+
+	QVBoxLayout* layout = new QVBoxLayout(this);
+	layout->addWidget(mRegionCombo);
+	layout->addWidget(buttonWidget);
+}
+
+void RegionEditWidget::setRegions(const QVector<QSharedPointer<rdf::Region>>& regions, int idx) {
+
+	mSelectedRegion = 0;
+
+	for (auto r : regions) {
+
+		if (r->selected()) {
+			mSelectedRegion = r;
+			break;
+		}
+	}
+
+	if (mSelectedRegion) {
+		mRegionCombo->setCurrentText(rdf::RegionManager::instance().typeName(mSelectedRegion->type()));
+	}
+	
+	setVisible(!regions.empty());
+}
+
+void RegionEditWidget::on_addButton_clicked() {
+	qDebug() << "adding...";
+}
+
+void RegionEditWidget::on_deleteButton_clicked() {
+	qDebug() << "deleting...";
+}
+
+void RegionEditWidget::on_regionCombo_currentTextChanged(const QString & text) {
+
+	rdf::Region::Type rt = rdf::RegionManager::instance().type(text);
+
+	if (mSelectedRegion) {
+		mSelectedRegion->setType(rt);
+		emit updateSignal();
+	}
+
+}
+
+void RegionEditWidget::updateWidgets() {
+
+	mRegionCombo->clear();
+
+	for (auto c : mRegionTypes)
+		mRegionCombo->addItem(QIcon(), rdf::RegionManager::instance().typeName(c->type()));
+
+}
+
+void RegionEditWidget::setRegionTypes(const QVector<QSharedPointer<rdf::RegionTypeConfig> >& configs) {
+	mRegionTypes = configs;
+	updateWidgets();
+}
+
 // PageDock --------------------------------------------------------------------
 PageDock::PageDock(PageData* pageData, const QString& title, QWidget* parent) : nmc::DkDockWidget(title, parent) {
 
@@ -907,6 +994,10 @@ void PageDock::createLayout() {
 	XmlLabel* xmlWidget = new XmlLabel(this);
 	xmlWidget->setPage(mPageData->page());
 
+	// region edit widget
+	mRegionEditWidget = new RegionEditWidget(this);
+	mRegionEditWidget->setRegionTypes(mPageData->config());
+
 	// region selection widget
 	mRegionWidget = new RegionWidget(this);
 
@@ -919,6 +1010,7 @@ void PageDock::createLayout() {
 	baseLayout->addWidget(configDummy);
 	baseLayout->addWidget(dirWidget);
 	baseLayout->addWidget(xmlWidget);
+	baseLayout->addWidget(mRegionEditWidget);
 	baseLayout->addWidget(mRegionWidget);
 
 	// add a scroll bar
@@ -973,6 +1065,10 @@ bool PageDock::drawRegions() const {
 
 RegionWidget * PageDock::regionWidget() {
 	return mRegionWidget;
+}
+
+RegionEditWidget * PageDock::regionEditWidget() {
+	return mRegionEditWidget;
 }
 
 void PageDock::updateConfig() {

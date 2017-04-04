@@ -80,6 +80,7 @@ void PageViewport::init() {
 	connect(mPageDock, SIGNAL(updateSignal()), this, SLOT(update()));
 	connect(mPageDock, SIGNAL(closeSignal()), this, SIGNAL(closePlugin()));
 	connect(this, SIGNAL(selectRegionsSignal(const QVector<QSharedPointer<rdf::Region> >&)), mPageDock->regionWidget(), SLOT(setRegions(const QVector<QSharedPointer<rdf::Region> >&)));
+	connect(this, SIGNAL(selectRegionsSignal(const QVector<QSharedPointer<rdf::Region> >&)), mPageDock->regionEditWidget(), SLOT(setRegions(const QVector<QSharedPointer<rdf::Region> >&)));
 }
 
 

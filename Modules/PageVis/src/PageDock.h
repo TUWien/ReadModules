@@ -270,6 +270,32 @@ protected:
 	TitledLabel* mCustom;
 };
 
+class RegionEditWidget : public QWidget {
+	Q_OBJECT
+
+public:
+	RegionEditWidget(QWidget* parent = 0);
+
+public slots:
+	void setRegionTypes(const QVector<QSharedPointer<rdf::RegionTypeConfig> >& configs);
+	void setRegions(const QVector<QSharedPointer<rdf::Region> >& regions, int idx = -1);
+	void on_addButton_clicked();
+	void on_deleteButton_clicked();
+	void on_regionCombo_currentTextChanged(const QString& text);
+
+signals:
+	void updateSignal() const;
+
+protected:
+	void createLayout();
+
+	QComboBox* mRegionCombo;
+	QVector<QSharedPointer<rdf::RegionTypeConfig> > mRegionTypes;
+	QSharedPointer<rdf::Region> mSelectedRegion;
+
+	void updateWidgets();
+};
+
 class PageDock : public nmc::DkDockWidget {
 	Q_OBJECT
 
@@ -279,6 +305,7 @@ public:
 
 	bool drawRegions() const;
 	RegionWidget* regionWidget();
+	RegionEditWidget* regionEditWidget();
 
 	// I don't really like this definition - but: it's hard to read an external stylesheet for these few widgets
 	static QString widgetStyle;
@@ -304,6 +331,7 @@ private:
 	QCheckBox* mCbDraw = 0;
 	ConfigWidget* mConfigWidget = 0;
 	RegionWidget* mRegionWidget = 0;
+	RegionEditWidget* mRegionEditWidget = 0;
 
 	rdf::Region::Type mCurrentRegion = rdf::Region::type_text_region;
 	
