@@ -41,6 +41,7 @@
 //#include "Settings.h"
 #include "ElementsHelper.h"
 #include "PageParser.h"
+#include "Utils.h"
 
 #pragma warning(push, 0)	// no warnings from includes
 #include <QPaintEvent>
@@ -60,9 +61,12 @@ PageViewport::PageViewport(QWidget* parent) : DkPluginViewPort(parent) {
 PageViewport::~PageViewport() {
 
 	saveSettings(nmc::DkSettingsManager::instance().qSettings());
-	
 	mPageDock->close();
 	qDebug() << "destroying PAGE viewport";
+}
+
+void PageViewport::setAddRegionMode(bool add) {
+	mAddRegion = add;
 }
 
 void PageViewport::init() {
@@ -82,6 +86,8 @@ void PageViewport::init() {
 	connect(this, SIGNAL(selectRegionsSignal(const QVector<QSharedPointer<rdf::Region> >&)), mPageDock->regionWidget(), SLOT(setRegions(const QVector<QSharedPointer<rdf::Region> >&)));
 	connect(this, SIGNAL(selectRegionsSignal(const QVector<QSharedPointer<rdf::Region> >&)), mPageDock->regionEditWidget(), SLOT(setRegions(const QVector<QSharedPointer<rdf::Region> >&)));
 	connect(mPageDock->regionEditWidget(), SIGNAL(deleteSelectedSignal()), mPageData, SLOT(deleteSelected()));
+	connect(mPageDock->regionEditWidget(), SIGNAL(addRegionSignal(bool)), this, SLOT(setAddRegionMode(bool)));
+	connect(this, SIGNAL(addRegionModeSignal(bool)), mPageDock->regionEditWidget(), SLOT(toggleAddRegion(bool)));
 }
 
 
@@ -108,17 +114,39 @@ void PageViewport::mouseDoubleClickEvent(QMouseEvent * event) {
 
 void PageViewport::mousePressEvent(QMouseEvent * event) {
 
+	if (mAddRegion && event->buttons() & Qt::LeftButton) {
+		QPointF pos = mapToImage(event->pos());
+		mNewRegion = QRectF(pos, pos);
+		return;
+	}
+
 	nmc::DkPluginViewPort::mousePressEvent(event);
 }
 
 void PageViewport::mouseReleaseEvent(QMouseEvent * event) {
 
-
-	if (event->button() == Qt::LeftButton && mPageData->page() && event->modifiers() == Qt::ControlModifier) {
+	if (mAddRegion) {
+		addRegion();
+		return;
+	}
+	else if (event->button() == Qt::LeftButton && mPageData->page() && event->modifiers() == Qt::ControlModifier) {
 		selectRegion(event);
 	}
 	
 	nmc::DkPluginViewPort::mouseReleaseEvent(event);
+}
+
+void PageViewport::mouseMoveEvent(QMouseEvent * event) {
+
+
+	if (mAddRegion && event->buttons() & Qt::LeftButton) {
+		QPointF pos = mapToImage(event->pos());
+		mNewRegion.setBottomRight(pos);
+		update();
+		return;
+	}
+
+	nmc::DkPluginViewPort::mouseMoveEvent(event);
 }
 
 void PageViewport::selectRegion(QMouseEvent * event) {
@@ -136,6 +164,23 @@ void PageViewport::selectRegion(QMouseEvent * event) {
 
 	qDebug() << "#regions:" << sr.size() << "point:" << p;
 
+}
+
+void PageViewport::addRegion() {
+
+	auto nr = mPageData->addRegion(mNewRegion, rdf::Region::type_graphic);	// TODO: change - for now this is convenience for sarah/max
+	QVector<QSharedPointer<rdf::Region> > regions;
+	regions << nr;
+
+	const rdf::RegionManager& rm = rdf::RegionManager::instance();
+	rm.selectRegions(regions, mPageData->page()->rootRegion());
+	emit selectRegionsSignal(regions);
+
+	mNewRegion = QRectF();
+	mAddRegion = false;
+	update();
+
+	emit addRegionModeSignal(false);
 }
 
 void PageViewport::updateImageContainer(QSharedPointer<nmc::DkImageContainerT> imgC) {
@@ -192,8 +237,9 @@ void PageViewport::paintEvent(QPaintEvent* event) {
 		return;
 	}
 
+	QPainter painter(this);
+
 	if (mPageDock->drawRegions()) {
-		QPainter painter(this);
 
 		if (mWorldMatrix)
 			painter.setWorldTransform((*mImgMatrix) * (*mWorldMatrix));	// >DIR: using both matrices allows for correct resizing [16.10.2013 markus]
@@ -203,6 +249,19 @@ void PageViewport::paintEvent(QPaintEvent* event) {
 			int nSel = root->selectedRegions().size();
 			rdf::RegionManager::instance().drawRegion(painter, root, mPageData->config(), true, nSel > 0);
 		}
+	}
+
+	if (!mNewRegion.isNull()) {
+
+		QPen pen(rdf::ColorManager::getColor(0));
+		pen.setWidth(4);
+		pen.setCosmetic(true);
+		
+		painter.setPen(pen);
+		painter.setBrush(rdf::ColorManager::getColor(0, 0.4));
+		painter.setOpacity(1.0);
+		painter.drawRect(mNewRegion);
+		qDebug() << "drawing new region...";
 	}
 
 	DkPluginViewPort::paintEvent(event);

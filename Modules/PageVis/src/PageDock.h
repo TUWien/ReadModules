@@ -279,20 +279,25 @@ public:
 public slots:
 	void setRegionTypes(const QVector<QSharedPointer<rdf::RegionTypeConfig> >& configs);
 	void setRegions(const QVector<QSharedPointer<rdf::Region> >& regions, int idx = -1);
-	void on_addButton_clicked();
 	void on_regionCombo_currentTextChanged(const QString& text);
+	void toggleAddRegion(bool add);
 
 signals:
 	void updateSignal() const;
 	void deleteSelectedSignal() const;
+	void addRegionSignal(bool) const;
 
 protected:
 	void createLayout();
 
 	QComboBox* mRegionCombo;
+	QPushButton* mAddButton;
+	QPushButton* mDeleteButton;
+
 	QVector<QSharedPointer<rdf::RegionTypeConfig> > mRegionTypes;
 	QSharedPointer<rdf::Region> mSelectedRegion;
 
+	void showWidgets();
 	void updateWidgets();
 };
 

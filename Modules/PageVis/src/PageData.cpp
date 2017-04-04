@@ -96,6 +96,24 @@ void PageData::deleteSelected() {
 	for (auto s : r) {
 		mPage->rootRegion()->removeChild(s);
 	}
+
+	emit updatePage(mPage);
+}
+
+QSharedPointer<rdf::Region> PageData::addRegion(const QRectF & rect, const rdf::Region::Type& type) {
+
+	rdf::Polygon p;
+	p << rect.topLeft();
+	p << rect.topRight();
+	p << rect.bottomRight();
+	p << rect.bottomLeft();
+
+	auto r = rdf::RegionManager::instance().createRegion(type);
+	r->setPolygon(p);
+
+	mPage->rootRegion()->addUniqueChild(r);
+
+	return r;
 }
 
 void PageData::parse(const QString& xmlPath) {
@@ -124,8 +142,6 @@ void PageData::save(const QString& xmlPath) {
 
 	rdf::PageXmlParser parser;
 	parser.write(xmlPathI, mPage);
-
-	qDebug() << "xml written to: " << xmlPathI;
 
 	emit updatePage(mPage);
 }

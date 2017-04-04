@@ -868,27 +868,31 @@ void RegionEditWidget::createLayout() {
 	mRegionCombo->setObjectName("regionCombo");
 
 	QIcon icon = nmc::DkImage::loadIcon(":/nomacs/img/plus.svg");
-	QPushButton* addButton = new QPushButton(icon, tr(""), this);
-	addButton->setObjectName("addButton");
-	addButton->setFlat(true);
+	mAddButton = new QPushButton(icon, tr(""), this);
+	mAddButton->setObjectName("addButton");
+	mAddButton->setFlat(true);
+	mAddButton->setCheckable(true);
 
 	icon = nmc::DkImage::loadIcon(":/nomacs/img/trash.svg");
-	QPushButton* deleteButton = new QPushButton(icon, tr(""), this);
-	deleteButton->setObjectName("deleteButton");
-	deleteButton->setFlat(true);
+	mDeleteButton = new QPushButton(icon, tr(""), this);
+	mDeleteButton->setObjectName("deleteButton");
+	mDeleteButton->setFlat(true);
 
 	QWidget* buttonWidget = new QWidget(this);
 	QHBoxLayout* buttonLayout = new QHBoxLayout(buttonWidget);
 	buttonLayout->setContentsMargins(0, 0, 0, 0);
-	buttonLayout->addWidget(addButton);
-	buttonLayout->addWidget(deleteButton);
+	buttonLayout->addWidget(mAddButton);
+	buttonLayout->addWidget(mDeleteButton);
 	buttonLayout->addStretch();
 
 	QVBoxLayout* layout = new QVBoxLayout(this);
 	layout->addWidget(mRegionCombo);
 	layout->addWidget(buttonWidget);
 
-	connect(deleteButton, SIGNAL(clicked()), this, SIGNAL(deleteSelectedSignal()));
+	connect(mDeleteButton, SIGNAL(clicked()), this, SIGNAL(deleteSelectedSignal()));
+	connect(mAddButton, SIGNAL(clicked(bool)), this, SIGNAL(addRegionSignal(bool)));
+
+	showWidgets();
 }
 
 void RegionEditWidget::setRegions(const QVector<QSharedPointer<rdf::Region>>& regions, int idx) {
@@ -907,11 +911,7 @@ void RegionEditWidget::setRegions(const QVector<QSharedPointer<rdf::Region>>& re
 		mRegionCombo->setCurrentText(rdf::RegionManager::instance().typeName(mSelectedRegion->type()));
 	}
 	
-	setVisible(!regions.empty());
-}
-
-void RegionEditWidget::on_addButton_clicked() {
-	qDebug() << "adding...";
+	showWidgets();
 }
 
 void RegionEditWidget::on_regionCombo_currentTextChanged(const QString & text) {
@@ -925,13 +925,21 @@ void RegionEditWidget::on_regionCombo_currentTextChanged(const QString & text) {
 
 }
 
+void RegionEditWidget::toggleAddRegion(bool add) {
+	mAddButton->setChecked(add);
+}
+
+void RegionEditWidget::showWidgets() {
+	mDeleteButton->setVisible(mSelectedRegion);
+	mRegionCombo->setVisible(mSelectedRegion);
+}
+
 void RegionEditWidget::updateWidgets() {
 
 	mRegionCombo->clear();
 
 	for (auto c : mRegionTypes)
 		mRegionCombo->addItem(QIcon(), rdf::RegionManager::instance().typeName(c->type()));
-
 }
 
 void RegionEditWidget::setRegionTypes(const QVector<QSharedPointer<rdf::RegionTypeConfig> >& configs) {

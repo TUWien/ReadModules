@@ -44,6 +44,10 @@
 class QPaintEvent;
 class QSettings;
 
+namespace nmc {
+	class DkTransformRect;
+}
+
 namespace rdm {
 
 // read defines
@@ -63,9 +67,11 @@ public:
 
 signals:
 	void selectRegionsSignal(const QVector<QSharedPointer<rdf::Region> >& regions) const;
+	void addRegionModeSignal(bool) const;
 
 public slots:
 	void parseXml();
+	void setAddRegionMode(bool add = true);
 
 private:
 	void init();
@@ -75,14 +81,18 @@ private:
 	void mouseDoubleClickEvent(QMouseEvent* event) override;
 	void mousePressEvent(QMouseEvent* event) override;
 	void mouseReleaseEvent(QMouseEvent* event) override;
+	void mouseMoveEvent(QMouseEvent* event) override;
 	void paintEvent(QPaintEvent* event) override;
 
 	void selectRegion(QMouseEvent* event);
+	void addRegion();
 
 	PageDock* mPageDock = 0;
 	PageData* mPageData = 0;
 	QSharedPointer<nmc::DkImageContainerT> mImg;
 
+	bool mAddRegion = false;
+	QRectF mNewRegion;
 };
 
 };

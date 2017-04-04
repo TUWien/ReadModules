@@ -61,6 +61,7 @@ public slots:
 	void saveConfig(const QString& name) const;
 	void setXmlPath(const QString& path);
 	void deleteSelected();
+	QSharedPointer<rdf::Region> addRegion(const QRectF& rect, const rdf::Region::Type& type = rdf::Region::Type::type_text_region);
 
 signals:
 	void updatePage(QSharedPointer<rdf::PageElement> page) const;
