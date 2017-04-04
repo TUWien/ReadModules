@@ -82,11 +82,26 @@ void PageViewport::init() {
 	connect(this, SIGNAL(selectRegionsSignal(const QVector<QSharedPointer<rdf::Region> >&)), mPageDock->regionWidget(), SLOT(setRegions(const QVector<QSharedPointer<rdf::Region> >&)));
 }
 
+
+void PageViewport::loadSettings(QSettings& settings) {
+
+	settings.beginGroup(objectName());
+
+	settings.endGroup();
+}
+
+
 void PageViewport::saveSettings(QSettings& settings) const {
 
 	settings.beginGroup(objectName());
 
 	settings.endGroup();
+}
+
+void PageViewport::mouseDoubleClickEvent(QMouseEvent * event) {
+
+	selectRegion(event);
+	//nmc::DkPluginViewPort::mouseDoubleClickEvent(event);
 }
 
 void PageViewport::mousePressEvent(QMouseEvent * event) {
@@ -96,29 +111,29 @@ void PageViewport::mousePressEvent(QMouseEvent * event) {
 
 void PageViewport::mouseReleaseEvent(QMouseEvent * event) {
 
-	const rdf::RegionManager& rm = rdf::RegionManager::instance();
 
 	if (event->button() == Qt::LeftButton && mPageData->page() && event->modifiers() == Qt::ControlModifier) {
-		QPointF p = mapToImage(event->pos());
-		QVector<QSharedPointer<rdf::Region> > sr = 
-			rm.regionsAt(mPageData->page()->rootRegion(), p.toPoint(), mPageData->config());
-		
-		// select the region
-		rm.selectRegions(sr, mPageData->page()->rootRegion());
-		emit selectRegionsSignal(sr);
-		update();
-
-		qDebug() << "#regions:" << sr.size() << "point:" << p;
+		selectRegion(event);
 	}
 	
 	nmc::DkPluginViewPort::mouseReleaseEvent(event);
 }
 
-void PageViewport::loadSettings(QSettings& settings) {
+void PageViewport::selectRegion(QMouseEvent * event) {
 
-	settings.beginGroup(objectName());
-	
-	settings.endGroup();
+	const rdf::RegionManager& rm = rdf::RegionManager::instance();
+
+	QPointF p = mapToImage(event->pos());
+	QVector<QSharedPointer<rdf::Region> > sr = 
+		rm.regionsAt(mPageData->page()->rootRegion(), p.toPoint(), mPageData->config());
+
+	// select the region
+	rm.selectRegions(sr, mPageData->page()->rootRegion());
+	emit selectRegionsSignal(sr);
+	update();
+
+	qDebug() << "#regions:" << sr.size() << "point:" << p;
+
 }
 
 void PageViewport::updateImageContainer(QSharedPointer<nmc::DkImageContainerT> imgC) {
@@ -176,8 +191,11 @@ void PageViewport::paintEvent(QPaintEvent* event) {
 		if (mWorldMatrix)
 			painter.setWorldTransform((*mImgMatrix) * (*mWorldMatrix));	// >DIR: using both matrices allows for correct resizing [16.10.2013 markus]
 
-		if (mPageData->page() && !mPageData->page()->isEmpty())
-			rdf::RegionManager::instance().drawRegion(painter, mPageData->page()->rootRegion(), mPageData->config());
+		if (mPageData->page() && !mPageData->page()->isEmpty()) {
+			auto root = mPageData->page()->rootRegion();
+			int nSel = root->selectedRegions().size();
+			rdf::RegionManager::instance().drawRegion(painter, root, mPageData->config(), true, nSel > 0);
+		}
 	}
 
 	DkPluginViewPort::paintEvent(event);

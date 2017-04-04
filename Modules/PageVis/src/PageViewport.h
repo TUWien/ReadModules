@@ -72,9 +72,12 @@ private:
 	void loadSettings(QSettings& settings);
 	void saveSettings(QSettings& settings) const;
 
+	void mouseDoubleClickEvent(QMouseEvent* event) override;
 	void mousePressEvent(QMouseEvent* event) override;
 	void mouseReleaseEvent(QMouseEvent* event) override;
 	void paintEvent(QPaintEvent* event) override;
+
+	void selectRegion(QMouseEvent* event);
 
 	PageDock* mPageDock = 0;
 	PageData* mPageData = 0;

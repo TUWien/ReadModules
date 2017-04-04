@@ -185,7 +185,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		QVector<rdf::Line> hLines;
 		QVector<rdf::Line> vLines;
 
-		QVector<QSharedPointer<rdf::Region>> test = rdf::Region::allRegions(pe->rootRegion());// pe->rootRegion()->children();
+		QVector<QSharedPointer<rdf::Region>> test = pe->rootRegion()->allRegions();
 		//QVector<rdf::TableCell> cells;
 		QVector<QSharedPointer<rdf::TableCell>> cells;
 

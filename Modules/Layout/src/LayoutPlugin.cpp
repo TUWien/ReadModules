@@ -364,7 +364,7 @@ cv::Mat LayoutPlugin::computePageSegmentation(const cv::Mat & src, const rdf::Pa
 	
 	// if available, get informaton from existing xmls
 	auto pe = parser.page();
-	QVector<QSharedPointer<rdf::Region> > separators = rdf::Region::filter(pe->rootRegion(), rdf::Region::type_separator);
+	QVector<QSharedPointer<rdf::Region> > separators = rdf::Region::filter(pe->rootRegion().data(), rdf::Region::type_separator);
 	QVector<rdf::Line> separatingLines;
 	for (auto s : separators) {
 
@@ -372,6 +372,7 @@ cv::Mat LayoutPlugin::computePageSegmentation(const cv::Mat & src, const rdf::Pa
 		if (sc)
 			separatingLines << sc->line();
 	}
+
 	qInfo() << "I found" << separatingLines.size() << "separators in the XML";
 
 	cv::Mat img = src.clone();
