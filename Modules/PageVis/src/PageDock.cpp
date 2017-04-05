@@ -925,7 +925,7 @@ void RegionEditWidget::createLayout() {
 
 void RegionEditWidget::setRegions(const QVector<QSharedPointer<rdf::Region>>& regions, int idx) {
 
-	mSelectedRegion = 0;
+	mSelectedRegion = QSharedPointer<rdf::Region>();
 
 	for (auto r : regions) {
 
