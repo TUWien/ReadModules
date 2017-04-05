@@ -51,6 +51,7 @@ class QSettings;
 class QCheckBox;
 class QSpinBox;
 class QMimeData;
+class QRadioButton;
 
 namespace rdf {
 	class RegionTypeConfig;
@@ -281,6 +282,7 @@ public slots:
 	void setRegions(const QVector<QSharedPointer<rdf::Region> >& regions, int idx = -1);
 	void on_regionCombo_currentTextChanged(const QString& text);
 	void toggleAddRegion(bool add);
+	void buttonClicked();	// apa-it tagging
 
 signals:
 	void updateSignal() const;
@@ -289,14 +291,27 @@ signals:
 
 protected:
 	void createLayout();
-
+	void paintEvent(QPaintEvent* event) override;
+	
 	QComboBox* mRegionCombo;
 	QPushButton* mAddButton;
 	QPushButton* mDeleteButton;
 
+	// apa-it tagging ----------------------
+	QVector<QRadioButton*> mButtons;
+
+	enum Type {
+		type_chart,
+		type_table,
+		type_other,
+
+		type_end
+	};
+	// apa-it tagging ----------------------
+
 	QVector<QSharedPointer<rdf::RegionTypeConfig> > mRegionTypes;
 	QSharedPointer<rdf::Region> mSelectedRegion;
-
+	
 	void showWidgets();
 	void updateWidgets();
 };

@@ -56,6 +56,10 @@
 #include <QMimeData>
 #include <QCompleter>
 #include <QDirModel>
+// apa-it tagging ----------------------
+#include <QRadioButton>
+#include <QButtonGroup>
+// apa-it tagging ----------------------
 #pragma warning(pop)
 
 namespace rdm {
@@ -860,12 +864,14 @@ RegionEditWidget::RegionEditWidget(QWidget* parent) : QWidget(parent) {
 	setObjectName("infoWidget");
 	createLayout();
 	QMetaObject::connectSlotsByName(this);
+	setStyleSheet(PageDock::widgetStyle);
 }
 
 void RegionEditWidget::createLayout() {
 
 	mRegionCombo = new QComboBox(this);
 	mRegionCombo->setObjectName("regionCombo");
+	mRegionCombo->setStyleSheet(PageDock::smallComboStyle);
 
 	QIcon icon = nmc::DkImage::loadIcon(":/nomacs/img/plus.svg");
 	mAddButton = new QPushButton(icon, tr(""), this);
@@ -878,16 +884,38 @@ void RegionEditWidget::createLayout() {
 	mDeleteButton->setObjectName("deleteButton");
 	mDeleteButton->setFlat(true);
 
+	// apa-it tagging ----------------------
+	mButtons.resize(type_end);
+	mButtons[type_chart] = new QRadioButton(tr("Chart"), this);
+	mButtons[type_table] = new QRadioButton(tr("Table"), this);
+	mButtons[type_other] = new QRadioButton(tr("Other"), this);
+
+	QButtonGroup* bg = new QButtonGroup(this);
+	for (auto b : mButtons)
+		bg->addButton(b);
+	// apa-it tagging ----------------------
+
 	QWidget* buttonWidget = new QWidget(this);
 	QHBoxLayout* buttonLayout = new QHBoxLayout(buttonWidget);
 	buttonLayout->setContentsMargins(0, 0, 0, 0);
+	buttonLayout->setSpacing(0);
+	buttonLayout->setAlignment(Qt::AlignLeft);
 	buttonLayout->addWidget(mAddButton);
 	buttonLayout->addWidget(mDeleteButton);
-	buttonLayout->addStretch();
 
 	QVBoxLayout* layout = new QVBoxLayout(this);
-	layout->addWidget(mRegionCombo);
 	layout->addWidget(buttonWidget);
+	layout->addWidget(mRegionCombo);
+
+	// apa-it tagging ----------------------
+	for (auto b : mButtons) {
+		bg->addButton(b);
+		layout->addWidget(b);
+		connect(b, SIGNAL(clicked()), this, SLOT(buttonClicked()));
+
+		b->hide();	// uncomment to show the chart buttons
+	}
+	// apa-it tagging ----------------------
 
 	connect(mDeleteButton, SIGNAL(clicked()), this, SIGNAL(deleteSelectedSignal()));
 	connect(mAddButton, SIGNAL(clicked(bool)), this, SIGNAL(addRegionSignal(bool)));
@@ -909,6 +937,15 @@ void RegionEditWidget::setRegions(const QVector<QSharedPointer<rdf::Region>>& re
 
 	if (mSelectedRegion) {
 		mRegionCombo->setCurrentText(rdf::RegionManager::instance().typeName(mSelectedRegion->type()));
+
+		// apa-it tagging ----------------------
+		if (mSelectedRegion->type() == rdf::Region::type_chart)
+			mButtons[type_chart]->setChecked(true);
+		else if (mSelectedRegion->type() == rdf::Region::type_table_region)
+			mButtons[type_table]->setChecked(true);
+		else
+			mButtons[type_other]->setChecked(true);
+		// apa-it tagging ----------------------
 	}
 	
 	showWidgets();
@@ -924,6 +961,27 @@ void RegionEditWidget::on_regionCombo_currentTextChanged(const QString & text) {
 	}
 
 }
+
+// apa-it tagging ----------------------
+void RegionEditWidget::buttonClicked() {
+
+	QWidget* w = dynamic_cast<QWidget*>(QObject::sender());
+
+	if (!w)
+		return;
+
+	if (w == mButtons[type_chart]) {
+		mRegionCombo->setCurrentText(rdf::RegionManager::instance().typeName(rdf::Region::type_chart));
+	}
+	else if (w == mButtons[type_table]) {
+		mRegionCombo->setCurrentText(rdf::RegionManager::instance().typeName(rdf::Region::type_table_region));
+	}
+	if (w == mButtons[type_other]) {
+		mRegionCombo->setCurrentText(rdf::RegionManager::instance().typeName(rdf::Region::type_text_region));
+	}
+
+}
+// apa-it tagging ----------------------
 
 void RegionEditWidget::toggleAddRegion(bool add) {
 	mAddButton->setChecked(add);
@@ -946,6 +1004,18 @@ void RegionEditWidget::setRegionTypes(const QVector<QSharedPointer<rdf::RegionTy
 	mRegionTypes = configs;
 	updateWidgets();
 }
+
+void RegionEditWidget::paintEvent(QPaintEvent* event) {
+
+	// fixes stylesheets which are not applied to custom widgets
+	QStyleOption opt;
+	opt.init(this);
+	QPainter p(this);
+	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+
+	QWidget::paintEvent(event);
+}
+
 
 // PageDock --------------------------------------------------------------------
 PageDock::PageDock(PageData* pageData, const QString& title, QWidget* parent) : nmc::DkDockWidget(title, parent) {
