@@ -231,6 +231,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 		std::sort(cells.begin(), cells.end());
 
+
 		QImage result = rdf::Image::mat2QImage(imgIn);
 
 		QPainter myPainter(&result);
@@ -333,6 +334,11 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		
 		//formF.setTemplateName(mLineTemplPath);
 		formF.setTemplateName(mFormConfig.templDatabase());
+		//check if is meant that way!!!
+		//mFormConfig.distThreshold();
+		QSharedPointer<rdf::FormFeaturesConfig> tmpConfig(new rdf::FormFeaturesConfig());
+		(*tmpConfig) = mFormConfig;
+		formF.setConfig(tmpConfig);
 
 		//rdf::FormFeatures formTemplate;
 		QSharedPointer<rdf::FormFeatures> formTemplate(new rdf::FormFeatures());
@@ -367,8 +373,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 			qDebug() << "Match template...";
 			formF.matchTemplate();
-
-
+			
 			resultImg = formF.drawLinesNotUsedForm(drawImg);
 			cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
 			result = rdf::Image::mat2QImage(resultImg);
