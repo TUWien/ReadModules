@@ -81,7 +81,7 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 
 	menuNames[id_layout]			= tr("Layout Analysis");
 	//menuNames[id_text_block]		= tr("Page Segmentation");
-	menuNames[id_lines]				= tr("Detect Lines");
+	menuNames[id_lines]				= tr("Detect Separator Lines");
 	menuNames[id_layout_collect_features] = tr("Collect Layout Features");
 	menuNames[id_layout_train]		= tr("Train Layout");
 	mMenuNames = menuNames.toList();
