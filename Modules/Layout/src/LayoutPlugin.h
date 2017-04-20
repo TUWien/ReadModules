@@ -36,6 +36,7 @@ related links:
 #include "LineTrace.h"
 #include "SuperPixelTrainer.h"
 #include "SuperPixelClassification.h"
+#include "LayoutAnalysis.h"
 
 // opencv defines
 namespace cv {
@@ -131,6 +132,7 @@ protected:
 	rdf::LineTraceConfig mLTRConfig;
 	rdf::SuperPixelLabelerConfig mSplConfig;
 	rdf::SuperPixelClassifierConfig mSpcConfig;
+	rdf::LayoutAnalysisConfig mLAConfig;
 	LayoutConfig mConfig;
 
 	// layout plugin functions

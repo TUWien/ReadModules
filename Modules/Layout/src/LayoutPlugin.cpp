@@ -104,8 +104,12 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 	mConfig.saveDefaultSettings(s);
 	rdf::SuperPixelTrainerConfig spc;
 	spc.saveDefaultSettings(s);
-
+	
 	rdf::SuperPixelLabelerConfig splc;
+	splc.saveDefaultSettings(s);
+
+	rdf::LayoutAnalysisConfig lac;
+	lac.saveDefaultSettings(s);
 
 	s.endGroup();
 }
@@ -158,6 +162,7 @@ void LayoutPlugin::saveSettings(QSettings & settings) const {
 	mConfig.saveSettings(settings);
 	mSplConfig.saveSettings(settings);
 	mSpcConfig.saveSettings(settings);
+	mLAConfig.saveSettings(settings);
 	//mLTRConfig.saveSettings(settings);
 	settings.endGroup();
 }
@@ -169,6 +174,7 @@ void LayoutPlugin::loadSettings(QSettings & settings) {
 	mConfig.loadSettings(settings);
 	mSplConfig.loadSettings(settings);
 	mSpcConfig.loadSettings(settings);
+	mLAConfig.loadSettings(settings);
 	//mLTRConfig.loadSettings(settings);
 	settings.endGroup();
 }
@@ -329,6 +335,7 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src, rdf::PageXmlParser & parser) 
 
 	// compute layout analysis
 	rdf::LayoutAnalysis la(img);
+	la.setConfig(QSharedPointer<rdf::LayoutAnalysisConfig>(new rdf::LayoutAnalysisConfig(mLAConfig)));
 	la.setRootRegion(pe->rootRegion());
 
 	if (!la.compute())
@@ -341,7 +348,9 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src, rdf::PageXmlParser & parser) 
 
 	auto root = la.textBlockSet().toTextRegion();
 	for (const QSharedPointer<rdf::Region>& r : root->children()) {
-		pe->rootRegion()->addUniqueChild(r, true);	// true -> update
+		
+		if (!pe->rootRegion()->reassignChild(r))
+			pe->rootRegion()->addUniqueChild(r, true);	// true -> update
 	}
 
 	qInfo() << "layout analysis computed in" << dt;
