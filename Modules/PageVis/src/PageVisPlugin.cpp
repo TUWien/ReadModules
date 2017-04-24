@@ -97,28 +97,43 @@ QSharedPointer<nmc::DkImageContainer> PageVisPlugin::runPlugin(const QString &ru
 	return imgC;
 }
 
-nmc::DkPluginViewPort * PageVisPlugin::getViewPort() {
+bool PageVisPlugin::createViewPort(QWidget* parent) {
 	
 	if (!mViewport) {
-		PageViewport* vp = new PageViewport();
-
-		// open dock
-		QMainWindow* win = getMainWindow();
-		PageDock* dock = vp->dock();
-		win->addDockWidget(dock->getDockLocationSettings(Qt::RightDockWidgetArea), dock);
-
-		mViewport = vp;
+		mViewport = new PageViewport(parent);
 	}
 
+	return true;
+}
+
+nmc::DkPluginViewPort * PageVisPlugin::getViewPort() {
 	return mViewport;
 }
 
-void PageVisPlugin::deleteViewPort() {
+PageViewport * PageVisPlugin::getPageViewPort() {
+	return dynamic_cast<PageViewport*>(mViewport);
+}
 
-	//if (mViewport) {
-	//	delete mViewport;
-	//	mViewport = 0;
+void PageVisPlugin::setVisible(bool visible) {
+
+	// should not happen
+	if (!mViewport)
+		return;
+
+	if (visible) {
+
+		// open dock
+		QMainWindow* win = getMainWindow();
+
+		PageDock* dock = getPageViewPort()->dock();
+		dock->setVisible(true);
+		win->addDockWidget(dock->getDockLocationSettings(Qt::RightDockWidgetArea), dock);
+	}
+	//else {
+	//	getPageViewPort()->close();
 	//}
+
+	mViewport->setVisible(visible);
 }
 
 };

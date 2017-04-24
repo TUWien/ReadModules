@@ -28,6 +28,8 @@
 
 namespace rdm {
 
+class PageViewport;
+
 class PageVisPlugin : public QObject, nmc::DkViewPortInterface {
 	Q_OBJECT
 	Q_INTERFACES(nmc::DkViewPortInterface)
@@ -44,8 +46,11 @@ public:
 
 	QSharedPointer<nmc::DkImageContainer> runPlugin(const QString &runID = QString(), QSharedPointer<nmc::DkImageContainer> imgC = QSharedPointer<nmc::DkImageContainer>()) const override;
 
-	nmc::DkPluginViewPort* getViewPort();
-	void deleteViewPort();
+	bool createViewPort(QWidget* parent) override;
+	nmc::DkPluginViewPort* getViewPort() override;
+	PageViewport* getPageViewPort();
+
+	void setVisible(bool visible) override;
 
 private:
 	nmc::DkPluginViewPort* mViewport = 0;

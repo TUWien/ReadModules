@@ -271,7 +271,6 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 	else if (runID == mRunIDs[id_lines]) {
 		
 		rdf::LineTrace lt = computeLines(imgC);
-
 		QVector<rdf::Line> alllines = lt.getLines();
 
 		//save lines to xml
@@ -291,14 +290,11 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 		if (mConfig.drawResults()) {
 			cv::Mat synLine = lt.generatedLineImage();
 
-			//visualize
-			if (mConfig.drawResults()) {
-				if (synLine.channels() == 1)
-					cv::cvtColor(synLine, synLine, CV_GRAY2BGRA);
+			if (synLine.channels() == 1)
+				cv::cvtColor(synLine, synLine, CV_GRAY2BGRA);
 
-				QImage img = nmc::DkImage::mat2QImage(synLine);
-				imgC->setImage(img, tr("Lines Detected"));
-			}
+			QImage img = nmc::DkImage::mat2QImage(synLine);
+			imgC->setImage(img, tr("Lines Detected"));
 		}
 	}
 	else if (runID == mRunIDs[id_layout_collect_features]) {
