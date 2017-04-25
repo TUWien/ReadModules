@@ -35,6 +35,7 @@
 #include "Settings.h"
 
 #include "Utils.h"
+#include "Algorithms.h"
 
 #pragma warning(push, 0)	// no warnings from includes - begin
 #include <QAction>
@@ -276,18 +277,45 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 			return imgC;
 		}
 
-		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
-		rdf::WriterImage wi = rdf::WriterImage();
-		wi.setImage(imgCv);
-		wi.calculateFeatures();
-		wi.filterKeyPoints(mVocabulary.minimumSIFTSize(), mVocabulary.maximumSIFTSize());
-		cv::Mat feature = mVocabulary.generateHist(wi.descriptors());
 
 		QString label = extractWriterIDFromFilename(QFileInfo(imgC->filePath()).baseName());
 
 		QSharedPointer<WIInfo> wInfo(new WIInfo(runID, imgC->filePath()));
 		wInfo->setWriter(label);
-		wInfo->setFeatureFilePath("");
+		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
+
+		rdf::WriterImage wi = rdf::WriterImage();
+
+		QString fFilePath = featureFilePath(imgC->filePath());
+		if(QFileInfo(fFilePath).exists()) { // check if feature file exists
+			cv::FileStorage fs(fFilePath.toStdString(), cv::FileStorage::READ);
+			if(!fs.isOpened()) {
+				qWarning() << " unable to read file " << fFilePath;
+				return imgC;
+			}
+			std::vector<cv::KeyPoint> kp;
+			fs["keypoints"] >> kp;
+			cv::Mat descriptors;
+			fs["descriptors"] >> descriptors;
+			fs.release();
+
+			
+			wi.setImage(imgCv);
+			wi.setKeyPoints(QVector<cv::KeyPoint>::fromStdVector(kp));
+			wi.setDescriptors(descriptors);
+			wi.filterKeyPoints(mVocabulary.minimumSIFTSize(), mVocabulary.maximumSIFTSize());
+			wInfo->setFeatureFilePath(fFilePath);
+		}
+		else { // calculate new features
+			wi.setImage(imgCv);
+			wi.calculateFeatures();
+			wi.filterKeyPoints(mVocabulary.minimumSIFTSize(), mVocabulary.maximumSIFTSize());
+
+			wInfo->setFeatureFilePath("");
+		}
+		cv::Mat feature = mVocabulary.generateHist(wi.descriptors());
+
+
 		wInfo->setFeatureVector(feature);
 
 		info = wInfo;
@@ -402,13 +430,36 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 		rdf::WriterImage wi = rdf::WriterImage();
 		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
 		wi.setImage(imgCv);
+		cv::Mat labels, stats, centroids, imgCvBin;
+		cv::cvtColor(imgCv, imgCvBin, CV_RGB2GRAY);
+		rdf::Image::imageInfo(imgCv, "imgCv");
+		rdf::Image::imageInfo(imgCvBin, "imgCvBin");
+		
+		bitwise_not(imgCvBin, imgCvBin);
+		cv::connectedComponentsWithStats(imgCvBin, labels, stats, centroids);
+		std::cout << stats;
+		QList<int> heights;
+		for(int i = 0; i < stats.rows; i++)
+			heights.push_back(stats.at<int>(i, cv::CC_STAT_HEIGHT));
+
+		double height = rdf::Algorithms::statMoment(heights, 0.9);
+		qDebug() << "height:" << height;
 		wi.calculateFeatures();
 		cv::cvtColor(imgCv, imgCv, CV_RGB2GRAY);
 		QVector<cv::KeyPoint> kp = wi.keyPoints();
+		cv::Mat allDesc = wi.descriptors();
+		cv::Mat desc(0, allDesc.cols, allDesc.type());
+
 		QVector<QImage> patches;
 		QRect oldRect;
 		for(int i = 0; i < kp.length(); i++) {
-			int rectSize = 64;
+			//int rectSize = 64;
+			int rectSize = kp[i].size*1.5*4;
+			if(rectSize > 70)
+				continue;
+			if(rectSize < 32)
+				continue;
+
 			int threshBorder = 16;
 			int threshold = 20;
 
@@ -417,17 +468,18 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 			point.setY(point.y() - rectSize / 2);
 			QRect rect = QRect(point.toPoint(), QSize(rectSize, rectSize));
 			QImage img = imgC->image().copy(rect);
-
+			img = img.scaled(64, 64);
 			QRect threshRect = QRect(QPoint(threshBorder, threshBorder), QPoint(rectSize - threshBorder, rectSize - threshBorder));
 			QImage tmpImg = img.copy(threshRect);
 			cv::Scalar sum = cv::sum(nmc::DkImage::qImage2Mat(tmpImg));
-			if(sum[0] / 255.0f > tmpImg.width()*tmpImg.height() - 20) {
-				qDebug() << "sum exceeds threshold";
-				continue;
-			}
+			//if(sum[0] / 255.0f > tmpImg.width()*tmpImg.height() - 20) {
+			//	qDebug() << "sum exceeds threshold";
+			//	continue;
+			//}
 
 			if(rect != oldRect) {
 				patches.push_back(img);
+				desc.push_back(allDesc.row(i));
 			}
 			oldRect = rect;
 		}
@@ -449,6 +501,22 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 			qw.write(patches[i]);
 		}
 
+		
+		
+		QFile file(patchDir.absolutePath()+"/desc.txt");
+		if(file.open(QIODevice::WriteOnly)) {
+			QTextStream stream(&file);
+			for(int k = 0; k < desc.rows; k++) {
+				const float* curRow = desc.ptr<float>(k);
+				for(int j = 0; j < desc.cols; j++)
+					stream << curRow[j] << " ";
+				stream << "\n";
+			}
+
+		}
+		file.close();
+
+
 
 
 	}
@@ -462,7 +530,7 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 		//double ratio = 0.95;
 
 		int patchSize = 64;
-		int patchNumber = 2067;
+		int patchNumber = 2000;
 		double ratio = 0.85;
 
 
@@ -645,6 +713,7 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 		}
 
 		wiDatabase.evaluateDatabase(hists, classLabels, featurePaths, evalFile);
+		qDebug() << "writing competition file to:" << "c:/tmp/comp.csv";
 		wiDatabase.writeCompetitionEvaluationFile(hists, imageNames, "c:/tmp/comp.csv");
 		if(!mEvalFile.isEmpty())
 			qDebug() << "evaluation written to " << evalFile;
