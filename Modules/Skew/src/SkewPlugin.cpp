@@ -40,6 +40,7 @@ related links:
 #include "SkewEstimation.h"
 #include "Image.h"
 #include "Algorithms.h"
+#include "GraphCut.h"
 
 // skew textline
 #include "SuperPixel.h"

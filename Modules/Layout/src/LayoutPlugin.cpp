@@ -46,6 +46,7 @@ related links:
 #include "SuperPixelTrainer.h"
 #include "SuperPixelClassification.h"
 #include "Settings.h"
+#include "GraphCut.h"
 
 #include "LayoutAnalysis.h"
 
@@ -533,7 +534,9 @@ rdf::LineTrace LayoutPlugin::computeLines(QSharedPointer<nmc::DkImageContainer> 
 bool LayoutPlugin::train() const {
 
 	rdf::SuperPixelTrainerConfig spc;
-	spc.loadSettings();
+	settings().beginGroup(name());
+	spc.loadSettings(settings());
+	settings().endGroup();
 
 	rdf::FeatureCollectionManager fcm;
 
