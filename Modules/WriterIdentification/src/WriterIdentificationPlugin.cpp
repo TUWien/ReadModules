@@ -437,12 +437,12 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 		
 		bitwise_not(imgCvBin, imgCvBin);
 		cv::connectedComponentsWithStats(imgCvBin, labels, stats, centroids);
-		std::cout << stats;
 		QList<int> heights;
 		for(int i = 0; i < stats.rows; i++)
 			heights.push_back(stats.at<int>(i, cv::CC_STAT_HEIGHT));
 
 		double height = rdf::Algorithms::statMoment(heights, 0.9);
+		height += height * 0.2;
 		qDebug() << "height:" << height;
 		wi.calculateFeatures();
 		cv::cvtColor(imgCv, imgCv, CV_RGB2GRAY);
@@ -453,13 +453,14 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 		QVector<QImage> patches;
 		QRect oldRect;
 		for(int i = 0; i < kp.length(); i++) {
+			int rectSize = height;
 			//int rectSize = 64;
-			int rectSize = kp[i].size*1.5*4;
-			if(rectSize > 70)
-				continue;
-			if(rectSize < 32)
-				continue;
-
+			//int rectSize = kp[i].size*1.5*4;
+			//if(rectSize > 70)
+			//	continue;
+			//if(rectSize < 32)
+			//	continue;
+			
 			int threshBorder = 16;
 			int threshold = 20;
 
@@ -473,9 +474,10 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 			QImage tmpImg = img.copy(threshRect);
 			cv::Scalar sum = cv::sum(nmc::DkImage::qImage2Mat(tmpImg));
 			//if(sum[0] / 255.0f > tmpImg.width()*tmpImg.height() - 20) {
-			//	qDebug() << "sum exceeds threshold";
-			//	continue;
-			//}
+			if ((sum[0] / 255.0f) / (tmpImg.width()*tmpImg.height()) > 0.99) {
+				qDebug() << "sum exceeds threshold";
+				continue;
+			}
 
 			if(rect != oldRect) {
 				patches.push_back(img);
