@@ -38,7 +38,7 @@
 #include "DkSettings.h"
 
 // read includes
-//#include "Settings.h"
+#include "Drawer.h"
 #include "ElementsHelper.h"
 #include "PageParser.h"
 #include "Utils.h"
