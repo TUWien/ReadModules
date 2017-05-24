@@ -56,16 +56,30 @@ public:
 
 	virtual QString toString() const override;
 
+	QString validatorLog() const;
 	QString filterName() const;
 	QVector<QSharedPointer<rdf::RegionTypeConfig> > xmlConfig() const;
 
 protected:
 
+	QString mValidatorLog;					// filepath to the XML validator log file
 	QString mFilterName = "TextRegion";
 	QVector<QSharedPointer<rdf::RegionTypeConfig> > mXmlConfig;
 
 	void load(const QSettings& settings) override;
 	void save(QSettings& settings) const override;
+};
+
+class PageXmlInfo : public nmc::DkBatchInfo {
+
+public:
+	PageXmlInfo(const QString& id = QString(), const QString& filePath = QString());
+
+	void setStatus(const QString& str);
+	QString status() const;
+
+private:
+	QString mStatus;	// status report for validate XML
 };
 
 
@@ -89,7 +103,7 @@ public:
 		QSharedPointer<nmc::DkBatchInfo>& batchInfo) const override;
 
 	virtual void preLoadPlugin() const override {};
-	virtual void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> > &) const override {};
+	virtual void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> > &) const override;
 	
 	// settings
 	virtual QSettings& settings() const override;
@@ -100,6 +114,7 @@ public:
 	enum {
 		id_page_filter,
 		id_page_drawer,
+		id_page_validator,
 		// add actions here
 
 		id_end

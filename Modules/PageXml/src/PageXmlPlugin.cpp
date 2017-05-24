@@ -45,7 +45,7 @@ related links:
 #pragma warning(push, 0)	// no warnings from includes - begin
 #include <QAction>
 #include <QUuid>
-#include <opencv2/ml/ml.hpp>
+#include <QStandardPaths>
 #pragma warning(pop)		// no warnings from includes - end
 
 namespace rdm {
@@ -67,6 +67,7 @@ PageXmlPlugin::PageXmlPlugin(QObject* parent) : QObject(parent) {
 
 	menuNames[id_page_filter]		= tr("Filter Regions");
 	menuNames[id_page_drawer]		= tr("Draw Regions");
+	menuNames[id_page_validator]	= tr("Validate PAGE XMLs");
 	mMenuNames = menuNames.toList();
 
 	// create menu status tips
@@ -75,6 +76,7 @@ PageXmlPlugin::PageXmlPlugin(QObject* parent) : QObject(parent) {
 
 	statusTips[id_page_filter]		= tr("Removes all PAGE elements except for the one specified in filterName");
 	statusTips[id_page_drawer]		= tr("Draws the PAGE XML regions to the image using your last settings");
+	statusTips[id_page_validator]	= tr("Checks if the image has a valid PAGE Xml");
 	mMenuStatusTips = statusTips.toList();
 
 	// save settings
@@ -88,6 +90,59 @@ PageXmlPlugin::PageXmlPlugin(QObject* parent) : QObject(parent) {
 PageXmlPlugin::~PageXmlPlugin() {
 
 	qDebug() << "destroying page xml plugin...";
+}
+
+void PageXmlPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const {
+
+	if (batchInfo.empty())
+		return;
+
+	if (batchInfo.first()->id() == mRunIDs[id_page_validator]) {
+
+		QString logPath(mConfig.validatorLog());
+
+		// create default log path
+		if (logPath.isEmpty()) {
+			QString td = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
+			QString ts = QDateTime::currentDateTime().toString("yyyy-MM-dd HH-mm-ss");
+			QString fn = tr("xml-validator-log-") + ts + ".txt";
+			logPath = QFileInfo(td, fn).absoluteFilePath();
+		}
+
+		QFile fh(logPath);
+
+		if (!fh.open(QIODevice::WriteOnly | QIODevice::Append)) {
+			qWarning() << "could not save log to" << logPath;
+			return;
+		}
+
+		qInfo() << "validator report -----------------------------------------------";
+		QTextStream fs(&fh);
+
+		int errCnt = 0;
+
+		for (auto bi : batchInfo) {
+
+			auto li = qSharedPointerDynamicCast<PageXmlInfo>(bi);
+
+			if (li) {
+				QString s = li->status();
+				QString sy = li->filePath() + "\t- " + s;
+
+				if (!s.isEmpty()) {
+					fs << sy << "\n";
+					errCnt++;
+				}
+
+				qInfo() << sy;
+			}
+		}
+
+		fs << errCnt << "/" << batchInfo.size() << "errored\n";
+
+
+		qInfo() << "validator report written to" << logPath;
+	}
 }
 
 QSettings & PageXmlPlugin::settings() const {
@@ -194,6 +249,40 @@ QSharedPointer<nmc::DkImageContainer> PageXmlPlugin::runPlugin(
 
 		imgC->setImage(img, tr("PAGE Attributes"));
 	}
+	else if (runID == mRunIDs[id_page_validator]) {
+
+		QSharedPointer<PageXmlInfo> xmlInfo(new PageXmlInfo(runID, imgC->filePath()));
+		
+		// if everything is fine - check if the dimensions are there...
+		if (parser.loadStatus() == rdf::PageXmlParser::status_ok) {
+
+			if (parser.page()->imageSize() != imgC->image().size()) {
+				xmlInfo->setStatus("ERROR page exists, but image size is wrong");
+				imgC->clear();	// indicate the error
+			}
+			// uncomment if you want to find all 'ok'
+			//else
+			//	xmlInfo->setStatus("OK");
+		}
+		// fix empty plugins
+		else if (parser.loadStatus() == rdf::PageXmlParser::status_file_empty) {
+
+			// set minimally required values
+			parser.page()->setImageFileName(imgC->fileName());
+			parser.page()->setImageSize(imgC->image().size());
+
+			// save xml
+			parser.write(loadXmlPath, parser.page());
+			xmlInfo->setStatus("XML fixed");
+		}
+		else {
+
+			xmlInfo->setStatus(parser.loadStatusMessage());
+			imgC->clear();	// indicate the error
+		}
+
+		batchInfo = xmlInfo;
+	}
 
 	// wrong runID? - do nothing
 	return imgC;
@@ -235,6 +324,10 @@ QString PageXmlConfig::toString() const {
 	return msg;
 }
 
+QString PageXmlConfig::validatorLog() const {
+	return mValidatorLog;
+}
+
 QString PageXmlConfig::filterName() const {
 	return mFilterName;
 }
@@ -246,6 +339,7 @@ QVector<QSharedPointer<rdf::RegionTypeConfig>> rdm::PageXmlConfig::xmlConfig() c
 void PageXmlConfig::load(const QSettings & settings) {
 
 	mFilterName = settings.value("filterName", mFilterName).toString();
+	mValidatorLog = settings.value("validatorLogFilePath", mValidatorLog).toString();
 
 	// highjack the page vis plugin
 	QSettings& s = rdf::Config::instance().settings();
@@ -269,6 +363,19 @@ void PageXmlConfig::load(const QSettings & settings) {
 void PageXmlConfig::save(QSettings & settings) const {
 
 	settings.setValue("filterName", mFilterName);
+	settings.setValue("validatorLogFilePath", mValidatorLog);
+}
+
+// PageXmlInfo --------------------------------------------------------------------
+PageXmlInfo::PageXmlInfo(const QString & id, const QString & filePath) : nmc::DkBatchInfo(id, filePath) {
+}
+
+void PageXmlInfo::setStatus(const QString & str) {
+	mStatus = str;
+}
+
+QString PageXmlInfo::status() const {
+	return mStatus;
 }
 
 };
