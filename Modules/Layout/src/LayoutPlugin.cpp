@@ -337,8 +337,7 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src, rdf::PageXmlParser & parser) 
 
 	if (!la.compute())
 		qWarning() << "could not compute layout analysis";
-
-
+	
 	// write to XML --------------------------------------------------------------------
 	pe->setCreator(QString("CVL"));
 	pe->setImageSize(QSize(img.cols, img.rows));
@@ -358,7 +357,7 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src, rdf::PageXmlParser & parser) 
 		cv::Mat rImg = img.clone();
 
 		// draw whatever you like
-		rImg = la.draw(rImg);
+		rImg = la.draw(rImg, rdf::ColorManager::green());
 
 		return rImg;
 	}
