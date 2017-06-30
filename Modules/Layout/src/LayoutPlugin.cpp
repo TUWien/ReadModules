@@ -324,6 +324,7 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 }
 
 cv::Mat LayoutPlugin::compute(const cv::Mat & src, rdf::PageXmlParser & parser) const {
+	
 
 	rdf::Timer dt;
 
@@ -347,6 +348,14 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src, rdf::PageXmlParser & parser) 
 		
 		if (!pe->rootRegion()->reassignChild(r))
 			pe->rootRegion()->addUniqueChild(r, true);	// true -> update
+	}
+
+	// write stop lines
+	auto seps = la.stopLines();
+	for (auto s : seps) {
+
+		QSharedPointer<rdf::SeparatorRegion> sp(new rdf::SeparatorRegion(s));
+		pe->rootRegion()->addUniqueChild(sp, true);
 	}
 
 	qInfo() << "layout analysis computed in" << dt;
