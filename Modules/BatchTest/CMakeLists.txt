@@ -34,8 +34,6 @@ file(GLOB PLUGIN_SOURCES "src/*.cpp")
 file(GLOB PLUGIN_HEADERS "src/*.h" "${NOMACS_INCLUDE_DIRECTORY}/DkPluginInterface.h")
 file(GLOB PLUGIN_JSON "src/*.json")
 
-RDM_READ_PLUGIN_ID_AND_VERSION()
-
 # uncomment if you want to add the plugin version or id
 # add_definitions(-DPLUGIN_VERSION="${PLUGIN_VERSION}")
 # add_definitions(-DPLUGIN_ID="${PLUGIN_ID}")
@@ -55,7 +53,6 @@ ADD_LIBRARY(${PROJECT_NAME} SHARED ${PLUGIN_SOURCES} ${PLUGIN_MOC_SRC} ${PLUGIN_
 target_link_libraries(${PROJECT_NAME} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTMAIN_LIBRARY} ${OpenCV_LIBS} ${NOMACS_LIBS} ${RDF_LIBS})
 source_group("Generated Files" FILES ${RDF_RC} ${RDF_QM} ${RDF_AUTOMOC})
 
-RDM_GENERATE_PACKAGE_XML(${PLUGIN_JSON})
 RDM_CREATE_TARGETS()
 RDM_GENERATE_USER_FILE()
 
