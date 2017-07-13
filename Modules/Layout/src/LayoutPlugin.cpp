@@ -400,7 +400,7 @@ cv::Mat LayoutPlugin::computePageSegmentation(const cv::Mat & src, const rdf::Pa
 	if (!superPixel.compute())
 		qWarning() << "could not compute super pixel!";
 
-	QVector<QSharedPointer<rdf::Pixel> > sp = superPixel.getSuperPixels();
+	rdf::PixelSet sp = superPixel.pixelSet();
 
 	// find local orientation per pixel
 	rdf::LocalOrientation lo(sp);

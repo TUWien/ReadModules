@@ -119,14 +119,16 @@ macro(RDM_CREATE_TARGETS)
 			set(DC_SCRIPT ${CMAKE_SOURCE_DIR}/cmake/DependencyCollector.py)
 			set(DC_CONFIG ${CMAKE_CURRENT_BINARY_DIR}/DependencyCollector.ini)
 
-			GET_FILENAME_COMPONENT(VS_PATH ${CMAKE_LINKER} PATH)
+			# CMAKE_MAKE_PROGRAM works for VS 2017 too
+			get_filename_component(VS_PATH ${CMAKE_MAKE_PROGRAM} PATH)
 			if(CMAKE_CL_64)
-				SET(VS_PATH "${VS_PATH}/../../../Common7/IDE/Remote Debugger/x64")
+				set(VS_PATH "${VS_PATH}/../../../Common7/IDE/Remote Debugger/x64")
 			else()
-				SET(VS_PATH "${VS_PATH}/../../Common7/IDE/Remote Debugger/x86")
+				set(VS_PATH "${VS_PATH}/../../Common7/IDE/Remote Debugger/x86")
 			endif()
-			SET(DC_PATHS_RELEASE ${OpenCV_DIR}/bin/Release ${QT_QMAKE_PATH} ${VS_PATH} ${ReadFramework_DIR}/Release)
-			SET(DC_PATHS_DEBUG ${OpenCV_DIR}/bin/Debug ${QT_QMAKE_PATH} ${VS_PATH} ${ReadFramework_DIR}/Debug)
+
+			set(DC_PATHS_RELEASE ${OpenCV_DIR}/bin/Release ${QT_QMAKE_PATH} ${VS_PATH} ${ReadFramework_DIR}/Release)
+			set(DC_PATHS_DEBUG ${OpenCV_DIR}/bin/Debug ${QT_QMAKE_PATH} ${VS_PATH} ${ReadFramework_DIR}/Debug)
 
 			configure_file(${CMAKE_SOURCE_DIR}/cmake/DependencyCollector.config.cmake.in ${DC_CONFIG})
 
@@ -181,50 +183,6 @@ macro(RDM_READ_PLUGIN_ID_AND_VERSION)
 		endif()
 	endif()
 endmacro(RDM_READ_PLUGIN_ID_AND_VERSION)
-
-macro(RDM_GENERATE_PACKAGE_XML)
-	set(JSON_FILE ${ARGN})
-
-	# replace DATE_MODIFIED in json file to last cmake run
-	file(STRINGS ${JSON_FILE} date_modified_line REGEX ".*\"DateModified\".*:")
-	file(READ ${JSON_FILE} JSON_CONTENT)
-	string(TIMESTAMP CURRENT_DATE "%Y-%m-%d")
-	string(REPLACE "${date_modified_line}" "\t\"DateModified\"\t: \"${CURRENT_DATE}\"," JSON_CONTENT ${JSON_CONTENT})
-	file(WRITE ${JSON_FILE} ${JSON_CONTENT})
-
-	file(STRINGS ${JSON_FILE} line REGEX ".*\"PluginName\".*:")
-	string(REGEX REPLACE ".*:\ +\"" "" PLUGIN_NAME ${line})
-	string(REGEX REPLACE "\".*" "" PLUGIN_NAME ${PLUGIN_NAME})
-	# message(STATUS "PLUGIN_NAME: ${PLUGIN_NAME}")
-
-	file(STRINGS ${JSON_FILE} line REGEX ".*\"AuthorName\".*:")
-	string(REGEX REPLACE ".*:\ +\"" "" AUTHOR_NAME ${line})
-	string(REGEX REPLACE "\".*" "" AUTHOR_NAME ${AUTHOR_NAME})
-	# message(STATUS "AUTHOR_NAME: ${AUTHOR_NAME}")
-
-	file(STRINGS ${JSON_FILE} line REGEX ".*\"Company\".*:")
-	string(REGEX REPLACE ".*:\ +\"" "" COMPANY_NAME ${line})
-	string(REGEX REPLACE "\".*" "" COMPANY_NAME ${COMPANY_NAME})
-	# message(STATUS "COMPANY_NAME: ${COMPANY_NAME}")
-
-	file(STRINGS ${JSON_FILE} line REGEX ".*\"Tagline\".*:")
-	string(REGEX REPLACE ".*:\ +\"" "" TAGLINE ${line})
-	string(REGEX REPLACE "\".*" "" TAGLINE ${TAGLINE})
-	# message(STATUS "TAGLINE: ${TAGLINE}")
-
-
-	set(XML_CONTENT "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
-	set(XML_CONTENT "${XML_CONTENT}<Package>\n")
-	set(XML_CONTENT "${XML_CONTENT}\t<DisplayName>${PLUGIN_NAME}</DisplayName>\n")
-	set(XML_CONTENT "${XML_CONTENT}\t<Description>${TAGLINE}</Description>\n")
-	set(XML_CONTENT "${XML_CONTENT}\t<Version>${PLUGIN_VERSION}</Version>\n")
-	set(XML_CONTENT "${XML_CONTENT}\t<ReleaseDate>${CURRENT_DATE}</ReleaseDate>\n")
-	set(XML_CONTENT "${XML_CONTENT}\t<Default>true</Default>\n")
-	set(XML_CONTENT "${XML_CONTENT}</Package>\n")
-
-	file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/package.xml ${XML_CONTENT})
-
-endmacro(RDM_GENERATE_PACKAGE_XML)
 
 macro(RDM_GENERATE_USER_FILE)
 	if(MSVC) # create user file only when using Visual Studio

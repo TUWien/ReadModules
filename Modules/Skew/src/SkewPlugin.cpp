@@ -316,8 +316,7 @@ void SkewEstPlugin::saveSettings(QSettings & settings) const
 	settings.endGroup();
 }
 
-void SkewEstPlugin::skewTextLine(QSharedPointer<nmc::DkImageContainer>& imgC, QSharedPointer<SkewInfo>& skewInfo, const QString& runId) const
-{
+void SkewEstPlugin::skewTextLine(QSharedPointer<nmc::DkImageContainer>& imgC, QSharedPointer<SkewInfo>& skewInfo, const QString& runId) const {
 
 	if (!imgC)
 		return;
@@ -330,7 +329,7 @@ void SkewEstPlugin::skewTextLine(QSharedPointer<nmc::DkImageContainer>& imgC, QS
 	if (!superPixel.compute())
 		qWarning() << "could not compute super pixel!";
 
-	QVector<QSharedPointer<rdf::Pixel> > sp = superPixel.getSuperPixels();
+	rdf::PixelSet sp = superPixel.pixelSet();
 
 	// configure local orientation module
 	QSharedPointer<rdf::LocalOrientationConfig> loc(new rdf::LocalOrientationConfig());
@@ -349,7 +348,7 @@ void SkewEstPlugin::skewTextLine(QSharedPointer<nmc::DkImageContainer>& imgC, QS
 	QList<double> angles;
 
 	// get median angle
-	for (auto p : sp) {
+	for (auto p : sp.pixels()) {
 
 		if (!p->stats())
 			continue;
@@ -390,7 +389,7 @@ void SkewEstPlugin::skewTextLine(QSharedPointer<nmc::DkImageContainer>& imgC, QS
 		QPainter p(&oImg);
 		p.setPen(rdf::ColorManager::colors()[1]);
 
-		for (auto px : sp)
+		for (auto px : sp.pixels())
 			px->draw(p, 0.8, rdf::Pixel::DrawFlags()| rdf::Pixel::draw_ellipse | rdf::Pixel::draw_stats);
 
 		QFont font = p.font();
