@@ -392,12 +392,11 @@ void SkewEstPlugin::skewTextLine(QSharedPointer<nmc::DkImageContainer>& imgC, QS
 		for (auto px : sp.pixels())
 			px->draw(p, 0.8, rdf::Pixel::DrawFlags()| rdf::Pixel::draw_ellipse | rdf::Pixel::draw_stats);
 
-		QFont font = p.font();
+		QFont font = p.font();	
 		font.setPointSize(16);
 		p.setFont(font);
 		p.drawText(QPoint(40, 40), tr("angle: %1%2").arg(skewAngle*DK_RAD2DEG).arg(QChar(0x00B0)));
 	}
-
 
 	imgC->setImage(oImg, "Skew corrected");
 

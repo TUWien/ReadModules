@@ -461,15 +461,17 @@ cv::Mat LayoutPlugin::collectFeatures(const cv::Mat & src, const rdf::PageXmlPar
 	qInfo().noquote() << lm.toString();
 
 	// compute super pixels
-	rdf::SuperPixel sp(src);
+	rdf::GridSuperPixel sp(src);
 
 	if (!sp.compute())
 		qCritical() << "could not compute super pixels!";
 
+
 	// feed the label lookup
-	rdf::SuperPixelLabeler spl(sp.getMserBlobs(), rdf::Rect(src));
+	rdf::SuperPixelLabeler spl(sp.pixelSet(), rdf::Rect(src));
 	spl.setLabelManager(lm);
 	spl.setFilePath(layoutInfo->filePath());	// parse filepath for gt
+	spl.setBackgroundLabelName("noise");		// TODO: add to config
 
 	// set the ground truth
 	if (parser.page())
