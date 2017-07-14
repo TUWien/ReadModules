@@ -89,7 +89,7 @@ PageXmlPlugin::PageXmlPlugin(QObject* parent) : QObject(parent) {
 
 PageXmlPlugin::~PageXmlPlugin() {
 
-	qDebug() << "destroying page xml plugin...";
+	//qDebug() << "destroying page xml plugin...";
 }
 
 void PageXmlPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const {
