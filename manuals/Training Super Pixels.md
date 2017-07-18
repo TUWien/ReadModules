@@ -1,6 +1,6 @@
 # SuperPixel Training Guide
-Markus Diem
-_23.10.2016_
+- Markus Diem _23.10.2016_
+- edit _18.07.2017_
 
 # Collect Features
 - Create a label config file and name it e.g. ``config-labels.json``
@@ -45,3 +45,9 @@ that are grouped together to one class
   TIP: you can save the profile...
 
   ...run the batch...
+
+### Background
+You can configure how background regions should be trained.
+- Open `nomacs READ` Plugins > _READ Config_
+  - In _LayoutPlugin > Super Pixel Labeler > backgroundLabelName_ specify the class name (e.g. _noise_)
+  - The entry is empty by default which indicates that background regions are treated as `unknown` and therefore not trained

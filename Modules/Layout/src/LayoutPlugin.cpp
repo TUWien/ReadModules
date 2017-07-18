@@ -85,6 +85,7 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 	menuNames[id_lines]				= tr("Detect Separator Lines");
 	menuNames[id_layout_collect_features] = tr("Collect Layout Features");
 	menuNames[id_layout_train]		= tr("Train Layout");
+	menuNames[id_layout_classify]	= tr("Classify Regions");
 	mMenuNames = menuNames.toList();
 
 	// create menu status tips
@@ -96,6 +97,7 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 	statusTips[id_lines]			= tr("Detects lines using a binary image");
 	statusTips[id_layout_collect_features] = tr("Collects layout features for later training.");
 	statusTips[id_layout_train]		= tr("Train a new model for Layout Analysis.");
+	statusTips[id_layout_classify]	= tr("Classifies regions if a valid model is present.");
 	mMenuStatusTips = statusTips.toList();
 
 	// saved default settings
@@ -108,6 +110,9 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 	
 	rdf::SuperPixelLabelerConfig splc;
 	splc.saveDefaultSettings(s);
+
+	rdf::SuperPixelClassifierConfig spcc;
+	spcc.saveDefaultSettings(s);
 
 	rdf::LayoutAnalysisConfig lac;
 	lac.saveDefaultSettings(s);
@@ -312,6 +317,20 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 
 		batchInfo = layoutInfo;
 	}
+	else if (runID == mRunIDs[id_layout_classify]) {
+
+		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
+
+		QSharedPointer<LayoutInfo> layoutInfo(new LayoutInfo(runID, imgC->filePath()));
+		imgCv = classifyRegions(imgCv, parser, layoutInfo);
+
+		if (mConfig.drawResults()) {
+			QImage img = nmc::DkImage::mat2QImage(imgCv);
+			imgC->setImage(img, tr("Classified Regions"));
+		}
+
+		batchInfo = layoutInfo;
+	}
 
 	// save xml
 	if (mConfig.saveXml()) {
@@ -466,12 +485,13 @@ cv::Mat LayoutPlugin::collectFeatures(const cv::Mat & src, const rdf::PageXmlPar
 	if (!sp.compute())
 		qCritical() << "could not compute super pixels!";
 
-
 	// feed the label lookup
 	rdf::SuperPixelLabeler spl(sp.pixelSet(), rdf::Rect(src));
 	spl.setLabelManager(lm);
 	spl.setFilePath(layoutInfo->filePath());	// parse filepath for gt
-	spl.setBackgroundLabelName("noise");		// TODO: add to config
+	
+	if (!mSplConfig.backgroundLabelName().isEmpty())
+		spl.setBackgroundLabelName(mSplConfig.backgroundLabelName());
 
 	// set the ground truth
 	if (parser.page())
@@ -491,6 +511,46 @@ cv::Mat LayoutPlugin::collectFeatures(const cv::Mat & src, const rdf::PageXmlPar
 		cv::Mat rImg = src.clone();
 		rImg = spl.draw(rImg);
 		//rImg = spf.draw(rImg);
+		return rImg;
+	}
+
+	return src;
+}
+
+cv::Mat LayoutPlugin::classifyRegions(const cv::Mat & src, const rdf::PageXmlParser & parser, QSharedPointer<LayoutInfo>& layoutInfo) const {
+
+	rdf::Timer dt;
+	
+	auto pe = parser.page();
+
+	// start computing --------------------------------------------------------------------
+	rdf::GridSuperPixel gpm(src);
+
+	if (!gpm.compute())
+		qWarning() << "could not compute" << layoutInfo->filePath();
+
+	// read back the model
+	QSharedPointer<rdf::SuperPixelModel> model = rdf::SuperPixelModel::read(mSpcConfig.classifierPath());
+
+	auto f = model->model();
+	if (f && f->isTrained())
+		qDebug() << "the classifier I loaded is trained...";
+	else
+		qCritical() << "illegal classifier found in" << mSpcConfig.classifierPath();
+
+	rdf::SuperPixelClassifier spc(src, gpm.pixelSet());
+	spc.setModel(model);
+
+	if (!spc.compute())
+		qWarning() << "could not classify SuperPixels";
+	
+	// end computing --------------------------------------------------------------------
+
+	qInfo() << "regions classified in" << dt;
+
+	// drawing --------------------------------------------------------------------
+	if (mConfig.drawResults()) {
+		cv::Mat rImg = spc.draw(src);
 		return rImg;
 	}
 

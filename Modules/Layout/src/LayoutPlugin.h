@@ -118,6 +118,7 @@ public:
 		id_lines,
 		id_layout_collect_features,
 		id_layout_train,
+		id_layout_classify,
 		// add actions here
 
 		id_end
@@ -139,6 +140,7 @@ protected:
 	cv::Mat compute(const cv::Mat& src, rdf::PageXmlParser& parser) const;
 	cv::Mat computePageSegmentation(const cv::Mat& src, const rdf::PageXmlParser& parser) const;
 	cv::Mat collectFeatures(const cv::Mat& src, const rdf::PageXmlParser& parser, QSharedPointer<LayoutInfo>& layoutInfo) const;
+	cv::Mat classifyRegions(const cv::Mat& src, const rdf::PageXmlParser& parser, QSharedPointer<LayoutInfo>& layoutInfo) const;
 	rdf::LineTrace computeLines(QSharedPointer<nmc::DkImageContainer> imgC) const;
 	bool train() const;
 };
