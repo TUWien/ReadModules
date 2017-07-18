@@ -285,7 +285,7 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 		for (int i = 0; i < alllines.size(); i++) {
 			
 			QSharedPointer<rdf::SeparatorRegion> pSepR(new rdf::SeparatorRegion());
-			pSepR->setLine(alllines[i].line());
+			pSepR->setLine(alllines[i].qLine());
 
 			parser.page()->rootRegion()->addUniqueChild(pSepR);
 		}
