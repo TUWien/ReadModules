@@ -37,6 +37,7 @@ related links:
 #include "SuperPixelTrainer.h"
 #include "SuperPixelClassification.h"
 #include "LayoutAnalysis.h"
+#include "Evaluation.h"
 
 // opencv defines
 namespace cv {
@@ -72,16 +73,28 @@ protected:
 	void save(QSettings& settings) const override;
 };
 
-class LayoutInfo : public nmc::DkBatchInfo {
+class FeatureCollectionInfo : public nmc::DkBatchInfo {
 
 public:
-	LayoutInfo(const QString& id = QString(), const QString& filePath = QString());
+	FeatureCollectionInfo(const QString& id = QString(), const QString& filePath = QString());
 
 	void setFeatureCollectionManager(const rdf::FeatureCollectionManager& manager);
 	rdf::FeatureCollectionManager featureCollectionManager() const;
 
 private:
 	rdf::FeatureCollectionManager mManager;
+};
+
+class StatsInfo : public nmc::DkBatchInfo {
+
+public:
+	StatsInfo(const QString& id = QString(), const QString& filePath = QString());
+
+	void setEvalInfo(const rdf::EvalInfo& evalInfo);
+	rdf::EvalInfo evalInfo() const;
+
+private:
+	rdf::EvalInfo mEvalInfo;
 };
 
 class LayoutPlugin : public QObject, nmc::DkBatchPluginInterface {
@@ -107,7 +120,7 @@ public:
 	virtual void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> > &) const override;
 	
 	// settings
-	virtual QSettings& settings() const override;
+	virtual QString settingsFilePath() const override;
 	virtual void saveSettings(QSettings& settings) const override;
 	virtual void loadSettings(QSettings& settings) override;
 	virtual QString name() const override;
@@ -139,8 +152,8 @@ protected:
 	// layout plugin functions
 	cv::Mat compute(const cv::Mat& src, rdf::PageXmlParser& parser) const;
 	cv::Mat computePageSegmentation(const cv::Mat& src, const rdf::PageXmlParser& parser) const;
-	cv::Mat collectFeatures(const cv::Mat& src, const rdf::PageXmlParser& parser, QSharedPointer<LayoutInfo>& layoutInfo) const;
-	cv::Mat classifyRegions(const cv::Mat& src, const rdf::PageXmlParser& parser, QSharedPointer<LayoutInfo>& layoutInfo) const;
+	cv::Mat collectFeatures(const cv::Mat& src, const rdf::PageXmlParser& parser, QSharedPointer<FeatureCollectionInfo>& layoutInfo) const;
+	cv::Mat classifyRegions(const cv::Mat& src, const rdf::PageXmlParser& parser, QSharedPointer<StatsInfo>& statsInfo) const;
 	rdf::LineTrace computeLines(QSharedPointer<nmc::DkImageContainer> imgC) const;
 	bool train() const;
 };

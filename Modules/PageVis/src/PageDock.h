@@ -177,9 +177,6 @@ signals:
 	void savePageConfigSignal(const QString& name) const;
 	void loadPageConfigSignal(const QString& name) const;
 
-protected:
-	virtual QSettings& settings() const override;
-
 };
 
 class TitledLabel : public QWidget {

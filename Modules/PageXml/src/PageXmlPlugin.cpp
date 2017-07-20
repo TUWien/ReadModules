@@ -80,7 +80,7 @@ PageXmlPlugin::PageXmlPlugin(QObject* parent) : QObject(parent) {
 	mMenuStatusTips = statusTips.toList();
 
 	// save settings
-	QSettings& s = settings();
+	QSettings s(settingsFilePath(), QSettings::IniFormat);
 	s.beginGroup(name());
 
 	mConfig.saveDefaultSettings(s);
@@ -145,8 +145,8 @@ void PageXmlPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 	}
 }
 
-QSettings & PageXmlPlugin::settings() const {
-	return rdf::Config::instance().settings();
+QString PageXmlPlugin::settingsFilePath() const {
+	return rdf::Config::instance().settingsFilePath();
 }
 
 void PageXmlPlugin::saveSettings(QSettings & settings) const {
@@ -342,7 +342,7 @@ void PageXmlConfig::load(const QSettings & settings) {
 	mValidatorLog = settings.value("validatorLogFilePath", mValidatorLog).toString();
 
 	// highjack the page vis plugin
-	QSettings& s = rdf::Config::instance().settings();
+	rdf::DefaultSettings s;
 	s.beginGroup("PageDataProfiles");
 
 	// load the user's default profile

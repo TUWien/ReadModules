@@ -116,7 +116,7 @@ public:
 		const nmc::DkSaveInfo& saveInfo,
 		QSharedPointer<nmc::DkBatchInfo>& info) const override;
 
-	virtual QSettings& settings() const override;
+	virtual QString settingsFilePath() const override;
 
 	void preLoadPlugin() const override;
 	void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const override;

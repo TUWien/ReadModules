@@ -106,7 +106,7 @@ public:
 	virtual void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> > &) const override;
 	
 	// settings
-	virtual QSettings& settings() const override;
+	virtual QString settingsFilePath() const override;
 	virtual void saveSettings(QSettings& settings) const override;
 	virtual void loadSettings(QSettings& settings) override;
 	virtual QString name() const override;

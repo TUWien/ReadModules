@@ -73,12 +73,12 @@ QString PageData::xmlPath() const {
 
 void PageData::loadConfig(const QString & name) {
 	
-	loadSettings(rdf::Config::instance().settings(), name);
+	loadSettings(rdf::DefaultSettings(), name);
 }
 
 void PageData::saveConfig(const QString & name) const {
 
-	saveSettings(rdf::Config::instance().settings(), name);
+	saveSettings(rdf::DefaultSettings(), name);
 }
 
 void PageData::setXmlPath(const QString & path) {

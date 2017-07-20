@@ -161,19 +161,19 @@ QString DkTestInfo::property() const {
 SettingsDialog::SettingsDialog(const QString& title, QWidget* parent) : QDialog(parent) {
 	setWindowTitle(title);
 	createLayout();
-	nmc::DkSettingsGroup g = nmc::DkSettingsGroup::fromSettings(rdf::Config::instance().settings());
+	nmc::DkSettingsGroup g = nmc::DkSettingsGroup::fromSettings(rdf::DefaultSettings());
 	mSettingsWidget->addSettingsGroup(g);
 }
 
 void SettingsDialog::changeSetting(const QString& key, const QVariant& value, const QStringList& groups) {
 
-	QSettings& s = rdf::Config::instance().settings();
+	rdf::DefaultSettings s;
 	nmc::DkSettingsWidget::changeSetting(s, key, value, groups);
 }
 
 void SettingsDialog::removeSetting(const QString & key, const QStringList & groups) {
 
-	QSettings& s = rdf::Config::instance().settings();
+	rdf::DefaultSettings s;
 	nmc::DkSettingsWidget::removeSetting(s, key, groups);
 }
 

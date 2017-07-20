@@ -42,6 +42,7 @@
 #include "ElementsHelper.h"
 #include "PageParser.h"
 #include "Utils.h"
+#include "Settings.h"
 
 #pragma warning(push, 0)	// no warnings from includes
 #include <QPaintEvent>
@@ -59,10 +60,6 @@ PageViewport::PageViewport(QWidget* parent) : DkPluginViewPort(parent) {
 }
 
 PageViewport::~PageViewport() {
-
-	saveSettings(nmc::DkSettingsManager::instance().qSettings());
-	mPageDock->close();
-	qDebug() << "destroying PAGE viewport";
 }
 
 void PageViewport::setAddRegionMode(bool add) {
@@ -74,7 +71,8 @@ void PageViewport::init() {
 	//DkPluginViewPort::init();
 	setObjectName("PageViewport");
 	
-	loadSettings(nmc::DkSettingsManager::instance().qSettings());
+	rdf::DefaultSettings s;
+	loadSettings(s);
 
 	mPageData = new PageData(this);
 	mPageDock = new PageDock(mPageData, tr("Page Visualization"), this);
@@ -265,6 +263,13 @@ void PageViewport::paintEvent(QPaintEvent* event) {
 	}
 
 	DkPluginViewPort::paintEvent(event);
+}
+
+void PageViewport::closeEvent(QCloseEvent * event) {
+
+	rdf::DefaultSettings s;
+	saveSettings(s);
+	mPageDock->close();
 }
 
 }

@@ -92,7 +92,7 @@ FormsAnalysis::FormsAnalysis(QObject* parent) : QObject(parent) {
 	//saveSettings(rdf::Config::instance().settings());
 	//mFormConfig.loadSettings();
 
-	QSettings& s = settings();
+	rdf::DefaultSettings s;
 	s.beginGroup(name());
 	mFormConfig.saveDefaultSettings(s);
 	s.endGroup();
@@ -437,9 +437,9 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 	return imgC;
 }
 
-QSettings & FormsAnalysis::settings() const {
+QString FormsAnalysis::settingsFilePath() const {
 
-	return rdf::Config::instance().settings();
+	return rdf::Config::instance().settingsFilePath();
 }
 
 void FormsAnalysis::preLoadPlugin() const {

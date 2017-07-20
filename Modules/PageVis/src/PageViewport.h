@@ -83,6 +83,7 @@ private:
 	void mouseReleaseEvent(QMouseEvent* event) override;
 	void mouseMoveEvent(QMouseEvent* event) override;
 	void paintEvent(QPaintEvent* event) override;
+	void closeEvent(QCloseEvent* event) override;
 
 	void selectRegion(QMouseEvent* event);
 	void addRegion();

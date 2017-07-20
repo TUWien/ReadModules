@@ -266,7 +266,7 @@ void ConfigWidget::on_drawBaseline_clicked(bool toggled) {
 
 void ConfigWidget::loadConfig(const QString & name) {
 
-	QSettings& settings = nmc::DkSettingsManager::instance().qSettings();
+	rdf::DefaultSettings settings;
 	settings.beginGroup(name);
 	auto config = QSharedPointer<rdf::RegionTypeConfig>::create();
 	config->load(settings);
@@ -283,7 +283,7 @@ void ConfigWidget::saveConfig(const QString & name) {
 		return;
 	}
 
-	QSettings& settings = nmc::DkSettingsManager::instance().qSettings();
+	rdf::DefaultSettings settings;
 	settings.beginGroup(name);
 	mConfig->save(settings);
 	settings.endGroup();
@@ -473,7 +473,7 @@ QString XmlLabel::xmlPathFromMime(const QMimeData & mime) const {
 }
 
 // PageProfileWidget --------------------------------------------------------------------
-PageProfileWidget::PageProfileWidget(QWidget* parent) : nmc::DkGenericProfileWidget(tr("PageVis Profiles"), parent) {
+PageProfileWidget::PageProfileWidget(QWidget* parent) : nmc::DkGenericProfileWidget(tr("PageVis Profiles"), parent, rdf::Config::instance().settingsFilePath()) {
 
 	// NOTE: has to be the object name of PageData
 	mSettingsGroup = "PageDataProfiles";
@@ -493,11 +493,6 @@ void PageProfileWidget::loadSettings(const QString& name) {
 
 	emit loadPageConfigSignal(name);
 	setDefaultModel();
-}
-
-QSettings& PageProfileWidget::settings() const {
-
-	return rdf::Config::instance().settings();
 }
 
 // TitledLabel --------------------------------------------------------------------

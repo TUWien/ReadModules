@@ -47,6 +47,8 @@ related links:
 #include "SuperPixelClassification.h"
 #include "Settings.h"
 #include "GraphCut.h"
+#include "EvaluationModule.h"
+#include "Evaluation.h"
 
 #include "LayoutAnalysis.h"
 
@@ -101,8 +103,11 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 	mMenuStatusTips = statusTips.toList();
 
 	// saved default settings
-	QSettings& s = settings();
+	rdf::DefaultSettings s;
 	s.beginGroup(name());
+
+	rdf::GlobalConfig gc;
+	gc.saveDefaultSettings(s);
 
 	mConfig.saveDefaultSettings(s);
 	rdf::SuperPixelTrainerConfig spc;
@@ -141,24 +146,54 @@ void LayoutPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo>
 		// collect all features
 		for (auto bi : batchInfo) {
 
-			auto li = qSharedPointerDynamicCast<rdm::LayoutInfo>(bi);
+			auto li = qSharedPointerDynamicCast<rdm::FeatureCollectionInfo>(bi);
 
 			if (li) {
 				manager.merge(li->featureCollectionManager());
 				qInfo().noquote() << manager.toString();
 			}
 			else
-				qCritical() << "could not cast info to LayoutInfo";
+				qCritical() << "could not cast info to FeatureCollectionInfo";
 		}
 
 		manager.normalize(mSplConfig.minNumFeaturesPerClass(), mSplConfig.maxNumFeaturesPerClass());
 		manager.write(mSplConfig.featureFilePath());
 		qInfo() << "features written to" << mSplConfig.featureFilePath();
 	}
+
+	if (batchInfo.first()->id() == mRunIDs[id_layout_classify]) {
+
+		QVector<rdf::EvalInfo> infos;
+
+		// collect all stats
+		for (auto bi : batchInfo) {
+
+			auto si = qSharedPointerDynamicCast<rdm::StatsInfo>(bi);
+
+			if (si) {
+				infos << si->evalInfo();
+				qInfo().noquote() << si->evalInfo().toString();
+			}
+			else
+				qCritical() << "could not cast info to StatsInfo";
+		}
+
+		QString p = QFileInfo(mSpcConfig.classifierPath()).absolutePath();
+		QString fn = rdf::Utils::timeStampFileName("evalSuperPixel");
+		QFileInfo efi(p, fn);
+
+		rdf::EvalInfoManager eim(infos);
+		eim.write(efi.absoluteFilePath());
+
+		qInfo().noquote() << eim.toString();
+
+		qInfo() << "evaluation written to" << efi.absoluteFilePath();
+	}
+
 }
 
-QSettings & LayoutPlugin::settings() const {
-	return rdf::Config::instance().settings();
+QString LayoutPlugin::settingsFilePath() const {
+	return rdf::Config::instance().settingsFilePath();
 }
 
 void LayoutPlugin::saveSettings(QSettings & settings) const {
@@ -307,7 +342,7 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 
 		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
 		
-		QSharedPointer<LayoutInfo> layoutInfo(new LayoutInfo(runID, imgC->filePath()));
+		QSharedPointer<FeatureCollectionInfo> layoutInfo(new FeatureCollectionInfo(runID, imgC->filePath()));
 		imgCv = collectFeatures(imgCv, parser, layoutInfo);
 		
 		if (mConfig.drawResults()) {
@@ -319,17 +354,21 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 	}
 	else if (runID == mRunIDs[id_layout_classify]) {
 
+		QString gtXmlPath = rdf::PageXmlParser::imagePathToXmlPath(saveInfo.inputFilePath(), "gt");
+		rdf::PageXmlParser pgt;
+		pgt.read(gtXmlPath);
+
 		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
 
-		QSharedPointer<LayoutInfo> layoutInfo(new LayoutInfo(runID, imgC->filePath()));
-		imgCv = classifyRegions(imgCv, parser, layoutInfo);
+		QSharedPointer<StatsInfo> statsInfo(new StatsInfo(runID, imgC->filePath()));
+		imgCv = classifyRegions(imgCv, pgt, statsInfo);
 
 		if (mConfig.drawResults()) {
 			QImage img = nmc::DkImage::mat2QImage(imgCv);
 			imgC->setImage(img, tr("Classified Regions"));
 		}
 
-		batchInfo = layoutInfo;
+		batchInfo = statsInfo;
 	}
 
 	// save xml
@@ -471,7 +510,7 @@ cv::Mat LayoutPlugin::computePageSegmentation(const cv::Mat & src, const rdf::Pa
 	return rImg;
 }
 
-cv::Mat LayoutPlugin::collectFeatures(const cv::Mat & src, const rdf::PageXmlParser & parser, QSharedPointer<LayoutInfo>& layoutInfo) const {
+cv::Mat LayoutPlugin::collectFeatures(const cv::Mat & src, const rdf::PageXmlParser & parser, QSharedPointer<FeatureCollectionInfo>& layoutInfo) const {
 
 	rdf::Timer dt;
 
@@ -490,9 +529,6 @@ cv::Mat LayoutPlugin::collectFeatures(const cv::Mat & src, const rdf::PageXmlPar
 	spl.setLabelManager(lm);
 	spl.setFilePath(layoutInfo->filePath());	// parse filepath for gt
 	
-	if (!mSplConfig.backgroundLabelName().isEmpty())
-		spl.setBackgroundLabelName(mSplConfig.backgroundLabelName());
-
 	// set the ground truth
 	if (parser.page())
 		spl.setRootRegion(parser.page()->rootRegion());
@@ -517,17 +553,35 @@ cv::Mat LayoutPlugin::collectFeatures(const cv::Mat & src, const rdf::PageXmlPar
 	return src;
 }
 
-cv::Mat LayoutPlugin::classifyRegions(const cv::Mat & src, const rdf::PageXmlParser & parser, QSharedPointer<LayoutInfo>& layoutInfo) const {
+cv::Mat LayoutPlugin::classifyRegions(const cv::Mat & src, const rdf::PageXmlParser & parser, QSharedPointer<StatsInfo>& statsInfo) const {
 
 	rdf::Timer dt;
 	
 	auto pe = parser.page();
 
-	// start computing --------------------------------------------------------------------
+	// -------------------------------------------------------------------- Generate Super Pixels 
 	rdf::GridSuperPixel gpm(src);
 
 	if (!gpm.compute())
-		qWarning() << "could not compute" << layoutInfo->filePath();
+		qWarning() << "could not compute" << statsInfo->filePath();
+
+	// -------------------------------------------------------------------- Label Pixels with GT 
+	// test loading of label lookup
+	rdf::LabelManager lm = rdf::LabelManager::read(mSplConfig.labelConfigFilePath());
+	qInfo().noquote() << lm.toString();
+	
+	// feed the label lookup
+	rdf::SuperPixelLabeler spl(gpm.pixelSet(), rdf::Rect(src));
+	spl.setLabelManager(lm);
+	spl.setFilePath(statsInfo->filePath());	// parse filepath for gt
+
+	// set the ground truth
+	if (parser.page())
+		spl.setRootRegion(parser.page()->rootRegion());
+
+	if (!spl.compute())
+		qCritical() << "could not compute SuperPixel labeling!";
+	// -------------------------------------------------------------------- Label Pixels with GT 
 
 	// read back the model
 	QSharedPointer<rdf::SuperPixelModel> model = rdf::SuperPixelModel::read(mSpcConfig.classifierPath());
@@ -544,11 +598,17 @@ cv::Mat LayoutPlugin::classifyRegions(const cv::Mat & src, const rdf::PageXmlPar
 	if (!spc.compute())
 		qWarning() << "could not classify SuperPixels";
 	
-	// end computing --------------------------------------------------------------------
-
 	qInfo() << "regions classified in" << dt;
 
-	// drawing --------------------------------------------------------------------
+	// -------------------------------------------------------------------- Evaluate 
+	rdf::SuperPixelEval spe(gpm.pixelSet());
+
+	if (!spe.compute())
+		qWarning() << "could not evaluate SuperPixels";
+
+	statsInfo->setEvalInfo(spe.evalInfo());
+
+	// -------------------------------------------------------------------- Drawing 
 	if (mConfig.drawResults()) {
 		cv::Mat rImg = spc.draw(src);
 		return rImg;
@@ -604,9 +664,10 @@ rdf::LineTrace LayoutPlugin::computeLines(QSharedPointer<nmc::DkImageContainer> 
 bool LayoutPlugin::train() const {
 
 	rdf::SuperPixelTrainerConfig spc;
-	settings().beginGroup(name());
-	spc.loadSettings(settings());
-	settings().endGroup();
+	rdf::DefaultSettings s;
+	s.beginGroup(name());
+	spc.loadSettings(s);
+	s.endGroup();
 
 	rdf::FeatureCollectionManager fcm;
 
@@ -635,22 +696,35 @@ bool LayoutPlugin::train() const {
 		qDebug() << "the classifier I loaded is trained...";
 		return true;
 	}
-
+	
 	qCritical() << "could not save classifier to:" << spc.modelPath();
 
 	return false;
 }
 
-// LayoutInfo --------------------------------------------------------------------
-LayoutInfo::LayoutInfo(const QString & id, const QString & filePath) : nmc::DkBatchInfo(id, filePath) {
+// FeatureCollectionInfo --------------------------------------------------------------------
+FeatureCollectionInfo::FeatureCollectionInfo(const QString & id, const QString & filePath) : nmc::DkBatchInfo(id, filePath) {
 }
 
-void LayoutInfo::setFeatureCollectionManager(const rdf::FeatureCollectionManager & manager) {
+void FeatureCollectionInfo::setFeatureCollectionManager(const rdf::FeatureCollectionManager & manager) {
 	mManager = manager;
 }
 
-rdf::FeatureCollectionManager LayoutInfo::featureCollectionManager() const {
+rdf::FeatureCollectionManager FeatureCollectionInfo::featureCollectionManager() const {
 	return mManager;
+}
+
+// -------------------------------------------------------------------- StatsInfo 
+StatsInfo::StatsInfo(const QString & id, const QString & filePath) : nmc::DkBatchInfo(id, filePath) {
+}
+
+void StatsInfo::setEvalInfo(const rdf::EvalInfo & evalInfo) {
+	mEvalInfo = evalInfo;
+	mEvalInfo.setName(QFileInfo(filePath()).fileName());
+}
+
+rdf::EvalInfo StatsInfo::evalInfo() const {
+	return mEvalInfo;
 }
 
 // configurations that are specific for the plugin --------------------------------------------------------------------
@@ -691,6 +765,5 @@ void LayoutConfig::save(QSettings & settings) const {
 	settings.setValue("drawResults", mDrawResults);
 	settings.setValue("saveXml", mSaveXml);
 }
-
 };
 

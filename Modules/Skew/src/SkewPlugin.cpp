@@ -272,7 +272,8 @@ void SkewEstPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 	top80 /= (float)m;
 	qDebug() << "Top80: " << top80;
 
-	saveSettings(rdf::Config::instance().settings());
+	rdf::DefaultSettings s;
+	saveSettings(s);
 
 	if (runIdx == id_skew_native)
 		qDebug() << "[POST LOADING] skew native";
@@ -290,9 +291,10 @@ QString SkewEstPlugin::filePath() const
 	return mFilePath;
 }
 
-void SkewEstPlugin::init()
-{
-	loadSettings(rdf::Config::instance().settings());
+void SkewEstPlugin::init() {
+	
+	rdf::DefaultSettings s;
+	loadSettings(s);
 
 	if (mFilePath.isEmpty()) {
 		mFilePath = "D:\\tmp\\evalSkew.txt";
