@@ -161,7 +161,8 @@ QString DkTestInfo::property() const {
 SettingsDialog::SettingsDialog(const QString& title, QWidget* parent) : QDialog(parent) {
 	setWindowTitle(title);
 	createLayout();
-	nmc::DkSettingsGroup g = nmc::DkSettingsGroup::fromSettings(rdf::DefaultSettings());
+	rdf::DefaultSettings s;
+	nmc::DkSettingsGroup g = nmc::DkSettingsGroup::fromSettings(s);
 	mSettingsWidget->addSettingsGroup(g);
 }
 
