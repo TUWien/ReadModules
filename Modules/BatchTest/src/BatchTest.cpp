@@ -77,7 +77,7 @@ BatchTest::BatchTest(QObject* parent) : QObject(parent) {
 
 	// this line adds the settings to the config
 	// everything else is done by nomacs - so no worries
-	QSettings& s = settings();
+	rdf::DefaultSettings s;
 	s.beginGroup(name());
 	mConfig.saveDefaultSettings(s);
 	s.endGroup();
@@ -192,9 +192,8 @@ QString BatchTest::name() const {
 	return "Batch Test";
 }
 
-QSettings & BatchTest::settings() const {
-	// return the settings of your module here
-	return rdf::Config::instance().settings();
+QString BatchTest::settingsFilePath() const {
+	return rdf::Config::instance().settingsFilePath();
 }
 
 void BatchTest::loadSettings(QSettings & settings) {

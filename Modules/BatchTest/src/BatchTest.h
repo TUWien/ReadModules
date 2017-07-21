@@ -99,7 +99,7 @@ public:
 	void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const override;
 	QString name() const override;
 
-	QSettings& settings() const override;
+	QString settingsFilePath() const override;
 	void loadSettings(QSettings& settings) override;
 	void saveSettings(QSettings& settings) const override;
 
