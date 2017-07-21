@@ -652,7 +652,9 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 }
 
 void WriterIdentificationPlugin::init() {
-	loadSettings(rdf::DefaultSettings());
+	
+	rdf::DefaultSettings ds;
+	loadSettings(ds);
 }
 
 void WriterIdentificationPlugin::loadSettings(QSettings & settings) {
