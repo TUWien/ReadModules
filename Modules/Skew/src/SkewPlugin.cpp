@@ -307,15 +307,12 @@ void SkewEstPlugin::loadSettings(QSettings & settings)
 	settings.beginGroup("SkewEstimation");
 
 	mFilePath = settings.value("skewEvalPath", mFilePath).toString();
-	//mBseConfig.loadSettings(settings);
 	settings.endGroup();
 }
 
-void SkewEstPlugin::saveSettings(QSettings & settings) const
-{
+void SkewEstPlugin::saveSettings(QSettings & settings) const {
 	settings.beginGroup("SkewEstimation");
 	settings.setValue("skewEvalPath", mFilePath);
-	//mBseConfig.saveSettings(settings);
 	settings.endGroup();
 }
 
@@ -324,86 +321,27 @@ void SkewEstPlugin::skewTextLine(QSharedPointer<nmc::DkImageContainer>& imgC, QS
 	if (!imgC)
 		return;
 
-	QImage qImg = imgC->image();
-	cv::Mat img = rdf::Image::qImage2Mat(qImg);
+	cv::Mat img = rdf::Image::qImage2Mat(imgC->image());
 
-	rdf::SuperPixel superPixel(img);
+	rdf::TextLineSkew tls(img);
 
-	if (!superPixel.compute())
-		qWarning() << "could not compute super pixel!";
-
-	rdf::PixelSet sp = superPixel.pixelSet();
-
-	// configure local orientation module
-	QSharedPointer<rdf::LocalOrientationConfig> loc(new rdf::LocalOrientationConfig());
-	loc->setNumOrientations(64);
-
-	rdf::LocalOrientation lo(sp);
-	lo.setConfig(loc);
-	if (!lo.compute())
-		qWarning() << "could not compute local orientation";
-
-	rdf::GraphCutOrientation pse(sp);
-
-	if (!pse.compute())
-		qWarning() << "could not compute set orientation";
-
-	QList<double> angles;
-
-	// get median angle
-	for (auto p : sp.pixels()) {
-
-		if (!p->stats())
-			continue;
-
-		angles << p->stats()->orientation();
+	if (!tls.compute()) {
+		qWarning() << "could not compute text-line based skew estimation";
 	}
-
-	// no super pixels found?
-	if (angles.empty())
-		return;
-
-	// find the median angle
-	double skewAngle = -(rdf::Algorithms::statMoment(angles, 0.5) - CV_PI*0.5);
-
-	// if we have an illegal skew angle try the .75 quantile 
-	if (skewAngle < mMinAngle || skewAngle > mMaxAngle) {
-
-		double tmpSkewAngle = -(rdf::Algorithms::statMoment(angles, 0.75) - CV_PI*0.5);
-		if (tmpSkewAngle >= mMinAngle && tmpSkewAngle <= mMaxAngle) {
-			skewAngle = tmpSkewAngle;
-			qInfo() << "using 2nd guess for skew angle";
-		}
-		else
-			qInfo() << "2nd guess rejected: " << tmpSkewAngle*DK_RAD2DEG;
-	}
-
-	QImage oImg = qImg.convertToFormat(QImage::Format_RGB888);
+	
+	cv::Mat oImg;
 	if (runId == mRunIDs[id_skew_textline]) {
+		
 		// apply angle to image
-		cv::Mat oImgCv = rdf::IP::rotateImage(img, skewAngle);
-		if (oImgCv.channels() == 1) {
-			cv::cvtColor(oImgCv, oImgCv, CV_GRAY2BGRA);
-		}
-		oImg = rdf::Image::mat2QImage(oImgCv);
+		oImg = tls.rotated(img);
 	}
 	else if(runId == mRunIDs[id_skew_textline_draw]) {
-
-		QPainter p(&oImg);
-		p.setPen(rdf::ColorManager::colors()[1]);
-
-		for (auto px : sp.pixels())
-			px->draw(p, 0.8, rdf::Pixel::DrawFlags()| rdf::Pixel::draw_ellipse | rdf::Pixel::draw_stats);
-
-		QFont font = p.font();	
-		font.setPointSize(16);
-		p.setFont(font);
-		p.drawText(QPoint(40, 40), tr("angle: %1%2").arg(skewAngle*DK_RAD2DEG).arg(QChar(0x00B0)));
+		oImg = tls.draw(img);
 	}
 
-	imgC->setImage(oImg, "Skew corrected");
+	imgC->setImage(rdf::Image::mat2QImage(oImg), "Skew corrected");
 
-	parseGT(imgC->fileName(), skewAngle, skewInfo);
+	parseGT(imgC->fileName(), tls.getAngle(), skewInfo);
 }
 
 void SkewEstPlugin::parseGT(const QString & fileName, double skewAngle, QSharedPointer<SkewInfo>& skewInfo) const
