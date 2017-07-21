@@ -33,6 +33,7 @@ related links:
 #include "BinarizationPlugin.h"
 
 #include "Algorithms.h"
+#include "ImageProcessor.h"
 #include "Binarization.h"
 #include "DkImageStorage.h"
 
@@ -128,7 +129,7 @@ QSharedPointer<nmc::DkImageContainer> BinarizationPlugin::runPlugin(const QStrin
 	if(runID == mRunIDs[id_binarize_otsu]) {
 	
 		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
-		imgCv = rdf::Algorithms::threshOtsu(imgCv);
+		imgCv = rdf::IP::threshOtsu(imgCv);
 		QImage img = nmc::DkImage::mat2QImage(imgCv);
 		img = img.convertToFormat(QImage::Format_ARGB32);
 		imgC->setImage(img, tr("Otsu Binarization"));
@@ -154,9 +155,7 @@ QSharedPointer<nmc::DkImageContainer> BinarizationPlugin::runPlugin(const QStrin
 	else if (runID == mRunIDs[id_binarize_su_mask]) {
 	
 		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
-
-		cv::Mat mask = rdf::Algorithms::estimateMask(imgCv);
-
+		cv::Mat mask = rdf::IP::estimateMask(imgCv);
 		
 		rdf::BinarizationSuAdapted segSuM(imgCv, mask);
 

@@ -40,6 +40,7 @@ related links:
 #include "SkewEstimation.h"
 #include "Image.h"
 #include "Algorithms.h"
+#include "ImageProcessor.h"
 #include "GraphCut.h"
 
 // skew textline
@@ -380,7 +381,7 @@ void SkewEstPlugin::skewTextLine(QSharedPointer<nmc::DkImageContainer>& imgC, QS
 	QImage oImg = qImg.convertToFormat(QImage::Format_RGB888);
 	if (runId == mRunIDs[id_skew_textline]) {
 		// apply angle to image
-		cv::Mat oImgCv = rdf::Algorithms::rotateImage(img, skewAngle);
+		cv::Mat oImgCv = rdf::IP::rotateImage(img, skewAngle);
 		if (oImgCv.channels() == 1) {
 			cv::cvtColor(oImgCv, oImgCv, CV_GRAY2BGRA);
 		}
@@ -470,7 +471,7 @@ void SkewEstPlugin::skewNative(QSharedPointer<nmc::DkImageContainer>& imgC, QSha
 	double skewAngle = bse.getAngle();
 	skewAngle = -skewAngle / 180.0 * CV_PI;
 
-	cv::Mat rotatedImage = rdf::Algorithms::rotateImage(inputImg, skewAngle);
+	cv::Mat rotatedImage = rdf::IP::rotateImage(inputImg, skewAngle);
 	if (rotatedImage.channels() == 1) {
 		cv::cvtColor(rotatedImage, rotatedImage, CV_GRAY2BGRA);
 	}
@@ -519,7 +520,7 @@ void SkewEstPlugin::skewDoc(QSharedPointer<nmc::DkImageContainer>& imgC, QShared
 	double skewAngle = bse.getAngle();
 	skewAngle = -skewAngle / 180.0 * CV_PI;
 
-	cv::Mat rotatedImage = rdf::Algorithms::rotateImage(inputImg, skewAngle);
+	cv::Mat rotatedImage = rdf::IP::rotateImage(inputImg, skewAngle);
 	if (rotatedImage.channels() == 1) {
 		cv::cvtColor(rotatedImage, rotatedImage, CV_GRAY2BGRA);
 	}

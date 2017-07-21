@@ -540,7 +540,7 @@ cv::Mat LayoutPlugin::collectFeatures(const cv::Mat & src, const rdf::PageXmlPar
 	if (!spf.compute())
 		qCritical() << "could not compute SuperPixel features!";
 
-	rdf::FeatureCollectionManager fcm(spf.features(), spf.set());
+	rdf::FeatureCollectionManager fcm(spf.features(), spf.pixelSet());
 	layoutInfo->setFeatureCollectionManager(fcm);
 
 	if (mConfig.drawResults()) {
