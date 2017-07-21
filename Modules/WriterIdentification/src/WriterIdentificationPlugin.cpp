@@ -40,7 +40,7 @@
 #include <QAction>
 #include <QSettings>
 #include <QImageWriter>
-#include "opencv2/features2d/features2d.hpp"
+#include <opencv2/features2d.hpp>
 #pragma warning(pop)		// no warnings from includes - end
 
 namespace rdm {

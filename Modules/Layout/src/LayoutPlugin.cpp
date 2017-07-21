@@ -59,7 +59,7 @@ related links:
 #pragma warning(push, 0)	// no warnings from includes - begin
 #include <QAction>
 #include <QUuid>
-#include <opencv2/ml/ml.hpp>
+#include <opencv2/ml.hpp>
 #pragma warning(pop)		// no warnings from includes - end
 
 namespace rdm {
