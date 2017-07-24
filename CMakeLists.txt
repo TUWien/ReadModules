@@ -16,7 +16,6 @@ OPTION (ENABLE_LAYOUT "Compile Layout Analysis Plugin" ON)
 OPTION (ENABLE_PAGE_XML "PAGE XML Manipulator Plugin" ON)
 OPTION (ENABLE_SKEW "Skew Estimation Plugin" ON)
 OPTION (ENABLE_FORMS "Form Analysis Plugin" ON)
-OPTION (ENABLE_FOCUSMEASURE "Focus Measure Plugin" ON)
 OPTION (ENABLE_WRITERIDENTIFICATION "Compile Writer Identification plugin" OFF)
 OPTION (ENABLE_READ_CONFIG "Configuration Plugin" ON)
 OPTION (ENABLE_BATCH_TEST "Test plugin for new batch interface" OFF)
@@ -67,10 +66,6 @@ ENDIF()
 
 IF (ENABLE_FORMS)
 	add_subdirectory(Modules/Forms)
-ENDIF()
-
-IF (ENABLE_FOCUSMEASURE)
-	add_subdirectory(Modules/FocusMeasure)
 ENDIF()
 
 IF (ENABLE_WRITERIDENTIFICATION)
