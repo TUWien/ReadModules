@@ -373,22 +373,32 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 			qDebug() << "Match template...";
 			formF.matchTemplate();
-									
+												
 
 			resultImg = formF.drawLinesNotUsedForm(drawImg);
 			cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
 			result = rdf::Image::mat2QImage(resultImg);
 			imgC->setImage(result, "Lines not used");
 
+			resultImg = formF.drawMaxClique(drawImg,10, 2);
+			cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
+			result = rdf::Image::mat2QImage(resultImg);
+			imgC->setImage(result, "maxClique 2");
+
+			resultImg = formF.drawMaxClique(drawImg, 10, 1);
+			cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
+			result = rdf::Image::mat2QImage(resultImg);
+			imgC->setImage(result, "maxClique 1");
+
 			resultImg = formF.drawMaxClique(drawImg);
 			cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
 			result = rdf::Image::mat2QImage(resultImg);
-			imgC->setImage(result, "maxClique");
-			 
-			resultImg = formF.drawMatchedForm(drawImg);
-			cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
-			result = rdf::Image::mat2QImage(resultImg);
-			imgC->setImage(result, "Matched form");
+			imgC->setImage(result, "maxClique 0");
+
+			//resultImg = formF.drawMatchedForm(drawImg);
+			//cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
+			//result = rdf::Image::mat2QImage(resultImg);
+			//imgC->setImage(result, "Matched form");
 		}
 				
 		//cv::Mat resultImg = imgForm;
