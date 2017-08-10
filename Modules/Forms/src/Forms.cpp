@@ -373,8 +373,10 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 			qDebug() << "Match template...";
 			formF.matchTemplate();
-				
 
+
+
+			
 			resultImg = formF.drawLinesNotUsedForm(drawImg);
 			cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
 			result = rdf::Image::mat2QImage(resultImg);
@@ -400,10 +402,10 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 			result = rdf::Image::mat2QImage(resultImg);
 			imgC->setImage(result, "maxClique 0");
 
-			//resultImg = formF.drawMatchedForm(drawImg);
-			//cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
-			//result = rdf::Image::mat2QImage(resultImg);
-			//imgC->setImage(result, "Matched form");
+			resultImg = formF.drawMatchedForm(drawImg);
+			cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
+			result = rdf::Image::mat2QImage(resultImg);
+			imgC->setImage(result, "Matched form");
 		}
 				
 		//cv::Mat resultImg = imgForm;
