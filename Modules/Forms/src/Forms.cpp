@@ -374,6 +374,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 			qDebug() << "Match template...";
 			formF.matchTemplate();
 
+
 						
 			resultImg = formF.drawLinesNotUsedForm(drawImg);
 			cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
@@ -385,9 +386,15 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 			result = rdf::Image::mat2QImage(resultImg);
 			imgC->setImage(result, "all detected lines");
 
+			resultImg = formF.drawMaxCliqueNeighbours(7, rdf::AssociationGraphNode::LinePosition::pos_right, 2, drawImg);
+			cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
+			result = rdf::Image::mat2QImage(resultImg);
+			imgC->setImage(result, "draw neighbours");
+
+
 			//resultImg = formF.drawMaxClique(drawImg,10, 2);
 			//cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
-			//result = rdf::Image::mat2QImage(resultImg);
+			//result = rdf::Image::mat2QImage(resultImg); 
 			//imgC->setImage(result, "maxClique 2");
 
 			//resultImg = formF.drawMaxClique(drawImg, 10, 1);
