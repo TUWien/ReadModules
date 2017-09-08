@@ -374,6 +374,11 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 	// save xml
 	if (mConfig.saveXml()) {
 		QString saveXmlPath = rdf::PageXmlParser::imagePathToXmlPath(saveInfo.outputFilePath());
+		
+		if (saveXmlPath.isEmpty()) {
+			saveXmlPath = rdf::Utils::createFilePath(rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath()), "-results");
+		}
+		
 		parser.write(saveXmlPath, parser.page());
 	}
 
