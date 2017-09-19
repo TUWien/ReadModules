@@ -46,6 +46,7 @@ related links:
 
 #pragma warning(push, 0)	// no warnings from includes - begin
 #include <QAction>
+#include <QUuid>
 #include <QSettings>
 #pragma warning(pop)		// no warnings from includes - end
 
@@ -59,21 +60,21 @@ FormsAnalysis::FormsAnalysis(QObject* parent) : QObject(parent) {
 	// create run IDs
 	QVector<QString> runIds;
 	runIds.resize(id_end);
-	
-	runIds[id_train] = "871fe4d1de79497388292ef534ff25d8";
-	runIds[id_show] = "d3359f4a4ec943e3abd4860e68152769";
-	runIds[id_classify] = "91fd4f094fc34085a7a8715142f2292d";
-	runIds[id_classifyxml] = "5f34992f7494400d9beb298e0800a571";
+
+	for (QString& rid : runIds)
+		rid = QUuid::createUuid().toString();
+
 	mRunIDs = runIds.toList();
 
 	// create menu actions
 	QVector<QString> menuNames;
 	menuNames.resize(id_end);
 
-	menuNames[id_train] = tr("Train forms");
+	menuNames[id_train] = tr("Train forms - not implemented");
 	menuNames[id_show] = tr("Shows form information based on XML");
 	menuNames[id_classify] = tr("Classify - not implemented");
-	menuNames[id_classifyxml] = tr("Apply Template (Single)");
+	menuNames[id_match] = tr("Apply template (Match)");
+	menuNames[id_evaluate] = tr("Apply template and evaluate");
 	mMenuNames = menuNames.toList();
 
 	// create menu status tips
@@ -83,7 +84,8 @@ FormsAnalysis::FormsAnalysis(QObject* parent) : QObject(parent) {
 	statusTips[id_train] = tr("Train forms");
 	statusTips[id_show] = tr("Show form (Page XML)");
 	statusTips[id_classify] = tr("Classify - not implemented");
-	statusTips[id_classifyxml] = tr("Apply Template (Single)");
+	statusTips[id_match] = tr("Apply template (Match)");
+	statusTips[id_evaluate] = tr("Apply template and evaluate");
 	mMenuStatusTips = statusTips.toList();
 
 	
@@ -161,7 +163,9 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		testInfo->setFormName(imgC->filePath());
 		testInfo->setFormSize(img.size());
 			
-		qDebug() << "template calculated...";
+		//qDebug() << "template calculated...";
+		qDebug() << "nothing implemented here...";
+		qWarning() << "nothing implemented here...";
 
 		info = testInfo;
 	}
@@ -256,17 +260,6 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		qDebug() << "Drawing form...";
 		imgC->setImage(result, "Form Image");
 
-		//// -------------- LSD -------------------------------------------
-
-		//QImage img = imgC->image();
-		//cv::Mat imgIn = rdf::Image::qImage2Mat(img);
-		//cv::Mat imgInG;
-		//if (imgIn.channels() != 1) cv::cvtColor(imgIn, imgInG, CV_RGB2GRAY);
-		//rdf::ReadLSD lsd(imgInG);
-		////ReadLSD(inputG, mask);
-		//lsd.compute();
-		//QVector<rdf::LineSegment> detLines = lsd.lines();
-
 	}
 	else if (runID == mRunIDs[id_classify]) {
 
@@ -274,6 +267,9 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		//imgC->setImage(img.mirrored(), "Mirrored");
 
 		QSharedPointer<FormsInfo> testInfo(new FormsInfo(runID, imgC->filePath()));
+
+		qDebug() << "nothing implemented here...";
+		qWarning() << "nothing implemented here...";
 
 		//No classification is currently implemented
 		//QString loadXmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
@@ -293,8 +289,6 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		//	qWarning() << "could not compute form template " << imgC->filePath();
 		//}
 
-
-
 		////set batchinfo for further processing
 		//testInfo->setFormName(imgC->filePath());
 		//testInfo->setFormSize(img.size());
@@ -308,7 +302,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 
 	}
-	else if (runID == mRunIDs[id_classifyxml]) {
+	else if (runID == mRunIDs[id_match]) {
 
 		//use for debugging - apply template
 		QImage img = imgC->image();
@@ -373,8 +367,8 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 			qDebug() << "Match template...";
 			formF.matchTemplate();
-
-						
+			
+					
 			resultImg = formF.drawLinesNotUsedForm(drawImg);
 			cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
 			result = rdf::Image::mat2QImage(resultImg);
@@ -457,6 +451,149 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		//imgC->setImage(result, "Form Image");
 		info = testInfo;
 	}
+	else if (runID == mRunIDs[id_evaluate]) {
+
+		//calculate match the same way as for table
+		//no debug images are created
+
+		QImage img = imgC->image();
+		QImage result;
+
+		//testInfo contains debug information
+		QSharedPointer<FormsInfo> testInfo(new FormsInfo(runID, imgC->filePath()));
+		info = testInfo;
+
+		cv::Mat imgForm = rdf::Image::qImage2Mat(img);
+		cv::Mat imgFormG = imgForm;
+		if (imgForm.channels() != 1)
+			cv::cvtColor(imgForm, imgFormG, CV_RGB2GRAY);
+		
+		rdf::FormFeatures formF(imgFormG);
+		formF.setFormName(imgC->fileName());
+		formF.setSize(imgFormG.size());
+
+		formF.setTemplateName(mFormConfig.templDatabase());
+
+		QSharedPointer<rdf::FormFeaturesConfig> tmpConfig(new rdf::FormFeaturesConfig());
+		(*tmpConfig) = mFormConfig;
+		formF.setConfig(tmpConfig);
+
+		//rdf::FormFeatures formTemplate;
+		QSharedPointer<rdf::FormFeatures> formTemplate(new rdf::FormFeatures());
+		if (!formF.readTemplate(formTemplate)) {
+			qWarning() << "not template set - aborting";
+			qInfo() << "please provide a template Plugins > Read Config > Form Analysis > lineTemplPath";
+			
+			return imgC;
+		}
+
+
+		if (!formF.compute()) {
+			qWarning() << "could not compute form template " << imgC->filePath();
+			qInfo() << "could not compute form template";
+			
+			return imgC;
+		}
+
+		qDebug() << "Compute rough alignment...";
+		if (!formF.estimateRoughAlignment()) {
+			qWarning() << "could not compute rough alignment " << imgC->filePath();
+			qInfo() << "could not compute rough alignment ";
+			
+			return imgC;
+		}
+
+		cv::Mat drawImg = imgForm.clone();
+		cv::cvtColor(drawImg, drawImg, CV_RGBA2BGR);
+
+		qDebug() << "Match template...";
+		formF.matchTemplate();
+
+		drawImg = formF.drawMatchedForm(drawImg);
+		cv::cvtColor(drawImg, drawImg, CV_BGR2RGBA);
+		QImage finalImg = rdf::Image::mat2QImage(drawImg);
+		imgC->setImage(finalImg, "matched table");
+
+		rdf::FormEvaluation formEval;
+		formEval.setSize(formF.sizeImg());
+		if (!formEval.setTemplate(imgC->filePath())) {
+			qWarning() << "could not find template for evaluation " << imgC->filePath();
+			qInfo() << "could not find template for evaluation";
+
+			return imgC;
+		}
+
+		formEval.setTable(formF.tableRegion());
+
+		formEval.computeEvalTableRegion();
+		formEval.computeEvalCells();
+
+		double tableJI = formEval.tableJaccard();
+		double tableM = formEval.tableMatch();
+
+		QVector<double> cellJI = formEval.cellJaccards();
+		double meanCellJI = formEval.meanCellJaccard();
+
+		QVector<double> cellM = formEval.cellMatches();
+		double meanCellM = formEval.meanCellMatch();
+
+		double missedCells = formEval.missedCells();
+		double underSeg = formEval.underSegmented();
+		QVector<double> underSegCells = formEval.underSegmentedC();
+
+		// ----------- use this one for batch processing-----------------------------------------
+		//set batchinfo for further processing
+		testInfo->setFormName(imgC->filePath());
+		testInfo->setFormSize(img.size());
+		testInfo->setLines(formF.horLines(), formF.verLines());
+		
+		testInfo->setJaccardTable(tableJI);
+		testInfo->setMatchTable(tableM);
+
+		testInfo->setJaccardCell(cellJI);
+		testInfo->setJaccardMeanCell(meanCellJI);
+		testInfo->setCellMatch(cellM);
+		testInfo->setmatchMeanCell(meanCellM);
+
+		testInfo->setUnderSegmented(underSeg);
+		testInfo->setUnderSegmentedC(underSegCells);
+		testInfo->setMissedCells(missedCells);
+
+		qDebug() << "table match calculated...";
+		info = testInfo;
+		
+		//test - save output to different xml...
+		//in current xml related to the file is the GT
+		QString loadXmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
+		QFileInfo fi(loadXmlPath);
+		QString finalName = fi.baseName() + "_matched" + fi.suffix();
+		QFileInfo finalXmlPath;
+		finalXmlPath.setFile(fi.absolutePath() , finalName);
+		
+		QString saveXmlPath = rdf::PageXmlParser::imagePathToXmlPath(finalXmlPath.absoluteFilePath());
+
+		rdf::PageXmlParser parser;
+		bool newXML = parser.read(loadXmlPath);
+		auto pe = parser.page();
+
+		if (!newXML) {
+			//xml is newly created
+			pe->setImageFileName(imgC->fileName());
+			pe->setImageSize(img.size());
+			pe->setCreator("CVL");
+			pe->setDateCreated(QDateTime::currentDateTime());
+		}
+
+		QSharedPointer<rdf::TableRegion> t = formF.tableRegion();
+		pe->rootRegion()->addUniqueChild(t);
+
+		formF.setSeparators(pe->rootRegion());
+
+		//save pageXml
+		parser.write(saveXmlPath, pe);
+
+
+	}
 
 	// wrong runID? - do nothing
 	//imgC->setImage(QImage(), "empty");
@@ -531,7 +668,7 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 		qDebug() << "[POST LOADING] classify";
 
 		qDebug() << "currently not implemented ...";
-
+	
 		// --------- currently not used/implemented -----------------------------------------------------------------------------
 		// ----------------------------------------------------------------------------------------------------------------------
 		// ---------- uncomment until the end -----------------------------------------------------------------------------------
@@ -850,6 +987,79 @@ void FormsInfo::setRegion(QSharedPointer<rdf::TableRegion> r) {
 
 QSharedPointer<rdf::TableRegion> FormsInfo::region() {
 	return mRegion;
+}
+
+
+double FormsInfo::jaccardTable() const {
+	return mJaccardTable;
+}
+
+void FormsInfo::setJaccardTable(double d) {
+	mJaccardTable = d;
+}
+
+double FormsInfo::matchTable() const {
+	return mMatchTable;
+}
+
+void FormsInfo::setMatchTable(double d) {
+	mMatchTable = d;
+}
+
+QVector<double> FormsInfo::jaccardCell() const {
+	return mJaccardCell;
+}
+
+void FormsInfo::setJaccardCell(QVector<double> v) {
+	mJaccardCell = v;
+}
+
+double FormsInfo::jaccardMeanCell() const {
+	return mMeanJICells;
+}
+
+void FormsInfo::setJaccardMeanCell(double d) {
+	mMeanJICells = d;
+}
+
+QVector<double> FormsInfo::cellMatch() const {
+	return mCellMatch;
+}
+
+void FormsInfo::setCellMatch(QVector<double> v) {
+	mCellMatch = v;
+}
+
+double FormsInfo::matchMeanCell() const {
+	return mMeanMatchCells;
+}
+
+void FormsInfo::setmatchMeanCell(double d) {
+	mMeanMatchCells = d;
+}
+
+QVector<double> FormsInfo::underSegmentedC() const {
+	return mUnderSegmentedC;
+}
+
+void FormsInfo::setUnderSegmentedC(QVector<double> v) {
+	mUnderSegmentedC = v;
+}
+
+double FormsInfo::underSegmented() const {
+	return mUnderSegmented;
+}
+
+void FormsInfo::setUnderSegmented(double d) {
+	mUnderSegmented = d;
+}
+
+double FormsInfo::missedCells() const {
+	return mMissedCells;
+}
+
+void FormsInfo::setMissedCells(double d) {
+	mMissedCells = d;
 }
 
 };

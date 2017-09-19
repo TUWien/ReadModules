@@ -81,6 +81,35 @@ public:
 	void setRegion(QSharedPointer<rdf::TableRegion> r);
 	QSharedPointer<rdf::TableRegion> region();
 
+
+	double jaccardTable() const;
+	void setJaccardTable(double d);
+
+	double matchTable() const;
+	void setMatchTable(double d);
+
+	QVector<double> jaccardCell() const;
+	void setJaccardCell(QVector<double> v);
+
+	double jaccardMeanCell() const;
+	void setJaccardMeanCell(double d);
+
+	QVector<double> cellMatch() const;
+	void setCellMatch(QVector<double> v);
+
+	double matchMeanCell() const;
+	void setmatchMeanCell(double d);
+
+	QVector<double> underSegmentedC() const;
+	void setUnderSegmentedC(QVector<double> v);
+
+	double underSegmented() const;
+	void setUnderSegmented(double d);
+
+	double missedCells() const;
+	void setMissedCells(double d);
+
+
 private:
 	QString mProp; //form name
 	QString mMatchName;
@@ -90,6 +119,18 @@ private:
 	QVector<rdf::Line> mVerLines;
 	QVector<rdf::Line> mHorLines;
 	cv::Mat mLineImg;
+
+	//eval results
+	double mJaccardTable = -1;
+	double mMatchTable = -1;
+	double mMissedCells = -1;
+	double mUnderSegmented = -1;
+	double mMeanJICells = -1;
+	double mMeanMatchCells = -1;
+
+	QVector<double> mJaccardCell;
+	QVector<double> mCellMatch;
+	QVector<double> mUnderSegmentedC;
 
 	QSharedPointer<rdf::TableRegion> mRegion;
 	QVector<QSharedPointer<rdf::TableCell>> mCells;
@@ -128,7 +169,8 @@ public:
 		id_train,
 		id_show,
 		id_classify,
-		id_classifyxml,
+		id_match,
+		id_evaluate,
 		// add actions here
 
 		id_end
