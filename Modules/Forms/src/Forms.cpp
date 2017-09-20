@@ -615,6 +615,56 @@ void FormsAnalysis::preLoadPlugin() const {
 void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo>>& batchInfo) const {
 	int runIdx = mRunIDs.indexOf(batchInfo.first()->id());
 
+
+	if (runIdx == id_evaluate) {
+		//save final results to yml file
+		QDir evalDir(mFormConfig.evalPath());
+		QString filename = "eval.yml";
+		QFileInfo evalFile(evalDir, filename);
+		
+		
+		cv::FileStorage fs(evalFile.absoluteFilePath().toStdString(), cv::FileStorage::WRITE);
+
+		int nForms = batchInfo.size();
+		int nCnt = 0;
+		double meanTableJI = 0;
+		double meanTableMatch = 0;
+		double meanCellJI = 0;
+		double meanCellMatch = 0;
+		double underSeg = 0;
+		double missedCells = 0;
+
+		for (auto bi : batchInfo) {
+			qDebug() << bi->filePath() << " computed...";
+			FormsInfo* tInfo = dynamic_cast<FormsInfo*>(bi.data());
+			QString tmpInfo = tInfo->filePath();
+
+			fs << tmpInfo.toStdString() << "[";
+
+			//values for each table with mean cell measures
+			fs << "jaccardTable" << tInfo->jaccardTable(); meanTableJI += tInfo->jaccardTable();
+			fs << "matchTable" << tInfo->matchTable(); meanTableMatch += tInfo->matchTable();
+			fs << "meanJaccardCell" << tInfo->jaccardMeanCell(); meanCellJI += tInfo->jaccardMeanCell();
+			fs << "meanMatchCell" << tInfo->matchMeanCell(); meanCellMatch += tInfo->matchMeanCell();
+			fs << "underSegmented" << tInfo->underSegmented(); underSeg += tInfo->underSegmented();
+			fs << "missedCells" << tInfo->missedCells(); missedCells += tInfo->missedCells();
+			
+			fs << "]";
+			nCnt++;
+		}
+
+		//mean values for all calculated tables
+		fs << "meanJaccardTable" << meanTableJI / (double)nCnt;
+		fs << "meanMatchTable" << meanTableMatch / (double)nCnt;
+		fs << "overallMeanJaccardCell" << meanCellJI / (double)nCnt;
+		fs << "overallMeanMatchCell" << meanCellMatch / (double)nCnt;
+		fs << "overallUnderSegmented" << underSeg / (double)nCnt;
+		fs << "overallMissedCells" << missedCells / (double)nCnt;
+
+		fs.release();
+
+	}
+
 	if (runIdx == id_train) {
 
 		qDebug() << "currently not implemented ...";
