@@ -642,7 +642,7 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 			
 
 			//fs << tmpInfo.toStdString() << "[";
-			fs << baseN.toStdString() << "[";
+			fs << baseN.toStdString() << "{";
 
 			//values for each table with mean cell measures
 			fs << "jaccardTable" << tInfo->jaccardTable(); meanTableJI += tInfo->jaccardTable();
@@ -652,7 +652,7 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 			fs << "underSegmented" << tInfo->underSegmented(); underSeg += tInfo->underSegmented();
 			fs << "missedCells" << tInfo->missedCells(); missedCells += tInfo->missedCells();
 			
-			fs << "]";
+			fs << "}";
 			nCnt++;
 		}
 
