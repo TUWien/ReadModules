@@ -527,7 +527,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 		formEval.computeEvalTableRegion();
 		formEval.computeEvalCells();
-
+				
 		double tableJI = formEval.tableJaccard();
 		double tableM = formEval.tableMatch();
 
@@ -566,7 +566,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		//in current xml related to the file is the GT
 		QString loadXmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
 		QFileInfo fi(loadXmlPath);
-		QString finalName = fi.baseName() + "_matched" + fi.suffix();
+		QString finalName = fi.baseName() + "_matched." + fi.suffix();
 		QFileInfo finalXmlPath;
 		finalXmlPath.setFile(fi.absolutePath() , finalName);
 		
@@ -591,8 +591,6 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 		//save pageXml
 		parser.write(saveXmlPath, pe);
-
-
 	}
 
 	// wrong runID? - do nothing
@@ -616,14 +614,15 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 	int runIdx = mRunIDs.indexOf(batchInfo.first()->id());
 
 
+
 	if (runIdx == id_evaluate) {
 		//save final results to yml file
 		QDir evalDir(mFormConfig.evalPath());
 		QString filename = "eval.yml";
 		QFileInfo evalFile(evalDir, filename);
 		
-		
-		cv::FileStorage fs(evalFile.absoluteFilePath().toStdString(), cv::FileStorage::WRITE);
+		std::string saveFile = evalFile.absoluteFilePath().toStdString();
+		cv::FileStorage fs(saveFile, cv::FileStorage::WRITE);
 
 		int nForms = batchInfo.size();
 		int nCnt = 0;
@@ -638,8 +637,12 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 			qDebug() << bi->filePath() << " computed...";
 			FormsInfo* tInfo = dynamic_cast<FormsInfo*>(bi.data());
 			QString tmpInfo = tInfo->filePath();
+			QFileInfo tmpInfoF(tInfo->filePath());
+			QString baseN = tmpInfoF.baseName();
+			
 
-			fs << tmpInfo.toStdString() << "[";
+			//fs << tmpInfo.toStdString() << "[";
+			fs << baseN.toStdString() << "[";
 
 			//values for each table with mean cell measures
 			fs << "jaccardTable" << tInfo->jaccardTable(); meanTableJI += tInfo->jaccardTable();
