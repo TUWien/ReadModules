@@ -327,7 +327,14 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		formF.setSize(imgFormG.size());
 		
 		//formF.setTemplateName(mLineTemplPath);
-		formF.setTemplateName(mFormConfig.templDatabase());
+		QString templateN = mFormConfig.templDatabase();
+		//contains full path to template xml, or csv specifying the template xml
+		if (!formF.setTemplateName(templateN)) {
+			qWarning() << "template not found - aborting";
+			info = testInfo;
+			return imgC;
+		}
+
 		//check if is meant that way!!!
 		//mFormConfig.distThreshold();
 		QSharedPointer<rdf::FormFeaturesConfig> tmpConfig(new rdf::FormFeaturesConfig());
@@ -367,7 +374,6 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 			qDebug() << "Match template...";
 			formF.matchTemplate();
-			
 					
 			resultImg = formF.drawLinesNotUsedForm(drawImg);
 			cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
@@ -467,12 +473,16 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		cv::Mat imgFormG = imgForm;
 		if (imgForm.channels() != 1)
 			cv::cvtColor(imgForm, imgFormG, CV_RGB2GRAY);
-		
+
 		rdf::FormFeatures formF(imgFormG);
 		formF.setFormName(imgC->fileName());
 		formF.setSize(imgFormG.size());
 
-		formF.setTemplateName(mFormConfig.templDatabase());
+		if (!formF.setTemplateName(mFormConfig.templDatabase())) {
+			qWarning() << "template not found - aborting";
+			info = testInfo;
+			return imgC;
+		}
 
 		QSharedPointer<rdf::FormFeaturesConfig> tmpConfig(new rdf::FormFeaturesConfig());
 		(*tmpConfig) = mFormConfig;
@@ -561,6 +571,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 		qDebug() << "table match calculated...";
 		info = testInfo;
+
 		
 		//test - save output to different xml...
 		//in current xml related to the file is the GT
@@ -571,7 +582,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		finalXmlPath.setFile(fi.absolutePath() , finalName);
 		
 		QString saveXmlPath = rdf::PageXmlParser::imagePathToXmlPath(finalXmlPath.absoluteFilePath());
-
+		
 		rdf::PageXmlParser parser;
 		bool newXML = parser.read(loadXmlPath);
 		auto pe = parser.page();
@@ -633,6 +644,7 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 		double underSeg = 0;
 		double missedCells = 0;
 
+
 		for (auto bi : batchInfo) {
 			qDebug() << bi->filePath() << " computed...";
 			FormsInfo* tInfo = dynamic_cast<FormsInfo*>(bi.data());
@@ -645,15 +657,25 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 			fs << baseN.toStdString() << "{";
 
 			//values for each table with mean cell measures
-			fs << "jaccardTable" << tInfo->jaccardTable(); meanTableJI += tInfo->jaccardTable();
-			fs << "matchTable" << tInfo->matchTable(); meanTableMatch += tInfo->matchTable();
-			fs << "meanJaccardCell" << tInfo->jaccardMeanCell(); meanCellJI += tInfo->jaccardMeanCell();
-			fs << "meanMatchCell" << tInfo->matchMeanCell(); meanCellMatch += tInfo->matchMeanCell();
-			fs << "underSegmented" << tInfo->underSegmented(); underSeg += tInfo->underSegmented();
-			fs << "missedCells" << tInfo->missedCells(); missedCells += tInfo->missedCells();
-			
+			fs << "jaccardTable" << tInfo->jaccardTable(); 
+			fs << "matchTable" << tInfo->matchTable(); 
+			fs << "meanJaccardCell" << tInfo->jaccardMeanCell();
+			fs << "meanMatchCell" << tInfo->matchMeanCell(); 
+			fs << "underSegmented" << tInfo->underSegmented(); 
+			fs << "missedCells" << tInfo->missedCells(); 
 			fs << "}";
-			nCnt++;
+
+			if (tInfo->jaccardTable() >= 0) {
+				//otherwise table is not calculated...
+				meanTableJI += tInfo->jaccardTable();
+				meanTableMatch += tInfo->matchTable();
+				meanCellJI += tInfo->jaccardMeanCell();
+				meanCellMatch += tInfo->matchMeanCell();
+				underSeg += tInfo->underSegmented();
+				missedCells += tInfo->missedCells();
+
+				nCnt++;
+			}
 		}
 
 		//mean values for all calculated tables
