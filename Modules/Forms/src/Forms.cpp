@@ -535,6 +535,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 		formEval.setTable(formF.tableRegion());
 
+
 		formEval.computeEvalTableRegion();
 		formEval.computeEvalCells();
 				
@@ -651,6 +652,11 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 			QString tmpInfo = tInfo->filePath();
 			QFileInfo tmpInfoF(tInfo->filePath());
 			QString baseN = tmpInfoF.baseName();
+
+			//workaround: some filenames start with a number which causes an error...
+			//so all filenamens have as prefix A-
+			//maybe an error can be caused here in the future due to filestorage: wrong element name
+			baseN = "A-" + baseN;
 			
 
 			//fs << tmpInfo.toStdString() << "[";
