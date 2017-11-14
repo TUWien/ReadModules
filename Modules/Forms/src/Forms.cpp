@@ -374,6 +374,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 			qDebug() << "Match template...";
 			formF.matchTemplate();
+
 					
 			resultImg = formF.drawLinesNotUsedForm(drawImg);
 			cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
@@ -526,7 +527,8 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 		rdf::FormEvaluation formEval;
 		formEval.setSize(formF.sizeImg());
-		if (!formEval.setTemplate(imgC->filePath())) {
+		QString templateXmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
+		if (!formEval.setTemplate(templateXmlPath)) {
 			qWarning() << "could not find template for evaluation " << imgC->filePath();
 			qInfo() << "could not find template for evaluation";
 
