@@ -34,6 +34,7 @@ related links:
 
 // ReadFramework
 #include "SuperPixel.h"
+#include "SuperPixelScaleSpace.h"
 #include "LineTrace.h"
 #include "Algorithms.h"
 #include "Binarization.h"
@@ -413,6 +414,7 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src, rdf::PageXmlParser & parser) 
 			pe->rootRegion()->addUniqueChild(r, true);	// true -> update
 	}
 
+
 	// write stop lines
 	auto seps = la.stopLines();
 	for (auto s : seps) {
@@ -524,7 +526,7 @@ cv::Mat LayoutPlugin::collectFeatures(const cv::Mat & src, const rdf::PageXmlPar
 	qInfo().noquote() << lm.toString();
 
 	// compute super pixels
-	rdf::GridSuperPixel sp(src);
+	rdf::ScaleSpaceSuperPixel<rdf::SuperPixel> sp(src);
 
 	if (!sp.compute())
 		qCritical() << "could not compute super pixels!";
@@ -565,7 +567,7 @@ cv::Mat LayoutPlugin::classifyRegions(const cv::Mat & src, const rdf::PageXmlPar
 	auto pe = parser.page();
 
 	// -------------------------------------------------------------------- Generate Super Pixels 
-	rdf::GridSuperPixel gpm(src);
+	rdf::ScaleSpaceSuperPixel<rdf::SuperPixel> gpm(src);
 
 	if (!gpm.compute())
 		qWarning() << "could not compute" << statsInfo->filePath();
@@ -588,7 +590,6 @@ cv::Mat LayoutPlugin::classifyRegions(const cv::Mat & src, const rdf::PageXmlPar
 		qCritical() << "could not compute SuperPixel labeling!";
 	// -------------------------------------------------------------------- Label Pixels with GT 
 
-	// read back the model
 	QSharedPointer<rdf::SuperPixelModel> model = rdf::SuperPixelModel::read(mSpcConfig.classifierPath());
 
 	auto f = model->model();
@@ -611,7 +612,11 @@ cv::Mat LayoutPlugin::classifyRegions(const cv::Mat & src, const rdf::PageXmlPar
 	if (!spe.compute())
 		qWarning() << "could not evaluate SuperPixels";
 
-	statsInfo->setEvalInfo(spe.evalInfo());
+	auto ei = spe.evalInfo();
+	ei.setName(QFileInfo(statsInfo->filePath()).fileName());
+
+	statsInfo->setEvalInfo(ei);
+	qInfo().noquote() << ei;
 
 	// -------------------------------------------------------------------- Drawing 
 	if (mConfig.drawResults()) {
@@ -682,10 +687,13 @@ bool LayoutPlugin::train() const {
 		qInfo() << fPath << "added...";
 	}
 
+	// normalize again (i.e. if we merge multiple collections)
+	fcm.normalize(mSplConfig.minNumFeaturesPerClass(), mSplConfig.maxNumFeaturesPerClass());
+	qDebug().noquote() << fcm.toString();
 
 	// train classifier
 	rdf::SuperPixelTrainer spt(fcm);
-
+	
 	if (!spt.compute()) {
 		qCritical() << "could not train data...";
 		return false;
