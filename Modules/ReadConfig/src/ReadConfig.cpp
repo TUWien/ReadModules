@@ -82,7 +82,7 @@ ReadConfig::ReadConfig(QObject* parent) : QObject(parent) {
 **/
 ReadConfig::~ReadConfig() {
 
-	qDebug() << "destroying config plugin...";
+	//qDebug() << "destroying config plugin...";
 }
 
 /**

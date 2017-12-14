@@ -83,7 +83,7 @@ BinarizationPlugin::BinarizationPlugin(QObject* parent) : QObject(parent) {
 **/
 BinarizationPlugin::~BinarizationPlugin() {
 
-	qDebug() << "destroying binarization plugin...";
+	//qDebug() << "destroying binarization plugin...";
 	//mBBSConfig.saveSettings();
 }
 

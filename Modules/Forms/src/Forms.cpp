@@ -103,7 +103,7 @@ FormsAnalysis::FormsAnalysis(QObject* parent) : QObject(parent) {
 *	Destructor
 **/
 FormsAnalysis::~FormsAnalysis() {
-	qDebug() << "destroying forms plugin...";
+	//qDebug() << "destroying forms plugin...";
 }
 
 /**

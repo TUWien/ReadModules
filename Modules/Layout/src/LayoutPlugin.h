@@ -38,6 +38,11 @@ related links:
 #include "SuperPixelClassification.h"
 #include "LayoutAnalysis.h"
 #include "Evaluation.h"
+#include "DkSettingsWidget.h"
+
+#pragma warning(push, 0)	// no warnings from includes - begin
+#include <QDialog>
+#pragma warning(pop)		// no warnings from includes - end
 
 // opencv defines
 namespace cv {
@@ -97,6 +102,26 @@ private:
 	rdf::EvalInfo mEvalInfo;
 };
 
+class SettingsDialog : public QDialog {
+	Q_OBJECT
+
+public:
+	SettingsDialog(const QString& title = tr("Training Settings"), QWidget* parent = 0);
+
+	void setGroupName(const QString& name);
+	QString groupName() const;
+
+public slots:
+	void changeSetting(const QString& key, const QVariant& value, const QStringList& groups);
+	void removeSetting(const QString& key, const QStringList& groups);
+
+protected:
+	nmc::DkSettingsWidget* mSettingsWidget = 0;
+	void createLayout();
+
+	QString mName;
+};
+
 class LayoutPlugin : public QObject, nmc::DkBatchPluginInterface {
 	Q_OBJECT
 		Q_INTERFACES(nmc::DkBatchPluginInterface)
@@ -146,6 +171,7 @@ protected:
 	rdf::LineTraceConfig mLTRConfig;
 	rdf::SuperPixelLabelerConfig mSplConfig;
 	rdf::SuperPixelClassifierConfig mSpcConfig;
+	rdf::SuperPixelTrainerConfig mSptConfig;
 	rdf::LayoutAnalysisConfig mLAConfig;
 	LayoutConfig mConfig;
 

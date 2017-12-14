@@ -110,7 +110,7 @@ SkewEstPlugin::SkewEstPlugin(QObject* parent) : QObject(parent) {
 **/
 SkewEstPlugin::~SkewEstPlugin() {
 
-	qDebug() << "destroying skew plugin...";
+	//qDebug() << "destroying skew plugin...";
 }
 
 /**

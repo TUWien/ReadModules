@@ -50,7 +50,7 @@ PageVisPlugin::~PageVisPlugin() {
 	//	mViewport = 0;
 	//}
 
-	qDebug() << "destroying PAGE plugin...";
+	//qDebug() << "destroying PAGE plugin...";
 }
 
 /**

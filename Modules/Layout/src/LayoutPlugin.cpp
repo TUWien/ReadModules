@@ -53,6 +53,7 @@ related links:
 
 #include "LayoutAnalysis.h"
 
+
 // nomacs
 #include "DkImageStorage.h"
 #include "DkSettings.h"
@@ -61,6 +62,11 @@ related links:
 #include <QAction>
 #include <QUuid>
 #include <opencv2/ml.hpp>
+
+#include <QLabel>
+#include <QDialogButtonBox>
+#include <QVBoxLayout>
+
 #pragma warning(pop)		// no warnings from includes - end
 
 namespace rdm {
@@ -130,7 +136,7 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 **/
 LayoutPlugin::~LayoutPlugin() {
 
-	qDebug() << "destroying layout plugin...";
+	//qDebug() << "destroying layout plugin...";
 }
 
 void LayoutPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const {
@@ -187,7 +193,6 @@ void LayoutPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo>
 		eim.write(efi.absoluteFilePath());
 
 		qInfo().noquote() << eim.toString();
-
 		qInfo() << "evaluation written to" << efi.absoluteFilePath();
 	}
 
@@ -204,6 +209,7 @@ void LayoutPlugin::saveSettings(QSettings & settings) const {
 	mConfig.saveSettings(settings);
 	mSplConfig.saveSettings(settings);
 	mSpcConfig.saveSettings(settings);
+	mSptConfig.saveSettings(settings);
 	mLAConfig.saveSettings(settings);
 	//mLTRConfig.saveSettings(settings);
 	settings.endGroup();
@@ -217,6 +223,7 @@ void LayoutPlugin::loadSettings(QSettings & settings) {
 	mSplConfig.loadSettings(settings);
 	mSpcConfig.loadSettings(settings);
 	mLAConfig.loadSettings(settings);
+	mSptConfig.loadSettings(settings);
 	//mLTRConfig.loadSettings(settings);
 	settings.endGroup();
 }
@@ -598,16 +605,25 @@ cv::Mat LayoutPlugin::classifyRegions(const cv::Mat & src, const rdf::PageXmlPar
 	else
 		qCritical() << "illegal classifier found in" << mSpcConfig.classifierPath();
 
+	// -------------------------------------------------------------------- Classify 
 	rdf::SuperPixelClassifier spc(src, gpm.pixelSet());
 	spc.setModel(model);
 
 	if (!spc.compute())
 		qWarning() << "could not classify SuperPixels";
 	
+	// smooth estimation
+	rdf::GraphCutPixelLabel gpl(spc.pixelSet());	// ha: gpl
+	gpl.setLabelManager(model->manager());
+
+	if (!gpl.compute())
+		qWarning() << "could not compute set orientation";
+
 	qInfo() << "regions classified in" << dt;
 
 	// -------------------------------------------------------------------- Evaluate 
 	rdf::SuperPixelEval spe(gpm.pixelSet());
+
 
 	if (!spe.compute())
 		qWarning() << "could not evaluate SuperPixels";
@@ -616,11 +632,14 @@ cv::Mat LayoutPlugin::classifyRegions(const cv::Mat & src, const rdf::PageXmlPar
 	ei.setName(QFileInfo(statsInfo->filePath()).fileName());
 
 	statsInfo->setEvalInfo(ei);
+	
 	qInfo().noquote() << ei;
 
 	// -------------------------------------------------------------------- Drawing 
 	if (mConfig.drawResults()) {
-		cv::Mat rImg = spc.draw(src);
+		cv::Mat rImg = spl.draw(src, false);
+		rImg = spe.draw(rImg);
+
 		return rImg;
 	}
 
@@ -673,15 +692,21 @@ rdf::LineTrace LayoutPlugin::computeLines(QSharedPointer<nmc::DkImageContainer> 
 
 bool LayoutPlugin::train() const {
 
-	rdf::SuperPixelTrainerConfig spc;
+	SettingsDialog* sd = new SettingsDialog(tr("Training Settings"), nmc::DkUtils::getMainWindow());
+	sd->setMinimumSize(480, 600);
+	sd->exec();
+
+	// get the last changes
 	rdf::DefaultSettings s;
+	QSharedPointer<rdf::SuperPixelTrainerConfig> sptc(new rdf::SuperPixelTrainerConfig);
 	s.beginGroup(name());
-	spc.loadSettings(s);
+	sptc->loadSettings(s);
 	s.endGroup();
+
 
 	rdf::FeatureCollectionManager fcm;
 
-	for (const QString& fPath : spc.featureCachePaths()) {
+	for (const QString& fPath : sptc->featureCachePaths()) {
 		rdf::FeatureCollectionManager cFc = rdf::FeatureCollectionManager::read(fPath);
 		fcm.merge(cFc);
 		qInfo() << fPath << "added...";
@@ -693,16 +718,17 @@ bool LayoutPlugin::train() const {
 
 	// train classifier
 	rdf::SuperPixelTrainer spt(fcm);
+	spt.setConfig(sptc);
 	
 	if (!spt.compute()) {
 		qCritical() << "could not train data...";
 		return false;
 	}
 
-	spt.write(spc.modelPath());
+	spt.write(sptc->modelPath());
 
 	// test - read back the model
-	auto model = rdf::SuperPixelModel::read(spc.modelPath());
+	auto model = rdf::SuperPixelModel::read(sptc->modelPath());
 
 	auto f = model->model();
 	if (f && f->isTrained()) {
@@ -710,7 +736,7 @@ bool LayoutPlugin::train() const {
 		return true;
 	}
 	
-	qCritical() << "could not save classifier to:" << spc.modelPath();
+	qCritical() << "could not save classifier to:" << sptc->modelPath();
 
 	return false;
 }
@@ -778,5 +804,54 @@ void LayoutConfig::save(QSettings & settings) const {
 	settings.setValue("drawResults", mDrawResults);
 	settings.setValue("saveXml", mSaveXml);
 }
+
+// TODO: move to nomacs
+// DkSettingsDialog --------------------------------------------------------------------
+SettingsDialog::SettingsDialog(const QString& title, QWidget* parent) : QDialog(parent) {
+	
+	setWindowTitle(title);
+	createLayout();
+	rdf::DefaultSettings s;
+	
+	nmc::DkSettingsGroup g = nmc::DkSettingsGroup::fromSettings(s);
+	mSettingsWidget->addSettingsGroup(g);
+	mSettingsWidget->filter("SuperPixelTrainer");
+}
+
+void SettingsDialog::changeSetting(const QString& key, const QVariant& value, const QStringList& groups) {
+
+	rdf::DefaultSettings s;
+	nmc::DkSettingsWidget::changeSetting(s, key, value, groups);
+}
+
+void SettingsDialog::removeSetting(const QString & key, const QStringList & groups) {
+
+	rdf::DefaultSettings s;
+	nmc::DkSettingsWidget::removeSetting(s, key, groups);
+}
+
+void SettingsDialog::createLayout() {
+
+	mSettingsWidget = new nmc::DkSettingsWidget(this);
+
+	QLabel* titleLabel = new QLabel(rdf::Config::instance().settingsFilePath(), this);
+	titleLabel->setStyleSheet("QLabel {color: #666; font-style: italic;}");
+	titleLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
+	QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok, Qt::Horizontal, this);
+	connect(buttons, SIGNAL(accepted()), this, SLOT(accept()));
+
+	QVBoxLayout* layout = new QVBoxLayout(this);
+	layout->addWidget(mSettingsWidget);
+	layout->addWidget(titleLabel);
+	layout->addWidget(buttons);
+
+	connect(mSettingsWidget, SIGNAL(changeSettingSignal(const QString&, const QVariant&, const QStringList&)),
+		this, SLOT(changeSetting(const QString&, const QVariant&, const QStringList&)));
+	connect(mSettingsWidget, SIGNAL(removeSettingSignal(const QString&, const QStringList&)),
+		this, SLOT(removeSetting(const QString&, const QStringList&)));
+
+}
+
 };
 
