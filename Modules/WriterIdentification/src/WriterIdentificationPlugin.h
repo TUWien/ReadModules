@@ -26,6 +26,7 @@
 
 #include "DkPluginInterface.h"
 #include "WriterDatabase.h"
+#include "WriterRetrieval.h"
 
 class QSettings;
 namespace rdm {
@@ -46,6 +47,8 @@ public:
 
 	void setImageName(const QString& p);
 	QString imageName() const;
+
+	
 private:
 	QString mWriter;
 	QString mFeatureFilePath;
@@ -76,6 +79,8 @@ public:
 	void preLoadPlugin() const override;
 	void postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const override;
 
+	virtual QString settingsFilePath() const override;
+
 	enum {
 		id_calcuate_features,
 		id_generate_vocabulary,
@@ -104,18 +109,10 @@ private:
 	QString featureFilePath(QString imgPath, bool createDir=false) const;
 	QString extractWriterIDFromFilename(const QString fileName) const;
 
-	QString mSettingsVocPath = QString();
-	int mVocType;
-	int mVocNumberOfClusters;
-	int mVocNumberOfPCA;
-	int mVocMaxSIFTSize;
-	int mVocMinSIFTSize;
-	bool mL2Before;
-	double mVocPowerNormalization;
-	rdf::WriterVocabulary mVocabulary = rdf::WriterVocabulary();
-	QString mFeatureDir = QString();
-	QString mEvalFile = QString();
-	int mVocNumverOfPCAWhite;
+	rdf::WriterRetrievalConfig mWriterRetrievalConfig;
+	rdf::WriterVocabularyConfig mWriterVocConfig;
+
+	rdf::WriterVocabulary mVoc;
 };
 
 };

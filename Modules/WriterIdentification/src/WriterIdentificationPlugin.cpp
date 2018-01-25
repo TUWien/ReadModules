@@ -33,6 +33,9 @@
 #include "WriterDatabase.h"
 #include "Image.h"
 #include "Settings.h"
+#include "PageParser.h"
+#include "Elements.h"
+#include "ElementsHelper.h"
 
 #include "Utils.h"
 #include "Algorithms.h"
@@ -113,7 +116,7 @@ QImage WriterIdentificationPlugin::image() const {
 }
 
 QString WriterIdentificationPlugin::name() const {
-	return "Writer Identification";
+	return "WriterIdentification";
 }
 
 QList<QAction*> WriterIdentificationPlugin::createActions(QWidget* parent) {
@@ -156,40 +159,75 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 		qInfo() << "calculating features for writer identification";
 		rdf::WriterImage wi = rdf::WriterImage();
 		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
+
+		QImage qMask = QImage(imgC->image().size(), QImage::Format::Format_Grayscale8);
+		qMask.fill(0);
+		QPainter myPainter(&qMask);
+		//myPainter.setPen(QPen(Qt::white, 3, Qt::SolidLine));
+		//myPainter.setPen(QPen(Qt::white));
+		rdf::RegionTypeConfig rtc = rdf::RegionTypeConfig(rdf::Region::Type::type_text_region);
+		QPen pen = QPen(Qt::white);
+		rtc.setPen(pen);
+		rtc.setBrush(Qt::white);
+
+		QString loadXmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
+		if(QFileInfo(loadXmlPath).exists()) {
+			rdf::PageXmlParser parser;
+			parser.read(loadXmlPath);
+			auto pe = parser.page();
+
+			QVector<QSharedPointer<rdf::Region>> regs = pe->rootRegion()->allRegions();
+			for(auto i : regs) {
+				if(i->type() == i->type_text_line) {
+					QSharedPointer<rdf::TextLine> text_region = i.dynamicCast<rdf::TextLine>();
+					text_region->draw(myPainter, rtc);
+					//rdf::Polygon poly = text_region->polygon();
+				}
+			}
+			
+			cv::Mat cMask = nmc::DkImage::qImage2Mat(qMask);
+			cv::Mat cMaskC1 = cv::Mat();
+			cv::cvtColor(cMask, cMaskC1, CV_RGB2GRAY);
+			wi.setMask(cMaskC1);
+		}
 		wi.setImage(imgCv);
 		wi.calculateFeatures();
 		cv::cvtColor(imgCv, imgCv, CV_RGB2GRAY);
+		qDebug() << "lenght:" << wi.keyPoints().size();
 		QVector<cv::KeyPoint> kp = wi.keyPoints();
-		//QVector<cv::KeyPoint>::iterator kpItr = kp.begin();
-		//cv::Mat desc = wi.descriptors();
-		//cv::Mat newDesc = cv::Mat(0, desc.cols, desc.type());
-		//int r = 0;
-		//rdf::Image::imageInfo(desc, "desc");
-		//for(auto kpItr = kp.begin(); kpItr != kp.end(); r++) {
-		//	kpItr->size *= 1.5 * 4;
-		//	if(kpItr->size > 70) {
-		//		kpItr = kp.erase(kpItr);
-		//	} else if(kpItr->size < 20) {
-		//		kpItr = kp.erase(kpItr);
-		//	} else {
-		//		kpItr++;
-		//		newDesc.push_back(desc.row(r).clone());
-		//	}
-		//}
-		//rdf::Image::imageInfo(newDesc, "newDesc");
-		//wi.setDescriptors(newDesc);
-		//wi.setKeyPoints(kp);
+		////QVector<cv::KeyPoint>::iterator kpItr = kp.begin();
+		////cv::Mat desc = wi.descriptors();
+		////cv::Mat newDesc = cv::Mat(0, desc.cols, desc.type());
+		////int r = 0;
+		////rdf::Image::imageInfo(desc, "desc");
+		////for(auto kpItr = kp.begin(); kpItr != kp.end(); r++) {
+		//	//kpItr->size *= 1.5 * 4;
+		////	if(kpItr->size > 70) {
+		////		kpItr = kp.erase(kpItr);
+		////	} else if(kpItr->size < 20) {
+		////		kpItr = kp.erase(kpItr);
+		////	} else {
+		////		kpItr++;
+		////		newDesc.push_back(desc.row(r).clone());
+		////	}
+		////}
+		////rdf::Image::imageInfo(newDesc, "newDesc");
+		////wi.setDescriptors(newDesc);
+		////wi.setKeyPoints(kp);
+
+		for(auto kpItr = kp.begin(); kpItr != kp.end(); kpItr++) 
+			kpItr->size *= 1.5 * 4;
 		cv::drawKeypoints(imgCv, kp.toStdVector(), imgCv, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-		////cv::drawKeypoints(imgCv, wi.getKeyPoints().toStdVector(), imgCv, cv::Scalar::all(-1));
-		//
-		////QString fFilePath = featureFilePath(imgC->filePath(), true);
 
 
+		QString fFilePath = featureFilePath(imgC->filePath(), true);
 		wi.saveFeatures(featureFilePath(imgC->filePath(), true));
 
-		//QImage img = nmc::DkImage::mat2QImage(imgCv);
-		//img = img.convertToFormat(QImage::Format_ARGB32);
-		//imgC->setImage(img, tr("SIFT keypoints"));
+		QImage img = nmc::DkImage::mat2QImage(imgCv);
+		img = img.convertToFormat(QImage::Format_ARGB32);
+		imgC->setImage(img, tr("SIFT keypoints"));
+
+		//imgC->setImage(qMask, tr("Mask"));
 
 	}
 	else if(runID == mRunIDs[id_generate_vocabulary]) {
@@ -212,7 +250,7 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 	else if(runID == mRunIDs[id_evaluate_database]) {
 		qInfo() << "collecting files evaluation";
 
-		if(mVocabulary.isEmpty()) {
+		if(mVoc.isEmpty()) {
 			qWarning() << "batchProcess: vocabulary is empty ... not evaluating";
 			return imgC;
 		}
@@ -232,14 +270,14 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 			fs["descriptors"] >> descriptors;
 			fs.release();
 
-			if(mVocabulary.minimumSIFTSize() > 0 || mVocabulary.maximumSIFTSize() > 0) {
+			if(mVoc.minimumSIFTSize() > 0 || mVoc.maximumSIFTSize() > 0) {
 				cv::Mat filteredDesc = cv::Mat(0, descriptors.cols, descriptors.type());
 				int r = 0;
 				for(auto kpItr = kp.begin(); kpItr != kp.end(); r++) {
-					if(kpItr->size*1.5 * 4 > mVocabulary.maximumSIFTSize() && mVocabulary.maximumSIFTSize() > 0) {
+					if(kpItr->size*1.5 * 4 > mVoc.maximumSIFTSize() && mVoc.maximumSIFTSize() > 0) {
 						kpItr = kp.erase(kpItr);
 					}
-					else if(kpItr->size * 1.5 * 4 < mVocabulary.minimumSIFTSize()) {
+					else if(kpItr->size * 1.5 * 4 < mVoc.minimumSIFTSize()) {
 						kpItr = kp.erase(kpItr);
 					}
 					else {
@@ -247,13 +285,13 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 						filteredDesc.push_back(descriptors.row(r).clone());
 					}
 				}
-				qDebug() << "filtered " << descriptors.rows - filteredDesc.rows << " SIFT features (maxSize:" << mVocabulary.maximumSIFTSize() << " minSize:" << mVocabulary.minimumSIFTSize() << ")";
+				qDebug() << "filtered " << descriptors.rows - filteredDesc.rows << " SIFT features (maxSize:" << mVoc.maximumSIFTSize() << " minSize:" << mVoc.minimumSIFTSize() << ")";
 				descriptors = filteredDesc;
 			}
 			else
 				qDebug() << "not filtering SIFT features, min or max size not set";
 
-			cv::Mat feature = mVocabulary.generateHist(descriptors);
+			cv::Mat feature = mVoc.generateHist(descriptors);
 
 			rdf::Image::imageInfo(descriptors, "descriptors");
 			rdf::Image::imageInfo(feature, "feature");
@@ -272,7 +310,7 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 		}
 	}
 	else if(runID == mRunIDs[id_evaluate_database_transkribus]) {
-		if(mVocabulary.isEmpty()) {
+		if(mVoc.isEmpty()) {
 			qWarning() << "batchProcess: vocabulary is empty ... not evaluating";
 			return imgC;
 		}
@@ -303,295 +341,23 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 			wi.setImage(imgCv);
 			wi.setKeyPoints(QVector<cv::KeyPoint>::fromStdVector(kp));
 			wi.setDescriptors(descriptors);
-			wi.filterKeyPoints(mVocabulary.minimumSIFTSize(), mVocabulary.maximumSIFTSize());
+			wi.filterKeyPoints(mVoc.minimumSIFTSize(), mVoc.maximumSIFTSize());
 			wInfo->setFeatureFilePath(fFilePath);
 		}
 		else { // calculate new features
 			wi.setImage(imgCv);
 			wi.calculateFeatures();
-			wi.filterKeyPoints(mVocabulary.minimumSIFTSize(), mVocabulary.maximumSIFTSize());
+			wi.filterKeyPoints(mVoc.minimumSIFTSize(), mVoc.maximumSIFTSize());
 
 			wInfo->setFeatureFilePath("");
 		}
-		cv::Mat feature = mVocabulary.generateHist(wi.descriptors());
+		cv::Mat feature = mVoc.generateHist(wi.descriptors());
 
 
 		wInfo->setFeatureVector(feature);
 
 		info = wInfo;
 
-	}
-	else if(runID == mRunIDs[id_extract_patches]) {
-		rdf::WriterImage wi = rdf::WriterImage();
-		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
-		wi.setImage(imgCv);
-		wi.calculateFeatures();
-		cv::cvtColor(imgCv, imgCv, CV_RGB2GRAY);
-		QVector<cv::KeyPoint> kp = wi.keyPoints();
-		QVector<QImage> trainPatches, testPatches;
-		QRect oldRect;
-		for(int i = 0; i < kp.length(); i++) {
-			int rectSize = 64;
-			int threshBorder = 16;
-			int threshold = 20;
-
-			QPointF point = rdf::Converter::cvPointToQt(kp[i].pt);
-			point.setX(point.x() - rectSize/2);
-			point.setY(point.y() - rectSize/2);
-			QRect rect = QRect(point.toPoint(), QSize(rectSize, rectSize));
-			QImage img = imgC->image().copy(rect);
-
-			QRect threshRect = QRect(QPoint(threshBorder, threshBorder), QPoint(rectSize-threshBorder, rectSize-threshBorder));
-			QImage tmpImg = img.copy(threshRect);
-			cv::Scalar sum = cv::sum(nmc::DkImage::qImage2Mat(tmpImg));
-			if(sum[0]/255.0f > tmpImg.width()*tmpImg.height()-20) {
-				qDebug() << "sum exceeds threshold";				
-				continue;
-			}
-
-			if(rect != oldRect) {
-				//qDebug() << "point y :" << point.y() << "  height/2:" << imgCv.rows / 2;
-				//if(point.y() < imgCv.rows /2)
-					trainPatches.push_back(img);
-				//else
-					//testPatches.push_back(img);
-			}
-			oldRect = rect;
-			
-		}
-
-		QString dirName = "patches";
-		QFileInfo fImgPath(imgC->fileInfo());
-		QFileInfo patchesOutPath(fImgPath.absoluteDir().path() + "/" + dirName + "/");
-		if(!patchesOutPath.exists()) {
-			QDir directory(fImgPath.absoluteDir());
-			if(!directory.mkdir(dirName)) {
-				qDebug() << "unable to create subdirectory";
-			}
-		}
-		QFileInfo trainDir = QFileInfo(patchesOutPath.absolutePath() + "/train/");
-		if(!trainDir.exists()) {
-			QDir directory(patchesOutPath.absoluteDir());
-			if(!directory.mkdir("train")) {
-				qDebug() << "unable to create train subdirectory";
-			}
-		}
-		QFileInfo testDir = QFileInfo(patchesOutPath.absolutePath() + "/test/");
-		if(!testDir.exists()) {
-			QDir directory(patchesOutPath.absoluteDir());
-			if(!directory.mkdir("test")) {
-				qDebug() << "unable to create train subdirectory";
-			}
-		}
-
-		QString label = extractWriterIDFromFilename(imgC->fileName());
-
-		//QFileInfo writerPatchPath(patchesOutPath.absolutePath() + "/" + label + "/");
-		//if(!writerPatchPath.exists()) {
-		//	QDir dir = patchesOutPath.absoluteDir();
-		//	dir.mkdir(label);
-		//	writerPatchPath = QFileInfo(patchesOutPath.absolutePath() + "/" + label + "/");
-		//}
-		QFileInfo patchOutTrain = QFileInfo(trainDir.absolutePath() + "/" + label + "/");
-		if(!patchOutTrain.exists()) {
-			QDir directory(trainDir.absoluteDir());
-			if(!directory.mkdir(label)) {
-				qDebug() << "unable to create train-label subdirectory";
-			}
-		}
-
-		QFileInfo patchOutTest = QFileInfo(testDir.absolutePath() + "/" + label + "/");
-		if(!patchOutTest.exists()) {
-			QDir directory(testDir.absoluteDir());
-			if(!directory.mkdir(label)) {
-				qDebug() << "unable to create train subdirectory";
-			}
-		}
-
-
-
-		for(int i = 0; i < trainPatches.length(); i++) {
- 			QImageWriter qw;
-			qw.setFormat("png");
-			QFileInfo fi = imgC->fileInfo();
-			qw.setFileName(patchOutTrain.absolutePath() + "/" + label + "_"+ fi.baseName() + "_" + QString::number(i) + ".png");
-			qw.write(trainPatches[i]);
-		}
-		for(int i = 0; i < testPatches.length(); i++) {
-			QImageWriter qw;
-			qw.setFormat("png");
-			QFileInfo fi = imgC->fileInfo();
-			qw.setFileName(patchOutTest.absolutePath() + "/" + label + "_" + fi.baseName() + "_" + QString::number(i) + ".png");
-			qw.write(testPatches[i]);
-		}
-
-	}
-	else if(runID == mRunIDs[id_extract_patches_per_page]) {
-		rdf::WriterImage wi = rdf::WriterImage();
-		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
-		wi.setImage(imgCv);
-		cv::Mat labels, stats, centroids, imgCvBin;
-		cv::cvtColor(imgCv, imgCvBin, CV_RGB2GRAY);
-		rdf::Image::imageInfo(imgCv, "imgCv");
-		rdf::Image::imageInfo(imgCvBin, "imgCvBin");
-		
-		bitwise_not(imgCvBin, imgCvBin);
-		cv::connectedComponentsWithStats(imgCvBin, labels, stats, centroids);
-		QList<int> heights;
-		for(int i = 0; i < stats.rows; i++)
-			heights.push_back(stats.at<int>(i, cv::CC_STAT_HEIGHT));
-
-		double height = rdf::Algorithms::statMoment(heights, 0.9);
-		height += height * 0.2;
-		qDebug() << "height:" << height;
-		wi.calculateFeatures();
-		cv::cvtColor(imgCv, imgCv, CV_RGB2GRAY);
-		QVector<cv::KeyPoint> kp = wi.keyPoints();
-		cv::Mat allDesc = wi.descriptors();
-		cv::Mat desc(0, allDesc.cols, allDesc.type());
-
-		QVector<QImage> patches;
-		QRect oldRect;
-		for(int i = 0; i < kp.length(); i++) {
-			int rectSize = height;
-			//int rectSize = 64;
-			//int rectSize = kp[i].size*1.5*4;
-			//if(rectSize > 70)
-			//	continue;
-			//if(rectSize < 32)
-			//	continue;
-			
-			int threshBorder = 16;
-			int threshold = 20;
-
-			QPointF point = rdf::Converter::cvPointToQt(kp[i].pt);
-			point.setX(point.x() - rectSize / 2);
-			point.setY(point.y() - rectSize / 2);
-			QRect rect = QRect(point.toPoint(), QSize(rectSize, rectSize));
-			QImage img = imgC->image().copy(rect);
-			img = img.scaled(64, 64);
-			QRect threshRect = QRect(QPoint(threshBorder, threshBorder), QPoint(rectSize - threshBorder, rectSize - threshBorder));
-			QImage tmpImg = img.copy(threshRect);
-			cv::Scalar sum = cv::sum(nmc::DkImage::qImage2Mat(tmpImg));
-			//if(sum[0] / 255.0f > tmpImg.width()*tmpImg.height() - 20) {
-			if ((sum[0] / 255.0f) / (tmpImg.width()*tmpImg.height()) > 0.99) {
-				qDebug() << "sum exceeds threshold";
-				continue;
-			}
-
-			if(rect != oldRect) {
-				patches.push_back(img);
-				desc.push_back(allDesc.row(i));
-			}
-			oldRect = rect;
-		}
-
-		QFileInfo imgFi = imgC->fileInfo();
-		QDir pageDir = imgFi.absoluteDir();
-		pageDir.mkdir("page-patches");
-		pageDir.cd("page-patches");
-
-		pageDir.mkdir(imgFi.baseName());
-
-		QDir patchDir = QDir(pageDir.absolutePath() + "/" + imgFi.baseName());
-		QString label = extractWriterIDFromFilename(imgC->fileName());
-		for(int i = 0; i < patches.length(); i++) {
-			QImageWriter qw;
-			qw.setFormat("png");
-			QFileInfo fi = imgC->fileInfo();
-			qw.setFileName(patchDir.absolutePath() + "/" + label + "_" + fi.baseName() + "_" + QString::number(i) + ".png");
-			qw.write(patches[i]);
-		}
-
-		
-		
-		QFile file(patchDir.absolutePath()+"/desc.txt");
-		if(file.open(QIODevice::WriteOnly)) {
-			QTextStream stream(&file);
-			for(int k = 0; k < desc.rows; k++) {
-				const float* curRow = desc.ptr<float>(k);
-				for(int j = 0; j < desc.cols; j++)
-					stream << curRow[j] << " ";
-				stream << "\n";
-			}
-
-		}
-		file.close();
-
-
-
-
-	}
-	else if(runID == mRunIDs[id_extract_random_patches]) {
-		//int patchSize = 64;
-		//int patchNumber = 1000;
-		//double ratio = 0.85;
-
-		//int patchSize = 200;
-		//int patchNumber = 50;
-		//double ratio = 0.95;
-
-		int patchSize = 64;
-		int patchNumber = 2000;
-		double ratio = 0.85;
-
-
-		QString dirName = "random-patches-" + QString::number(patchNumber);
-
-		QString label = extractWriterIDFromFilename(imgC->fileName());
-
-		QFileInfo fImgPath(imgC->fileInfo());
-		
-		QFileInfo patchesOutPath(fImgPath.absoluteDir().path() + "/" + dirName + "/");
-		
-		if(!patchesOutPath.exists()) {
-			QDir directory(fImgPath.absoluteDir());
-			if(!directory.mkdir(dirName)) {
-				qDebug() << "unable to create subdirectory";
-			}
-		}
-
-
-		QFileInfo patchOut = QFileInfo(patchesOutPath.absolutePath() + "/" + label + "/");
-		qDebug() << "patchOut:" << patchOut.absoluteFilePath();
-		if(!patchOut.exists()) {
-			QDir directory(patchesOutPath.absoluteDir());
-			if(!directory.mkdir(label)) {
-				qDebug() << "unable to create train-label subdirectory";
-			}
-		}
-
-		int patchCounter = 0;
-		int sizeX = imgC->image().size().width()-patchSize;
-		int sizeY = imgC->image().size().height()-patchSize;
-		QPainter paint;
-		//QImage img = imgC->image();
-		//paint.begin(&img);
-		int maxCount = 10000000;
-		while(patchCounter < patchNumber || patchCounter > maxCount) {
-			
-			int randomX = qrand() % sizeX;
-			int randomY = qrand() % sizeY;
-			QRect rect(randomX, randomY, patchSize, patchSize);
-			//paint.drawRect(rect);
-			QImage cropped = imgC->image().copy(rect);
-
-			cv::Mat imgCropped = nmc::DkImage::qImage2Mat(cropped);
-			double sum = cv::sum(imgCropped)[0]/255; 
-			//qDebug() << sum / (patchSize*patchSize);
-			if(sum / (patchSize*patchSize) > ratio) // 0.8 für triplets
-				continue;
-
-			
-			QImageWriter qw;
-			qw.setFormat("png");
-			QFileInfo fi = imgC->fileInfo();
-			qw.setFileName(patchOut.absolutePath() + "/" + label + "_" + fi.baseName() + "_" + QString::number(patchCounter) + ".png");
-			qw.write(cropped);
-			patchCounter++;
-		}
-		//paint.end();
-		//imgC->setImage(img, tr("patches"));
 	}
 		
 
@@ -600,8 +366,9 @@ QSharedPointer<nmc::DkImageContainer> WriterIdentificationPlugin::runPlugin(
 }
 void WriterIdentificationPlugin::preLoadPlugin() const {
 	qDebug() << "preloading plugin";
-	
+
 }
+
 void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo> >& batchInfo) const {
 	qDebug() << "postLoadPlugin";
 
@@ -620,15 +387,15 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 	if(runIdx == id_generate_vocabulary) {
 		rdf::WriterDatabase wiDatabase = rdf::WriterDatabase();
 		rdf::WriterVocabulary voc = rdf::WriterVocabulary();
-		if(mVocType != rdf::WriterVocabulary::WI_UNDEFINED) {
-			voc.setType(mVocType);
-			voc.setNumberOfCluster(mVocNumberOfClusters);
-			voc.setNumberOfPCA(mVocNumberOfPCA);
-			voc.setNumOfPCAWhiteComp(mVocNumverOfPCAWhite);
-			voc.setMaximumSIFTSize(mVocMaxSIFTSize);
-			voc.setMinimumSIFTSize(mVocMinSIFTSize);
-			voc.setPowerNormalization(mVocPowerNormalization);
-			voc.setL2Before(mL2Before);
+		if(mWriterVocConfig.type() != rdf::WriterVocabulary::WI_UNDEFINED) {
+			voc.setType(mWriterVocConfig.type());
+			voc.setNumberOfCluster(mWriterVocConfig.numberOfClusters());
+			voc.setNumberOfPCA(mWriterVocConfig.numberOfPCA());
+			voc.setNumOfPCAWhiteComp(mWriterVocConfig.numberOfPCAWhitening());
+			voc.setMaximumSIFTSize(mWriterVocConfig.maxSIFTSize());
+			voc.setMinimumSIFTSize(mWriterVocConfig.minSIFTSize());
+			voc.setPowerNormalization(mWriterVocConfig.powerNormalization());
+			voc.setL2Before(mWriterVocConfig.l2before());
 		}
 		else {
 			qDebug() << "vocabulary in settings file undefined. Using default values";
@@ -652,12 +419,12 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 		}
 
 		wiDatabase.generateVocabulary();
-		wiDatabase.saveVocabulary(voc.type() == rdf::WriterVocabulary::WI_UNDEFINED ? "C://tmp//voc-woSettings.yml" : mSettingsVocPath);
+		wiDatabase.saveVocabulary(voc.type() == rdf::WriterVocabulary::WI_UNDEFINED ? "C://tmp//voc-woSettings.yml" : mWriterRetrievalConfig.vocabularyPath());
 		wiDatabase.evaluateDatabase(classLabels, featurePaths);
 	}
 	else if(runIdx == id_evaluate_database || runIdx == id_evaluate_database_transkribus) {
 		rdf::WriterDatabase wiDatabase = rdf::WriterDatabase(); 
-		wiDatabase.setVocabulary(mVocabulary);
+		wiDatabase.setVocabulary(mVoc);
 		QStringList classLabels, featurePaths, imageNames;
 		cv::Mat hists;
 		for(auto bi : batchInfo) {
@@ -668,12 +435,12 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 			imageNames.push_back(wInfo->imageName());
 		}
 
-		if(!mSettingsVocPath.isEmpty()) {
-			qDebug() << "vocabulary path:" << mSettingsVocPath;
-		}
-		QFileInfo fi = QFileInfo(mEvalFile);
-		QString evalFile = mEvalFile;
+		qDebug() << "vocabulary path:" << mWriterRetrievalConfig.vocabularyPath();
+		
+		QFileInfo fi = QFileInfo(mWriterRetrievalConfig.evalPath());
+		QString evalFile = mWriterRetrievalConfig.evalPath();
 		if(fi.isDir()) {
+			// generate new filename for eval file
 			evalFile += "/eval";
 
 			if(!featurePaths.empty()) {
@@ -684,24 +451,24 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 					dir.cdUp();
 				}
 				evalFile += "-" + dir.dirName();
-			}
+			} 
 
-			if(mVocabulary.type() == rdf::WriterVocabulary::WI_BOW)
+			if(mVoc.type() == rdf::WriterVocabulary::WI_BOW)
 				evalFile += "-BOW";
-			else if(mVocabulary.type() == rdf::WriterVocabulary::WI_GMM) {
+			else if(mVoc.type() == rdf::WriterVocabulary::WI_GMM) {
 				evalFile += "-GMM";
-				evalFile += "-" + QString::number(mVocabulary.powerNormalization(),'f',2) + "pow";
+				evalFile += "-" + QString::number(mVoc.powerNormalization(),'f',2) + "pow";
 			} 
 			else
 				evalFile += "-Unkown";
 
-			evalFile += "-" + QString::number(mVocabulary.numberOfCluster()) + "c";
-			evalFile += "-" + QString::number(mVocabulary.numberOfPCA()) + "PCA";
-			evalFile += "-" + QString::number(mVocabulary.maximumSIFTSize()) + "SIFTmax";
-			evalFile += "-" + QString::number(mVocabulary.minimumSIFTSize()) + "SIFTmin";
-			if(mVocabulary.l2Mean().empty())
+			evalFile += "-" + QString::number(mVoc.numberOfCluster()) + "c";
+			evalFile += "-" + QString::number(mVoc.numberOfPCA()) + "PCA";
+			evalFile += "-" + QString::number(mVoc.maximumSIFTSize()) + "SIFTmax";
+			evalFile += "-" + QString::number(mVoc.minimumSIFTSize()) + "SIFTmin";
+			if(mVoc.l2Mean().empty())
 				evalFile += "-wol2Mean";
-			if(mVocabulary.histL2Mean().empty())
+			if(mVoc.histL2Mean().empty())
 				evalFile += "-wol2hist";
 			if(QFileInfo(evalFile + ".txt").exists()) {
 				int i = 1;
@@ -715,70 +482,63 @@ void WriterIdentificationPlugin::postLoadPlugin(const QVector<QSharedPointer<nmc
 		}
 
 		wiDatabase.evaluateDatabase(hists, classLabels, featurePaths, evalFile);
-		qDebug() << "writing competition file to:" << "c:/tmp/comp.csv";
-		wiDatabase.writeCompetitionEvaluationFile(hists, imageNames, "c:/tmp/comp.csv");
-		if(!mEvalFile.isEmpty())
-			qDebug() << "evaluation written to " << evalFile;
+		//qDebug() << "writing competition file to:" << "c:/tmp/comp.csv";
+		//wiDatabase.writeCompetitionEvaluationFile(hists, imageNames, "c:/tmp/comp.csv");
+		qDebug() << "evaluation written to " << evalFile;
 	}
+}
+
+QString WriterIdentificationPlugin::settingsFilePath() const {
+	return rdf::Config::instance().settingsFilePath();
 }
 
 void WriterIdentificationPlugin::init() {
 	
-	rdf::DefaultSettings ds;
-	loadSettings(ds);
+	rdf::DefaultSettings s;
+	s.beginGroup(name());
+	mWriterRetrievalConfig.saveDefaultSettings(s);
+	mWriterVocConfig.saveDefaultSettings(s);
+	s.endGroup();
 }
 
 void WriterIdentificationPlugin::loadSettings(QSettings & settings) {
-	rdf::WriterVocabulary defaultVoc = rdf::WriterVocabulary();
-	settings.beginGroup("WriterIdentification");
-	mSettingsVocPath = settings.value("vocPath", QString()).toString();
-	if(!mSettingsVocPath.isEmpty()) {
-		mVocabulary.loadVocabulary(mSettingsVocPath);
-	}
-	mVocType = settings.value("vocType", defaultVoc.type()).toInt();
-	if(mVocType > rdf::WriterVocabulary::WI_UNDEFINED)
-		mVocType = rdf::WriterVocabulary::WI_UNDEFINED;
-	mVocNumberOfClusters = settings.value("numberOfClusters", defaultVoc.numberOfCluster()).toInt();
-	mVocNumberOfPCA = settings.value("numberOfPCA", defaultVoc.numberOfPCA()).toInt();
-	mVocNumverOfPCAWhite = settings.value("numberOfPCAWhitening", defaultVoc.numberOfPCAWhiteningComponents()).toInt();
-	mVocMaxSIFTSize = settings.value("maxSIFTSize", defaultVoc.maximumSIFTSize()).toInt();
-	mVocMinSIFTSize = settings.value("minSIFTSize", defaultVoc.minimumSIFTSize()).toInt();
-	mVocPowerNormalization = settings.value("powerNormalization", defaultVoc.powerNormalization()).toDouble();
-	mFeatureDir = settings.value("featureDir", QString()).toString();
-	mL2Before = settings.value("L2before", defaultVoc.l2before()).toBool();
-	mEvalFile = settings.value("evalFile", QString()).toString();
-	
-	if (!mSettingsVocPath.isEmpty())
-		qDebug() << "settings read: path: " << mSettingsVocPath << " type:" << mVocType << " numberOfClusters:" << mVocNumberOfClusters << " numberOfPCA: " << mVocNumberOfPCA;
+	settings.beginGroup(name());
+	mWriterRetrievalConfig.loadSettings(settings);
+	mWriterVocConfig.loadSettings(settings);
 	settings.endGroup();
 
+	QFileInfo fi = QFileInfo(mWriterRetrievalConfig.vocabularyPath());
+	if(fi.exists()) {
+		mVoc.loadVocabulary(mWriterRetrievalConfig.vocabularyPath());
+	}
 }
 
 void WriterIdentificationPlugin::saveSettings(QSettings & settings) const {
-	settings.beginGroup("WriterIdentification");
-
+	settings.beginGroup(name());
+	mWriterRetrievalConfig.saveSettings(settings);
+	mWriterVocConfig.saveSettings(settings);
 	settings.endGroup();
 }
 
 QString WriterIdentificationPlugin::featureFilePath(QString imgPath, bool createDir) const {
 	QString extension = ".yml";
 
-	if(mFeatureDir.isEmpty()) {
+	if(mWriterRetrievalConfig.featureDirectory().isEmpty()) {
 		QString featureFilePath = imgPath;
 		return featureFilePath.replace(featureFilePath.length() - 4, featureFilePath.length(), extension);
 	}
 	else {
 		QString ffPath;
 		QFileInfo fImgPath(imgPath);
-		QFileInfo fFeatPath(mFeatureDir);
+		QFileInfo fFeatPath(mWriterRetrievalConfig.featureDirectory());
 		if(fFeatPath.isAbsolute()) {
 			ffPath = fFeatPath.absoluteDir().path() + fImgPath.baseName();
 		}
 		else {
-			QFileInfo combined(fImgPath.absoluteDir().path() + "/" + mFeatureDir + "/");
+			QFileInfo combined(fImgPath.absoluteDir().path() + "/" + mWriterRetrievalConfig.featureDirectory() + "/");
 			if(!combined.exists() && createDir) {
 				QDir directory(fImgPath.absoluteDir());
-				if(!directory.mkdir(mFeatureDir)) {
+				if(!directory.mkdir(mWriterRetrievalConfig.featureDirectory())) {
 					qDebug() << "unable to create subdirectory";
 				}
 			}
