@@ -38,6 +38,7 @@ related links:
 #include "SuperPixelClassification.h"
 #include "LayoutAnalysis.h"
 #include "Evaluation.h"
+#include "ScaleFactory.h"
 #include "DkSettingsWidget.h"
 
 #pragma warning(push, 0)	// no warnings from includes - begin
@@ -173,6 +174,7 @@ protected:
 	rdf::SuperPixelClassifierConfig mSpcConfig;
 	rdf::SuperPixelTrainerConfig mSptConfig;
 	rdf::LayoutAnalysisConfig mLAConfig;
+	rdf::ScaleFactoryConfig mSfConfig;
 	LayoutConfig mConfig;
 
 	// layout plugin functions

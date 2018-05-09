@@ -129,6 +129,9 @@ LayoutPlugin::LayoutPlugin(QObject* parent) : QObject(parent) {
 	rdf::LayoutAnalysisConfig lac;
 	lac.saveDefaultSettings(s);
 
+	rdf::ScaleFactoryConfig sfc;
+	sfc.saveDefaultSettings(s);
+
 	s.endGroup();
 }
 /**
@@ -211,6 +214,7 @@ void LayoutPlugin::saveSettings(QSettings & settings) const {
 	mSpcConfig.saveSettings(settings);
 	mSptConfig.saveSettings(settings);
 	mLAConfig.saveSettings(settings);
+	mSfConfig.saveSettings(settings);
 	//mLTRConfig.saveSettings(settings);
 	settings.endGroup();
 }
@@ -224,6 +228,7 @@ void LayoutPlugin::loadSettings(QSettings & settings) {
 	mSpcConfig.loadSettings(settings);
 	mLAConfig.loadSettings(settings);
 	mSptConfig.loadSettings(settings);
+	mSfConfig.loadSettings(settings);
 	//mLTRConfig.loadSettings(settings);
 	settings.endGroup();
 }
@@ -395,7 +400,7 @@ QSharedPointer<nmc::DkImageContainer> LayoutPlugin::runPlugin(
 }
 
 cv::Mat LayoutPlugin::compute(const cv::Mat & src, rdf::PageXmlParser & parser) const {
-	
+
 
 	rdf::Timer dt;
 
@@ -405,6 +410,10 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src, rdf::PageXmlParser & parser) 
 	// compute layout analysis
 	rdf::LayoutAnalysis la(img);
 	la.setConfig(QSharedPointer<rdf::LayoutAnalysisConfig>(new rdf::LayoutAnalysisConfig(mLAConfig)));
+
+
+	auto sf = la.scaleFactory();
+	sf->setConfig(QSharedPointer<rdf::ScaleFactoryConfig>(new rdf::ScaleFactoryConfig(mSfConfig)));
 	la.setRootRegion(pe->rootRegion());
 
 	if (!la.compute())
@@ -420,8 +429,7 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src, rdf::PageXmlParser & parser) 
 		if (!pe->rootRegion()->reassignChild(r))
 			pe->rootRegion()->addUniqueChild(r, true);	// true -> update
 	}
-
-
+	
 	// write stop lines
 	auto seps = la.stopLines();
 	for (auto s : seps) {
@@ -438,7 +446,7 @@ cv::Mat LayoutPlugin::compute(const cv::Mat & src, rdf::PageXmlParser & parser) 
 		cv::Mat rImg = img.clone();
 
 		// draw whatever you like
-		rImg = la.draw(rImg, rdf::ColorManager::green());
+		rImg = la.draw(rImg/*, rdf::ColorManager::green()*/);
 
 		return rImg;
 	}
@@ -520,6 +528,7 @@ cv::Mat LayoutPlugin::computePageSegmentation(const cv::Mat & src, const rdf::Pa
 	rImg = superPixel.draw(rImg);
 	//rImg = tabStops.draw(rImg);
 	//rImg = textLines.draw(rImg);
+
 
 	return rImg;
 }
