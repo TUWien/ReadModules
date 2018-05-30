@@ -318,9 +318,13 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		//auto pe = parser.page();
 
 		cv::Mat imgForm = rdf::Image::qImage2Mat(img);
+
 		cv::Mat imgFormG = imgForm;
 		if (imgForm.channels() != 1) 
 			cv::cvtColor(imgForm, imgFormG, CV_RGB2GRAY);
+		else {
+			cv::cvtColor(imgForm, imgForm, CV_GRAY2RGB);
+		}
 		//cv::Mat maskTempl = rdf::Algorithms::estimateMask(imgTemplG);
 		rdf::FormFeatures formF(imgFormG);
 		formF.setFormName(imgC->fileName());
@@ -334,6 +338,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 			info = testInfo;
 			return imgC;
 		}
+
 
 		//check if is meant that way!!!
 		//mFormConfig.distThreshold();
@@ -374,9 +379,6 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 			qDebug() << "Match template...";
 			formF.matchTemplate();
-
-						
-
 
 			resultImg = formF.drawLinesNotUsedForm(drawImg);
 			cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
