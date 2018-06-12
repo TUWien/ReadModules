@@ -1,0 +1,11 @@
+{
+    "PluginName" 	: "Deep Merge",
+	"Tagline" 		: "Merges multiple UNet tensors.",
+	"Description"	: "Merges multiple UNet tensors.",
+	"AuthorName" 	: "Markus Diem",
+	"Company"		: "Computer Vision Lab",
+	"DateCreated" 	: "2018-06-12",
+	"DateModified"	: "2018-06-12",
+	"PluginId"		: "6a72a312d9d44f56957c54b458f0305b",
+	"Version"		: "0.0.0"
+}
