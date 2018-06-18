@@ -109,6 +109,6 @@ protected:
 	DeepMergeConfig mConfig;
 
 	// layout plugin functions
-	cv::Mat compute(const cv::Mat& src) const;
+	cv::Mat compute(const cv::Mat& src, cv::Mat& visImg) const;
 };
 };

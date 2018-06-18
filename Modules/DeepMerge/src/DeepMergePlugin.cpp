@@ -36,6 +36,7 @@ related links:
 #include "Settings.h"
 #include "Utils.h"
 #include "DeepMerge.h"
+#include "DkBasicLoader.h"
 
 // nomacs
 #include "DkImageStorage.h"
@@ -72,7 +73,7 @@ DeepMergePlugin::DeepMergePlugin(QObject* parent) : QObject(parent) {
 	QVector<QString> menuNames;
 	menuNames.resize(id_end);
 
-	menuNames[id_graph_cut]			= tr("Merge Garph Cut");
+	menuNames[id_graph_cut]			= tr("Merge Graph Cut");
 	menuNames[id_threshold]			= tr("Merge Threshold");
 	mMenuNames = menuNames.toList();
 
@@ -178,31 +179,53 @@ QSharedPointer<nmc::DkImageContainer> DeepMergePlugin::runPlugin(
 	//xmlPage->setImageSize(QSize(imgC->image().size()));
 	//xmlPage->setImageFileName(imgC->fileName());
 
+	// load side-car if available
+
+	if (!imgC)
+		return imgC;
+
+	// load side car image, if it is available
+	QString sideCarPath = imgC->dirPath() + "/dm/" + rdf::Utils::createFilePath(imgC->fileName(), "-probs", "png");
+	
+	QImage oImg = imgC->image();
+	QImage pImg = oImg;
+	nmc::DkBasicLoader bl;
+	if (bl.loadGeneral(sideCarPath)) {
+		pImg = bl.image();
+		imgC->setImage(pImg, "dhSegment");
+	}
+	else
+		qDebug() << "could not load" << sideCarPath;
+
+	cv::Mat imgCv = nmc::DkImage::qImage2Mat(pImg);
 	cv::Mat rImg;
 
 	if(runID == mRunIDs[id_graph_cut]) {
 
-		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
-		rImg = compute(imgCv);
+		rImg = nmc::DkImage::qImage2Mat(oImg);
+		cv::Mat mask = compute(imgCv, rImg);
 
-	}
-	else if (runID == mRunIDs[id_threshold]) {
+		if (mask.channels() == 1)
+			cv::cvtColor(mask, mask, cv::COLOR_GRAY2RGB);
 
-		cv::Mat imgCv = nmc::DkImage::qImage2Mat(imgC->image());
-
-		// compute layout analysis
-		rdf::DeepMerge dm(imgCv);
-
-
-		rImg = dm.thresh(imgCv, 100);
-	}
-	 
-	if (!rImg.empty()) {
+		imgC->setImage(nmc::DkImage::mat2QImage(mask), "mask");
 
 		if (rImg.channels() == 1)
 			cv::cvtColor(rImg, rImg, cv::COLOR_GRAY2RGB);
 		QImage img = nmc::DkImage::mat2QImage(rImg);
 		imgC->setImage(img, tr("DeepMerge Visualized"));
+
+	}
+	else if (runID == mRunIDs[id_threshold]) {
+
+		// compute simple threshold
+		rdf::DeepMerge dm(imgCv);
+		rImg = dm.thresh(imgCv, 100);
+
+		if (rImg.channels() == 1)
+			cv::cvtColor(rImg, rImg, cv::COLOR_GRAY2RGB);
+		QImage img = nmc::DkImage::mat2QImage(rImg);
+		imgC->setImage(img, tr("Global Threshold"));
 	}
 
 	//// save xml
@@ -220,19 +243,23 @@ QSharedPointer<nmc::DkImageContainer> DeepMergePlugin::runPlugin(
 	return imgC;
 }
 
-cv::Mat DeepMergePlugin::compute(const cv::Mat & src) const {
-
+cv::Mat DeepMergePlugin::compute(const cv::Mat & src, cv::Mat& visImg) const {
 
 	rdf::Timer dt;
 
 	cv::Mat img = src.clone();
+	double sf = (double)visImg.rows / src.rows;
 
 	// compute layout analysis
 	rdf::DeepMerge dm(img);
+	dm.setScaleFactor(sf);
+
 	//la.setConfig(QSharedPointer<rdf::LayoutAnalysisConfig>(new rdf::LayoutAnalysisConfig(mLAConfig)));
 
 	if (!dm.compute())
 		qWarning() << "could not compute DeepMerge...";
+
+	visImg = dm.draw(visImg);
 
 	return dm.image();
 }
