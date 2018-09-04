@@ -166,7 +166,7 @@ void PageViewport::selectRegion(QMouseEvent * event) {
 
 void PageViewport::addRegion() {
 
-	auto nr = mPageData->addRegion(mNewRegion, rdf::Region::type_chart);	// TODO: change - for now this is convenience for sarah/max
+	auto nr = mPageData->addRegion(mNewRegion, mPageDock->regionEditWidget()->currentRegion());	// TODO: change - for now this is convenience for sarah/max
 	QVector<QSharedPointer<rdf::Region> > regions;
 	regions << nr;
 

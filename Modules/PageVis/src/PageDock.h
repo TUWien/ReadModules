@@ -280,6 +280,7 @@ public slots:
 	void on_regionCombo_currentTextChanged(const QString& text);
 	void toggleAddRegion(bool add);
 	void buttonClicked();	// apa-it tagging
+	rdf::Region::Type currentRegion() const;
 
 signals:
 	void updateSignal() const;

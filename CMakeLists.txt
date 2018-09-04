@@ -54,7 +54,7 @@ IF (ENABLE_PAGE_VIS)
 	add_subdirectory(Modules/PageVis)
 ENDIF()
 
-IF (ENABLE_PAGE_VIS)
+IF (ENABLE_PAGE_XML)
 	add_subdirectory(Modules/PageXml)
 ENDIF()
 

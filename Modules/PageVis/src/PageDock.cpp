@@ -873,6 +873,7 @@ void RegionEditWidget::createLayout() {
 	mAddButton->setObjectName("addButton");
 	mAddButton->setFlat(true);
 	mAddButton->setCheckable(true);
+	mAddButton->setShortcut(Qt::Key_Period);
 
 	icon = nmc::DkImage::loadIcon(":/nomacs/img/trash.svg");
 	mDeleteButton = new QPushButton(icon, tr(""), this);
@@ -977,6 +978,10 @@ void RegionEditWidget::buttonClicked() {
 
 }
 // apa-it tagging ----------------------
+
+rdf::Region::Type RegionEditWidget::currentRegion() const {
+	return rdf::RegionManager::instance().type(mRegionCombo->currentText());
+}
 
 void RegionEditWidget::toggleAddRegion(bool add) {
 	mAddButton->setChecked(add);
