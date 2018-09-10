@@ -56,12 +56,14 @@ public:
 
 	virtual QString toString() const override;
 
+	QString labelConfigPath() const;
 	QString validatorLog() const;
 	QString filterName() const;
 	QVector<QSharedPointer<rdf::RegionTypeConfig> > xmlConfig() const;
 
 protected:
-
+	
+	QString mLabelConfig;					// filepath to label config json
 	QString mValidatorLog;					// filepath to the XML validator log file
 	QString mFilterName = "TextRegion";
 	QVector<QSharedPointer<rdf::RegionTypeConfig> > mXmlConfig;
@@ -115,6 +117,7 @@ public:
 		id_page_filter,
 		id_page_drawer,
 		id_page_validator,
+		id_page_to_gt,
 		// add actions here
 
 		id_end

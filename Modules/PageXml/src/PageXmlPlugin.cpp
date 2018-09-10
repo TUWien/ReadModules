@@ -37,6 +37,7 @@ related links:
 #include "PageParser.h"
 #include "Elements.h"
 #include "ElementsHelper.h"
+#include "SuperPixelTrainer.h"
 
 // nomacs
 #include "DkImageStorage.h"
@@ -68,6 +69,7 @@ PageXmlPlugin::PageXmlPlugin(QObject* parent) : QObject(parent) {
 	menuNames[id_page_filter]		= tr("Filter Regions");
 	menuNames[id_page_drawer]		= tr("Draw Regions");
 	menuNames[id_page_validator]	= tr("Validate PAGE XMLs");
+	menuNames[id_page_to_gt]		= tr("Label Image from XML");
 	mMenuNames = menuNames.toList();
 
 	// create menu status tips
@@ -76,7 +78,8 @@ PageXmlPlugin::PageXmlPlugin(QObject* parent) : QObject(parent) {
 
 	statusTips[id_page_filter]		= tr("Removes all PAGE elements except for the one specified in filterName");
 	statusTips[id_page_drawer]		= tr("Draws the PAGE XML regions to the image using your last settings");
-	statusTips[id_page_validator]	= tr("Checks if the image has a valid PAGE Xml");
+	statusTips[id_page_validator]	= tr("Checks if the image has a valid PAGE XML");
+	statusTips[id_page_to_gt]		= tr("Renders a label image from a PAGE XML");
 	mMenuStatusTips = statusTips.toList();
 
 	// save settings
@@ -283,6 +286,40 @@ QSharedPointer<nmc::DkImageContainer> PageXmlPlugin::runPlugin(
 
 		batchInfo = xmlInfo;
 	}
+	else if (runID == mRunIDs[id_page_to_gt]) {
+
+		QSharedPointer<PageXmlInfo> xmlInfo(new PageXmlInfo(runID, imgC->filePath()));
+
+		// if everything is fine - check if the dimensions are there...
+		if (parser.loadStatus() == rdf::PageXmlParser::status_ok) {
+
+			// test loading of label lookup
+			rdf::LabelManager lm = rdf::LabelManager::read(mConfig.labelConfigPath());
+			qInfo().noquote() << lm.toString();
+				
+			rdf::SuperPixelLabeler spl;
+			spl.setLabelManager(lm);
+			spl.setRootRegion(parser.page()->rootRegion());
+
+			QImage lImg = spl.createLabelImage(imgC->image().rect(), false);
+			imgC->setImage(lImg, tr("Label Image"));
+
+			if (parser.page()->imageSize() != imgC->image().size()) {
+				xmlInfo->setStatus("ERROR page exists, but image size is wrong");
+				imgC->clear();	// indicate the error
+			}
+			// uncomment if you want to find all 'ok'
+			//else
+			//	xmlInfo->setStatus("OK");
+		}
+		else {
+
+			xmlInfo->setStatus(parser.loadStatusMessage());
+			imgC->clear();	// indicate the error
+		}
+
+		batchInfo = xmlInfo;
+	}
 
 	// wrong runID? - do nothing
 	return imgC;
@@ -324,6 +361,10 @@ QString PageXmlConfig::toString() const {
 	return msg;
 }
 
+QString PageXmlConfig::labelConfigPath() const {
+	return mLabelConfig;
+}
+
 QString PageXmlConfig::validatorLog() const {
 	return mValidatorLog;
 }
@@ -340,6 +381,7 @@ void PageXmlConfig::load(const QSettings & settings) {
 
 	mFilterName = settings.value("filterName", mFilterName).toString();
 	mValidatorLog = settings.value("validatorLogFilePath", mValidatorLog).toString();
+	mLabelConfig = settings.value("labelConfigPath", mLabelConfig).toString();
 
 	// highjack the page vis plugin
 	rdf::DefaultSettings s;
@@ -364,6 +406,7 @@ void PageXmlConfig::save(QSettings & settings) const {
 
 	settings.setValue("filterName", mFilterName);
 	settings.setValue("validatorLogFilePath", mValidatorLog);
+	settings.setValue("labelConfigPath", mLabelConfig);
 }
 
 // PageXmlInfo --------------------------------------------------------------------
