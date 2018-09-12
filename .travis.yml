@@ -24,9 +24,9 @@ before_script:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-add-repository -y ppa:sfiel/opencv-read; fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get update; fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get install -y --no-install-recommends debhelper cdbs libopencv-dev libopencv-stitching-dev libopencv-imgcodecs-dev libopencv-flann-dev libopencv-features2d-dev libopencv-calib3d-dev libopencv-hdf-dev libopencv-reg-dev libopencv-shape-dev libopencv-xobjdetect-dev libopencv-xfeatures2d-dev libopencv-ximgproc-dev libopencv-highgui-dev cmake qt55tools qt55svg qt55base libtbb-dev libwebp-dev libbz2-dev libv4l-dev libexiv2-dev libraw-dev libhdf5-dev; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then CMAKE_ARGS="-DCMAKE_PREFIX_PATH=/opt/qt55/bin/ -Dnomacs_DIR=~/build/TUWien/ReadModules/build/nomacs-build -DReadFramework_DIR=~/build/TUWien/ReadModules/build/readframework-build"; fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get install --yes doxygen graphviz; fi
-
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then CMAKE_ARGS="-DCMAKE_PREFIX_PATH=/opt/qt55/bin/ -Dnomacs_DIR=~/build/TUWien/ReadModules/build/nomacs-build -DReadFramework_DIR=~/build/TUWien/ReadModules/build/readframework-build -DENABLE_QUAZIP=OFF"; fi
+  
   - git clone --depth 1 http://github.com/nomacs/nomacs nomacs
   - git clone --depth 1 http://github.com/TUWien/ReadFramework ReadFramework
   - mkdir build
