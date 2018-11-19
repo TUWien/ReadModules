@@ -75,6 +75,7 @@ DeepMergePlugin::DeepMergePlugin(QObject* parent) : QObject(parent) {
 
 	menuNames[id_graph_cut]			= tr("Merge Graph Cut");
 	menuNames[id_threshold]			= tr("Merge Threshold");
+	menuNames[id_combine_result]	= tr("Show TF Results");
 	mMenuNames = menuNames.toList();
 
 	// create menu status tips
@@ -83,6 +84,7 @@ DeepMergePlugin::DeepMergePlugin(QObject* parent) : QObject(parent) {
 
 	statusTips[id_graph_cut]		= tr("Uses a MRF for merging the tensors");
 	statusTips[id_threshold]		= tr("Uses a simple threshold for merging the tensors");
+	statusTips[id_combine_result]	= tr("Overlay TF results");
 	mMenuStatusTips = statusTips.toList();
 
 	// saved default settings
@@ -227,6 +229,43 @@ QSharedPointer<nmc::DkImageContainer> DeepMergePlugin::runPlugin(
 		QImage img = nmc::DkImage::mat2QImage(rImg);
 		imgC->setImage(img, tr("Global Threshold"));
 	}
+	else if (runID == mRunIDs[id_combine_result]) {
+
+		QString fp = QFileInfo(mConfig.resultPath(), imgC->fileName()).absoluteFilePath();
+		fp = rdf::Utils::createFilePath(fp, "-articles", "png");
+
+		nmc::DkBasicLoader bl;
+		if (!bl.loadGeneral(fp)) {
+			qWarning() << "could not load" << fp;
+			return QSharedPointer<nmc::DkImageContainerT>();
+		}
+
+
+		QImage img = imgC->image();
+		QImage pImg = bl.image();
+
+		// we copy the background (red) channel to the alpha channel for a nicer visualization
+		// extract & invert the red channel
+		cv::Mat m = nmc::DkImage::qImage2Mat(pImg);
+		std::vector<cv::Mat> ch;
+		cv::split(m, ch);
+		QImage ac = nmc::DkImage::mat2QImage(255 - ch[2]).copy();
+
+		// set the red channel to 0
+		ch[2] = 0;
+		cv::merge(ch, m);
+
+		pImg = nmc::DkImage::mat2QImage(m);
+		pImg.setAlphaChannel(ac);
+
+		QPainter p(&img);
+		p.setOpacity(0.5);
+		p.drawImage(img.rect(), pImg, pImg.rect());
+
+		imgC->setImage(img, tr("Probabilites"));
+	}
+
+
 
 	//// save xml
 	//if (mConfig.saveXml()) {
@@ -276,6 +315,10 @@ QString DeepMergeConfig::toString() const {
 	return msg;
 }
 
+QString DeepMergeConfig::resultPath() const {
+	return mResultPath;
+}
+
 bool DeepMergeConfig::drawResults() const {
 	return mDrawResults;
 }
@@ -288,12 +331,14 @@ void DeepMergeConfig::load(const QSettings & settings) {
 
 	mDrawResults = settings.value("drawResults", mDrawResults).toBool();
 	mSaveXml = settings.value("saveXml", mSaveXml).toBool();
+	mResultPath = settings.value("tfResultPath", mResultPath).toString();
 }
 
 void DeepMergeConfig::save(QSettings & settings) const {
 
 	settings.setValue("drawResults", mDrawResults);
 	settings.setValue("saveXml", mSaveXml);
+	settings.setValue("tfResultPath", mResultPath);
 }
 
 };

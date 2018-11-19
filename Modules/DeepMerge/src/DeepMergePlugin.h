@@ -54,6 +54,8 @@ public:
 
 	virtual QString toString() const override;
 
+	QString resultPath() const;
+
 	bool drawResults() const;
 	bool saveXml() const;
 
@@ -61,6 +63,7 @@ protected:
 	
 	bool mDrawResults = false;
 	bool mSaveXml = true;
+	QString mResultPath;
 
 	void load(const QSettings& settings) override;
 	void save(QSettings& settings) const override;
@@ -97,6 +100,7 @@ public:
 	enum {
 		id_graph_cut,
 		id_threshold,
+		id_combine_result,
 
 		id_end
 	};
