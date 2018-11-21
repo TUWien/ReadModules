@@ -232,7 +232,7 @@ QSharedPointer<nmc::DkImageContainer> DeepMergePlugin::runPlugin(
 	else if (runID == mRunIDs[id_combine_result]) {
 
 		QString fp = QFileInfo(mConfig.resultPath(), imgC->fileName()).absoluteFilePath();
-		fp = rdf::Utils::createFilePath(fp, "-articles", "png");
+		fp = rdf::Utils::createFilePath(fp, "-article", "png");
 
 		nmc::DkBasicLoader bl;
 		if (!bl.loadGeneral(fp)) {
@@ -244,19 +244,19 @@ QSharedPointer<nmc::DkImageContainer> DeepMergePlugin::runPlugin(
 		QImage img = imgC->image();
 		QImage pImg = bl.image();
 
-		// we copy the background (red) channel to the alpha channel for a nicer visualization
-		// extract & invert the red channel
-		cv::Mat m = nmc::DkImage::qImage2Mat(pImg);
-		std::vector<cv::Mat> ch;
-		cv::split(m, ch);
-		QImage ac = nmc::DkImage::mat2QImage(255 - ch[2]).copy();
+		//// we copy the background (red) channel to the alpha channel for a nicer visualization
+		//// extract & invert the red channel
+		//cv::Mat m = nmc::DkImage::qImage2Mat(pImg);
+		//std::vector<cv::Mat> ch;
+		//cv::split(m, ch);
+		//QImage ac = nmc::DkImage::mat2QImage(255 - ch[2]).copy();
 
-		// set the red channel to 0
-		ch[2] = 0;
-		cv::merge(ch, m);
+		//// set the red channel to 0
+		//ch[2] = 0;
+		//cv::merge(ch, m);
 
-		pImg = nmc::DkImage::mat2QImage(m);
-		pImg.setAlphaChannel(ac);
+		//pImg = nmc::DkImage::mat2QImage(m);
+		//pImg.setAlphaChannel(ac);
 
 		QPainter p(&img);
 		p.setOpacity(0.5);
