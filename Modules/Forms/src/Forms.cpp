@@ -349,7 +349,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		//rdf::FormFeatures formTemplate;
 		QSharedPointer<rdf::FormFeatures> formTemplate(new rdf::FormFeatures());
 		if (!formF.readTemplate(formTemplate)) {
-			qWarning() << "not template set - aborting";
+			qWarning() << "not template set - aborting...";
 			qInfo() << "please provide a template Plugins > Read Config > Form Analysis > lineTemplPath";
 			info = testInfo;
 			return imgC;
@@ -374,7 +374,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		if (!resultImg.empty()) {
 			cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
 			result = rdf::Image::mat2QImage(resultImg);
-			imgC->setImage(result, "Rough Alignment");
+			imgC->setImage(result, "Rough Alignment...");
 			//rdf::Image::save(resultImg, "D:\\tmp\\alignedImg.png");
 
 			qDebug() << "Match template...";
