@@ -355,7 +355,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 			return imgC;
 		}
 
-
+		
 		if (!formF.compute()) {
 			qWarning() << "could not compute form template " << imgC->filePath();
 			qInfo() << "could not compute form template";
@@ -411,7 +411,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 			result = rdf::Image::mat2QImage(resultImg);
 			imgC->setImage(result, "maxClique 0");
 
-			resultImg = formF.drawMatchedForm(drawImg);
+			resultImg = formF.drawMatchedForm(drawImg, 20);
 			cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
 			result = rdf::Image::mat2QImage(resultImg);
 			imgC->setImage(result, "Matched form");
