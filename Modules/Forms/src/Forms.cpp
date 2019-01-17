@@ -305,6 +305,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 			return imgC;
 		}
 
+
 		if (!formF.applyTemplate()) {
 			qWarning() << "could not apply template " << imgC->filePath();
 			qInfo() << "could not apply template";
