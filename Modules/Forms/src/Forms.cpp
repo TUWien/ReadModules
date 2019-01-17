@@ -72,7 +72,7 @@ FormsAnalysis::FormsAnalysis(QObject* parent) : QObject(parent) {
 
 	menuNames[id_train] = tr("Train forms - not implemented");
 	menuNames[id_show] = tr("Shows form information based on XML");
-	menuNames[id_classify] = tr("Classify - not implemented");
+	menuNames[id_apply] = tr("Just apply template to document (overlay)");
 	menuNames[id_match] = tr("Apply template (Match)");
 	menuNames[id_evaluate] = tr("Apply template and evaluate");
 	mMenuNames = menuNames.toList();
@@ -83,7 +83,7 @@ FormsAnalysis::FormsAnalysis(QObject* parent) : QObject(parent) {
 
 	statusTips[id_train] = tr("Train forms");
 	statusTips[id_show] = tr("Show form (Page XML)");
-	statusTips[id_classify] = tr("Classify - not implemented");
+	statusTips[id_apply] = tr("Just apply template to document (overlay)");
 	statusTips[id_match] = tr("Apply template (Match)");
 	statusTips[id_evaluate] = tr("Apply template and evaluate");
 	mMenuStatusTips = statusTips.toList();
@@ -261,43 +261,97 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 		imgC->setImage(result, "Form Image");
 
 	}
-	else if (runID == mRunIDs[id_classify]) {
+	else if (runID == mRunIDs[id_apply]) {
 
+		//use for debugging - apply template
 		QImage img = imgC->image();
+		QImage result;
 		//imgC->setImage(img.mirrored(), "Mirrored");
 
 		QSharedPointer<FormsInfo> testInfo(new FormsInfo(runID, imgC->filePath()));
 
-		qDebug() << "nothing implemented here...";
-		qWarning() << "nothing implemented here...";
+		cv::Mat imgForm = rdf::Image::qImage2Mat(img);
 
-		//No classification is currently implemented
-		//QString loadXmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
-		////QString saveXmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
+		cv::Mat imgFormG = imgForm;
+		if (imgForm.channels() != 1)
+			cv::cvtColor(imgForm, imgFormG, CV_RGB2GRAY);
+		else {
+			cv::cvtColor(imgForm, imgForm, CV_GRAY2RGB);
+		}
+		//cv::Mat maskTempl = rdf::Algorithms::estimateMask(imgTemplG);
+		rdf::FormFeatures formF(imgFormG);
+		formF.setFormName(imgC->fileName());
+		formF.setSize(imgFormG.size());
 
-		//rdf::PageXmlParser parser;
-		//parser.read(loadXmlPath);
-		//auto pe = parser.page();
+		//formF.setTemplateName(mLineTemplPath);
+		QString templateN = mFormConfig.templDatabase();
+		//contains full path to template xml, or csv specifying the template xml
+		if (!formF.setTemplateName(templateN)) {
+			qWarning() << "template not found - aborting";
+			info = testInfo;
+			return imgC;
+		}
 
-		//cv::Mat imgForm = rdf::Image::qImage2Mat(img);
-		//cv::Mat imgFormG;
-		//if (imgForm.channels() != 1) cv::cvtColor(imgForm, imgFormG, CV_RGB2GRAY);
-		////cv::Mat maskTempl = rdf::Algorithms::estimateMask(imgTemplG);
-		//rdf::FormFeatures formF(imgFormG);
-		//
-		//if (!formF.compute()) {
-		//	qWarning() << "could not compute form template " << imgC->filePath();
-		//}
+		QSharedPointer<rdf::FormFeaturesConfig> tmpConfig(new rdf::FormFeaturesConfig());
+		(*tmpConfig) = mFormConfig;
+		formF.setConfig(tmpConfig);
 
-		////set batchinfo for further processing
-		//testInfo->setFormName(imgC->filePath());
-		//testInfo->setFormSize(img.size());
-		//testInfo->setLines(formF.horLines(), formF.verLines());
-		////cv::Mat tmpBinImg = formF.binaryImage();
-		////testInfo->setLineImg(tmpBinImg);
+		//rdf::FormFeatures formTemplate;
+		QSharedPointer<rdf::FormFeatures> formTemplate(new rdf::FormFeatures());
+		if (!formF.readTemplate(formTemplate)) {
+			qWarning() << "not template set - aborting...";
+			qInfo() << "please provide a template Plugins > Read Config > Form Analysis > lineTemplPath";
+			info = testInfo;
+			return imgC;
+		}
 
-		//qDebug() << "Form img calculated...";
+		if (!formF.applyTemplate()) {
+			qWarning() << "could not apply template " << imgC->filePath();
+			qInfo() << "could not apply template";
+			return imgC;
+		}
 
+		cv::Mat drawImg = imgForm.clone();
+		cv::cvtColor(drawImg, drawImg, CV_RGBA2BGR);
+		cv::Mat resultImg;// = imgForm;
+
+		resultImg = drawImg.clone();
+
+		if (!resultImg.empty()) {
+
+			resultImg = formF.drawMatchedForm(drawImg, 20);
+			cv::cvtColor(resultImg, resultImg, CV_BGR2RGBA);
+			result = rdf::Image::mat2QImage(resultImg);
+			imgC->setImage(result, "Matched form");
+		}
+
+		//test - save output to xml...
+
+		QString loadXmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
+		QString saveXmlPath = rdf::PageXmlParser::imagePathToXmlPath(imgC->filePath());
+
+		rdf::PageXmlParser parser;
+		bool newXML = parser.read(loadXmlPath);
+		auto pe = parser.page();
+
+		if (!newXML) {
+			//xml is newly created
+			pe->setImageFileName(imgC->fileName());
+			pe->setImageSize(img.size());
+			pe->setCreator("CVL");
+			pe->setDateCreated(QDateTime::currentDateTime());
+		}
+
+		QSharedPointer<rdf::TableRegion> t = formF.tableRegion();
+		pe->rootRegion()->addUniqueChild(t);
+
+		formF.setSeparators(pe->rootRegion());
+
+		//save pageXml
+		parser.write(saveXmlPath, pe);
+
+		//qDebug() << "Align form...";
+		//imgC->setImage(result, "Form Image");
 		info = testInfo;
 
 
@@ -751,8 +805,8 @@ void FormsAnalysis::postLoadPlugin(const QVector<QSharedPointer<nmc::DkBatchInfo
 		//}
 	}
 
-	if (runIdx == id_classify) {
-		qDebug() << "[POST LOADING] classify";
+	if (runIdx == id_apply) {
+		qDebug() << "[POST LOADING] apply";
 
 		qDebug() << "currently not implemented ...";
 	

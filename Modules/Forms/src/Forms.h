@@ -168,7 +168,7 @@ public:
 	enum {
 		id_train,
 		id_show,
-		id_classify,
+		id_apply,
 		id_match,
 		id_evaluate,
 		// add actions here
