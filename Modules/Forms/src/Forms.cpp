@@ -298,12 +298,14 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 
 		//rdf::FormFeatures formTemplate;
 		QSharedPointer<rdf::FormFeatures> formTemplate(new rdf::FormFeatures());
-		if (!formF.readTemplate(formTemplate)) {
+		//no scaling -> set calcScaling to false
+		if (!formF.readTemplate(formTemplate, false)) {
 			qWarning() << "not template set - aborting...";
 			qInfo() << "please provide a template Plugins > Read Config > Form Analysis > lineTemplPath";
 			info = testInfo;
 			return imgC;
 		}
+
 
 
 		if (!formF.applyTemplate()) {
@@ -343,6 +345,7 @@ QSharedPointer<nmc::DkImageContainer> FormsAnalysis::runPlugin(
 			pe->setDateCreated(QDateTime::currentDateTime());
 		}
 
+		//clear children first...
 		QSharedPointer<rdf::TableRegion> t = formF.tableRegion();
 		pe->rootRegion()->addUniqueChild(t);
 
