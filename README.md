@@ -87,7 +87,7 @@ Stefan Fiel
 Florian Kleber
 
 ### related links:
-[1] http://www.caa.tuwien.ac.at/cvl/
+[1] https://cvl.tuwien.ac.at/
 
 [2] https://transkribus.eu/Transkribus/
 
